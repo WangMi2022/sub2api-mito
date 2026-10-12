@@ -209,6 +209,8 @@
 </template>
 
 <script setup lang="ts">
+import { isMitoTheme } from '@/themes/mito'
+import { useThemeSync } from '@/themes/mito/useThemeSync'
 import { computed, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -275,6 +277,7 @@ const mobileOpen = computed(() => appStore.mobileOpen)
 const isAdmin = computed(() => authStore.isAdmin)
 const sidebarNavRef = ref<HTMLElement | null>(null)
 const isDark = ref(document.documentElement.classList.contains('dark'))
+if (isMitoTheme) useThemeSync(isDark) // mito-theme: shared preference
 
 const homePath = computed(() => (
   isAdmin.value ? '/admin/dashboard' : authStore.isObserver ? '/admin/accounts' : '/dashboard'

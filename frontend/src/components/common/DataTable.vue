@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!isDesktopViewport" class="space-y-3">
+  <div v-if="!isDesktopViewport" class="mito-mobile-table space-y-3">
     <template v-if="loading">
       <div v-for="i in 5" :key="i" class="rounded-lg border border-gray-200 bg-white p-4 dark:border-dark-700 dark:bg-dark-900">
         <div class="space-y-3">
@@ -79,7 +79,7 @@
         class="rounded-lg border border-gray-200 bg-white p-4 dark:border-dark-700 dark:bg-dark-900"
         :class="{
           'cursor-pointer': clickableRows,
-          'border-primary-300 bg-primary-50/40 dark:border-primary-700 dark:bg-primary-900/10': selectable && isRowSelected(row, index)
+          'mito-row-selected border-primary-300 bg-primary-50/40 dark:border-primary-700 dark:bg-primary-900/10': selectable && isRowSelected(row, index)
         }"
         @click="clickableRows && emit('rowClick', row)"
       >
@@ -244,7 +244,7 @@
             class="hover:bg-gray-50 dark:hover:bg-dark-800"
             :class="{
               'cursor-pointer': clickableRows,
-              'bg-primary-50/40 dark:bg-primary-900/10': selectable && isRowSelected(item.row, item.index)
+              'mito-row-selected bg-primary-50/40 dark:bg-primary-900/10': selectable && isRowSelected(item.row, item.index)
             }"
             @click="clickableRows && emit('rowClick', item.row)"
           >

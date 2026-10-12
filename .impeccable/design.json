@@ -1,0 +1,407 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-12T14:16:02Z",
+  "title": "Design System: Sub2API Mito",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "操作蓝",
+        "tonalRamp": [
+          "rgb(23 37 84)",
+          "rgb(30 58 138)",
+          "rgb(30 64 175)",
+          "rgb(29 78 216)",
+          "rgb(37 99 235)",
+          "rgb(59 130 246)",
+          "rgb(147 197 253)",
+          "rgb(239 246 255)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "卡片表面"
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "主要文字"
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "次要文字"
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "控件边界"
+      },
+      "blue-soft": {
+        "role": "primary",
+        "displayName": "柔和蓝色表面"
+      },
+      "green": {
+        "role": "semantic",
+        "displayName": "成功与已有指标绿色"
+      },
+      "danger": {
+        "role": "semantic",
+        "displayName": "危险操作红"
+      },
+      "error": {
+        "role": "semantic",
+        "displayName": "字段错误红"
+      },
+      "warning": {
+        "role": "semantic",
+        "displayName": "警告琥珀色"
+      },
+      "auth-primary": {
+        "role": "neutral",
+        "displayName": "认证主按钮墨色"
+      },
+      "surface-dark": {
+        "role": "neutral",
+        "displayName": "深色卡片表面"
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "页面标题",
+        "purpose": "页面主标题；字号、字重和字距来自主题标题选择器。"
+      },
+      "title": {
+        "displayName": "面板标题",
+        "purpose": "常规图表与账户面板标题。"
+      },
+      "body": {
+        "displayName": "紧凑正文",
+        "purpose": "字段、表格及常见正文层级；不表示全局正文大小重置。"
+      },
+      "label": {
+        "displayName": "统计标签",
+        "purpose": "统计卡的短标签。"
+      },
+      "button": {
+        "displayName": "业务按钮",
+        "purpose": "共享业务按钮；认证和顶栏按钮另有局部字级。"
+      },
+      "navigation": {
+        "displayName": "侧栏导航",
+        "purpose": "侧栏独立系统字体栈。"
+      },
+      "metric": {
+        "displayName": "主统计值",
+        "purpose": "主要统计数字；启用等宽数字特性。"
+      },
+      "note": {
+        "displayName": "短元数据",
+        "purpose": "统计附注；不推广为通用正文。"
+      },
+      "auth-title": {
+        "displayName": "认证标题",
+        "purpose": "认证表单的常规字重标题。"
+      }
+    },
+    "shadows": [
+      {
+        "name": "surface-low",
+        "value": "0 1px 2px rgb(0 0 0 / 5%)",
+        "purpose": "共享卡片与统计卡静止状态。"
+      },
+      {
+        "name": "card-hover",
+        "value": "0 2px 8px rgb(15 23 42 / 6%)",
+        "purpose": "普通悬停卡片；不附带抬升。"
+      },
+      {
+        "name": "button-primary",
+        "value": "0 12px 24px -16px rgb(37 99 235 / 85%)",
+        "purpose": "普通蓝色主按钮；认证主按钮无阴影。"
+      },
+      {
+        "name": "floating",
+        "value": "0 12px 30px -8px rgb(15 23 42 / 16%)",
+        "purpose": "下拉菜单、选择浮层与通知。"
+      },
+      {
+        "name": "modal",
+        "value": "0 24px 64px -16px rgb(0 0 0 / 24%)",
+        "purpose": "居中弹窗。"
+      },
+      {
+        "name": "auth-card",
+        "value": "0 22px 60px -18px rgb(15 23 42 / 16%)",
+        "purpose": "认证卡片的局部柔和阴影。"
+      },
+      {
+        "name": "chart-tooltip",
+        "value": "0 12px 24px -10px rgb(15 23 42 / 20%)",
+        "purpose": "HTML 图表提示框。"
+      },
+      {
+        "name": "input-focus",
+        "value": "0 0 0 3px rgb(37 99 235 / 12%)",
+        "purpose": "共享字段聚焦环；不替代键盘可见轮廓。"
+      },
+      {
+        "name": "input-error-focus",
+        "value": "0 0 0 3px rgb(239 68 68 / 12%)",
+        "purpose": "错误字段聚焦环。"
+      }
+    ],
+    "motion": [
+      {
+        "name": "header-state",
+        "value": "background-color 150ms ease, border-color 150ms ease",
+        "purpose": "顶栏控件悬停颜色。"
+      },
+      {
+        "name": "button-state",
+        "value": "all 200ms cubic-bezier(0, 0, .2, 1)",
+        "purpose": "上游共享按钮过渡；按下缩放 .98。"
+      },
+      {
+        "name": "input-state",
+        "value": "all 200ms cubic-bezier(.4, 0, .2, 1)",
+        "purpose": "上游共享字段状态过渡。"
+      },
+      {
+        "name": "card-state",
+        "value": "all 300ms cubic-bezier(.4, 0, .2, 1)",
+        "purpose": "上游共享卡片过渡；普通悬停卡片仅改变阴影。"
+      },
+      {
+        "name": "page-enter",
+        "value": "400ms cubic-bezier(.16, 1, .3, 1) backwards",
+        "purpose": "仪表盘从下方 20px 与 .99 缩放进入；结束释放 transform。"
+      },
+      {
+        "name": "stat-enter",
+        "value": "500ms cubic-bezier(.16, 1, .3, 1) backwards",
+        "purpose": "统计卡从下方 16px 与 .97 缩放进入。"
+      },
+      {
+        "name": "stat-stagger",
+        "value": "calc(.1s + var(--mito-motion-order, 0) * 60ms)",
+        "purpose": "每组统计卡前四项的入场延迟。"
+      },
+      {
+        "name": "stat-feedback",
+        "value": "transform 300ms cubic-bezier(.34, 1.56, .64, 1)",
+        "purpose": "精细指针悬停抬升 -4px、放大 1.03；按下 .98。"
+      },
+      {
+        "name": "dropdown-enter",
+        "value": "opacity 150ms cubic-bezier(.33, 1, .68, 1), transform 240ms cubic-bezier(.22, 1, .36, 1)",
+        "purpose": "下拉菜单与选择浮层从 -8px、.96 进入。"
+      },
+      {
+        "name": "dropdown-leave",
+        "value": "opacity 130ms cubic-bezier(.4, 0, 1, 1), transform 130ms cubic-bezier(.4, 0, 1, 1)",
+        "purpose": "菜单退出至 -3.2px、.985。"
+      },
+      {
+        "name": "modal-enter",
+        "value": "opacity 250ms cubic-bezier(.25, .46, .45, .94), transform 250ms cubic-bezier(.25, .46, .45, .94)",
+        "purpose": "居中内容从下方 44px、.992 进入；遮罩沿用 250ms ease-out。"
+      },
+      {
+        "name": "modal-leave",
+        "value": "opacity 200ms cubic-bezier(.55, .085, .68, .53), transform 200ms cubic-bezier(.55, .085, .68, .53)",
+        "purpose": "居中内容退出至下方 24px、.992；遮罩沿用 200ms ease-in；抽屉不套用此变换。"
+      },
+      {
+        "name": "toast-enter",
+        "value": "transform 340ms cubic-bezier(.2, .9, .22, 1), opacity 340ms ease",
+        "purpose": "通知从右侧 18px、.98 进入。"
+      },
+      {
+        "name": "toast-leave",
+        "value": "transform 200ms cubic-bezier(.4, 0, 1, 1), opacity 200ms ease",
+        "purpose": "通知退出；保留上游关闭定时器。"
+      },
+      {
+        "name": "toast-progress",
+        "value": "toast.duration + linear forwards",
+        "purpose": "实际 animationDuration 来自通知时长；用 scaleX(1) 至 scaleX(0) 表示剩余时间，没有统一固定时长。"
+      },
+      {
+        "name": "tooltip-enter",
+        "value": "190ms cubic-bezier(.16, 1, .3, 1) backwards",
+        "purpose": "图表提示内容从下方 7px、.94 弹入。"
+      },
+      {
+        "name": "tooltip-leave",
+        "value": "opacity 150ms cubic-bezier(.4, 0, 1, 1)",
+        "purpose": "提示淡出，150ms 后隐藏。"
+      },
+      {
+        "name": "skeleton-shimmer",
+        "value": "1350ms ease-in-out infinite",
+        "purpose": "骨架伪元素扫光。"
+      },
+      {
+        "name": "navigation-slide",
+        "value": "1500ms ease-in-out infinite",
+        "purpose": "上游导航进度条从 -100% 滑至 100%。"
+      },
+      {
+        "name": "navigation-enter",
+        "value": "opacity 150ms ease-out",
+        "purpose": "导航进度条淡入。"
+      },
+      {
+        "name": "navigation-leave",
+        "value": "opacity 300ms ease-out",
+        "purpose": "导航进度条淡出。"
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation: none !important; transition-duration: 1ms !important; transition-delay: 0ms !important; scroll-behavior: auto !important",
+        "purpose": "主题后代和伪元素；清除统计卡、菜单、通知及弹窗对应状态变换，隐藏扫光。上游按钮 active 缩放仍存在。"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "dashboard-two-column-max",
+        "value": "1440px"
+      },
+      {
+        "name": "charts-single-column-max",
+        "value": "1280px"
+      },
+      {
+        "name": "desktop-sidebar-min",
+        "value": "1024px"
+      },
+      {
+        "name": "compact-header-max",
+        "value": "1023px"
+      },
+      {
+        "name": "phone-layout-max",
+        "value": "720px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "普通业务主操作；静态样例不连接业务。",
+      "html": "<button class=\"ds-button-primary\" type=\"button\">保存</button>",
+      "css": ".ds-button-primary{font-family:var(--mito-font, Outfit,'Mito Noto Sans SC'),'PingFang SC','Microsoft YaHei',system-ui,sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:36px;padding:8px 14px;border:0;border-radius:8px;font-size:13px;font-weight:600;line-height:20px;cursor:pointer;transition:all 200ms cubic-bezier(0,0,.2,1);background:rgb(var(--mito-primary-600,37 99 235));color:#fff;box-shadow:0 12px 24px -16px rgb(37 99 235 / 85%);}.ds-button-primary:hover:not(:disabled){background:rgb(var(--mito-primary-700,29 78 216));}.ds-button-primary:focus-visible{outline:2px solid var(--mito-blue,#2563eb);outline-offset:3px;}.ds-button-primary:active{transform:scale(.98);}.ds-button-primary:disabled{cursor:not-allowed;opacity:.5;transform:none;}@media(prefers-reduced-motion:reduce){.ds-button-primary{transition-duration:1ms;transition-delay:0ms;}}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "描边的次级业务操作。",
+      "html": "<button class=\"ds-button-secondary\" type=\"button\">取消</button>",
+      "css": ".ds-button-secondary{font-family:var(--mito-font, Outfit,'Mito Noto Sans SC'),'PingFang SC','Microsoft YaHei',system-ui,sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:36px;padding:8px 14px;border:0;border-radius:8px;font-size:13px;font-weight:600;line-height:20px;cursor:pointer;transition:all 200ms cubic-bezier(0,0,.2,1);background:var(--mito-surface,#fff);color:var(--mito-text,#020617);border:1px solid var(--mito-border,#e2e8f0);box-shadow:none;}.ds-button-secondary:hover:not(:disabled){background:var(--mito-subtle,#f8fafc);}.ds-button-secondary:focus-visible{outline:2px solid var(--mito-blue,#2563eb);outline-offset:3px;}.ds-button-secondary:active{transform:scale(.98);}.ds-button-secondary:disabled{cursor:not-allowed;opacity:.5;transform:none;}@media(prefers-reduced-motion:reduce){.ds-button-secondary{transition-duration:1ms;transition-delay:0ms;}}"
+    },
+    {
+      "name": "Authentication Button",
+      "kind": "button",
+      "refersTo": "button-auth",
+      "description": "认证表单的独立主按钮；深色预览需在样例外层设置 ds-auth-dark。",
+      "html": "<div class=\"ds-auth-preview\"><button class=\"ds-button-auth\" type=\"button\">登录</button></div>",
+      "css": ".ds-button-auth{font-family:var(--mito-font, Outfit,'Mito Noto Sans SC'),'PingFang SC','Microsoft YaHei',system-ui,sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:36px;padding:8px 14px;border:0;border-radius:8px;font-size:13px;font-weight:600;line-height:20px;cursor:pointer;transition:all 200ms cubic-bezier(0,0,.2,1);min-height:48px;border-radius:16px;font-size:14px;background:#030712;color:#fff;box-shadow:none;}.ds-button-auth:hover:not(:disabled){background:#1e293b;}.ds-auth-dark .ds-button-auth{background:#f8fafc;color:#0f172a;}.ds-auth-dark .ds-button-auth:hover:not(:disabled){background:#e2e8f0;}.ds-button-auth:focus-visible{outline:2px solid var(--mito-blue,#2563eb);outline-offset:3px;}.ds-button-auth:active{transform:scale(.98);}.ds-button-auth:disabled{cursor:not-allowed;opacity:.5;transform:none;}@media(prefers-reduced-motion:reduce){.ds-button-auth{transition-duration:1ms;transition-delay:0ms;}}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "共享字段，包含占位、聚焦、错误和禁用状态；深色标签样例在外层加 ds-field-dark。",
+      "html": "<div class=\"ds-field-preview\"><label class=\"ds-field-label\" for=\"ds-field-email\">邮箱</label><input id=\"ds-field-email\" class=\"ds-field\" type=\"email\" placeholder=\"输入邮箱\" /></div>",
+      "css": ".ds-field-label{font-family:var(--mito-font, Outfit,'Mito Noto Sans SC'),'PingFang SC','Microsoft YaHei',system-ui,sans-serif;display:block;margin-bottom:6px;font-size:14px;font-weight:500;line-height:20px;color:#374151;}.ds-field-dark .ds-field-label{color:#d1d5db;}.ds-field{font-family:var(--mito-font, Outfit),'PingFang SC','Microsoft YaHei',system-ui,sans-serif;width:100%;min-height:40px;padding:10px 16px;border:1px solid var(--mito-border,#e2e8f0);border-radius:8px;background:var(--mito-surface,#fff);color:var(--mito-text,#020617);font-size:14px;line-height:20px;transition:all 200ms cubic-bezier(.4,0,.2,1);}.ds-field::placeholder{color:var(--mito-muted,#64748b);opacity:1;}.ds-field:focus{outline:none;border-color:var(--mito-blue,#2563eb);box-shadow:0 0 0 3px rgb(37 99 235 / 12%);}.ds-field:focus-visible{outline:2px solid var(--mito-blue,#2563eb);outline-offset:3px;}.ds-field:disabled{cursor:not-allowed;background:var(--mito-subtle,#f8fafc);opacity:.65;}.ds-field[aria-invalid=\"true\"]{border-color:#ef4444;}.ds-field[aria-invalid=\"true\"]:focus{border-color:#ef4444;box-shadow:0 0 0 3px rgb(239 68 68 / 12%);}@media(prefers-reduced-motion:reduce){.ds-field{transition-duration:1ms;transition-delay:0ms;}}"
+    },
+    {
+      "name": "Sidebar Navigation",
+      "kind": "nav",
+      "refersTo": "navigation-item",
+      "description": "侧栏默认、悬停及当前页面状态；图标路径来自现有 Icon.vue。",
+      "html": "<nav class=\"ds-nav\" aria-label=\"主导航\"><a class=\"ds-nav-item\" href=\"#ds-keys\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" aria-hidden=\"true\"><path d=\"M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z\"/></svg><span>API 密钥</span></a><a class=\"ds-nav-item ds-nav-active\" href=\"#ds-dashboard\" aria-current=\"page\">仪表盘</a></nav>",
+      "css": ".ds-nav{width:224px;padding:16px 12px;background:var(--mito-bg,#fff);font-family:system-ui,-apple-system,'Segoe UI','Mito Noto Sans SC',sans-serif;}.ds-nav-item{display:flex;align-items:center;gap:12px;min-height:40px;padding:10px 12px;border-radius:8px;color:var(--mito-muted,#64748b);font-size:13px;font-weight:400;line-height:20px;text-decoration:none;transition:all 200ms cubic-bezier(.4,0,.2,1);}.ds-nav-item svg{width:16px;height:16px;flex-shrink:0;}.ds-nav-item:hover{background:var(--mito-subtle,#f8fafc);color:var(--mito-text,#020617);}.ds-nav-active,.ds-nav-active:hover{background:rgb(var(--mito-primary-600,37 99 235));color:#fff;}.ds-nav-item:focus-visible{outline:2px solid var(--mito-blue,#2563eb);outline-offset:3px;}@media(prefers-reduced-motion:reduce){.ds-nav-item{transition-duration:1ms;transition-delay:0ms;}}"
+    },
+    {
+      "name": "Primary Badge",
+      "kind": "chip",
+      "refersTo": "chip-primary",
+      "description": "非交互式上游主色徽章；不合成筛选或选中行为。",
+      "html": "<span class=\"ds-badge\">API</span>",
+      "css": ".ds-badge{font-family:var(--mito-font, Outfit,'Mito Noto Sans SC'),'PingFang SC','Microsoft YaHei',system-ui,sans-serif;display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:9999px;background:rgb(var(--mito-primary-100,219 234 254));color:rgb(var(--mito-primary-700,29 78 216));font-size:12px;font-weight:500;line-height:16px;}.ds-badge-dark{background:rgb(var(--mito-primary-900,30 58 138) / 30%);color:rgb(var(--mito-primary-400,96 165 250));}"
+    },
+    {
+      "name": "Surface Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "共享容器与上游 card-body 内边距；静态容器不添加交互焦点。",
+      "html": "<section class=\"ds-card\"><div class=\"ds-card-body\">账户信息</div></section>",
+      "css": ".ds-card{font-family:var(--mito-font, Outfit,'Mito Noto Sans SC'),'PingFang SC','Microsoft YaHei',system-ui,sans-serif;background:var(--mito-surface,#fff);color:var(--mito-text,#020617);border:1px solid var(--mito-card-border,rgb(226 232 240 / 70%));border-radius:16px;box-shadow:var(--mito-shadow,0 1px 2px rgb(0 0 0 / 5%));transition:all 300ms cubic-bezier(.4,0,.2,1);}.ds-card-body{padding:24px;}.ds-card-hover:hover{transform:none;box-shadow:0 2px 8px rgb(15 23 42 / 6%);}@media(prefers-reduced-motion:reduce){.ds-card{transition-duration:1ms;transition-delay:0ms;}}"
+    },
+    {
+      "name": "Dashboard Stat",
+      "kind": "card",
+      "refersTo": "stat",
+      "description": "蓝色余额统计卡；样例数值为占位，不是运行数据。",
+      "html": "<article class=\"ds-stat\"><div class=\"ds-stat-label\">余额</div><div class=\"ds-stat-value\">—</div><div class=\"ds-stat-note\">可用</div></article>",
+      "css": ".ds-stat{font-family:var(--mito-font, Outfit,'Mito Noto Sans SC'),'PingFang SC','Microsoft YaHei',system-ui,sans-serif;display:flex;flex-direction:column;justify-content:center;min-width:0;min-height:108.8px;padding:16px;border:1px solid var(--mito-blue-border,#bfdbfe);border-radius:16px;background:var(--mito-blue-soft,#eaf6ff);box-shadow:var(--mito-shadow,0 1px 2px rgb(0 0 0 / 5%));animation:ds-stat-enter .5s cubic-bezier(.16,1,.3,1) .1s backwards;transition:transform .3s cubic-bezier(.34,1.56,.64,1);transform-origin:center;}.ds-stat-label{display:flex;align-items:center;gap:6px;color:var(--mito-muted,#64748b);font-size:13.12px;font-weight:650;line-height:20px;}.ds-stat-value{margin-top:6px;color:var(--mito-blue,#2563eb);font-size:24.8px;font-weight:700;line-height:1.2;letter-spacing:-.02em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;}.ds-stat-note{margin-top:4px;color:var(--mito-muted,#64748b);font-size:11px;line-height:16px;}.ds-stat:active{transform:scale(.98);}@media(hover:hover) and (pointer:fine){.ds-stat:hover{transform:translateY(-4px) scale(1.03);}}@keyframes ds-stat-enter{0%{opacity:0;transform:translate3d(0,16px,0) scale(.97);}68%{opacity:1;transform:translate3d(0,-1px,0) scale(1.003);}100%{opacity:1;transform:none;}}@media(prefers-reduced-motion:reduce){.ds-stat{animation:none;transition-duration:1ms;transition-delay:0ms;}.ds-stat:hover,.ds-stat:active{transform:none;}}"
+    },
+    {
+      "name": "Toast",
+      "kind": "custom",
+      "refersTo": "toast",
+      "description": "无标题成功通知；一像素全边框、14px 圆角，静态节选不接入关闭计时器；深色文字样例在外层加 ds-toast-dark。",
+      "html": "<div class=\"ds-toast-preview\"><div class=\"ds-toast\" role=\"status\"><div class=\"ds-toast-body\"><svg class=\"ds-toast-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" aria-hidden=\"true\"><path d=\"M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z\"/></svg><p class=\"ds-toast-message\">操作成功</p></div></div></div>",
+      "css": ".ds-toast{font-family:var(--mito-font, Outfit,'Mito Noto Sans SC'),'PingFang SC','Microsoft YaHei',system-ui,sans-serif;min-width:320px;max-width:448px;overflow:hidden;border:1px solid var(--mito-border,#e2e8f0);border-radius:14px;background:var(--mito-surface,#fff);box-shadow:0 12px 30px -8px rgb(15 23 42 / 16%);}.ds-toast-body{display:flex;align-items:flex-start;gap:12px;padding:16px;}.ds-toast-icon{width:20px;height:20px;flex-shrink:0;margin-top:2px;color:#22c55e;}.ds-toast-message{margin:0;color:#111827;font-size:14px;line-height:22.75px;}.ds-toast-dark .ds-toast-message{color:#fff;}.ds-toast-enter-active{transition:transform .34s cubic-bezier(.2,.9,.22,1),opacity .34s ease;}.ds-toast-leave-active{transition:transform .2s cubic-bezier(.4,0,1,1),opacity .2s ease;}.ds-toast-enter-from,.ds-toast-leave-to{transform:translateX(18px) scale(.98);opacity:0;}.ds-toast-progress{width:100%;transform-origin:left;animation:ds-toast-progress var(--ds-toast-duration) linear forwards;}@keyframes ds-toast-progress{from{transform:scaleX(1);}to{transform:scaleX(0);}}@media(prefers-reduced-motion:reduce){.ds-toast,.ds-toast *{animation:none!important;transition-duration:1ms!important;transition-delay:0ms!important;}.ds-toast-enter-from,.ds-toast-leave-to{transform:none;}}"
+    },
+    {
+      "name": "Chart Tooltip",
+      "kind": "custom",
+      "description": "已有 HTML 图表提示的文本样例；不模拟 Chart.js 数据更新。",
+      "html": "<div class=\"ds-tooltip\" role=\"tooltip\"><p class=\"ds-tooltip-title\">请求</p><p class=\"ds-tooltip-row\">—</p></div>",
+      "css": ".ds-tooltip{font-family:var(--mito-font, Outfit,'Mito Noto Sans SC'),'PingFang SC','Microsoft YaHei',system-ui,sans-serif;max-width:260px;padding:10px 12px;border:1px solid var(--mito-border,#e2e8f0);border-radius:12px;background:var(--mito-surface,#fff);color:var(--mito-text,#020617);font-size:12px;line-height:1.5;overflow-wrap:anywhere;box-shadow:0 12px 24px -10px rgb(15 23 42 / 20%);animation:ds-tooltip-enter .19s cubic-bezier(.16,1,.3,1) backwards;transform-origin:top left;}.ds-tooltip-title{margin:0 0 4px;font-weight:600;}.ds-tooltip-row{margin:0;}@keyframes ds-tooltip-enter{0%{opacity:0;transform:translateY(7px) scale(.94);}62%{opacity:1;transform:translateY(1px) scale(.985);}100%{opacity:1;transform:none;}}@media(prefers-reduced-motion:reduce){.ds-tooltip{animation:none;transition-duration:1ms;transition-delay:0ms;}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "蓝色导航与轻描边工作台",
+    "overview": "以蓝色活动导航、简洁顶栏和轻描边圆角表面组织 Sub2API 的操作界面。正文与数字使用 Outfit 和自托管中文字体，侧栏保留系统字体栈；密度来自紧凑控件、明确的标题层级和可回流的网格。\n\n常规业务按钮使用蓝色，认证表单使用独立的深色主按钮、更大的控件和卡片圆角。绿色、红色及琥珀色表达指标或操作状态，不扩展为第二品牌色。品牌、菜单、权限与业务字段沿用当前 Sub2API。\n\n本文是源码提取记录，依据当前主题 CSS、Vue 组件与上游共享样式。2026-10-13 已在 8081 独立实例完成登录、仪表盘和用量页的限定浏览器验收：桌面与手机布局、深浅色、字体、卡片入场与悬停、下拉过渡、减少动态效果及普通用户权限检查通过。管理员页面、跨租户隔离和真实有用量图表尚未验收。本文不证明全部页面、隐藏状态或参考站动画逐帧一致。",
+    "keyCharacteristics": [
+      "单一蓝色主强调，深浅色共享语义角色。",
+      "一像素描边、柔和阴影和分级圆角。",
+      "统计数字突出，说明与元数据保持次要层级。",
+      "短促状态反馈；减少动态效果时保留内容与状态。"
+    ],
+    "rules": [
+      {
+        "name": "The State Accent Rule",
+        "body": "蓝色连接当前导航、主要操作和聚焦；语义状态色只承担已有业务含义。",
+        "section": "colors"
+      },
+      {
+        "name": "The Numeric Alignment Rule",
+        "body": "统计值、账户余额和表格采用等宽数字特性；不把金额与 Token 的不同单位合并成装饰数字。",
+        "section": "typography"
+      },
+      {
+        "name": "The Border First Rule",
+        "body": "普通表面先用描边界定边界；下拉菜单、提示与弹窗再用各自的浮层阴影表达层级。",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do 沿用蓝色活动导航与共享表面变量，深色模式切换相同语义角色。",
+      "Do 使用共享控件、卡片和认证表单各自的圆角，保留可见聚焦、错误和禁用状态。",
+      "Do 保留指标的今日／累计、实际／计费区分，并使用等宽数字排版。",
+      "Do 在小屏让网格和顶栏按既有断点回流，使用原有移动表格及侧栏行为。",
+      "Do 新增中文界面文案时维护字体子集，并验证系统字体回退。"
+    ],
+    "donts": [
+      "Don't 将认证表单的深色主按钮提升为全局按钮规范，或将状态色当作第二品牌色。",
+      "Don't 将统计卡的抬升反馈应用到所有容器；普通悬停卡片只改变阴影。",
+      "Don't 因视觉主题改动品牌、路由、权限过滤、认证流程或业务数据。",
+      "Don't 用旧截图证明最终 CSS，或声称参考站所有页面、状态与动画逐帧一致。"
+    ]
+  }
+}

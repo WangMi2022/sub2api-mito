@@ -1,0 +1,357 @@
+@font-face {
+  font-family: Outfit;
+  src: url('./assets/outfit-latin.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Mito Noto Sans SC';
+  src: url('./assets/noto-sans-sc-ui.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* Every override is opt-in; the original UI remains available at build time. */
+html[data-ui-theme='mito'] {
+  --mito-primary-50: 239 246 255;
+  --mito-primary-100: 219 234 254;
+  --mito-primary-200: 191 219 254;
+  --mito-primary-300: 147 197 253;
+  --mito-primary-400: 96 165 250;
+  --mito-primary-500: 59 130 246;
+  --mito-primary-600: 37 99 235;
+  --mito-primary-700: 29 78 216;
+  --mito-primary-800: 30 64 175;
+  --mito-primary-900: 30 58 138;
+  --mito-primary-950: 23 37 84;
+  --mito-font: Outfit, 'Mito Noto Sans SC';
+  --mito-bg: #fff;
+  --mito-surface: #fff;
+  --mito-subtle: #f8fafc;
+  --mito-text: #020617;
+  --mito-muted: #64748b;
+  --mito-border: #e2e8f0;
+  --mito-card-border: rgb(226 232 240 / 70%);
+  --mito-blue: #2563eb;
+  --mito-blue-soft: #eaf6ff;
+  --mito-blue-border: #bfdbfe;
+  --mito-green-soft: #eafaf1;
+  --mito-green-border: #bbf7d0;
+  --mito-shadow: 0 1px 2px rgb(0 0 0 / 5%);
+  color-scheme: light;
+  background: var(--mito-bg);
+  color: var(--mito-text);
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+html[data-ui-theme='mito'].dark {
+  --mito-bg: #020617;
+  --mito-surface: #0f172a;
+  --mito-subtle: #0b1222;
+  --mito-text: #f8fafc;
+  --mito-muted: #94a3b8;
+  --mito-border: #1e293b;
+  --mito-card-border: #1e293b;
+  --mito-blue: #60a5fa;
+  --mito-blue-soft: rgb(37 99 235 / 16%);
+  --mito-blue-border: rgb(96 165 250 / 38%);
+  --mito-green-soft: rgb(22 163 74 / 14%);
+  --mito-green-border: rgb(74 222 128 / 34%);
+  color-scheme: dark;
+  scrollbar-color: #475569 transparent;
+}
+
+html[data-ui-theme='mito'] body {
+  background: var(--mito-bg);
+  color: var(--mito-text);
+  font-family: Outfit, 'Mito Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+html[data-ui-theme='mito'] ::selection { background: #bfdbfe; color: #0f172a; }
+html[data-ui-theme='mito'] :is(input, textarea) { caret-color: var(--mito-blue); }
+html[data-ui-theme='mito'] :focus-visible { outline: 2px solid var(--mito-blue); outline-offset: 3px; }
+html[data-ui-theme='mito'] a { text-underline-offset: 3px; }
+html[data-ui-theme='mito'] :is(.mito-stat-value, .table, .mito-account-balance) { font-variant-numeric: tabular-nums; }
+
+/* Application shell. The menu's permission/feature filtering stays upstream. */
+html[data-ui-theme='mito'] .mito-app-layout { background: var(--mito-bg); }
+html[data-ui-theme='mito'] .mito-app-decoration { display: none; }
+html[data-ui-theme='mito'] .sidebar {
+  width: 224px;
+  background: var(--mito-bg);
+  border-color: var(--mito-border);
+  font-family: system-ui, -apple-system, 'Segoe UI', 'Mito Noto Sans SC', sans-serif;
+}
+html[data-ui-theme='mito'] .sidebar.w-\[72px\] { width: 72px; }
+html[data-ui-theme='mito'] .sidebar-header { height: 64px; flex-shrink: 0; padding: 12px 16px; gap: 12px; }
+html[data-ui-theme='mito'] .sidebar-header-collapsed { padding-inline: 18px; }
+html[data-ui-theme='mito'] .sidebar-logo { width: 36px; height: 36px; border-radius: 12px; box-shadow: none; }
+html[data-ui-theme='mito'] .sidebar-brand-title { font-size: 16px; font-weight: 500; }
+html[data-ui-theme='mito'] .sidebar-nav { padding: 16px 12px; }
+html[data-ui-theme='mito'] .sidebar-link {
+  min-height: 40px; padding: 10px 12px; gap: 12px; border-radius: 8px;
+  font-size: 13px; line-height: 20px; font-weight: 400; color: var(--mito-muted);
+}
+html[data-ui-theme='mito'] .sidebar-link > svg { width: 16px; height: 16px; flex-shrink: 0; }
+html[data-ui-theme='mito'] .sidebar-link:hover { background: var(--mito-subtle); color: var(--mito-text); }
+html[data-ui-theme='mito'] .sidebar-link-active,
+html[data-ui-theme='mito'] .sidebar-link-active:hover { background: #2563eb; color: #fff; }
+html[data-ui-theme='mito'] .sidebar-link-active svg { color: #fff; }
+html[data-ui-theme='mito'] .sidebar-section { margin-bottom: 20px; }
+html[data-ui-theme='mito'] .sidebar-section-title { font-size: 11px; letter-spacing: .04em; }
+html[data-ui-theme='mito'] .mito-main { padding: 24px 16px 24px 24px; min-width: 0; }
+html[data-ui-theme='mito'] .mito-page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+html[data-ui-theme='mito'] .mito-page-heading-copy { min-width: 0; }
+html[data-ui-theme='mito'] .mito-page-heading h1 { font-size: 23.2px; line-height: 1.3; font-weight: 700; letter-spacing: -.02em; overflow-wrap: anywhere; }
+html[data-ui-theme='mito'] .mito-page-heading p { margin-top: 4px; color: var(--mito-muted); font-size: 15.2px; line-height: 1.5; }
+html[data-ui-theme='mito'] .mito-page-heading-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; flex-shrink: 0; }
+
+/* Header controls are quiet outlined buttons, with natural wrapping on phones. */
+html[data-ui-theme='mito'] .mito-header { background: var(--mito-surface); border-color: var(--mito-border); backdrop-filter: none; }
+html[data-ui-theme='mito'] .mito-header-inner { min-height: 64px; height: auto; padding: 10px 24px; }
+html[data-ui-theme='mito'] .mito-header-title { display: none; }
+html[data-ui-theme='mito'] .mito-header-controls { gap: 12px; flex-wrap: wrap; min-width: 0; }
+html[data-ui-theme='mito'] .mito-header-control,
+html[data-ui-theme='mito'] .mito-header-controls > .relative > button,
+html[data-ui-theme='mito'] .mito-locale-switcher > button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  min-height: 40px; padding: 8px 12px; border: 1px solid var(--mito-border);
+  border-radius: 12px; background: var(--mito-surface); color: var(--mito-text);
+  font-size: 14px; font-weight: 600; line-height: 20px; white-space: nowrap;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+html[data-ui-theme='mito'] .mito-header-control:hover,
+html[data-ui-theme='mito'] .mito-header-controls > .relative > button:hover,
+html[data-ui-theme='mito'] .mito-locale-switcher > button:hover { background: var(--mito-subtle); border-color: #cbd5e1; }
+html[data-ui-theme='mito'] .mito-header-control > svg { width: 16px; height: 16px; flex-shrink: 0; }
+html[data-ui-theme='mito'] .mito-header-balance { min-height: 40px; border: 1px solid var(--mito-blue-border); border-radius: 12px; background: transparent; }
+html[data-ui-theme='mito'] .mito-header-avatar { border-radius: 50%; width: 30px; height: 30px; background: #0891b2; box-shadow: none; }
+html[data-ui-theme='mito'] .mito-header-controls > .relative > button:has(.mito-header-avatar) { padding-block: 4px; }
+html[data-ui-theme='mito'] .mito-header-role { display: none; }
+html[data-ui-theme='mito'] .mito-locale-flag { display: none; }
+
+/* Shared primitives cover user and administration surfaces alike. */
+html[data-ui-theme='mito'] :is(.card, .card-glass, .glass-card, .mito-panel, .mito-stat) {
+  background: var(--mito-surface); border: 1px solid var(--mito-card-border);
+  border-radius: 16px; box-shadow: var(--mito-shadow); backdrop-filter: none;
+}
+html[data-ui-theme='mito'] .card-hover:hover { transform: none; box-shadow: 0 2px 8px rgb(15 23 42 / 6%); }
+html[data-ui-theme='mito'] .btn { border-radius: 8px; min-height: 36px; padding: 8px 14px; font-size: 13px; font-weight: 600; line-height: 20px; }
+html[data-ui-theme='mito'] .btn-primary { background: #2563eb; color: #fff; box-shadow: 0 12px 24px -16px rgb(37 99 235 / 85%); }
+html[data-ui-theme='mito'] .btn-primary:hover:not(:disabled) { background: #1d4ed8; }
+html[data-ui-theme='mito'] .btn-secondary { background: var(--mito-surface); border-color: var(--mito-border); color: var(--mito-text); box-shadow: none; }
+html[data-ui-theme='mito'] .btn-secondary:hover:not(:disabled) { background: var(--mito-subtle); }
+html[data-ui-theme='mito'] .btn-danger { background: #dc2626; box-shadow: none; }
+html[data-ui-theme='mito'] .btn-success { background: #16a34a; box-shadow: none; }
+html[data-ui-theme='mito'] .btn-warning { background: #d97706; box-shadow: none; }
+html[data-ui-theme='mito'] .btn-icon { padding: 8px; }
+html[data-ui-theme='mito'] .input { min-height: 40px; border-radius: 8px; border-color: var(--mito-border); background: var(--mito-surface); color: var(--mito-text); box-shadow: none; }
+html[data-ui-theme='mito'] .input::placeholder { color: var(--mito-muted); opacity: 1; }
+html[data-ui-theme='mito'] .input:focus { border-color: var(--mito-blue); box-shadow: 0 0 0 3px rgb(37 99 235 / 12%); }
+html[data-ui-theme='mito'] .input:disabled { background: var(--mito-subtle); opacity: .65; }
+html[data-ui-theme='mito'] .input-error { border-color: #ef4444; }
+html[data-ui-theme='mito'] .input-error:focus { border-color: #ef4444; box-shadow: 0 0 0 3px rgb(239 68 68 / 12%); }
+html[data-ui-theme='mito'] :is(.dropdown, .modal-content) { background: var(--mito-surface); border-color: var(--mito-border); }
+html[data-ui-theme='mito'] .dropdown { border-radius: 12px; box-shadow: 0 12px 30px -8px rgb(15 23 42 / 16%); }
+html[data-ui-theme='mito'] .modal-content { border-radius: 16px; box-shadow: 0 24px 64px -16px rgb(0 0 0 / 24%); }
+html[data-ui-theme='mito'] .modal-overlay { background: rgb(15 23 42 / 40%); backdrop-filter: none; }
+html[data-ui-theme='mito'] :is(.table-container, .table-scroll-container) { border-color: var(--mito-border); border-radius: 16px; }
+html[data-ui-theme='mito'] :is(.table, .table-wrapper table) { font-variant-numeric: tabular-nums; border-color: var(--mito-border); }
+html[data-ui-theme='mito'] :is(.table, .table-wrapper table) th { background: var(--mito-subtle); color: var(--mito-muted); font-size: 12px; font-weight: 600; border-color: var(--mito-border); }
+html[data-ui-theme='mito'] :is(.table, .table-wrapper table) td { color: var(--mito-text); border-color: var(--mito-border); }
+html[data-ui-theme='mito'] .table-wrapper :is(thead, tbody) { background: var(--mito-surface); border-color: var(--mito-border); }
+html[data-ui-theme='mito'] .table-wrapper td.sticky-col { background: var(--mito-surface); }
+html[data-ui-theme='mito'] :is(.table, .table-wrapper table) tbody tr:hover,
+html[data-ui-theme='mito'] .table-wrapper tbody tr:hover td.sticky-col { background: var(--mito-subtle); }
+html[data-ui-theme='mito'] .mito-mobile-table > .border { border-color: var(--mito-border); border-radius: 16px; background: var(--mito-surface); box-shadow: var(--mito-shadow); }
+html[data-ui-theme='mito'] .mito-mobile-table [data-field] > span { color: var(--mito-muted); }
+html[data-ui-theme='mito'] .mito-mobile-table [data-field] > div { color: var(--mito-text); overflow-wrap: anywhere; }
+html[data-ui-theme='mito'] .table-wrapper tbody tr.mito-row-selected,
+html[data-ui-theme='mito'] .table-wrapper tbody tr.mito-row-selected:hover,
+html[data-ui-theme='mito'] .table-wrapper tbody tr.mito-row-selected td.sticky-col,
+html[data-ui-theme='mito'] .table-wrapper tbody tr.mito-row-selected:hover td.sticky-col,
+html[data-ui-theme='mito'] .mito-mobile-table > .mito-row-selected { background: var(--mito-blue-soft); }
+html[data-ui-theme='mito'] .mito-mobile-table > .mito-row-selected { border-color: var(--mito-blue-border); }
+html[data-ui-theme='mito'] .table-page-layout:not(.mobile-mode) { height: calc(100dvh - 208px); min-height: 320px; }
+html[data-ui-theme='mito'] .table-page-layout.mobile-mode { height: auto; }
+
+/* Dashboard geometry, measured from the supplied reference. */
+html[data-ui-theme='mito'] .mito-stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+html[data-ui-theme='mito'] .mito-stats-grid--secondary { margin-top: 24px; }
+html[data-ui-theme='mito'] .mito-stat { min-width: 0; min-height: 108.8px; padding: 16px; display: flex; flex-direction: column; justify-content: center; }
+html[data-ui-theme='mito'] .mito-stat-label { display: flex; align-items: center; gap: 6px; color: var(--mito-muted); font-size: 13.12px; font-weight: 650; line-height: 20px; }
+html[data-ui-theme='mito'] .mito-stat-label svg { width: 14px; height: 14px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.5; }
+html[data-ui-theme='mito'] .mito-stat-count { margin-left: auto; font-size: 11px; }
+html[data-ui-theme='mito'] .mito-stat-value { margin-top: 6px; color: var(--mito-text); font-size: 24.8px; font-weight: 700; line-height: 1.2; letter-spacing: -.02em; overflow-wrap: anywhere; }
+html[data-ui-theme='mito'] .mito-stat-note { margin-top: 4px; color: var(--mito-muted); font-size: 11px; line-height: 16px; }
+html[data-ui-theme='mito'] .mito-stat-split { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; color: var(--mito-blue); font-size: 11px; }
+html[data-ui-theme='mito'] .mito-stat--blue { background: var(--mito-blue-soft); border-color: var(--mito-blue-border); }
+html[data-ui-theme='mito'] .mito-stat--blue .mito-stat-value { color: var(--mito-blue); }
+html[data-ui-theme='mito'] .mito-stat--green { background: var(--mito-green-soft); border-color: var(--mito-green-border); }
+html[data-ui-theme='mito'] .mito-stat--mini { min-height: 87.2px; }
+html[data-ui-theme='mito'] .mito-stat--mini .mito-stat-value { font-size: 20px; }
+html[data-ui-theme='mito'] .mito-stat-unit { color: var(--mito-muted); font-size: 17px; }
+html[data-ui-theme='mito'] .mito-input-icon { color: #f97316; }
+html[data-ui-theme='mito'] .mito-output-icon { color: #a855f7; }
+html[data-ui-theme='mito'] .mito-blue-text { color: var(--mito-blue); }
+html[data-ui-theme='mito'] .mito-green-text { color: #16a34a; }
+html[data-ui-theme='mito'] .mito-chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+html[data-ui-theme='mito'] .mito-panel { min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+html[data-ui-theme='mito'] .mito-panel-heading { padding: 20px 20px 13.6px; }
+html[data-ui-theme='mito'] .mito-panel-heading h2 { display: flex; align-items: center; gap: 8px; font-size: 16px; line-height: 24px; font-weight: 700; }
+html[data-ui-theme='mito'] .mito-panel-heading p { margin-top: 3px; color: var(--mito-muted); font-size: 13.28px; line-height: 20px; }
+html[data-ui-theme='mito'] .mito-panel--large .mito-panel-heading { padding: 20px 26.4px 13.6px; }
+html[data-ui-theme='mito'] .mito-panel--large h2 { font-size: 19.2px; }
+html[data-ui-theme='mito'] .mito-chart-body { position: relative; height: 268px; padding: 20px 26.4px 26px; display: flex; align-items: center; justify-content: center; }
+html[data-ui-theme='mito'] .mito-panel--large .mito-chart-body { height: 290px; }
+html[data-ui-theme='mito'] .mito-account-body { flex: 1; padding: 6px 24px 24px; }
+html[data-ui-theme='mito'] .mito-account-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--mito-border); }
+html[data-ui-theme='mito'] .mito-account-summary p { color: var(--mito-muted); font-size: 13px; margin-top: 4px; }
+html[data-ui-theme='mito'] .mito-account-balance { text-align: right; }
+html[data-ui-theme='mito'] .mito-account-balance span { display: block; color: var(--mito-muted); font-size: 12px; }
+html[data-ui-theme='mito'] .mito-account-balance strong { font-size: 30px; letter-spacing: -.02em; }
+html[data-ui-theme='mito'] .mito-account-shortcuts { display: grid; gap: 6px; margin-top: 20px; }
+html[data-ui-theme='mito'] .mito-account-shortcuts a { display: flex; align-items: center; gap: 10px; padding: 12px 0; font-size: 13px; color: var(--mito-muted); }
+html[data-ui-theme='mito'] .mito-account-shortcuts a:hover { color: var(--mito-blue); }
+html[data-ui-theme='mito'] .mito-account-shortcuts a > svg:last-child { margin-left: auto; }
+html[data-ui-theme='mito'] .mito-panel-footer { margin: 0 24px 16px; padding-top: 14px; border-top: 1px solid var(--mito-border); display: flex; justify-content: center; align-items: center; gap: 6px; color: var(--mito-muted); font-size: 12px; }
+html[data-ui-theme='mito'] .mito-empty { padding: 32px; color: var(--mito-muted); font-size: 13px; }
+html[data-ui-theme='mito'] .mito-model-details { border-top: 1px solid var(--mito-border); font-size: 12px; }
+html[data-ui-theme='mito'] .mito-model-details summary { cursor: pointer; padding: 12px 24px; color: var(--mito-muted); }
+html[data-ui-theme='mito'] .mito-model-details td { white-space: nowrap; }
+html[data-ui-theme='mito'] .mito-date-filter { box-shadow: none; padding: 12px 16px; }
+html[data-ui-theme='mito'] .mito-platform-card { border-color: var(--mito-border); border-radius: 12px; background: var(--mito-subtle); }
+html[data-ui-theme='mito'] .mito-platform-card .font-mono { font-family: inherit; font-variant-numeric: tabular-nums; }
+html[data-ui-theme='mito'] .mito-platform-card > .flex > .text-purple-600 { color: var(--mito-blue); }
+
+/* Authentication keeps all upstream auth, captcha and provider flows intact. */
+html[data-ui-theme='mito'] .mito-auth-layout { display: block; padding: 0 24px 40px; background: var(--mito-subtle); overflow-x: clip; }
+html[data-ui-theme='mito'] .mito-auth-background,
+html[data-ui-theme='mito'] .mito-auth-decoration { display: none; }
+html[data-ui-theme='mito'] .mito-auth-header { max-width: 1088px; margin: 0 auto; padding: 16px 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+html[data-ui-theme='mito'] .mito-auth-header-brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 600; }
+html[data-ui-theme='mito'] .mito-auth-header-brand img { width: 32px; height: 32px; object-fit: contain; }
+html[data-ui-theme='mito'] .mito-auth-header-actions { display: flex; align-items: center; gap: 0; padding: 2px 4px; border: 1px solid var(--mito-border); border-radius: 999px; background: var(--mito-surface); }
+html[data-ui-theme='mito'] .mito-auth-header-actions > a,
+html[data-ui-theme='mito'] .mito-auth-header-actions .mito-locale-switcher > button { border: 0; border-radius: 999px; min-height: 36px; font-size: 13px; }
+html[data-ui-theme='mito'] .mito-auth-content { max-width: 440px; margin: 116px auto 0; }
+html[data-ui-theme='mito'] .mito-auth-brand { margin-bottom: 28px; }
+html[data-ui-theme='mito'] .mito-auth-brand > div { box-shadow: none; border-radius: 16px; }
+html[data-ui-theme='mito'] .mito-auth-brand h1 { font-size: 30px; font-weight: 400; background: none; color: var(--mito-text); -webkit-text-fill-color: currentColor; }
+html[data-ui-theme='mito'] .mito-auth-card { border-radius: 28px; padding: 32px; border-color: rgb(226 232 240 / 45%); box-shadow: 0 22px 60px -18px rgb(15 23 42 / 16%); }
+html[data-ui-theme='mito'] .mito-auth-card h2 { font-size: 24px; font-weight: 400; }
+html[data-ui-theme='mito'] .mito-auth-card .input { min-height: 48px; border-radius: 16px; background: var(--mito-subtle); font-size: 14px; }
+html[data-ui-theme='mito'] .mito-auth-card .input-label { font-size: 12px; font-weight: 400; color: var(--mito-muted); }
+html[data-ui-theme='mito'] .mito-auth-card .btn { min-height: 48px; border-radius: 16px; font-size: 14px; }
+html[data-ui-theme='mito'] .mito-auth-card .btn-primary { background: #030712; box-shadow: none; }
+html[data-ui-theme='mito'] .mito-auth-card .btn-primary:hover:not(:disabled) { background: #1e293b; }
+html[data-ui-theme='mito'].dark .mito-auth-card .btn-primary { background: #f8fafc; color: #0f172a; }
+html[data-ui-theme='mito'].dark .mito-auth-card .btn-primary:hover:not(:disabled) { background: #e2e8f0; }
+
+/* Motion values follow the reference. Backwards fill releases transforms after
+   entry so fixed descendants and pointer feedback retain their normal geometry. */
+html[data-ui-theme='mito'] .mito-dashboard { animation: mito-page-enter .4s cubic-bezier(.16, 1, .3, 1) backwards; transform-origin: top center; }
+html[data-ui-theme='mito'] .mito-stat {
+  animation: mito-item-enter .5s cubic-bezier(.16, 1, .3, 1) backwards;
+  animation-delay: calc(.1s + var(--mito-motion-order, 0) * 60ms);
+  transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
+  transform-origin: center;
+}
+html[data-ui-theme='mito'] .mito-stat:nth-child(2) { --mito-motion-order: 1; }
+html[data-ui-theme='mito'] .mito-stat:nth-child(3) { --mito-motion-order: 2; }
+html[data-ui-theme='mito'] .mito-stat:nth-child(4) { --mito-motion-order: 3; }
+@media (hover: hover) and (pointer: fine) {
+  html[data-ui-theme='mito'] .mito-stat:hover { transform: translateY(-4px) scale(1.03); }
+}
+html[data-ui-theme='mito'] .mito-stat:active { transform: scale(.98); }
+@keyframes mito-page-enter {
+  0% { opacity: 0; transform: translate3d(0, 20px, 0) scale(.99); }
+  72% { opacity: 1; transform: translate3d(0, -1px, 0) scale(1.001); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes mito-item-enter {
+  0% { opacity: 0; transform: translate3d(0, 16px, 0) scale(.97); }
+  68% { opacity: 1; transform: translate3d(0, -1px, 0) scale(1.003); }
+  100% { opacity: 1; transform: none; }
+}
+
+html[data-ui-theme='mito'] :is(.dropdown-enter-active, .select-dropdown-enter-active) {
+  transition: opacity .15s cubic-bezier(.33, 1, .68, 1), transform .24s cubic-bezier(.22, 1, .36, 1);
+  transform-origin: top right;
+}
+html[data-ui-theme='mito'] :is(.dropdown-leave-active, .select-dropdown-leave-active) { transition: opacity .13s cubic-bezier(.4, 0, 1, 1), transform .13s cubic-bezier(.4, 0, 1, 1); }
+html[data-ui-theme='mito'] :is(.dropdown-enter-from, .select-dropdown-enter-from) { opacity: 0; transform: translate3d(0, -8px, 0) scale(.96); }
+html[data-ui-theme='mito'] :is(.dropdown-leave-to, .select-dropdown-leave-to) { opacity: 0; transform: translate3d(0, -3.2px, 0) scale(.985); }
+html[data-ui-theme='mito'] :is(.dropdown-enter-to, .dropdown-leave-from, .select-dropdown-enter-to, .select-dropdown-leave-from) { opacity: 1; transform: none; }
+html[data-ui-theme='mito'] .select-dropdown-portal { background: var(--mito-surface); border-color: var(--mito-border); border-radius: 12px; box-shadow: 0 12px 30px -8px rgb(15 23 42 / 16%); }
+
+html[data-ui-theme='mito'] .modal-enter-active .modal-content:not(.drawer-content) { transition: opacity .25s cubic-bezier(.25, .46, .45, .94), transform .25s cubic-bezier(.25, .46, .45, .94); }
+html[data-ui-theme='mito'] .modal-leave-active .modal-content:not(.drawer-content) { transition: opacity .2s cubic-bezier(.55, .085, .68, .53), transform .2s cubic-bezier(.55, .085, .68, .53); }
+html[data-ui-theme='mito'] .modal-enter-from .modal-content:not(.drawer-content) { transform: translate3d(0, 44px, 0) scale(.992); opacity: 0; }
+html[data-ui-theme='mito'] .modal-leave-to .modal-content:not(.drawer-content) { transform: translate3d(0, 24px, 0) scale(.992); opacity: 0; }
+html[data-ui-theme='mito'] .modal-content.drawer-content { border-radius: 0; }
+
+html[data-ui-theme='mito'] .mito-toast-card { border: 1px solid var(--mito-border); border-radius: 14px; background: var(--mito-surface); box-shadow: 0 12px 30px -8px rgb(15 23 42 / 16%); }
+html[data-ui-theme='mito'] .mito-toast-enter-active { transition: transform .34s cubic-bezier(.2, .9, .22, 1), opacity .34s ease; }
+html[data-ui-theme='mito'] .mito-toast-leave-active { transition: transform .2s cubic-bezier(.4, 0, 1, 1), opacity .2s ease; }
+html[data-ui-theme='mito'] :is(.mito-toast-enter-from, .mito-toast-leave-to) { transform: translateX(18px) scale(.98); opacity: 0; }
+html[data-ui-theme='mito'] :is(.mito-toast-enter-to, .mito-toast-leave-from) { transform: none; opacity: 1; }
+html[data-ui-theme='mito'] .mito-toast-card .toast-progress { width: 100%; transform-origin: left; animation-name: mito-toast-progress; }
+@keyframes mito-toast-progress { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+html[data-ui-theme='mito'] .mito-chart-tooltip { position: absolute; z-index: 10; max-width: min(260px, calc(100% - 24px)); pointer-events: none; transition: opacity .15s cubic-bezier(.4, 0, 1, 1); }
+html[data-ui-theme='mito'] .mito-chart-tooltip[data-visible='false'] { opacity: 0; }
+html[data-ui-theme='mito'] .mito-chart-tooltip-content { padding: 10px 12px; border: 1px solid var(--mito-border); border-radius: 12px; background: var(--mito-surface); color: var(--mito-text); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; box-shadow: 0 12px 24px -10px rgb(15 23 42 / 20%); animation: mito-tooltip-enter .19s cubic-bezier(.16, 1, .3, 1) backwards; transform-origin: top left; }
+html[data-ui-theme='mito'] .mito-chart-tooltip-title { font-weight: 600; margin-bottom: 4px; }
+@keyframes mito-tooltip-enter {
+  0% { opacity: 0; transform: translateY(7px) scale(.94); }
+  62% { opacity: 1; transform: translateY(1px) scale(.985); }
+  100% { opacity: 1; transform: none; }
+}
+
+html[data-ui-theme='mito'] :is(.skeleton, .mito-mobile-table .animate-pulse, .table-wrapper .animate-pulse) { position: relative; overflow: hidden; animation: none; background: var(--mito-border); }
+html[data-ui-theme='mito'] :is(.skeleton, .mito-mobile-table .animate-pulse, .table-wrapper .animate-pulse)::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgb(255 255 255 / 45%), transparent); transform: translateX(-100%); animation: mito-shimmer 1.35s ease-in-out infinite; }
+html[data-ui-theme='mito'].dark :is(.skeleton, .mito-mobile-table .animate-pulse, .table-wrapper .animate-pulse)::after { background: linear-gradient(90deg, transparent, rgb(148 163 184 / 12%), transparent); }
+@keyframes mito-shimmer { to { transform: translateX(100%); } }
+
+@media (min-width: 1024px) {
+  html[data-ui-theme='mito'] .mito-main-frame { margin-left: 224px; }
+  html[data-ui-theme='mito'] .mito-main-frame--collapsed { margin-left: 72px; }
+}
+@media (max-width: 1440px) {
+  html[data-ui-theme='mito'] .mito-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 1280px) {
+  html[data-ui-theme='mito'] .mito-chart-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 1023px) {
+  html[data-ui-theme='mito'] .mito-header-inner { display: block; padding: 12px 16px; }
+  html[data-ui-theme='mito'] .mito-header-left { margin-bottom: 10px; }
+  html[data-ui-theme='mito'] .mito-header-controls { gap: 8px; }
+  html[data-ui-theme='mito'] .mito-main { padding: 20px 16px; }
+}
+@media (max-width: 720px) {
+  html[data-ui-theme='mito'] .mito-stats-grid { grid-template-columns: minmax(0, 1fr); }
+  html[data-ui-theme='mito'] .mito-page-heading { flex-wrap: wrap; }
+  html[data-ui-theme='mito'] .mito-page-heading-actions { justify-content: flex-start; }
+  html[data-ui-theme='mito'] .mito-stat-count { font-size: 10px; }
+  html[data-ui-theme='mito'] .mito-panel-heading,
+  html[data-ui-theme='mito'] .mito-panel--large .mito-panel-heading { padding-inline: 20px; }
+  html[data-ui-theme='mito'] .mito-chart-body { padding-inline: 14px; }
+  html[data-ui-theme='mito'] .mito-date-filter > div { gap: 12px; }
+  html[data-ui-theme='mito'] .mito-auth-content { margin-top: 36px; }
+  html[data-ui-theme='mito'] .mito-auth-card { padding: 24px; }
+  html[data-ui-theme='mito'] .mito-auth-header-brand { font-size: 16px; }
+  html[data-ui-theme='mito'] .mito-auth-header-actions { gap: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] *, html[data-ui-theme='mito'] *::before, html[data-ui-theme='mito'] *::after {
+    animation: none !important; transition-duration: 1ms !important; transition-delay: 0ms !important; scroll-behavior: auto !important;
+  }
+  html[data-ui-theme='mito'] :is(.mito-stat:hover, .mito-stat:active, .dropdown-enter-from, .dropdown-leave-to, .select-dropdown-enter-from, .select-dropdown-leave-to, .mito-toast-enter-from, .mito-toast-leave-to),
+  html[data-ui-theme='mito'] :is(.modal-enter-from, .modal-leave-to) .modal-content { transform: none; }
+  html[data-ui-theme='mito'] :is(.skeleton, .mito-mobile-table .animate-pulse, .table-wrapper .animate-pulse)::after { display: none; }
+}
