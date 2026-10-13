@@ -375,6 +375,9 @@ export default {
 
   // Usage
   usage: {
+    logsTitle: '请求日志',
+    statsTitle: '使用量统计',
+    statsDescription: '查看所选时间内的用量、费用和分布',
     title: '使用记录',
     description: '查看和分析您的 API 使用历史',
     costDetails: '费用明细',

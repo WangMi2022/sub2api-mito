@@ -1,10 +1,10 @@
 <template>
   <AppLayout>
-    <div class="space-y-6">
-      <UsageStatsCards :stats="usageStats" />
+    <div class="mito-admin-usage space-y-6">
+      <UsageStatsCards class="mito-admin-usage-stats" :stats="usageStats" />
       <!-- Charts Section -->
-      <div class="space-y-4">
-        <div class="card p-4">
+      <div class="mito-admin-usage-charts space-y-4">
+        <div class="mito-admin-usage-date card p-4">
           <div class="flex flex-wrap items-center gap-4">
             <div class="flex items-center gap-2">
               <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('admin.dashboard.timeRange') }}:</span>
@@ -68,13 +68,14 @@
         </div>
       </div>
       <!-- 明细区：tab 栏 + 筛选 + 内容收进同一张卡片，消除割裂感 -->
-      <div class="card">
-        <div class="flex flex-wrap items-center border-b border-gray-200 px-2 dark:border-dark-700 sm:px-4">
+      <div class="mito-admin-usage-panel card">
+        <div class="mito-admin-usage-tabs flex flex-wrap items-center border-b border-gray-200 px-2 dark:border-dark-700 sm:px-4">
           <button
             v-for="tab in detailTabs"
             :key="tab.key"
             type="button"
             data-testid="usage-detail-tab"
+            :aria-pressed="activeTab === tab.key"
             class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-3 text-sm font-medium transition-colors sm:px-4"
             :class="activeTab === tab.key
               ? 'border-primary-500 text-primary-600 dark:text-primary-400'
@@ -86,7 +87,7 @@
           </button>
         </div>
 
-        <UsageFilters v-model="filters" ref="usageFiltersRef" flat :mode="activeTab" class="border-b border-gray-100 dark:border-dark-700/50" :start-date="startDate" :end-date="endDate" :exporting="exporting" :model-options="modelNameOptions" @change="applyFilters" @refresh="refreshData" @reset="resetFilters" @cleanup="openCleanupDialog" @export="exportToExcel">
+        <UsageFilters v-model="filters" ref="usageFiltersRef" flat :mode="activeTab" class="mito-admin-usage-filters border-b border-gray-100 dark:border-dark-700/50" :start-date="startDate" :end-date="endDate" :exporting="exporting" :model-options="modelNameOptions" @change="applyFilters" @refresh="refreshData" @reset="resetFilters" @cleanup="openCleanupDialog" @export="exportToExcel">
           <template #after-reset>
             <div v-if="activeTab !== 'ranking'" class="relative" ref="columnDropdownRef">
               <button
@@ -125,7 +126,7 @@
           </template>
         </UsageFilters>
 
-        <div v-show="activeTab === 'usage'" class="overflow-hidden rounded-b-2xl">
+        <div v-show="activeTab === 'usage'" class="mito-admin-usage-records overflow-hidden rounded-b-2xl">
           <UsageTable
             enable-timing-details
             flat
@@ -139,7 +140,7 @@
             @userClick="handleUserClick"
             @ipGeoBatchFailed="handleIpGeoBatchFailed"
           />
-          <Pagination v-if="pagination.total > 0" :page="pagination.page" :total="pagination.total" :page-size="pagination.page_size" @update:page="handlePageChange" @update:pageSize="handlePageSizeChange" />
+          <Pagination class="mito-admin-usage-pagination" v-if="pagination.total > 0" :page="pagination.page" :total="pagination.total" :page-size="pagination.page_size" @update:page="handlePageChange" @update:pageSize="handlePageSizeChange" />
         </div>
         <div v-show="activeTab === 'errors'" class="overflow-hidden rounded-b-2xl">
           <OpsErrorLogTable
@@ -651,23 +652,23 @@ const HIDDEN_COLUMNS_PREV_VERSION = 'request-id-hidden-by-default'
 const HIDDEN_COLUMNS_CURRENT_VERSION = 'upstream-request-id-hidden-by-default'
 
 const allColumns = computed(() => [
-  { key: 'user', label: t('admin.usage.user'), sortable: false },
-  { key: 'api_key', label: t('usage.apiKeyFilter'), sortable: false },
-  { key: 'account', label: t('admin.usage.account'), sortable: false },
-  { key: 'model', label: t('usage.model'), sortable: true },
-  { key: 'reasoning_effort', label: t('usage.reasoningEffort'), sortable: false },
-  { key: 'endpoint', label: t('usage.endpoint'), sortable: false },
-  { key: 'group', label: t('admin.usage.group'), sortable: false },
+  { key: 'user', label: t('admin.usage.user'), sortable: false, class: 'mito-admin-usage-col-user' },
+  { key: 'api_key', label: t('usage.apiKeyFilter'), sortable: false, class: 'mito-admin-usage-col-key' },
+  { key: 'account', label: t('admin.usage.account'), sortable: false, class: 'mito-admin-usage-col-account' },
+  { key: 'model', label: t('usage.model'), sortable: true, class: 'mito-admin-usage-col-model' },
+  { key: 'reasoning_effort', label: t('usage.reasoningEffort'), sortable: false, class: 'mito-admin-usage-col-reasoning' },
+  { key: 'endpoint', label: t('usage.endpoint'), sortable: false, class: 'mito-admin-usage-col-endpoint' },
+  { key: 'group', label: t('admin.usage.group'), sortable: false, class: 'mito-admin-usage-col-group' },
   { key: 'stream', label: t('usage.type'), sortable: false },
   { key: 'billing_mode', label: t('admin.usage.billingMode'), sortable: false },
-  { key: 'tokens', label: t('usage.tokens'), sortable: false },
-  { key: 'cost', label: t('usage.cost'), sortable: false },
-  { key: 'latency', label: t('usage.latency'), sortable: false },
-  { key: 'created_at', label: t('usage.time'), sortable: true },
+  { key: 'tokens', label: t('usage.tokens'), sortable: false, class: 'mito-admin-usage-col-tokens' },
+  { key: 'cost', label: t('usage.cost'), sortable: false, class: 'mito-admin-usage-col-cost' },
+  { key: 'latency', label: t('usage.latency'), sortable: false, class: 'mito-admin-usage-col-latency' },
+  { key: 'created_at', label: t('usage.time'), sortable: true, class: 'mito-admin-usage-col-time' },
   { key: 'request_id', label: t('admin.usage.requestId'), sortable: false },
   { key: 'upstream_request_id', label: t('admin.usage.upstreamRequestId'), sortable: false },
   { key: 'user_agent', label: t('usage.userAgent'), sortable: false },
-  { key: 'ip_address', label: t('admin.usage.ipAddress'), sortable: false }
+  { key: 'ip_address', label: t('admin.usage.ipAddress'), sortable: false, class: 'mito-admin-usage-col-ip' }
 ])
 
 const hiddenColumns = reactive<Set<string>>(new Set())

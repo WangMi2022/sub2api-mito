@@ -76,7 +76,7 @@ test('missing upstream contracts fail before any mutation', t => {
   const root = fixture(t)
   const contract = contracts[0]
   const path = resolve(root, contract.path)
-  writeFileSync(path, readFileSync(path, 'utf8').replace(contract.anchors[0], 'renamed contract'))
+  writeFileSync(path, readFileSync(path, 'utf8').replaceAll(contract.anchors[0], 'renamed contract'))
   const before = snapshots(root)
   assert.throws(() => apply(root), /contract missing/)
   assert.deepEqual(snapshots(root), before)

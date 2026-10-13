@@ -1,0 +1,260 @@
+/* Admin/observer usage only. Shared component hooks remain inert elsewhere. */
+html[data-ui-theme='mito'] .mito-admin-usage {
+  min-width: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', 'Mito Noto Sans SC', sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+html[data-ui-theme='mito'] .mito-admin-usage-stats { gap: 16px; }
+html[data-ui-theme='mito'] .mito-admin-usage-stats > .card {
+  min-width: 0;
+  padding: 18px;
+  align-items: flex-start;
+  box-shadow: none;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-stats > .card > :first-child { flex-shrink: 0; }
+html[data-ui-theme='mito'] .mito-admin-usage-stats > .card > :last-child { min-width: 0; }
+html[data-ui-theme='mito'] .mito-admin-usage-stats .text-xl {
+  margin-block: 3px;
+  color: var(--mito-text);
+  font-size: 24px;
+  line-height: 1.3;
+  letter-spacing: -.02em;
+  overflow-wrap: anywhere;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-stats :is(p.text-xs, .text-orange-500) {
+  color: var(--mito-muted);
+  line-height: 1.6;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-charts > .grid { gap: 16px; }
+html[data-ui-theme='mito'] .mito-admin-usage-charts > .grid > * { min-width: 0; }
+html[data-ui-theme='mito'] .mito-admin-usage-date { padding: 14px 18px; }
+html[data-ui-theme='mito'] .mito-admin-usage-panel { box-shadow: none; }
+
+/* Keep the panel overflow visible for filter and column-setting menus. */
+html[data-ui-theme='mito'] .mito-admin-usage-tabs {
+  gap: 4px;
+  padding-inline: 12px;
+  border-color: var(--mito-border);
+  border-radius: 16px 16px 0 0;
+  background: var(--mito-surface);
+}
+html[data-ui-theme='mito'] .mito-admin-usage-tabs button {
+  min-height: 48px;
+  padding-inline: 16px;
+  color: var(--mito-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-tabs button:hover {
+  background: var(--mito-subtle);
+  color: var(--mito-text);
+}
+html[data-ui-theme='mito'] .mito-admin-usage-tabs button[aria-pressed='true'] {
+  border-bottom-color: var(--mito-blue);
+  color: var(--mito-blue);
+  font-weight: 700;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-tabs button:focus-visible { outline-offset: -4px; }
+html[data-ui-theme='mito'] .mito-admin-usage-filters {
+  padding: 18px;
+  border-color: var(--mito-border);
+  background: var(--mito-surface);
+}
+html[data-ui-theme='mito'] .mito-admin-usage-filters .mito-usage-filter-layout {
+  display: grid;
+  gap: 16px;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-filters .mito-usage-filter-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 12px 16px;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-filters .mito-usage-filter-fields > div {
+  width: 100%;
+  min-width: 0;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-filters .input-label {
+  margin-bottom: 6px;
+  color: var(--mito-muted);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-filters :is(.input, .select-trigger) {
+  min-height: 40px;
+  font-size: 13px;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-filters .mito-usage-filter-actions {
+  width: 100%;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--mito-border);
+}
+html[data-ui-theme='mito'] .mito-admin-usage-filters .btn { min-height: 40px; }
+
+/* Automatic widths still follow visible columns; no nth-column selectors. */
+html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper table {
+  min-width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper :is(th, td) { padding-inline: 12px; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper th {
+  height: 44px;
+  padding-block: 10px;
+  background: var(--mito-subtle);
+  color: var(--mito-text);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records th:is(.mito-admin-usage-col-key, .mito-admin-usage-col-model, .mito-admin-usage-col-reasoning, .mito-admin-usage-col-cost) {
+  font-weight: 750;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper td {
+  padding-block: 12px;
+  color: var(--mito-text);
+  font-size: 13px;
+  line-height: 18px;
+  vertical-align: middle;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper td .text-sm { font-size: 13px; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper tbody tr { transition: background-color 150ms ease; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper tbody tr:nth-child(even),
+html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper tbody tr:nth-child(even) td.sticky-col {
+  background: color-mix(in srgb, var(--mito-subtle) 45%, var(--mito-surface));
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper tbody tr:hover,
+html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper tbody tr:hover td.sticky-col {
+  background: var(--mito-blue-soft);
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-admin-usage-col-user { min-width: 180px; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-admin-usage-col-key { min-width: 120px; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-admin-usage-col-account { min-width: 176px; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-admin-usage-col-model { min-width: 144px; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-admin-usage-col-endpoint { min-width: 152px; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-admin-usage-col-tokens { min-width: 140px; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-admin-usage-col-cost { min-width: 132px; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-admin-usage-col-latency { min-width: 132px; }
+
+/* Primary identifiers wrap instead of hiding long emails, names or mappings. */
+html[data-ui-theme='mito'] .mito-admin-usage-records :is(.mito-usage-user, .mito-usage-key, .mito-usage-account, .mito-usage-model, .mito-usage-endpoint, .mito-usage-group) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records :is(.mito-usage-user, .mito-usage-key, .mito-usage-account) { max-width: 208px; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-user-link {
+  color: var(--mito-blue);
+  font-weight: 600;
+  text-align: inherit;
+  text-decoration-color: transparent;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-user-link:is(:hover, :focus-visible) { text-decoration-color: currentColor; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-user-id {
+  display: block;
+  margin-left: 0;
+  margin-top: 2px;
+  color: var(--mito-muted);
+  font-size: 11px;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records :is(.mito-usage-key, .mito-usage-account) { display: inline-block; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-account { color: var(--mito-text); font-weight: 500; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-model { max-width: 200px; }
+html[data-ui-theme='mito'] .mito-admin-usage-records :is(.mito-usage-key, .mito-usage-model-primary, .mito-usage-reasoning, .mito-usage-reasoning > .font-medium) {
+  color: var(--mito-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records :is(.mito-usage-model, .mito-usage-reasoning) .text-gray-500 {
+  color: var(--mito-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-endpoint { max-width: 212px; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-endpoint .font-medium { color: var(--mito-muted); font-weight: 400; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-group {
+  max-width: 176px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--mito-blue-soft);
+  color: var(--mito-blue);
+  font-weight: 600;
+}
+
+/* Keep billing precision and severity colors; reduce secondary visual noise. */
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-tokens { line-height: 18px; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-token-value { color: var(--mito-text); font-weight: 650; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-cache-read { color: var(--mito-blue); font-size: 12px; font-weight: 500; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-actual-cost {
+  color: var(--mito-text);
+  font-size: 13px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-account-cost {
+  margin-top: 4px;
+  color: var(--mito-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-latency {
+  min-height: 48px;
+  gap: 8px;
+  padding: 2px;
+  border-radius: 5px;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-latency .text-gray-400 { color: var(--mito-muted); }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-latency .font-medium { font-weight: 600; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-time { color: var(--mito-muted); font-size: 12px; white-space: nowrap; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-ip { max-width: 176px; white-space: normal; overflow-wrap: anywhere; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-usage-ip > span:first-child { color: var(--mito-text); font-size: 12px; }
+
+html[data-ui-theme='mito'] .mito-admin-usage-pagination {
+  gap: 12px;
+  padding: 14px 18px;
+  border-color: var(--mito-border);
+  background: var(--mito-surface);
+}
+html[data-ui-theme='mito'] .mito-admin-usage-pagination > .hidden { flex-wrap: wrap; gap: 12px; }
+
+/* Existing mobile field cards, sorting and pagination retain all columns. */
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-mobile-table { padding: 12px; background: var(--mito-subtle); }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-mobile-table > .border { border-radius: 12px; box-shadow: none; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-mobile-table [data-field] {
+  display: grid;
+  grid-template-columns: minmax(64px, 1fr) minmax(0, 2fr);
+  gap: 12px;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-mobile-table [data-field] + [data-field] {
+  padding-top: 10px;
+  border-top: 1px solid var(--mito-border);
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-mobile-table [data-field] > span { letter-spacing: 0; text-transform: none; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-mobile-table :is(.mito-usage-user, .mito-usage-model, .mito-usage-endpoint, .mito-usage-ip) { margin-left: auto; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-mobile-table :is(.mito-usage-tokens, .mito-usage-cost > div, .mito-usage-latency) { justify-content: flex-end; }
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-mobile-table .mito-usage-latency { margin-left: auto; }
+
+@media (max-width: 639px) {
+  html[data-ui-theme='mito'] .mito-admin-usage-stats { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  html[data-ui-theme='mito'] .mito-admin-usage-stats > .card { padding: 14px; }
+  html[data-ui-theme='mito'] .mito-admin-usage-filters { padding: 14px; }
+  html[data-ui-theme='mito'] .mito-admin-usage-tabs { gap: 0; padding-inline: 4px; }
+  html[data-ui-theme='mito'] .mito-admin-usage-tabs button { padding-inline: 10px; }
+  html[data-ui-theme='mito'] .mito-admin-usage-filters .mito-usage-filter-actions { justify-content: flex-start; }
+  html[data-ui-theme='mito'] .mito-admin-usage-pagination { padding-inline: 12px; }
+}
+
+@media (pointer: coarse) {
+  html[data-ui-theme='mito'] .mito-admin-usage :is(.input, .select-trigger, .btn),
+  html[data-ui-theme='mito'] .mito-admin-usage-pagination button,
+  html[data-ui-theme='mito'] .mito-admin-usage-records [data-test='mobile-sort-controls'] :is(button, select) { min-height: 44px; }
+  html[data-ui-theme='mito'] .mito-admin-usage-records [data-test='mobile-sort-controls'] button { min-width: 44px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper tbody tr,
+  html[data-ui-theme='mito'] .mito-admin-usage-tabs button { transition: none; }
+}

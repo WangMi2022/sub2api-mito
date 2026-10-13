@@ -1,5 +1,5 @@
 <template>
-  <div class="mito-page-heading">
+  <div v-if="route.name !== 'Usage' || auth.isObserver" class="mito-page-heading">
     <div class="mito-page-heading-copy">
       <h1>{{ title }}</h1>
       <p v-if="description">{{ description }}</p>

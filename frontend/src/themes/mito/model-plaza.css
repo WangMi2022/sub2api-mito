@@ -1,0 +1,361 @@
+/* Model plaza: presentation hooks only; pricing and filtering stay upstream. */
+html[data-ui-theme='mito'] .mito-model-plaza {
+  container: mito-plaza / inline-size;
+  min-width: 0;
+  color: var(--mito-text);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-title {
+  font-size: 26px;
+  line-height: 1.3;
+  letter-spacing: -.025em;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-description {
+  padding: 14px 18px;
+  border-color: var(--mito-border);
+  border-radius: 12px;
+  background: var(--mito-subtle);
+  box-shadow: none;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-description :is(p, li) {
+  color: var(--mito-muted);
+}
+
+/* DOM and keyboard order remain platform, group, rate, then search. */
+html[data-ui-theme='mito'] .mito-plaza-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px 28px;
+  padding: 18px 20px;
+  border: 1px solid var(--mito-border);
+  border-radius: 16px;
+  background: var(--mito-surface);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-filters > :not([hidden]) ~ :not([hidden]) {
+  margin-block: 0;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-filter-row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  min-width: 0;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-filter-row > span {
+  width: auto;
+  padding-top: 9px;
+  color: var(--mito-muted);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  overflow-wrap: anywhere;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-filter-row > div {
+  min-width: 0;
+  gap: 6px;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed] {
+  justify-content: center;
+  max-width: 100%;
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid var(--mito-border);
+  border-radius: 8px;
+  background: var(--mito-surface);
+  background-image: none;
+  color: var(--mito-muted);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+  box-shadow: none;
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed]:not(:disabled):hover {
+  background: var(--mito-subtle);
+  color: var(--mito-text);
+  border-color: var(--mito-blue-border);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed='true'],
+html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed='true']:not(:disabled):hover {
+  border-color: var(--mito-blue-border);
+  background: var(--mito-blue-soft);
+  color: var(--mito-blue);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px var(--mito-blue-border);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed]:disabled {
+  opacity: .45;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-search {
+  width: 100%;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-search .input {
+  min-height: 36px;
+  height: 36px;
+  font-size: 13px;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-search > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  right: 3px;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  color: var(--mito-muted);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-search > button:hover {
+  color: var(--mito-text);
+  background: var(--mito-subtle);
+}
+
+/* Group identity stays visible without a platform-colored card border. */
+html[data-ui-theme='mito'] .mito-plaza-group {
+  min-width: 0;
+  border-color: var(--mito-border);
+  border-radius: 16px;
+  background: var(--mito-surface);
+  box-shadow: var(--mito-shadow);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-group-header {
+  padding: 18px 20px;
+  border-color: var(--mito-border);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-group-heading {
+  gap: 8px 12px;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-group-title {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-group-badge {
+  flex-wrap: wrap;
+  max-width: 100%;
+  padding: 0;
+  gap: 8px;
+  background: transparent;
+  color: var(--mito-text);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-group-badge > .truncate {
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: 17px;
+  line-height: 26px;
+  font-weight: 700;
+  letter-spacing: -.015em;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-group-badge > .truncate + span {
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: var(--mito-blue-soft);
+  color: var(--mito-blue);
+  font-size: 11px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-group-description {
+  margin-top: 7px;
+  color: var(--mito-muted);
+  font-size: 13px;
+  line-height: 21px;
+  overflow-wrap: anywhere;
+}
+
+/* Only the paid header is tinted; reference prices use a quiet surface. */
+html[data-ui-theme='mito'] .mito-model-plaza .mito-plaza-prices {
+  --pz-bg: var(--mito-blue-soft);
+  --pz-bg-hover: var(--mito-subtle);
+  --pz-title: var(--mito-blue);
+  max-width: 100%;
+  scrollbar-width: thin;
+  overscroll-behavior-x: contain;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices:focus-visible {
+  outline-offset: -3px;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices table {
+  min-width: 1040px;
+  font-family: system-ui, -apple-system, 'Segoe UI', 'Mito Noto Sans SC', sans-serif;
+  font-size: 13px;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices :is(th, td, tr) {
+  border-color: var(--mito-border);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices th {
+  color: var(--mito-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices :is(.mito-plaza-paid-heading, .mito-plaza-official-heading) {
+  padding-top: 12px;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices :is(.pz-title, .mito-plaza-official-heading > div) {
+  padding-bottom: 5px;
+  border-bottom: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices .pz-title {
+  color: var(--mito-blue);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices :is(.pz-unit, .mito-plaza-official-heading span) {
+  color: var(--mito-muted);
+  font-size: 11px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices :is(.mito-plaza-official-heading, .mito-plaza-official-col) {
+  background: var(--mito-subtle);
+  color: var(--mito-muted);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices .mito-plaza-official-heading > div {
+  color: var(--mito-muted);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices :is(th.mito-plaza-model-col, th.mito-plaza-rate-col) {
+  background: var(--mito-subtle);
+  color: var(--mito-text);
+  font-weight: 700;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices td {
+  padding-block: 14px;
+  line-height: 21px;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices .mito-plaza-model-col {
+  min-width: 190px;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-model-name {
+  flex-basis: 100%;
+  color: var(--mito-text);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices .pz-cell {
+  background: var(--mito-surface);
+  color: var(--mito-text);
+  font-weight: 650;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices .pz-cell .font-mono {
+  color: var(--mito-text);
+  font-weight: 650;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices .font-mono {
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices :is(.text-gray-400, .text-gray-500) {
+  color: var(--mito-muted);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices td.mito-plaza-rate-col > span:not(.line-through) {
+  color: var(--mito-blue);
+  font-size: 12px;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:hover,
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:hover > td {
+  background: var(--mito-subtle);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-empty {
+  border-color: var(--mito-border);
+  border-radius: 16px;
+  background: var(--mito-subtle);
+  color: var(--mito-muted);
+}
+
+@container mito-plaza (min-width: 760px) {
+  html[data-ui-theme='mito'] .mito-plaza-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container mito-plaza (max-width: 520px) {
+  html[data-ui-theme='mito'] .mito-plaza-filters {
+    padding: 14px;
+    gap: 12px;
+  }
+
+  html[data-ui-theme='mito'] .mito-plaza-filter-row {
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  html[data-ui-theme='mito'] .mito-plaza-group-header {
+    padding: 16px;
+  }
+
+  html[data-ui-theme='mito'] .mito-plaza-group-badge > .truncate {
+    font-size: 16px;
+  }
+}
+
+@media (pointer: coarse) {
+  html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed],
+  html[data-ui-theme='mito'] .mito-plaza-search .input {
+    min-height: 44px;
+  }
+
+  html[data-ui-theme='mito'] .mito-plaza-search .input {
+    padding-right: 48px;
+  }
+
+  html[data-ui-theme='mito'] .mito-plaza-search > button {
+    right: 0;
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-plaza-filters button,
+  html[data-ui-theme='mito'] .mito-plaza-prices :is(tr, td) {
+    transition: none;
+  }
+}
