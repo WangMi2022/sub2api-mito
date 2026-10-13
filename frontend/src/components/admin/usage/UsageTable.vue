@@ -1,5 +1,10 @@
 <template>
-  <div :class="flat ? '' : 'card overflow-hidden'">
+  <div
+    :class="[
+      flat ? '' : 'card overflow-hidden',
+      variant === 'request-log' && 'mito-request-log-records'
+    ]"
+  >
     <div
       v-if="showIpGeoToolbar"
       class="flex items-center justify-end gap-2 border-b border-gray-200 px-4 py-2 dark:border-dark-700"
@@ -16,7 +21,7 @@
         {{ ipGeoBatchLoading ? t('usage.ipGeo.batchFetching') : t('usage.ipGeo.batchFetch') }}
       </button>
     </div>
-    <div class="overflow-auto">
+    <div class="overflow-auto" :class="{ 'mito-request-log-scroll': variant === 'request-log' }">
       <DataTable
         :columns="columns"
         :data="data"
@@ -24,6 +29,7 @@
         :server-side-sort="serverSideSort"
         :default-sort-key="defaultSortKey"
         :default-sort-order="defaultSortOrder"
+        :table-variant="variant"
         @sort="(key, order) => $emit('sort', key, order)"
       >
         <template #cell-user="{ row }">
@@ -613,6 +619,8 @@ interface Props {
   showUpstreamEndpoint?: boolean
   /** 嵌入统一卡片内使用：去掉自身卡片外观 */
   flat?: boolean
+  /** 主题表格变体；默认保持上游表格行为 */
+  variant?: 'default' | 'request-log'
 }
 
 const observerMode = inject(observerUsageContext, false)
@@ -627,7 +635,8 @@ const props = withDefaults(defineProps<Props>(), {
   showAccountBilling: true,
   enableTimingDetails: false,
   showUpstreamEndpoint: true,
-  flat: false
+  flat: false,
+  variant: 'default'
 })
 const emit = defineEmits<{
   userClick: [userID: number, email?: string]

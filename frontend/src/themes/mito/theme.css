@@ -355,3 +355,141 @@ html[data-ui-theme='mito'].dark :is(.skeleton, .mito-mobile-table .animate-pulse
   html[data-ui-theme='mito'] :is(.modal-enter-from, .modal-leave-to) .modal-content { transform: none; }
   html[data-ui-theme='mito'] :is(.skeleton, .mito-mobile-table .animate-pulse, .table-wrapper .animate-pulse)::after { display: none; }
 }
+
+/* Request logs keep the reference density without changing shared table behavior. */
+html[data-ui-theme='mito'] .mito-request-log-filters {
+  border: 1px solid var(--mito-border);
+  border-radius: 12px;
+  background: var(--mito-surface);
+  box-shadow: none;
+  padding: 18px 24px 24px;
+}
+html[data-ui-theme='mito'] .mito-request-log-filters > .flex { display: grid; gap: 18px; }
+html[data-ui-theme='mito'] .mito-request-log-filters > .flex > .flex-1 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px 16px;
+}
+html[data-ui-theme='mito'] .mito-request-log-filters > .flex > .flex-1 > div { min-width: 0; width: 100%; }
+html[data-ui-theme='mito'] .mito-request-log-filters .input-label { color: var(--mito-muted); font-size: 12px; font-weight: 600; }
+html[data-ui-theme='mito'] .mito-request-log-section { min-width: 0; }
+html[data-ui-theme='mito'] .mito-request-log-records {
+  overflow: hidden;
+  border: 1px solid var(--mito-border);
+  border-radius: 12px;
+  background: var(--mito-surface);
+  box-shadow: none;
+}
+html[data-ui-theme='mito'] .mito-request-log-records:has(+ .mito-request-log-pagination) { border-radius: 12px 12px 0 0; }
+html[data-ui-theme='mito'] .mito-request-log-scroll { overflow: visible; }
+html[data-ui-theme='mito'] .mito-request-log-wrapper { position: relative; }
+html[data-ui-theme='mito'] .mito-request-log-table {
+  table-layout: fixed;
+  min-width: 1596px;
+  font-variant-numeric: tabular-nums;
+}
+html[data-ui-theme='mito'] .mito-request-log-table th {
+  padding: 6px 4px !important;
+  background: var(--mito-subtle);
+  color: var(--mito-muted);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+/* Colspan cells are empty states or virtual spacers; retain their original sizing. */
+html[data-ui-theme='mito'] .mito-request-log-table td:not([colspan]) {
+  padding: 6px 4px !important;
+  color: var(--mito-text);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+html[data-ui-theme='mito'] .mito-request-log-table :is(th, td:not([colspan])) { overflow: hidden; text-overflow: ellipsis; }
+html[data-ui-theme='mito'] .mito-request-log-table td .text-sm { font-size: 12px; line-height: 18px; }
+html[data-ui-theme='mito'] .mito-request-log-table tbody tr { transition: background-color 150ms ease; }
+html[data-ui-theme='mito'] .mito-request-log-table tbody tr:hover,
+html[data-ui-theme='mito'] .mito-request-log-table tbody tr:hover td.sticky-col { background: var(--mito-subtle); }
+html[data-ui-theme='mito'] .mito-request-log-table .sticky-header-cell { background: var(--mito-subtle); }
+html[data-ui-theme='mito'] .mito-request-log-table .mito-row-selected,
+html[data-ui-theme='mito'] .mito-request-log-table .mito-row-selected:hover { background: var(--mito-blue-soft); }
+html[data-ui-theme='mito'] .mito-request-log-loading td { opacity: .62; }
+html[data-ui-theme='mito'] .mito-request-log-progress {
+  position: absolute;
+  z-index: 230;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  overflow: hidden;
+  background: var(--mito-blue-soft);
+  pointer-events: none;
+}
+html[data-ui-theme='mito'] .mito-request-log-progress::after {
+  content: '';
+  display: block;
+  width: 35%;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--mito-blue);
+  animation: mito-request-log-progress 1.05s cubic-bezier(.4, 0, .2, 1) infinite;
+}
+@keyframes mito-request-log-progress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(386%); }
+}
+html[data-ui-theme='mito'] .mito-request-log-section > .mito-request-log-pagination {
+  margin-top: 0;
+  min-height: 52px;
+  padding: 10px 20px;
+  border: 1px solid var(--mito-border);
+  border-top: 0;
+  border-radius: 0 0 12px 12px;
+  background: var(--mito-surface);
+  font-variant-numeric: tabular-nums;
+}
+html[data-ui-theme='mito'] .mito-request-log-pagination .text-sm { font-size: 12px; line-height: 18px; }
+html[data-ui-theme='mito'] .mito-request-log-pagination > .hidden,
+html[data-ui-theme='mito'] .mito-request-log-pagination > .hidden > .flex { flex-wrap: wrap; gap: 10px 16px; }
+html[data-ui-theme='mito'] .mito-request-log-pagination > .hidden > .flex > * { margin: 0; }
+html[data-ui-theme='mito'] .mito-request-log-pagination nav { gap: 4px; box-shadow: none; }
+html[data-ui-theme='mito'] .mito-request-log-pagination nav > * { margin: 0; }
+html[data-ui-theme='mito'] .mito-request-log-pagination nav button {
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--mito-muted);
+  padding: 0 6px;
+  box-shadow: none;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+html[data-ui-theme='mito'] .mito-request-log-pagination nav button:is(:first-child, :last-child) { border-color: var(--mito-border); }
+html[data-ui-theme='mito'] .mito-request-log-pagination nav button:hover:not(:disabled) { background: var(--mito-subtle); color: var(--mito-text); }
+html[data-ui-theme='mito'] .mito-request-log-pagination nav button[aria-current='page'] { background: var(--mito-blue-soft); color: var(--mito-blue); }
+html[data-ui-theme='mito'] .mito-request-log-pagination nav button:disabled { opacity: .45; }
+html[data-ui-theme='mito'] .mito-request-log-pagination .page-size-select { width: 64px; }
+html[data-ui-theme='mito'] .mito-request-log-pagination .page-size-select .select-trigger { min-height: 28px; height: 28px; border-radius: 6px; padding: 2px 8px; font-size: 12px; }
+html[data-ui-theme='mito'] .mito-request-log-pagination .input { min-height: 28px; height: 28px; border-radius: 6px; }
+html[data-ui-theme='mito'] .mito-request-log-mobile { padding: 12px; }
+html[data-ui-theme='mito'] .mito-request-log-mobile > div { border-radius: 8px; box-shadow: none; }
+@media (max-width: 1279px) {
+  html[data-ui-theme='mito'] .mito-request-log-filters > .flex > .flex-1 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 639px) {
+  html[data-ui-theme='mito'] .mito-request-log-filters { padding: 16px; }
+  html[data-ui-theme='mito'] .mito-request-log-filters > .flex > .flex-1 { grid-template-columns: minmax(0, 1fr); }
+  html[data-ui-theme='mito'] .mito-request-log-section > .mito-request-log-pagination { padding: 10px 12px; }
+  html[data-ui-theme='mito'] .mito-request-log-pagination > .flex { gap: 8px; }
+  html[data-ui-theme='mito'] .mito-request-log-pagination > .flex > button { min-height: 36px; margin: 0; padding: 6px 10px; white-space: nowrap; }
+  html[data-ui-theme='mito'] .mito-request-log-pagination > .flex > span { text-align: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-request-log-table tbody tr,
+  html[data-ui-theme='mito'] .mito-request-log-pagination nav button { transition: none; }
+  html[data-ui-theme='mito'] .mito-request-log-progress::after { animation: none; transform: none; }
+}

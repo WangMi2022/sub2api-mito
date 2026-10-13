@@ -49,9 +49,14 @@ export const adaptations = [
   {
     path: 'frontend/src/components/common/DataTable.vue',
     edits: [
-      { before: '<div v-if="!isDesktopViewport" class="space-y-3">', after: '<div v-if="!isDesktopViewport" class="mito-mobile-table space-y-3">' },
+      { before: "<div v-if=\"!isDesktopViewport\" class=\"space-y-3\">", after: "<div\n    v-if=\"!isDesktopViewport\"\n    class=\"mito-mobile-table space-y-3\"\n    :class=\"{ 'mito-request-log-mobile': tableVariant === 'request-log' }\"\n  >" },
       { before: "'border-primary-300 bg-primary-50/40 dark:border-primary-700 dark:bg-primary-900/10': selectable", after: "'mito-row-selected border-primary-300 bg-primary-50/40 dark:border-primary-700 dark:bg-primary-900/10': selectable" },
-      { before: "'bg-primary-50/40 dark:bg-primary-900/10': selectable", after: "'mito-row-selected bg-primary-50/40 dark:bg-primary-900/10': selectable" }
+      { before: "'bg-primary-50/40 dark:bg-primary-900/10': selectable", after: "'mito-row-selected bg-primary-50/40 dark:bg-primary-900/10': selectable" },
+      { before: "      'is-scrollable': isScrollable\n", after: "      'is-scrollable': isScrollable,\n      'mito-request-log-wrapper': tableVariant === 'request-log'\n" },
+      { before: "    <table class=\"w-full min-w-max divide-y divide-gray-200 dark:divide-dark-700\">", after: "    <div v-if=\"tableVariant === 'request-log' && loading\" class=\"mito-request-log-progress\" aria-hidden=\"true\"></div>\n    <table\n      class=\"w-full min-w-max divide-y divide-gray-200 dark:divide-dark-700\"\n      :class=\"{ 'mito-request-log-table': tableVariant === 'request-log' }\"\n    >" },
+      { before: "      <tbody class=\"table-body divide-y divide-gray-200 bg-white dark:divide-dark-700 dark:bg-dark-900\">", after: "      <tbody\n        class=\"table-body divide-y divide-gray-200 bg-white dark:divide-dark-700 dark:bg-dark-900\"\n        :class=\"{ 'mito-request-log-loading': tableVariant === 'request-log' && loading }\"\n      >" },
+      { before: "  selectable?: boolean\n", after: "  selectable?: boolean\n  /** Optional visual variant; default preserves the shared table style. */\n  tableVariant?: 'default' | 'request-log'\n" },
+      { before: "  selectedKeys: () => []\n", after: "  selectedKeys: () => [],\n  tableVariant: 'default'\n" }
     ]
   },
   {
@@ -124,19 +129,48 @@ export const adaptations = [
       { before: '    <div class="space-y-6">', after: '    <div class="mito-dashboard space-y-6">' },
       { before: '<script setup lang="ts">', after: '<script setup lang="ts">\nimport { useI18n } from \'vue-i18n\'\nimport Icon from \'@/components/icons/Icon.vue\'\nimport { isMitoTheme } from \'@/themes/mito\'\nconst { t } = useI18n()' }
     ]
+  },
+  {
+    path: 'frontend/src/components/admin/usage/UsageTable.vue',
+    edits: [
+      { before: "  <div :class=\"flat ? '' : 'card overflow-hidden'\">", after: "  <div\n    :class=\"[\n      flat ? '' : 'card overflow-hidden',\n      variant === 'request-log' && 'mito-request-log-records'\n    ]\"\n  >" },
+      { before: "    <div class=\"overflow-auto\">", after: "    <div class=\"overflow-auto\" :class=\"{ 'mito-request-log-scroll': variant === 'request-log' }\">" },
+      { before: "        :default-sort-order=\"defaultSortOrder\"", after: "        :default-sort-order=\"defaultSortOrder\"\n        :table-variant=\"variant\"" },
+      { before: "  flat?: boolean\n", after: "  flat?: boolean\n  /** 主题表格变体；默认保持上游表格行为 */\n  variant?: 'default' | 'request-log'\n" },
+      { before: "  flat: false\n", after: "  flat: false,\n  variant: 'default'\n" }
+    ]
+  },
+  {
+    path: 'frontend/src/components/common/Pagination.vue',
+    edits: [
+      { before: "  <div\n    class=\"flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 dark:border-dark-700 dark:bg-dark-800 sm:px-6\"\n  >", after: "  <div\n    :class=\"[\n      'flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 dark:border-dark-700 dark:bg-dark-800 sm:px-6',\n      variant === 'request-log' && 'mito-request-log-pagination'\n    ]\"\n  >" },
+      { before: "  showJump?: boolean\n", after: "  showJump?: boolean\n  variant?: 'default' | 'request-log'\n" },
+      { before: "  showJump: false\n", after: "  showJump: false,\n  variant: 'default'\n" }
+    ]
+  },
+  {
+    path: 'frontend/src/views/user/UsageView.vue',
+    edits: [
+      { before: "    <div class=\"space-y-6\">", after: "    <div class=\"mito-usage-view space-y-6\">" },
+      { before: "      <div class=\"card p-6\">", after: "      <div class=\"mito-request-log-filters card p-6\">" },
+      { before: "<div v-if=\"errorViewEnabled\" class=\"flex gap-2", after: "<div v-if=\"errorViewEnabled\" class=\"mito-request-log-tabs flex gap-2" },
+      { before: "      <template v-if=\"activeTab === 'usage'\">\n        <UsageTable\n          :data=\"usageLogs\"\n          :loading=\"loading\"\n          :columns=\"visibleColumns\"\n          :server-side-sort=\"true\"\n          :show-account-billing=\"false\"\n          :show-upstream-endpoint=\"false\"\n          default-sort-key=\"created_at\"\n          default-sort-order=\"desc\"\n          @sort=\"handleSort\"\n          @ipGeoBatchFailed=\"handleIpGeoBatchFailed\"\n        />\n\n        <Pagination\n          v-if=\"pagination.total > 0\"\n          :page=\"pagination.page\"\n          :total=\"pagination.total\"\n          :page-size=\"pagination.page_size\"\n          @update:page=\"handlePageChange\"\n          @update:pageSize=\"handlePageSizeChange\"\n        />\n      </template>\n", after: "      <template v-if=\"activeTab === 'usage'\">\n        <div class=\"mito-request-log-section space-y-6\">\n          <UsageTable\n            variant=\"request-log\"\n            :data=\"usageLogs\"\n            :loading=\"loading\"\n            :columns=\"visibleColumns\"\n            :server-side-sort=\"true\"\n            :show-account-billing=\"false\"\n            :show-upstream-endpoint=\"false\"\n            default-sort-key=\"created_at\"\n            default-sort-order=\"desc\"\n            @sort=\"handleSort\"\n            @ipGeoBatchFailed=\"handleIpGeoBatchFailed\"\n          />\n\n          <Pagination\n            v-if=\"pagination.total > 0\"\n            variant=\"request-log\"\n            :page=\"pagination.page\"\n            :total=\"pagination.total\"\n            :page-size=\"pagination.page_size\"\n            @update:page=\"handlePageChange\"\n            @update:pageSize=\"handlePageSizeChange\"\n          />\n        </div>\n      </template>\n" }
+    ]
   }
 ]
 
 /** Fail explicitly if a future update breaks the props/utility contracts we use. */
 export const contracts = [
   { path: 'frontend/src/api/usage.ts', anchors: ['interface UserDashboardStats', 'today_actual_cost:', 'today_cache_read_tokens:', 'average_duration_ms:'] },
+  { path: 'frontend/src/components/common/DataTable.vue', anchors: ['virtualPaddingTop', ':colspan="tableColumnCount"', 'class="table-wrapper"'] },
+  { path: 'frontend/src/components/common/Pagination.vue', anchors: ['page-size-select', ':aria-current=', 'sm:justify-between'] },
   { path: 'frontend/src/router/title.ts', anchors: ['export function resolveRouteMetaKeys('] },
   { path: 'frontend/src/components/common/BaseDialog.vue', anchors: ['<Transition name="modal">', "'drawer-content': placement === 'right'"] },
   { path: 'frontend/src/components/common/Select.vue', anchors: ['<Transition name="select-dropdown">', 'select-dropdown-portal'] },
   { path: 'frontend/src/components/common/NavigationProgress.vue', anchors: ['name="progress-fade"', 'navigation-progress-bar'] },
   { path: 'frontend/src/style.css', anchors: ['.card {', '.input {', '.btn-primary {', '.sidebar-link-active {'] },
   { path: 'frontend/src/themes/mito/index.ts', anchors: ['export const isMitoTheme'] },
-  { path: 'frontend/src/themes/mito/theme.css', anchors: ["html[data-ui-theme='mito']", '--mito-primary-600:'] },
+  { path: 'frontend/src/themes/mito/theme.css', anchors: ["html[data-ui-theme='mito']", '--mito-primary-600:', '.mito-request-log-table', '.mito-request-log-pagination', '@keyframes mito-request-log-progress'] },
   { path: 'frontend/src/themes/mito/DashboardStats.vue', anchors: ['stats: UserDashboardStats'] },
   { path: 'frontend/src/themes/mito/DashboardCharts.vue', anchors: ['trend: TrendDataPoint[]', 'models: ModelStat[]'] },
   { path: 'frontend/src/themes/mito/useChartTooltip.ts', anchors: ['export function useChartTooltip'] },
