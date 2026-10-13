@@ -44,7 +44,14 @@ export const adaptations = [
     edits: [
       {"before":"{ path: '/usage', label: t('nav.usage'), icon: ChartIcon, hideInSimpleMode: !authStore.isObserver },","after":"{ path: '/usage', label: isMitoTheme && !authStore.isObserver ? t('usage.logsTitle') : t('nav.usage'), icon: ChartIcon, hideInSimpleMode: !authStore.isObserver },\n    ...(isMitoTheme && !authStore.isObserver ? [{ path: '/usage-stats', label: t('usage.statsTitle'), icon: ChartIcon, hideInSimpleMode: true }] : []),"},
       { before: "const isDark = ref(document.documentElement.classList.contains('dark'))", after: "const isDark = ref(document.documentElement.classList.contains('dark'))\nif (isMitoTheme) useThemeSync(isDark) // mito-theme: shared preference" },
-      { before: '<script setup lang="ts">', after: '<script setup lang="ts">\nimport { isMitoTheme } from \'@/themes/mito\'\nimport { useThemeSync } from \'@/themes/mito/useThemeSync\'' }
+      { before: '<script setup lang="ts">', after: '<script setup lang="ts">\nimport { isMitoTheme } from \'@/themes/mito\'\nimport { useThemeSync } from \'@/themes/mito/useThemeSync\'' },
+      {"before":"{ '-translate-x-full lg:translate-x-0': !mobileOpen }","after":"{ '-translate-x-full lg:translate-x-0': !mobileOpen, 'mito-sidebar--collapsed': sidebarCollapsed }"},
+      {"before":"    <FeatureSearch v-if=\"isAdmin\" :items=\"searchNavItems\" :collapsed=\"sidebarCollapsed\" @navigate=\"handleMenuItemClick\" />","after":"    <div v-if=\"isAdmin\" class=\"mito-sidebar-search\">\n      <FeatureSearch :items=\"searchNavItems\" :collapsed=\"sidebarCollapsed\" @navigate=\"handleMenuItemClick\" />\n    </div>"},
+      {"before":"                :title=\"sidebarCollapsed ? item.label : undefined\"\n                @click=\"handleGroupClick(item)\"","after":"                :title=\"sidebarCollapsed ? item.label : undefined\"\n                :aria-label=\"item.label\"\n                :aria-expanded=\"!sidebarCollapsed && isGroupExpanded(item)\"\n                @click=\"handleGroupClick(item)\""},
+      {"before":"class=\"mb-1 ml-4 border-l border-gray-200 pl-2 dark:border-dark-600\"","after":"class=\"mito-sidebar-children mb-1 ml-4 border-l border-gray-200 pl-2 dark:border-dark-600\""},
+      {"before":"    <div class=\"mt-auto border-t border-gray-100 p-3 dark:border-dark-800\">","after":"    <div class=\"mito-sidebar-footer mt-auto border-t border-gray-100 p-3 dark:border-dark-800\">"},
+      {"before":"      <button\n        @click=\"toggleTheme\"","after":"      <button\n        type=\"button\"\n        :aria-label=\"isDark ? t('nav.lightMode') : t('nav.darkMode')\"\n        @click=\"toggleTheme\""},
+      {"before":"      <button\n        @click=\"toggleSidebar\"","after":"      <button\n        type=\"button\"\n        :aria-label=\"sidebarCollapsed ? t('nav.expand') : t('nav.collapse')\"\n        :aria-expanded=\"!sidebarCollapsed\"\n        @click=\"toggleSidebar\""}
     ]
   },
   {
@@ -53,11 +60,16 @@ export const adaptations = [
       { before: "<div v-if=\"!isDesktopViewport\" class=\"space-y-3\">", after: "<div\n    v-if=\"!isDesktopViewport\"\n    class=\"mito-mobile-table space-y-3\"\n    :class=\"{ 'mito-request-log-mobile': tableVariant === 'request-log' }\"\n  >" },
       { before: "'border-primary-300 bg-primary-50/40 dark:border-primary-700 dark:bg-primary-900/10': selectable", after: "'mito-row-selected border-primary-300 bg-primary-50/40 dark:border-primary-700 dark:bg-primary-900/10': selectable" },
       { before: "'bg-primary-50/40 dark:bg-primary-900/10': selectable", after: "'mito-row-selected bg-primary-50/40 dark:bg-primary-900/10': selectable" },
-      { before: "      'is-scrollable': isScrollable\n", after: "      'is-scrollable': isScrollable,\n      'mito-request-log-wrapper': tableVariant === 'request-log'\n" },
-      { before: "    <table class=\"w-full min-w-max divide-y divide-gray-200 dark:divide-dark-700\">", after: "    <div v-if=\"tableVariant === 'request-log' && loading\" class=\"mito-request-log-progress\" aria-hidden=\"true\"></div>\n    <table\n      class=\"w-full min-w-max divide-y divide-gray-200 dark:divide-dark-700\"\n      :class=\"{ 'mito-request-log-table': tableVariant === 'request-log' }\"\n    >" },
+      { before: "      'is-scrollable': isScrollable\n    }\"\n  >", after: "      'is-scrollable': isScrollable,\n      'mito-request-log-wrapper': tableVariant === 'request-log',\n      'mito-table-resizing': resizingKey !== null\n    }\"\n    :style=\"columnWrapperStyle\"\n  >" },
+      { before: "    <table class=\"w-full min-w-max divide-y divide-gray-200 dark:divide-dark-700\">", after: "    <div v-if=\"tableVariant === 'request-log' && loading\" class=\"mito-request-log-progress\" aria-hidden=\"true\"></div>\n    <table\n      class=\"w-full min-w-max divide-y divide-gray-200 dark:divide-dark-700\"\n      :class=\"{ 'mito-request-log-table': tableVariant === 'request-log', 'mito-resizable-table': resizableColumns }\"\n      :style=\"columnTableStyle\"\n    >\n      <colgroup v-if=\"resizableColumns\">\n        <col v-if=\"selectable\" style=\"width: 44px\" />\n        <col v-for=\"column in columns\" :key=\"column.key\" :data-column-key=\"column.key\" :style=\"{ width: getColumnWidth(column) + 'px' }\" />\n      </colgroup>" },
       { before: "      <tbody class=\"table-body divide-y divide-gray-200 bg-white dark:divide-dark-700 dark:bg-dark-900\">", after: "      <tbody\n        class=\"table-body divide-y divide-gray-200 bg-white dark:divide-dark-700 dark:bg-dark-900\"\n        :class=\"{ 'mito-request-log-loading': tableVariant === 'request-log' && loading }\"\n      >" },
-      { before: "  selectable?: boolean\n", after: "  selectable?: boolean\n  /** Optional visual variant; default preserves the shared table style. */\n  tableVariant?: 'default' | 'request-log'\n" },
-      { before: "  selectedKeys: () => []\n", after: "  selectedKeys: () => [],\n  tableVariant: 'default'\n" }
+      { before: "  selectable?: boolean\n", after: "  selectable?: boolean\n  /** Optional visual variant; default preserves the shared table style. */\n  tableVariant?: 'default' | 'request-log'\n  /** Allow resizing desktop columns; disabled unless a page opts in. */\n  resizableColumns?: boolean\n  /** Persist column widths independently of visibility and sorting. */\n  columnWidthStorageKey?: string\n" },
+      { before: "  selectedKeys: () => []\n", after: "  selectedKeys: () => [],\n  tableVariant: 'default',\n  resizableColumns: false\n" },
+      {"before":"import Icon from '@/components/icons/Icon.vue'","after":"import Icon from '@/components/icons/Icon.vue'\nimport { useTableColumnResize } from '@/themes/mito/useTableColumnResize'\nimport { useMitoLabels } from '@/themes/mito/labels'"},
+      {"before":"const sortKey = ref<string>('')","after":"const resizeLabel = useMitoLabels()\nconst {\n  columnTableStyle, columnWrapperStyle, resizingKey, getColumnWidth, getColumnBounds,\n  canResizeColumn, startColumnResize, handleColumnResizeKey, resetColumnWidth\n} = useTableColumnResize({\n  wrapper: tableWrapperRef,\n  columns: () => props.columns,\n  enabled: () => props.resizableColumns && isDesktopViewport.value,\n  storageKey: () => props.columnWidthStorageKey,\n  selectable: () => props.selectable\n})\n\nwatch(columnTableStyle, async () => {\n  await nextTick()\n  checkScrollable()\n  checkActionsColumnWidth()\n}, { flush: 'post' })\n\nconst sortKey = ref<string>('')"},
+      {"before":"            :key=\"column.key\"\n            scope=\"col\"","after":"            :key=\"column.key\"\n            :data-column-key=\"column.key\"\n            scope=\"col\""},
+      {"before":"              :key=\"column.key\"\n              :class=\"[","after":"              :key=\"column.key\"\n              :data-column-key=\"column.key\"\n              :class=\"["},
+      {"before":"            </div>\n          </th>\n        </tr>\n      </thead>","after":"            </div>\n            <div\n              v-if=\"canResizeColumn(column)\"\n              role=\"separator\"\n              tabindex=\"0\"\n              class=\"mito-column-resize-handle\"\n              :class=\"{ 'mito-column-resize-handle--active': resizingKey === column.key }\"\n              aria-orientation=\"vertical\"\n              :aria-label=\"resizeLabel('resizeColumn', { column: column.label })\"\n              :aria-valuemin=\"getColumnBounds(column).min\"\n              :aria-valuemax=\"getColumnBounds(column).max\"\n              :aria-valuenow=\"getColumnWidth(column)\"\n              :aria-valuetext=\"resizeLabel('columnWidth', { width: getColumnWidth(column) })\"\n              :title=\"resizeLabel('resizeColumnHint', { column: column.label })\"\n              @pointerdown.stop=\"startColumnResize($event, column)\"\n              @keydown.stop=\"handleColumnResizeKey($event, column)\"\n              @click.stop\n              @dblclick.stop.prevent=\"resetColumnWidth(column)\"\n            ></div>\n          </th>\n        </tr>\n      </thead>"}
     ]
   },
   {
@@ -171,7 +183,9 @@ export const adaptations = [
       { before: "    <div class=\"overflow-auto\">", after: "    <div class=\"overflow-auto\" :class=\"{ 'mito-request-log-scroll': variant === 'request-log' }\">" },
       { before: "        :default-sort-order=\"defaultSortOrder\"", after: "        :default-sort-order=\"defaultSortOrder\"\n        :table-variant=\"variant\"" },
       { before: "  flat?: boolean\n", after: "  flat?: boolean\n  /** 主题表格变体；默认保持上游表格行为 */\n  variant?: 'default' | 'request-log'\n" },
-      { before: "  flat: false\n", after: "  flat: false,\n  variant: 'default'\n" }
+      { before: "  flat: false\n", after: "  flat: false,\n  variant: 'default',\n  resizableColumns: false\n" },
+      {"before":"  variant?: 'default' | 'request-log'\n}","after":"  variant?: 'default' | 'request-log'\n  /** Allow dragging header borders to size columns (Mito usage table). */\n  resizableColumns?: boolean\n  /** Persist column widths separately from the column visibility preference. */\n  columnWidthStorageKey?: string\n}"},
+      {"before":"        :table-variant=\"variant\"","after":"        :table-variant=\"variant\"\n        :resizable-columns=\"resizableColumns\"\n        :column-width-storage-key=\"columnWidthStorageKey\""}
     ]
   },
   {
@@ -428,32 +442,279 @@ export const adaptations = [
       {"before":":mode=\"activeTab\" class=\"border-b border-gray-100 dark:border-dark-700/50\"","after":":mode=\"activeTab\" class=\"mito-admin-usage-filters border-b border-gray-100 dark:border-dark-700/50\""},
       {"before":"<div v-show=\"activeTab === 'usage'\" class=\"overflow-hidden rounded-b-2xl\">","after":"<div v-show=\"activeTab === 'usage'\" class=\"mito-admin-usage-records overflow-hidden rounded-b-2xl\">"},
       {"before":"<Pagination v-if=\"pagination.total > 0\"","after":"<Pagination class=\"mito-admin-usage-pagination\" v-if=\"pagination.total > 0\""},
-      {"before":"{ key: 'user', label: t('admin.usage.user'), sortable: false }","after":"{ key: 'user', label: t('admin.usage.user'), sortable: false, class: 'mito-admin-usage-col-user' }"},
-      {"before":"{ key: 'api_key', label: t('usage.apiKeyFilter'), sortable: false }","after":"{ key: 'api_key', label: t('usage.apiKeyFilter'), sortable: false, class: 'mito-admin-usage-col-key' }"},
-      {"before":"{ key: 'account', label: t('admin.usage.account'), sortable: false }","after":"{ key: 'account', label: t('admin.usage.account'), sortable: false, class: 'mito-admin-usage-col-account' }"},
-      {"before":"{ key: 'model', label: t('usage.model'), sortable: true }","after":"{ key: 'model', label: t('usage.model'), sortable: true, class: 'mito-admin-usage-col-model' }"},
-      {"before":"{ key: 'reasoning_effort', label: t('usage.reasoningEffort'), sortable: false }","after":"{ key: 'reasoning_effort', label: t('usage.reasoningEffort'), sortable: false, class: 'mito-admin-usage-col-reasoning' }"},
-      {"before":"{ key: 'endpoint', label: t('usage.endpoint'), sortable: false }","after":"{ key: 'endpoint', label: t('usage.endpoint'), sortable: false, class: 'mito-admin-usage-col-endpoint' }"},
-      {"before":"{ key: 'group', label: t('admin.usage.group'), sortable: false }","after":"{ key: 'group', label: t('admin.usage.group'), sortable: false, class: 'mito-admin-usage-col-group' }"},
-      {"before":"{ key: 'tokens', label: t('usage.tokens'), sortable: false }","after":"{ key: 'tokens', label: t('usage.tokens'), sortable: false, class: 'mito-admin-usage-col-tokens' }"},
-      {"before":"{ key: 'cost', label: t('usage.cost'), sortable: false }","after":"{ key: 'cost', label: t('usage.cost'), sortable: false, class: 'mito-admin-usage-col-cost' }"},
-      {"before":"{ key: 'latency', label: t('usage.latency'), sortable: false }","after":"{ key: 'latency', label: t('usage.latency'), sortable: false, class: 'mito-admin-usage-col-latency' }"},
-      {"before":"{ key: 'created_at', label: t('usage.time'), sortable: true }","after":"{ key: 'created_at', label: t('usage.time'), sortable: true, class: 'mito-admin-usage-col-time' }"},
-      {"before":"{ key: 'ip_address', label: t('admin.usage.ipAddress'), sortable: false }","after":"{ key: 'ip_address', label: t('admin.usage.ipAddress'), sortable: false, class: 'mito-admin-usage-col-ip' }"}
+      {"before":"import UsageTable from '@/components/admin/usage/UsageTable.vue'; import UsageExportProgress from '@/components/admin/usage/UsageExportProgress.vue'","after":"// mito-theme: the admin usage list reuses the request-log presentation.\nimport UsageTable from '@/themes/mito/AdminRequestLogTable.vue'\nimport { useAdminUsageColumns, ADMIN_USAGE_DEFAULT_HIDDEN_COLUMNS } from '@/themes/mito/adminRequestLogColumns'\nimport UsageExportProgress from '@/components/admin/usage/UsageExportProgress.vue'"},
+      {"before":"const allColumns = computed(() => [\n  { key: 'user', label: t('admin.usage.user'), sortable: false },\n  { key: 'api_key', label: t('usage.apiKeyFilter'), sortable: false },\n  { key: 'account', label: t('admin.usage.account'), sortable: false },\n  { key: 'model', label: t('usage.model'), sortable: true },\n  { key: 'reasoning_effort', label: t('usage.reasoningEffort'), sortable: false },\n  { key: 'endpoint', label: t('usage.endpoint'), sortable: false },\n  { key: 'group', label: t('admin.usage.group'), sortable: false },\n  { key: 'stream', label: t('usage.type'), sortable: false },\n  { key: 'billing_mode', label: t('admin.usage.billingMode'), sortable: false },\n  { key: 'tokens', label: t('usage.tokens'), sortable: false },\n  { key: 'cost', label: t('usage.cost'), sortable: false },\n  { key: 'latency', label: t('usage.latency'), sortable: false },\n  { key: 'created_at', label: t('usage.time'), sortable: true },\n  { key: 'request_id', label: t('admin.usage.requestId'), sortable: false },\n  { key: 'upstream_request_id', label: t('admin.usage.upstreamRequestId'), sortable: false },\n  { key: 'user_agent', label: t('usage.userAgent'), sortable: false },\n  { key: 'ip_address', label: t('admin.usage.ipAddress'), sortable: false }\n])","after":"const allColumns = useAdminUsageColumns()"},
+      {"before":"const DEFAULT_HIDDEN_COLUMNS = ['request_id', 'upstream_request_id', 'user_agent']","after":"const DEFAULT_HIDDEN_COLUMNS = [...ADMIN_USAGE_DEFAULT_HIDDEN_COLUMNS]"},
+      {"before":"const HIDDEN_COLUMNS_CURRENT_VERSION = 'upstream-request-id-hidden-by-default'","after":"const HIDDEN_COLUMNS_CURRENT_VERSION = 'admin-request-log-columns-v2'"},
+      {"before":"        hiddenColumns.add('upstream_request_id')","after":"        hiddenColumns.add('upstream_request_id')\n        DEFAULT_HIDDEN_COLUMNS.forEach((key) => hiddenColumns.add(key))"}
     ]
   },
   {
-    path: 'frontend/src/components/admin/usage/UsageFilters.vue',
+    "path": "frontend/src/components/admin/usage/UsageFilters.vue",
+    "edits": [
+      {
+        "before": "class=\"flex flex-wrap items-end justify-between gap-4\"",
+        "after": "class=\"mito-filter-layout mito-usage-filter-layout flex flex-wrap items-end justify-between gap-4\""
+      },
+      {
+        "before": "class=\"flex flex-1 flex-wrap items-end gap-4\"",
+        "after": "v-show=\"expanded\" :id=\"panelId\" class=\"mito-filter-fields mito-usage-filter-fields flex flex-1 flex-wrap items-end gap-4\""
+      },
+      {
+        "before": "class=\"flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto\"",
+        "after": "class=\"mito-filter-actions mito-usage-filter-actions flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto\""
+      },
+      {
+        "before": "<div :class=\"flat ? 'p-4 sm:p-6' : 'card p-6'\">",
+        "after": "<MitoFilterSection v-slot=\"{ expanded, panelId }\" :selected-count=\"activeFilterCount\" :class=\"flat ? 'p-4 sm:p-6' : 'card p-6'\">"
+      },
+      {
+        "before": "    </div>\n  </div>\n</template>",
+        "after": "    </div>\n  </MitoFilterSection>\n</template>"
+      },
+      {
+        "before": "import type { SimpleUser } from '@/api/admin/usage'",
+        "after": "import type { SimpleUser } from '@/api/admin/usage'\nimport MitoFilterSection from '@/themes/mito/FilterSection.vue'"
+      },
+      {
+        "before": "const filters = toRef(props, 'modelValue')",
+        "after": "const filters = toRef(props, 'modelValue')\n\nconst activeFilterCount = computed(() => {\n  const keys = ['api_key_id', 'account_id', 'model', 'group_id']\n  if (!observerMode) keys.push('user_id')\n  if (props.mode === 'errors') {\n    keys.push('error_phase', 'error_category', 'status_code')\n  } else {\n    keys.push('request_type', 'native_compaction_v2', 'billing_type')\n    if (props.mode === 'usage') keys.push('billing_mode', 'upstream_model_mismatch')\n  }\n  return keys.filter(key => {\n    const value = filters.value[key]\n    return value !== undefined && value !== null && value !== ''\n  }).length\n})"
+      }
+    ]
+  },
+  {
+    "path": "frontend/src/views/admin/AccountsView.vue",
+    "edits": [
+      {
+        "before": "<div ref=\"accountTableRef\" class=\"flex min-h-0 flex-1 flex-col overflow-hidden\">",
+        "after": "<div ref=\"accountTableRef\" class=\"mito-accounts-table flex min-h-0 flex-1 flex-col overflow-hidden\">"
+      },
+      {
+        "before": "<template #cell-name=\"{ row, value }\">\n            <div class=\"flex flex-col\">",
+        "after": "<template #cell-name=\"{ row, value }\">\n            <div class=\"mito-account-identity flex flex-col\">"
+      },
+      {
+        "before": "<template #cell-platform_type=\"{ row }\">\n            <div class=\"flex min-w-0 flex-col gap-1\">",
+        "after": "<template #cell-platform_type=\"{ row }\">\n            <div class=\"mito-account-platform flex min-w-0 flex-col gap-1\">"
+      },
+      {
+        "before": "<template #cell-actions=\"{ row }\">\n            <div class=\"flex items-center gap-1\">",
+        "after": "<template #cell-actions=\"{ row }\">\n            <div class=\"mito-account-actions flex items-center gap-1\">"
+      },
+      {"before":"import DataTable from '@/components/common/DataTable.vue'","after":"import DataTable from '@/components/common/DataTable.vue'\nimport { isMitoTheme } from '@/themes/mito'\nimport { withAccountColumnSizes } from '@/themes/mito/accountTableColumns'"},
+      {"before":"          :sort-storage-key=\"ACCOUNT_SORT_STORAGE_KEY\"","after":"          :sort-storage-key=\"ACCOUNT_SORT_STORAGE_KEY\"\n          :resizable-columns=\"isMitoTheme\"\n          column-width-storage-key=\"mito-account-column-widths-v1\""},
+      {"before":"const cols = computed(() =>\n  allColumns.value.filter(col =>\n    col.key === 'select' || col.key === 'name' || col.key === 'actions' || !hiddenColumns.has(col.key)\n  )\n)","after":"const cols = computed(() => {\n  const visibleColumns = allColumns.value.filter(col =>\n    col.key === 'select' || col.key === 'name' || col.key === 'actions' || !hiddenColumns.has(col.key)\n  )\n  return isMitoTheme ? withAccountColumnSizes(visibleColumns) : visibleColumns\n})"}
+    ]
+  },
+  {
+    "path": "frontend/src/components/account/UsageProgressBar.vue",
+    "edits": [
+      {
+        "before": "<template>\n  <div>",
+        "after": "<template>\n  <div class=\"mito-account-usage-window\">"
+      },
+      {
+        "before": "class=\"mb-0.5 flex items-center\"",
+        "after": "class=\"mito-account-usage-stats mb-0.5 flex items-center\""
+      },
+      {
+        "before": "class=\"flex items-center gap-1.5 text-[9px]",
+        "after": "class=\"mito-account-usage-metrics flex items-center gap-1.5 text-[9px]"
+      },
+      {
+        "before": "<div class=\"flex items-center gap-1\">",
+        "after": "<div class=\"mito-account-usage-progress flex items-center gap-1\">"
+      }
+    ]
+  },
+  {
+    "path": "frontend/src/views/admin/AuditLogView.vue",
+    "edits": [
+      {
+        "before": "<TablePageLayout>",
+        "after": "<TablePageLayout class=\"mito-audit-log\">"
+      },
+      {
+        "before": "<div class=\"card p-4 sm:p-6\">",
+        "after": "<MitoFilterSection v-slot=\"{ expanded, panelId }\" :selected-count=\"activeFilterCount\" class=\"mito-audit-filters card p-4 sm:p-6\">"
+      },
+      {
+        "before": "<div class=\"flex flex-wrap items-end justify-between gap-4\">",
+        "after": "<div class=\"mito-filter-layout flex flex-wrap items-end justify-between gap-4\">"
+      },
+      {
+        "before": "<div class=\"flex flex-1 flex-wrap items-end gap-4\">",
+        "after": "<div v-show=\"expanded\" :id=\"panelId\" class=\"mito-filter-fields mito-filter-fields--audit flex flex-1 flex-wrap items-end gap-4\">"
+      },
+      {
+        "before": "<div class=\"flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto\">",
+        "after": "<div class=\"mito-filter-actions flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto\">"
+      },
+      {
+        "before": "          </div>\n        </div>\n      </template>\n\n      <!-- Table -->",
+        "after": "          </div>\n        </MitoFilterSection>\n      </template>\n\n      <!-- Table -->"
+      },
+      {
+        "before": "<span class=\"whitespace-nowrap text-gray-600 dark:text-gray-300\">{{ formatTime(value) }}</span>",
+        "after": "<span class=\"mito-audit-time whitespace-nowrap text-gray-600 dark:text-gray-300\">{{ formatTime(value) }}</span>"
+      },
+      {
+        "before": "<div class=\"min-w-0 max-w-[220px]\">",
+        "after": "<div class=\"mito-audit-actor min-w-0 max-w-[220px]\">"
+      },
+      {
+        "before": "<div class=\"min-w-0 max-w-xs\">",
+        "after": "<div class=\"mito-audit-action min-w-0 max-w-xs\">"
+      },
+      {
+        "before": "<span class=\"whitespace-nowrap text-gray-500 dark:text-gray-400\">{{ value }} ms</span>",
+        "after": "<span class=\"mito-audit-latency whitespace-nowrap text-gray-500 dark:text-gray-400\">{{ value }} ms</span>"
+      },
+      {
+        "before": "<span class=\"whitespace-nowrap font-mono text-gray-600 dark:text-gray-300\">{{ value || '—' }}</span>",
+        "after": "<span class=\"mito-audit-ip whitespace-nowrap font-mono text-gray-600 dark:text-gray-300\">{{ value || '—' }}</span>"
+      },
+      {
+        "before": "class=\"inline-flex items-center gap-1 font-medium text-primary-600 transition-colors",
+        "after": "class=\"mito-audit-detail-button inline-flex items-center gap-1 font-medium text-primary-600 transition-colors"
+      },
+      {
+        "before": "<div class=\"flex flex-col items-center py-8\">",
+        "after": "<div class=\"mito-audit-empty flex flex-col items-center py-8\">"
+      },
+      {
+        "before": "<div v-else-if=\"detail\" class=\"space-y-5 py-2\">",
+        "after": "<div v-else-if=\"detail\" class=\"mito-audit-detail space-y-5 py-2\">"
+      },
+      {
+        "before": "class=\"rounded-2xl border border-gray-200 bg-gray-50/60 p-5",
+        "after": "class=\"mito-audit-detail-hero rounded-2xl border border-gray-200 bg-gray-50/60 p-5"
+      },
+      {
+        "before": "import { useAppStore } from '@/stores'",
+        "after": "import { useAppStore } from '@/stores'\nimport MitoFilterSection from '@/themes/mito/FilterSection.vue'"
+      },
+      {
+        "before": "const timeRange = ref('')",
+        "after": "const timeRange = ref('')\nconst activeFilterCount = computed(() =>\n  Object.values(filters).filter(Boolean).length + Number(Boolean(timeRange.value))\n)"
+      },
+      {
+        "before": "{ key: 'created_at', label: t('admin.audit.columns.time') }",
+        "after": "{ key: 'created_at', label: t('admin.audit.columns.time'), class: 'mito-audit-col-created_at' }"
+      },
+      {
+        "before": "{ key: 'actor', label: t('admin.audit.columns.actor') }",
+        "after": "{ key: 'actor', label: t('admin.audit.columns.actor'), class: 'mito-audit-col-actor' }"
+      },
+      {
+        "before": "{ key: 'action', label: t('admin.audit.columns.action') }",
+        "after": "{ key: 'action', label: t('admin.audit.columns.action'), class: 'mito-audit-col-action' }"
+      },
+      {
+        "before": "{ key: 'status_code', label: t('admin.audit.columns.result') }",
+        "after": "{ key: 'status_code', label: t('admin.audit.columns.result'), class: 'mito-audit-col-status_code' }"
+      },
+      {
+        "before": "{ key: 'latency_ms', label: t('admin.audit.detail.latency') }",
+        "after": "{ key: 'latency_ms', label: t('admin.audit.detail.latency'), class: 'mito-audit-col-latency_ms' }"
+      },
+      {
+        "before": "{ key: 'client_ip', label: t('admin.audit.columns.clientIp') }",
+        "after": "{ key: 'client_ip', label: t('admin.audit.columns.clientIp'), class: 'mito-audit-col-client_ip' }"
+      },
+      {
+        "before": "{ key: 'actions', label: t('common.actions') }",
+        "after": "{ key: 'actions', label: t('common.actions'), class: 'mito-audit-col-actions' }"
+      }
+    ]
+  },
+  {
+    "path": "frontend/src/components/common/types.ts",
+    "edits": [
+      {
+        "before": "  class?: string\n",
+        "after": "  class?: string\n  /** Optional pixel sizing for tables that enable column resizing. */\n  width?: number\n  minWidth?: number\n  maxWidth?: number\n  resizable?: boolean\n"
+      }
+    ]
+  },
+  {
+    path: 'frontend/src/views/admin/__tests__/UsageView.spec.ts',
     edits: [
-      {"before":"class=\"flex flex-wrap items-end justify-between gap-4\"","after":"class=\"mito-usage-filter-layout flex flex-wrap items-end justify-between gap-4\""},
-      {"before":"class=\"flex flex-1 flex-wrap items-end gap-4\"","after":"class=\"mito-usage-filter-fields flex flex-1 flex-wrap items-end gap-4\""},
-      {"before":"class=\"flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto\"","after":"class=\"mito-usage-filter-actions flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto\""}
+      { before: "      'upstream-request-id-hidden-by-default',", after: "      'admin-request-log-columns-v2'," }
     ]
   }
 ]
 
 /** Fail explicitly if a future update breaks the props/utility contracts we use. */
 export const contracts = [
+  {"path":"frontend/src/themes/mito/AdminRequestLogTable.vue","anchors":["variant=\"request-log\"","column-width-storage-key","mito-log-cost-cell"]},
+  {"path":"frontend/src/themes/mito/adminRequestLogColumns.ts","anchors":["export function useAdminUsageColumns","ADMIN_USAGE_DEFAULT_HIDDEN_COLUMNS","mito-log-col-time"]},
+  {"path":"frontend/src/components/layout/AppSidebar.vue","anchors":["class=\"sidebar\"","isGroupExpanded(item)","handleGroupClick(item)","toggleSidebar"]},
+  {"path":"frontend/src/themes/mito/FilterSection.vue","anchors":["const expanded = ref(false)"]},
+  {"path":"frontend/src/themes/mito/useTableColumnResize.ts","anchors":["export function useTableColumnResize","onBeforeUnmount(cancelDrag)","window.removeEventListener('pointermove'","version: 1"]},
+  {"path":"frontend/src/themes/mito/accountTableColumns.ts","anchors":["export function withAccountColumnSizes","resizable: false"]},
+  {"path":"frontend/src/themes/mito/table-resize.css","anchors":["html[data-ui-theme='mito']",".mito-column-resize-handle","touch-action: none","prefers-reduced-motion"]},
+  {"path":"frontend/src/themes/mito/sidebar.css","anchors":["html[data-ui-theme='mito']",".mito-sidebar--collapsed",".mito-sidebar-children","prefers-reduced-motion"]},
+  {"path":"frontend/src/themes/mito/index.ts","anchors":["import './sidebar.css'","import './table-resize.css'"]},
+  {
+    "path": "frontend/src/themes/mito/FilterSection.vue",
+    "anchors": [
+      ":aria-expanded=\"visible\"",
+      ":aria-controls=\"panelId\"",
+      "<slot v-bind=\"{ expanded: visible, panelId }\" />",
+      "!isMitoTheme || expanded.value"
+    ]
+  },
+  {
+    "path": "frontend/src/themes/mito/filter-section.css",
+    "anchors": [
+      "html[data-ui-theme='mito']",
+      "grid-template-columns: minmax(0, 1fr)",
+      "@container mito-filters",
+      "prefers-reduced-motion"
+    ]
+  },
+  {
+    "path": "frontend/src/themes/mito/accounts.css",
+    "anchors": [
+      "html[data-ui-theme='mito']",
+      ".mito-accounts-table",
+      "tr[data-row-id]",
+      ".mito-account-usage-progress"
+    ]
+  },
+  {
+    "path": "frontend/src/themes/mito/audit-log.css",
+    "anchors": [
+      "html[data-ui-theme='mito']",
+      ".mito-audit-log",
+      ".mito-audit-detail-button",
+      "prefers-reduced-motion"
+    ]
+  },
+  {
+    "path": "frontend/src/themes/mito/index.ts",
+    "anchors": [
+      "import './filter-section.css'",
+      "import './accounts.css'",
+      "import './audit-log.css'"
+    ]
+  },
+  {
+    "path": "frontend/src/components/common/DataTable.vue",
+    "anchors": [
+      ":data-row-id=\"resolveRowKey(item.row, item.index)\"",
+      "measureElement",
+      "column.class"
+    ]
+  },
+  {
+    "path": "frontend/src/components/icons/Icon.vue",
+    "anchors": [
+      "chevronDown:",
+      "filter:"
+    ]
+  },
   {"path":"frontend/src/themes/mito/admin-usage.css","anchors":["html[data-ui-theme='mito']",".mito-admin-usage-records",".mito-admin-usage-filters",".mito-usage-latency","prefers-reduced-motion"]},
   {"path":"frontend/src/themes/mito/index.ts","anchors":["import './admin-usage.css'"]},
   {"path":"frontend/src/components/common/DataTable.vue","anchors":["column.class",":data-field=\"column.key\"","data-test=\"mobile-sort-controls\"","virtualPaddingTop"]},

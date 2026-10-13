@@ -203,7 +203,10 @@ import { formatReasoningEffort } from '@/utils/format'
 import { resolveUsageRequestType, requestTypeToLegacyStream } from '@/utils/usageRequestType'
 import AppLayout from '@/components/layout/AppLayout.vue'; import Pagination from '@/components/common/Pagination.vue'; import Select from '@/components/common/Select.vue'; import DateRangePicker from '@/components/common/DateRangePicker.vue'
 import UsageStatsCards from '@/components/admin/usage/UsageStatsCards.vue'; import UsageFilters from '@/components/admin/usage/UsageFilters.vue'
-import UsageTable from '@/components/admin/usage/UsageTable.vue'; import UsageExportProgress from '@/components/admin/usage/UsageExportProgress.vue'
+// mito-theme: the admin usage list reuses the request-log presentation.
+import UsageTable from '@/themes/mito/AdminRequestLogTable.vue'
+import { useAdminUsageColumns, ADMIN_USAGE_DEFAULT_HIDDEN_COLUMNS } from '@/themes/mito/adminRequestLogColumns'
+import UsageExportProgress from '@/components/admin/usage/UsageExportProgress.vue'
 import UserTokenRanking from '@/components/admin/usage/UserTokenRanking.vue'
 import UsageCleanupDialog from '@/components/admin/usage/UsageCleanupDialog.vue'
 import UserBalanceHistoryModal from '@/components/admin/user/UserBalanceHistoryModal.vue'
@@ -644,32 +647,14 @@ const exportToExcel = async () => {
 
 // Column visibility
 const ALWAYS_VISIBLE = ['user', 'created_at']
-const DEFAULT_HIDDEN_COLUMNS = ['request_id', 'upstream_request_id', 'user_agent']
+const DEFAULT_HIDDEN_COLUMNS = [...ADMIN_USAGE_DEFAULT_HIDDEN_COLUMNS]
 const HIDDEN_COLUMNS_KEY = 'usage-hidden-columns'
 const HIDDEN_COLUMNS_VERSION_KEY = 'usage-hidden-columns-version'
 // 隐藏列版本链：每级只把当级新增列加入隐藏集，不重置用户已显式打开的列。
 const HIDDEN_COLUMNS_PREV_VERSION = 'request-id-hidden-by-default'
-const HIDDEN_COLUMNS_CURRENT_VERSION = 'upstream-request-id-hidden-by-default'
+const HIDDEN_COLUMNS_CURRENT_VERSION = 'admin-request-log-columns-v2'
 
-const allColumns = computed(() => [
-  { key: 'user', label: t('admin.usage.user'), sortable: false, class: 'mito-admin-usage-col-user' },
-  { key: 'api_key', label: t('usage.apiKeyFilter'), sortable: false, class: 'mito-admin-usage-col-key' },
-  { key: 'account', label: t('admin.usage.account'), sortable: false, class: 'mito-admin-usage-col-account' },
-  { key: 'model', label: t('usage.model'), sortable: true, class: 'mito-admin-usage-col-model' },
-  { key: 'reasoning_effort', label: t('usage.reasoningEffort'), sortable: false, class: 'mito-admin-usage-col-reasoning' },
-  { key: 'endpoint', label: t('usage.endpoint'), sortable: false, class: 'mito-admin-usage-col-endpoint' },
-  { key: 'group', label: t('admin.usage.group'), sortable: false, class: 'mito-admin-usage-col-group' },
-  { key: 'stream', label: t('usage.type'), sortable: false },
-  { key: 'billing_mode', label: t('admin.usage.billingMode'), sortable: false },
-  { key: 'tokens', label: t('usage.tokens'), sortable: false, class: 'mito-admin-usage-col-tokens' },
-  { key: 'cost', label: t('usage.cost'), sortable: false, class: 'mito-admin-usage-col-cost' },
-  { key: 'latency', label: t('usage.latency'), sortable: false, class: 'mito-admin-usage-col-latency' },
-  { key: 'created_at', label: t('usage.time'), sortable: true, class: 'mito-admin-usage-col-time' },
-  { key: 'request_id', label: t('admin.usage.requestId'), sortable: false },
-  { key: 'upstream_request_id', label: t('admin.usage.upstreamRequestId'), sortable: false },
-  { key: 'user_agent', label: t('usage.userAgent'), sortable: false },
-  { key: 'ip_address', label: t('admin.usage.ipAddress'), sortable: false, class: 'mito-admin-usage-col-ip' }
-])
+const allColumns = useAdminUsageColumns()
 
 const hiddenColumns = reactive<Set<string>>(new Set())
 
@@ -780,6 +765,7 @@ const loadSavedColumns = () => {
           hiddenColumns.add('request_id')
         }
         hiddenColumns.add('upstream_request_id')
+        DEFAULT_HIDDEN_COLUMNS.forEach((key) => hiddenColumns.add(key))
         localStorage.setItem(HIDDEN_COLUMNS_KEY, JSON.stringify([...hiddenColumns]))
         localStorage.setItem(HIDDEN_COLUMNS_VERSION_KEY, HIDDEN_COLUMNS_CURRENT_VERSION)
       }

@@ -129,14 +129,21 @@
     :class="{
       'actions-expanded': actionsExpanded,
       'is-scrollable': isScrollable,
-      'mito-request-log-wrapper': tableVariant === 'request-log'
+      'mito-request-log-wrapper': tableVariant === 'request-log',
+      'mito-table-resizing': resizingKey !== null
     }"
+    :style="columnWrapperStyle"
   >
     <div v-if="tableVariant === 'request-log' && loading" class="mito-request-log-progress" aria-hidden="true"></div>
     <table
       class="w-full min-w-max divide-y divide-gray-200 dark:divide-dark-700"
-      :class="{ 'mito-request-log-table': tableVariant === 'request-log' }"
+      :class="{ 'mito-request-log-table': tableVariant === 'request-log', 'mito-resizable-table': resizableColumns }"
+      :style="columnTableStyle"
     >
+      <colgroup v-if="resizableColumns">
+        <col v-if="selectable" style="width: 44px" />
+        <col v-for="column in columns" :key="column.key" :data-column-key="column.key" :style="{ width: getColumnWidth(column) + 'px' }" />
+      </colgroup>
       <thead class="table-header bg-gray-50 dark:bg-dark-800">
         <tr>
           <th
@@ -157,6 +164,7 @@
           <th
             v-for="(column, index) in columns"
             :key="column.key"
+            :data-column-key="column.key"
             scope="col"
             :aria-sort="column.sortable ? getColumnAriaSort(column.key) : undefined"
             :class="[
@@ -200,6 +208,24 @@
                 </svg>
               </span>
             </div>
+            <div
+              v-if="canResizeColumn(column)"
+              role="separator"
+              tabindex="0"
+              class="mito-column-resize-handle"
+              :class="{ 'mito-column-resize-handle--active': resizingKey === column.key }"
+              aria-orientation="vertical"
+              :aria-label="resizeLabel('resizeColumn', { column: column.label })"
+              :aria-valuemin="getColumnBounds(column).min"
+              :aria-valuemax="getColumnBounds(column).max"
+              :aria-valuenow="getColumnWidth(column)"
+              :aria-valuetext="resizeLabel('columnWidth', { width: getColumnWidth(column) })"
+              :title="resizeLabel('resizeColumnHint', { column: column.label })"
+              @pointerdown.stop="startColumnResize($event, column)"
+              @keydown.stop="handleColumnResizeKey($event, column)"
+              @click.stop
+              @dblclick.stop.prevent="resetColumnWidth(column)"
+            ></div>
           </th>
         </tr>
       </thead>
@@ -274,6 +300,7 @@
             <td
               v-for="(column, colIndex) in columns"
               :key="column.key"
+              :data-column-key="column.key"
               :class="[
                 'whitespace-nowrap py-4 text-sm text-gray-900 dark:text-gray-100',
                 getAdaptivePaddingClass(),
@@ -308,6 +335,8 @@ import { useVirtualizer, observeElementRect as observeElementRectDefault } from 
 import { useI18n } from 'vue-i18n'
 import type { Column } from './types'
 import Icon from '@/components/icons/Icon.vue'
+import { useTableColumnResize } from '@/themes/mito/useTableColumnResize'
+import { useMitoLabels } from '@/themes/mito/labels'
 
 const { t } = useI18n()
 
@@ -509,6 +538,10 @@ interface Props {
   selectable?: boolean
   /** Optional visual variant; default preserves the shared table style. */
   tableVariant?: 'default' | 'request-log'
+  /** Allow resizing desktop columns; disabled unless a page opts in. */
+  resizableColumns?: boolean
+  /** Persist column widths independently of visibility and sorting. */
+  columnWidthStorageKey?: string
   /** Selected row keys. Keys outside the current data page are preserved. */
   selectedKeys?: Array<string | number>
   /** Accessible label for a row selection checkbox. */
@@ -524,8 +557,27 @@ const props = withDefaults(defineProps<Props>(), {
   serverSideSort: false,
   selectable: false,
   selectedKeys: () => [],
-  tableVariant: 'default'
+  tableVariant: 'default',
+  resizableColumns: false
 })
+
+const resizeLabel = useMitoLabels()
+const {
+  columnTableStyle, columnWrapperStyle, resizingKey, getColumnWidth, getColumnBounds,
+  canResizeColumn, startColumnResize, handleColumnResizeKey, resetColumnWidth
+} = useTableColumnResize({
+  wrapper: tableWrapperRef,
+  columns: () => props.columns,
+  enabled: () => props.resizableColumns && isDesktopViewport.value,
+  storageKey: () => props.columnWidthStorageKey,
+  selectable: () => props.selectable
+})
+
+watch(columnTableStyle, async () => {
+  await nextTick()
+  checkScrollable()
+  checkActionsColumnWidth()
+}, { flush: 'post' })
 
 const sortKey = ref<string>('')
 const sortOrder = ref<'asc' | 'desc'>('asc')

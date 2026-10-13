@@ -16,7 +16,12 @@ const labels = {
     key: 'Key', requestId: 'Request ID', cacheRead: 'Read', cacheWrite: 'Write',
     specialBilling: 'Special billing', rate: 'Rate', page: 'Page', perPage: 'Per page', pagination: 'Request pages',
     cacheRateHint: 'Cache read / (input + cache read + cache creation)',
-    cacheToday: 'Cache tokens (today)', cacheTotal: 'Cache tokens (all time)', actual: 'Actual cost'
+    cacheToday: 'Cache tokens (today)', cacheTotal: 'Cache tokens (all time)', actual: 'Actual cost',
+    channelId: 'Channel', billingTier: 'Billing tier', accountRate: 'Account rate', accountCost: 'Account billed',
+    upstreamModel: 'Upstream model', imageTokens: 'Image tokens', imageCost: 'Image cost',
+    cache5m: 'Write 5m', cache1h: 'Write 1h', ttlOverride: 'TTL override',
+    resizeColumn: 'Resize {column} column', columnWidth: '{width} pixels',
+    resizeColumnHint: 'Drag to resize {column}; double-click to reset. Use arrow keys to adjust.'
   },
   zh: {
     account: '账户概览', accountDescription: '账户余额与常用入口',
@@ -33,7 +38,12 @@ const labels = {
     key: '密钥', requestId: '请求 ID', cacheRead: '读取', cacheWrite: '写入',
     specialBilling: '特殊计费', rate: '倍率', page: '页码', perPage: '每页', pagination: '请求记录分页',
     cacheRateHint: '缓存读取 ÷（输入 + 缓存读取 + 缓存创建）',
-    cacheToday: '今日缓存 Tokens', cacheTotal: '累计缓存 Tokens', actual: '实际费用'
+    cacheToday: '今日缓存 Tokens', cacheTotal: '累计缓存 Tokens', actual: '实际费用',
+    channelId: '渠道', billingTier: '计费等级', accountRate: '账号倍率', accountCost: '账号计费',
+    upstreamModel: '上游模型', imageTokens: '图片 Token', imageCost: '图片费用',
+    cache5m: '写入 5m', cache1h: '写入 1h', ttlOverride: 'TTL 覆盖',
+    resizeColumn: '调整「{column}」列宽', columnWidth: '{width} 像素',
+    resizeColumnHint: '拖动调整「{column}」列宽；双击恢复默认宽度，也可用左右方向键调整。'
   }
 } as const
 

@@ -1,0 +1,43 @@
+/* Column sizing is opt-in; colgroup keeps the header and every row aligned. */
+html[data-ui-theme='mito'] .mito-resizable-table { table-layout: fixed; min-width: 0; }
+html[data-ui-theme='mito'] .mito-resizable-table th[data-column-key]:not([data-column-key='select']),
+html[data-ui-theme='mito'] .mito-accounts-table .mito-resizable-table th[data-column-key]:not([data-column-key='select']) { padding-right: 20px; }
+html[data-ui-theme='mito'] .mito-resizable-table :is(th, td)[data-column-key] { white-space: normal; overflow-wrap: anywhere; }
+html[data-ui-theme='mito'] .mito-resizable-table td[data-column-key] > * { min-width: 0; max-width: 100%; }
+html[data-ui-theme='mito'] .mito-column-resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 12px;
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+}
+html[data-ui-theme='mito'] .mito-column-resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 25%;
+  right: 5px;
+  bottom: 25%;
+  width: 1px;
+  border-radius: 2px;
+  background: var(--mito-border);
+  transition: background-color 120ms ease;
+}
+html[data-ui-theme='mito'] .mito-column-resize-handle:is(:hover, :focus-visible, .mito-column-resize-handle--active)::after {
+  width: 2px;
+  background: var(--mito-blue);
+}
+html[data-ui-theme='mito'] .mito-column-resize-handle:focus-visible { outline-offset: -2px; background: var(--mito-blue-soft); }
+html[data-ui-theme='mito'].mito-column-resizing,
+html[data-ui-theme='mito'].mito-column-resizing * { cursor: col-resize !important; user-select: none !important; }
+
+@media (pointer: coarse) {
+  html[data-ui-theme='mito'] .mito-column-resize-handle { width: 20px; }
+  html[data-ui-theme='mito'] .mito-resizable-table th { min-height: 44px; padding-block: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-column-resize-handle::after { transition: none; }
+}

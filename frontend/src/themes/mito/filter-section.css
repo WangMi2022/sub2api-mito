@@ -1,0 +1,95 @@
+/* Shared admin filters fill the content pane; disclosure preserves mounted fields. */
+html[data-ui-theme='mito'] .mito-filter-section {
+  width: 100%;
+  min-width: 0;
+  container: mito-filters / inline-size;
+}
+html[data-ui-theme='mito'] .mito-filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 36px;
+  margin-bottom: 14px;
+  padding: 4px 0;
+  color: var(--mito-muted);
+  text-align: start;
+  font-size: 12px;
+  line-height: 20px;
+}
+html[data-ui-theme='mito'] .mito-filter-title { color: var(--mito-text); font-size: 13px; font-weight: 650; }
+html[data-ui-theme='mito'] .mito-filter-count {
+  padding: 1px 7px;
+  border-radius: 5px;
+  background: var(--mito-blue-soft);
+  color: var(--mito-blue);
+  font-variant-numeric: tabular-nums;
+}
+html[data-ui-theme='mito'] .mito-filter-toggle-label { margin-inline-start: auto; font-weight: 500; }
+html[data-ui-theme='mito'] .mito-filter-toggle:hover .mito-filter-toggle-label { color: var(--mito-blue); }
+html[data-ui-theme='mito'] .mito-filter-chevron { flex-shrink: 0; transition: transform 160ms ease; }
+html[data-ui-theme='mito'] .mito-filter-toggle[aria-expanded='true'] .mito-filter-chevron { transform: rotate(180deg); }
+
+html[data-ui-theme='mito'] .mito-filter-section .mito-filter-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-content: stretch;
+  align-items: stretch;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+}
+html[data-ui-theme='mito'] .mito-filter-section .mito-filter-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: end;
+  gap: 12px 16px;
+  width: 100%;
+  min-width: 0;
+}
+html[data-ui-theme='mito'] .mito-filter-section .mito-filter-fields > div,
+html[data-ui-theme='mito'] .mito-filter-section .mito-filter-fields :is(.input, .select-trigger) {
+  width: 100%;
+  min-width: 0;
+}
+html[data-ui-theme='mito'] .mito-filter-section .input-label {
+  margin-bottom: 6px;
+  color: var(--mito-muted);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+}
+html[data-ui-theme='mito'] .mito-filter-section :is(.input, .select-trigger, .btn) { min-height: 40px; font-size: 13px; }
+html[data-ui-theme='mito'] .mito-filter-section .mito-filter-actions {
+  width: 100%;
+  min-width: 0;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--mito-border);
+}
+html[data-ui-theme='mito'] .mito-filter-section--collapsed .mito-filter-toggle { margin-bottom: 8px; }
+html[data-ui-theme='mito'] .mito-filter-section--collapsed .mito-filter-layout { gap: 0; }
+html[data-ui-theme='mito'] .mito-filter-section--collapsed .mito-filter-actions { padding-top: 0; border-top: 0; }
+
+@container mito-filters (min-width: 432px) {
+  html[data-ui-theme='mito'] .mito-filter-section .mito-filter-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@container mito-filters (min-width: 680px) {
+  html[data-ui-theme='mito'] .mito-filter-section .mito-filter-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@container mito-filters (min-width: 960px) {
+  html[data-ui-theme='mito'] .mito-filter-section .mito-filter-fields { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@container mito-filters (min-width: 1240px) {
+  html[data-ui-theme='mito'] .mito-filter-section .mito-filter-fields { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  html[data-ui-theme='mito'] .mito-filter-section .mito-filter-fields--audit { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@container mito-filters (max-width: 431px) {
+  html[data-ui-theme='mito'] .mito-filter-section .mito-filter-actions { justify-content: flex-start; }
+}
+@media (max-width: 639px), (pointer: coarse) {
+  html[data-ui-theme='mito'] .mito-filter-section :is(.input, .select-trigger, .btn, .mito-filter-toggle) { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-filter-chevron { transition: none; }
+}

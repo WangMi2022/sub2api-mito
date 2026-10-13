@@ -61,38 +61,6 @@ html[data-ui-theme='mito'] .mito-admin-usage-filters {
   border-color: var(--mito-border);
   background: var(--mito-surface);
 }
-html[data-ui-theme='mito'] .mito-admin-usage-filters .mito-usage-filter-layout {
-  display: grid;
-  gap: 16px;
-}
-html[data-ui-theme='mito'] .mito-admin-usage-filters .mito-usage-filter-fields {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
-  gap: 12px 16px;
-}
-html[data-ui-theme='mito'] .mito-admin-usage-filters .mito-usage-filter-fields > div {
-  width: 100%;
-  min-width: 0;
-}
-html[data-ui-theme='mito'] .mito-admin-usage-filters .input-label {
-  margin-bottom: 6px;
-  color: var(--mito-muted);
-  font-size: 12px;
-  line-height: 18px;
-  font-weight: 600;
-}
-html[data-ui-theme='mito'] .mito-admin-usage-filters :is(.input, .select-trigger) {
-  min-height: 40px;
-  font-size: 13px;
-}
-html[data-ui-theme='mito'] .mito-admin-usage-filters .mito-usage-filter-actions {
-  width: 100%;
-  gap: 8px;
-  padding-top: 14px;
-  border-top: 1px solid var(--mito-border);
-}
-html[data-ui-theme='mito'] .mito-admin-usage-filters .btn { min-height: 40px; }
-
 /* Automatic widths still follow visible columns; no nth-column selectors. */
 html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper table {
   min-width: 100%;
@@ -109,9 +77,6 @@ html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper th {
   letter-spacing: 0;
   text-transform: none;
   white-space: nowrap;
-}
-html[data-ui-theme='mito'] .mito-admin-usage-records th:is(.mito-admin-usage-col-key, .mito-admin-usage-col-model, .mito-admin-usage-col-reasoning, .mito-admin-usage-col-cost) {
-  font-weight: 750;
 }
 html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper td {
   padding-block: 12px;
@@ -130,14 +95,6 @@ html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper tbody tr:hov
 html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper tbody tr:hover td.sticky-col {
   background: var(--mito-blue-soft);
 }
-html[data-ui-theme='mito'] .mito-admin-usage-records .mito-admin-usage-col-user { min-width: 180px; }
-html[data-ui-theme='mito'] .mito-admin-usage-records .mito-admin-usage-col-key { min-width: 120px; }
-html[data-ui-theme='mito'] .mito-admin-usage-records .mito-admin-usage-col-account { min-width: 176px; }
-html[data-ui-theme='mito'] .mito-admin-usage-records .mito-admin-usage-col-model { min-width: 144px; }
-html[data-ui-theme='mito'] .mito-admin-usage-records .mito-admin-usage-col-endpoint { min-width: 152px; }
-html[data-ui-theme='mito'] .mito-admin-usage-records .mito-admin-usage-col-tokens { min-width: 140px; }
-html[data-ui-theme='mito'] .mito-admin-usage-records .mito-admin-usage-col-cost { min-width: 132px; }
-html[data-ui-theme='mito'] .mito-admin-usage-records .mito-admin-usage-col-latency { min-width: 132px; }
 
 /* Primary identifiers wrap instead of hiding long emails, names or mappings. */
 html[data-ui-theme='mito'] .mito-admin-usage-records :is(.mito-usage-user, .mito-usage-key, .mito-usage-account, .mito-usage-model, .mito-usage-endpoint, .mito-usage-group) {
@@ -243,7 +200,6 @@ html[data-ui-theme='mito'] .mito-admin-usage-records .mito-mobile-table .mito-us
   html[data-ui-theme='mito'] .mito-admin-usage-filters { padding: 14px; }
   html[data-ui-theme='mito'] .mito-admin-usage-tabs { gap: 0; padding-inline: 4px; }
   html[data-ui-theme='mito'] .mito-admin-usage-tabs button { padding-inline: 10px; }
-  html[data-ui-theme='mito'] .mito-admin-usage-filters .mito-usage-filter-actions { justify-content: flex-start; }
   html[data-ui-theme='mito'] .mito-admin-usage-pagination { padding-inline: 12px; }
 }
 
@@ -257,4 +213,147 @@ html[data-ui-theme='mito'] .mito-admin-usage-records .mito-mobile-table .mito-us
 @media (prefers-reduced-motion: reduce) {
   html[data-ui-theme='mito'] .mito-admin-usage-records .table-wrapper tbody tr,
   html[data-ui-theme='mito'] .mito-admin-usage-tabs button { transition: none; }
+}
+
+/* ---------------------------------------------------------------------------
+ * Admin usage list: request-log density with the administrator audit fields.
+ * The table keeps the personal request-log look (compact rows, tabular
+ * numbers, pill badges) and adds the admin-only columns defined in
+ * adminRequestLogColumns.ts. Resizing opts in per table via DataTable, so the
+ * fallback below only applies when that hook is unavailable.
+ * ------------------------------------------------------------------------- */
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table {
+  table-layout: auto;
+  min-width: max-content;
+  font-variant-numeric: tabular-nums;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table th {
+  height: auto;
+  padding-block: 8px;
+  color: var(--mito-text);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .01em;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table td:not([colspan]) {
+  padding: 6px 8px !important;
+  color: var(--mito-text);
+  font-size: 12px;
+  line-height: 18px;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table td .text-sm {
+  font-size: 12px;
+  line-height: 18px;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--mito-subtle) 40%, var(--mito-surface));
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table tbody tr:hover,
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table tbody tr:nth-child(even):hover {
+  background: var(--mito-blue-soft);
+}
+
+/* Single-line audit cells: long identifiers truncate with a hover title. */
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table
+  :is(.mito-usage-user, .mito-usage-key, .mito-usage-account, .mito-usage-model, .mito-usage-endpoint, .mito-usage-group, .mito-usage-ip, .mito-log-upstream, .mito-log-cost-cell) {
+  max-width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table .mito-usage-user-id {
+  display: inline;
+  margin-left: 6px;
+  margin-top: 0;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table .mito-usage-group {
+  display: inline-block;
+  max-width: 100%;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--mito-blue-soft);
+  color: var(--mito-blue);
+}
+
+/* Header weight plus the emphasized identity, model, reasoning and cost values. */
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table
+  :is(.mito-usage-key, .mito-usage-account, .mito-usage-model-primary, .mito-usage-user-link, .mito-usage-reasoning > .font-medium, .mito-log-upstream-model, .mito-log-cost, .mito-log-account-cost) {
+  color: var(--mito-text);
+  font-weight: 700;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table .mito-usage-reasoning .text-gray-500,
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table .mito-usage-model .text-gray-500,
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table .mito-usage-endpoint .font-medium {
+  color: var(--mito-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+/* Compact numeric, badge and cost cells shared with the personal request log. */
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table .mito-log-metric {
+  color: var(--mito-text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table .mito-log-muted {
+  color: var(--mito-muted);
+  font-weight: 400;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table .mito-log-cache-rate {
+  color: var(--mito-blue);
+  font-weight: 650;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table :is(.mito-log-cost, .mito-log-account-cost) {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table .mito-log-cost-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  cursor: help;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table .mito-log-cost-flags {
+  display: block;
+  color: var(--mito-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table .mito-log-cost-cell:focus-visible,
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table .mito-log-metric:focus-visible {
+  outline: 2px solid var(--mito-blue);
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table .mito-log-badge,
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table .mito-log-special {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--mito-subtle);
+  color: var(--mito-muted);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table .mito-log-special {
+  background: var(--mito-blue-soft);
+  color: var(--mito-blue);
+}
+html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table .mito-log-mismatch {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #d97706;
+  font-size: 11px;
+  font-weight: 500;
+}
+html[data-ui-theme='mito'].dark .mito-admin-usage-records .mito-request-log-table .mito-log-mismatch {
+  color: #fbbf24;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-admin-usage-records .mito-request-log-table tbody tr { transition: none; }
 }

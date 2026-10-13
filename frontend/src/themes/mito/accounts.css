@@ -1,0 +1,42 @@
+/* Compact account rows without hiding quota windows or changing virtual measurement. */
+html[data-ui-theme='mito'] .mito-accounts-table .table-wrapper :is(th, td) { padding-inline: 12px; }
+html[data-ui-theme='mito'] .mito-accounts-table .table-wrapper th {
+  height: 40px;
+  padding-block: 8px;
+  background: var(--mito-subtle);
+  color: var(--mito-muted);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+html[data-ui-theme='mito'] .mito-accounts-table .table-wrapper tbody tr[data-row-id] > td {
+  padding-block: 8px;
+  font-size: 13px;
+  line-height: 18px;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+html[data-ui-theme='mito'] .mito-accounts-table .mito-account-identity { gap: 1px; }
+html[data-ui-theme='mito'] .mito-accounts-table .mito-account-platform { gap: 2px; }
+html[data-ui-theme='mito'] .mito-accounts-table .mito-account-actions { gap: 2px; }
+html[data-ui-theme='mito'] .mito-accounts-table .mito-account-actions > button {
+  flex-direction: row;
+  justify-content: center;
+  gap: 4px;
+  min-height: 28px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+html[data-ui-theme='mito'] .mito-accounts-table .mito-account-usage-window + .mito-account-usage-window { margin-top: 2px; }
+html[data-ui-theme='mito'] .mito-accounts-table .mito-account-usage-stats { margin-bottom: 1px; line-height: 14px; }
+html[data-ui-theme='mito'] .mito-accounts-table .mito-account-usage-metrics { flex-wrap: wrap; gap: 2px 4px; }
+html[data-ui-theme='mito'] .mito-accounts-table .mito-account-usage-metrics > span { padding-block: 0; }
+html[data-ui-theme='mito'] .mito-accounts-table .mito-account-usage-progress { min-height: 14px; line-height: 14px; }
+
+@media (max-width: 767px), (pointer: coarse) {
+  html[data-ui-theme='mito'] .mito-accounts-table .mito-account-actions { flex-wrap: wrap; gap: 4px; }
+  html[data-ui-theme='mito'] .mito-accounts-table .mito-account-actions > button { min-height: 44px; padding-inline: 10px; }
+}

@@ -30,6 +30,8 @@
         :default-sort-key="defaultSortKey"
         :default-sort-order="defaultSortOrder"
         :table-variant="variant"
+        :resizable-columns="resizableColumns"
+        :column-width-storage-key="columnWidthStorageKey"
         @sort="(key, order) => $emit('sort', key, order)"
       >
         <template #cell-user="{ row }">
@@ -637,6 +639,10 @@ interface Props {
   flat?: boolean
   /** 主题表格变体；默认保持上游表格行为 */
   variant?: 'default' | 'request-log'
+  /** Allow dragging header borders to size columns (Mito usage table). */
+  resizableColumns?: boolean
+  /** Persist column widths separately from the column visibility preference. */
+  columnWidthStorageKey?: string
 }
 
 const observerMode = inject(observerUsageContext, false)
@@ -652,7 +658,8 @@ const props = withDefaults(defineProps<Props>(), {
   enableTimingDetails: false,
   showUpstreamEndpoint: true,
   flat: false,
-  variant: 'default'
+  variant: 'default',
+  resizableColumns: false
 })
 const emit = defineEmits<{
   userClick: [userID: number, email?: string]
