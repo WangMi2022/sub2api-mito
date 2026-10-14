@@ -136,7 +136,15 @@
         >
           {{ t('pelicanShowcase.groupEmpty') }}
         </div>
-        <!-- Items arrive newest first, so the newest card is on the left and older ones continue to the right. -->
+        <!-- Mito theme pages one group at a time, so a long gallery never mounts every sandbox frame at once. -->
+        <MitoPelicanShowcaseGallery
+          v-else-if="isMitoTheme"
+          :group="group"
+          :bodies="bodies"
+          @visible="requestBody"
+          @open="openPreview"
+        />
+        <!-- Upstream keeps the horizontal row: newest on the left, older ones continue to the right. -->
         <PelicanShowcaseRow v-else :label="t('pelicanShowcase.scrollLabel', { group: group.name })">
           <PelicanShowcaseCard
             v-for="item in group.items"
@@ -252,6 +260,8 @@ import PelicanArtworkPreview from '@/components/user/pelican/PelicanArtworkPrevi
 import PelicanShowcaseApiDialog from '@/components/user/pelican/PelicanShowcaseApiDialog.vue'
 import PelicanShowcaseCard from '@/components/user/pelican/PelicanShowcaseCard.vue'
 import PelicanShowcaseRow from '@/components/user/pelican/PelicanShowcaseRow.vue'
+import MitoPelicanShowcaseGallery from '@/themes/mito/PelicanShowcaseGallery.vue'
+import { isMitoTheme } from '@/themes/mito'
 import {
   pelicanDurationLabel,
   pelicanEffortLabel,

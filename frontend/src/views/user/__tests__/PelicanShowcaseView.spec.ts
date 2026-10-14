@@ -76,6 +76,7 @@ async function settle() {
 
 let wrapper: ReturnType<typeof mountView>
 beforeEach(() => {
+  localStorage.clear()
   vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
   vi.stubGlobal('IntersectionObserver', OnScreenObserver)
   getShowcase.mockReset()
@@ -153,10 +154,10 @@ describe('PelicanShowcaseView', () => {
     expect(dialog.get('[data-testid="showcase-api-status"]').text()).toBe('pelicanShowcase.api.unavailable')
     expect(dialog.text()).toContain('pelicanShowcase.api.unavailableHint')
     expect(dialog.get('[data-testid="showcase-api-command"]').text()).toContain('/api/v1/public/pelican-showcase')
-    expect(wrapper.findAll('[data-testid="pelican-showcase-card"]')).toHaveLength(11)
+    expect(wrapper.findAll('[data-testid="pelican-showcase-card"]')).toHaveLength(9)
   })
 
-  it('lists every group as one row with the gallery rules and loads visible cards in a sandbox', async () => {
+  it('pages every group instead of mounting one long row of sandbox frames', async () => {
     getShowcase.mockResolvedValue(showcase())
     wrapper = mountView()
     await settle()
@@ -168,18 +169,25 @@ describe('PelicanShowcaseView', () => {
     ])
     expect(wrapper.get('[data-testid="showcase-group-3"]').text()).toContain('pelicanShowcase.groupEmpty')
 
-    // Every item of a group sits in its row, in the order received (newest first); no paging.
-    const firstRow = wrapper.get('[data-testid="showcase-group-1"] [data-testid="pelican-showcase-row"]')
-    expect(firstRow.findAll('iframe').map((frame) => frame.attributes('srcdoc').match(/data-item="(\d+)"/)?.[1]))
-      .toEqual(Array.from({ length: 10 }, (_, i) => String(100 + i)))
-    expect(wrapper.find('[data-testid="showcase-group-3"] [data-testid="pelican-showcase-row"]').exists()).toBe(false)
-    expect(wrapper.get('[data-testid="showcase-group-1"] [role="scrollbar"]').attributes('aria-label'))
-      .toBe('pelicanShowcase.scrollLabel {"group":"Claude Max"}')
+    // The Mito theme replaces the horizontal row with a page of cards, so no row exists any more.
+    expect(wrapper.find('[data-testid="pelican-showcase-row"]').exists()).toBe(false)
+    const gallery = wrapper.get('[data-testid="showcase-group-1"] [data-testid="pelican-showcase-gallery-1"]')
+    // Page one of two: eight of the ten Claude Max items, newest first.
+    expect(gallery.findAll('[data-testid="pelican-showcase-card"]')).toHaveLength(8)
+    expect(gallery.findAll('iframe').map((frame) => frame.attributes('srcdoc').match(/data-item="(\d+)"/)?.[1]))
+      .toEqual(Array.from({ length: 8 }, (_, i) => String(100 + i)))
+    expect(gallery.get('[data-testid="pelican-showcase-pager-summary"]').text()).toBe('Page 1 of 2 · 10 results')
+    expect(gallery.get('[data-testid="pelican-showcase-page-prev"]').attributes('disabled')).toBeDefined()
+    expect(gallery.get('[data-testid="pelican-showcase-page-next"]').attributes('disabled')).toBeUndefined()
+
+    // A group that fits on one page keeps its cards and shows no pager.
+    const single = wrapper.get('[data-testid="showcase-group-2"]')
+    expect(single.findAll('[data-testid="pelican-showcase-card"]')).toHaveLength(1)
+    expect(single.find('[data-testid="pelican-showcase-pager"]').exists()).toBe(false)
 
     const cards = wrapper.findAll('[data-testid="pelican-showcase-card"]')
-    expect(cards).toHaveLength(11)
-    expect(cards[0].classes()).toContain('shrink-0')
-    expect(getShowcaseItem).toHaveBeenCalledTimes(11)
+    expect(cards).toHaveLength(9)
+    expect(getShowcaseItem).toHaveBeenCalledTimes(9)
     const frame = cards[0].get('iframe')
     expect(frame.attributes('sandbox')).toBe('allow-scripts')
     expect(frame.attributes('referrerpolicy')).toBe('no-referrer')
@@ -188,6 +196,29 @@ describe('PelicanShowcaseView', () => {
     expect(cards[0].text()).toContain('gpt-6-astra')
     expect(cards[0].text()).toContain('"seconds":"42.3"')
     expect(cards[0].text()).toContain('pelicanShowcase.efforts.high')
+
+    // Turning the page mounts only the remaining two artworks of that group.
+    await gallery.get('[data-testid="pelican-showcase-page-2"]').trigger('click')
+    await settle()
+    const secondPage = wrapper.get('[data-testid="showcase-group-1"]')
+    expect(secondPage.findAll('[data-testid="pelican-showcase-card"]')).toHaveLength(2)
+    expect(secondPage.findAll('iframe').map((frame) => frame.attributes('srcdoc').match(/data-item="(\d+)"/)?.[1]))
+      .toEqual(['108', '109'])
+    expect(secondPage.get('[data-testid="pelican-showcase-pager-summary"]').text()).toBe('Page 2 of 2 · 10 results')
+    expect(secondPage.get('[data-testid="pelican-showcase-page-next"]').attributes('disabled')).toBeDefined()
+
+    // Pages that were already loaded reuse the cached bodies instead of refetching them.
+    expect(getShowcaseItem).toHaveBeenCalledTimes(11)
+    await secondPage.get('[data-testid="pelican-showcase-page-1"]').trigger('click')
+    await settle()
+    expect(wrapper.get('[data-testid="showcase-group-1"]').findAll('iframe')).toHaveLength(8)
+    expect(getShowcaseItem).toHaveBeenCalledTimes(11)
+
+    // The page size control re-pages the group and persists the choice.
+    await wrapper.get('[data-testid="pelican-showcase-page-size-12"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.get('[data-testid="showcase-group-1"]').findAll('[data-testid="pelican-showcase-card"]')).toHaveLength(10)
+    expect(localStorage.getItem('mito-pelican-page-size')).toBe('12')
 
     await wrapper.get('[data-testid="showcase-tab-2"]').trigger('click')
     expect(wrapper.find('[data-testid="showcase-group-1"]').exists()).toBe(false)
@@ -199,7 +230,7 @@ describe('PelicanShowcaseView', () => {
     getShowcase.mockResolvedValue(showcase())
     wrapper = mountView()
     await settle()
-    expect(wrapper.findAll('[data-testid="pelican-showcase-card"]')).toHaveLength(11)
+    expect(wrapper.findAll('[data-testid="pelican-showcase-card"]')).toHaveLength(9)
     expect(getShowcaseItem).not.toHaveBeenCalled()
   })
 

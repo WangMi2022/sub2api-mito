@@ -21,7 +21,11 @@ const labels = {
     upstreamModel: 'Upstream model', imageTokens: 'Image tokens', imageCost: 'Image cost',
     cache5m: 'Write 5m', cache1h: 'Write 1h', ttlOverride: 'TTL override',
     resizeColumn: 'Resize {column} column', columnWidth: '{width} pixels',
-    resizeColumnHint: 'Drag to resize {column}; double-click to reset. Use arrow keys to adjust.'
+    resizeColumnHint: 'Drag to resize {column}; double-click to reset. Use arrow keys to adjust.',
+    pelicanGalleryLabel: '{group}: results by page',
+    pelicanPageSummary: 'Page {page} of {total} · {count} results',
+    pelicanPageSize: 'Per page',
+    goToPage: 'Go to page {page}'
   },
   zh: {
     account: '账户概览', accountDescription: '账户余额与常用入口',
@@ -43,7 +47,11 @@ const labels = {
     upstreamModel: '上游模型', imageTokens: '图片 Token', imageCost: '图片费用',
     cache5m: '写入 5m', cache1h: '写入 1h', ttlOverride: 'TTL 覆盖',
     resizeColumn: '调整「{column}」列宽', columnWidth: '{width} 像素',
-    resizeColumnHint: '拖动调整「{column}」列宽；双击恢复默认宽度，也可用左右方向键调整。'
+    resizeColumnHint: '拖动调整「{column}」列宽；双击恢复默认宽度，也可用左右方向键调整。',
+    pelicanGalleryLabel: '{group}：分页浏览作品',
+    pelicanPageSummary: '第 {page} / {total} 页 · 共 {count} 张',
+    pelicanPageSize: '每页',
+    goToPage: '跳转到第 {page} 页'
   }
 } as const
 

@@ -9,6 +9,7 @@ import './available-channels.css'
 import './dashboard.css'
 import './ops-monitor.css'
 import './table-resize.css'
+import './pelican-showcase.css'
 
 /** Build-time escape hatch: VITE_UI_THEME=upstream restores the upstream UI. */
 export const isMitoTheme = import.meta.env.VITE_UI_THEME !== 'upstream'

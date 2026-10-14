@@ -661,6 +661,14 @@ export const adaptations = [
     ]
   },
   {
+    // Mito theme turns the horizontal pelican row into per-group paging; upstream keeps the row.
+    path: 'frontend/src/views/user/PelicanShowcaseView.vue',
+    edits: [
+      { before: '        <!-- Items arrive newest first, so the newest card is on the left and older ones continue to the right. -->\n        <PelicanShowcaseRow v-else :label="t(\'pelicanShowcase.scrollLabel\', { group: group.name })">\n          <PelicanShowcaseCard\n            v-for="item in group.items"\n            :key="item.id"\n            :class="CARD_WIDTH"\n            :item="item"\n            :group-name="group.name"\n            :body="bodies[item.id]"\n            @visible="requestBody(item.id)"\n            @open="openPreview(group, item)"\n          />\n        </PelicanShowcaseRow>', after: '        <!-- Mito theme pages one group at a time, so a long gallery never mounts every sandbox frame at once. -->\n        <MitoPelicanShowcaseGallery\n          v-else-if="isMitoTheme"\n          :group="group"\n          :bodies="bodies"\n          @visible="requestBody"\n          @open="openPreview"\n        />\n        <!-- Upstream keeps the horizontal row: newest on the left, older ones continue to the right. -->\n        <PelicanShowcaseRow v-else :label="t(\'pelicanShowcase.scrollLabel\', { group: group.name })">\n          <PelicanShowcaseCard\n            v-for="item in group.items"\n            :key="item.id"\n            :class="CARD_WIDTH"\n            :item="item"\n            :group-name="group.name"\n            :body="bodies[item.id]"\n            @visible="requestBody(item.id)"\n            @open="openPreview(group, item)"\n          />\n        </PelicanShowcaseRow>' },
+      { before: "import PelicanShowcaseRow from '@/components/user/pelican/PelicanShowcaseRow.vue'", after: "import PelicanShowcaseRow from '@/components/user/pelican/PelicanShowcaseRow.vue'\nimport MitoPelicanShowcaseGallery from '@/themes/mito/PelicanShowcaseGallery.vue'\nimport { isMitoTheme } from '@/themes/mito'" }
+    ]
+  },
+  {
     path: 'frontend/src/views/admin/__tests__/UsageView.spec.ts',
     edits: [
       { before: "      'upstream-request-id-hidden-by-default',", after: "      'admin-request-log-columns-v2'," }
@@ -778,5 +786,11 @@ export const contracts = [
   {"path":"frontend/src/themes/mito/ops-monitor.css","anchors":["html[data-ui-theme='mito']",".mito-ops-dashboard",".mito-ops-particles","mito-ops-card-in","mito-ops-sweep","prefers-reduced-motion"]},
   {"path":"frontend/src/themes/mito/OpsParticles.vue","anchors":["mito-ops-particles-canvas","prefers-reduced-motion","requestAnimationFrame"]},
   { path: 'frontend/src/themes/mito/assets/outfit-latin.ttf', binary: true },
+  { path: 'frontend/src/themes/mito/PelicanShowcaseGallery.vue', anchors: ['mito-pelican-gallery', 'mito-pelican-grid', 'mito-pelican-pager', 'readPageSize'] },
+  { path: 'frontend/src/themes/mito/pelican-showcase.css', anchors: ["html[data-ui-theme='mito']", '.mito-pelican-grid', '.mito-pelican-pager', 'prefers-reduced-motion'] },
+  { path: 'frontend/src/themes/mito/index.ts', anchors: ["import './pelican-showcase.css'"] },
+  { path: 'frontend/src/themes/mito/labels.ts', anchors: ['pelicanPageSummary', 'pelicanPageSize', 'goToPage'] },
+  { path: 'frontend/src/components/user/pelican/PelicanShowcaseCard.vue', anchors: ['data-testid="pelican-showcase-card"', "emit('visible')", 'scrollMargin'] },
+  { path: 'frontend/src/views/user/PelicanShowcaseView.vue', anchors: ['MitoPelicanShowcaseGallery', 'PelicanShowcaseRow', 'bodies[item.id]', "import { isMitoTheme } from '@/themes/mito'"] },
   { path: 'frontend/src/themes/mito/assets/noto-sans-sc-ui.woff2', binary: true }
 ]
