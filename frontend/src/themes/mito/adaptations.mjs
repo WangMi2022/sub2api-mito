@@ -130,6 +130,13 @@ export const adaptations = [
     ]
   },
   {
+    path: 'frontend/src/views/admin/DashboardView.vue',
+    edits: [
+      { before: '  <AppLayout>\n    <div class="space-y-6">\n      <!-- Loading State -->', after: '  <AppLayout>\n    <div class="space-y-6" :class="{ \'mito-admin-dashboard\': isMitoTheme }">\n      <!-- Loading State -->' },
+      { before: "import ModelDistributionChart from '@/components/charts/ModelDistributionChart.vue'", after: "import ModelDistributionChart from '@/components/charts/ModelDistributionChart.vue'\nimport { isMitoTheme } from '@/themes/mito'" }
+    ]
+  },
+  {
     path: 'frontend/src/views/user/DashboardView.vue',
     edits: [
       { before: '  <AppLayout>', after: '  <AppLayout>\n    <template v-if="isMitoTheme" #heading-actions>\n      <button class="btn btn-secondary" :disabled="loading || loadingCharts" @click="refreshAll"><Icon name="refresh" size="sm" />{{ t(\'common.refresh\') }}</button>\n    </template>' },
@@ -714,6 +721,8 @@ export const contracts = [
   {"path":"frontend/src/components/admin/usage/UsageStatsCards.vue","anchors":["class=\"card p-4 flex items-center gap-3\"","class=\"text-xl font-bold","showAccountCost && totalAccountCost != null"]},
   {"path":"frontend/src/themes/mito/model-plaza.css","anchors":["html[data-ui-theme='mito']",".mito-plaza-filters",".mito-plaza-prices","@container mito-plaza","mito-plaza-page-in","mito-plaza-card-in","mito-plaza-row-in","mito-plaza-sweep","prefers-reduced-motion"]},
   {"path":"frontend/src/themes/mito/index.ts","anchors":["import './model-plaza.css'"]},
+  {"path":"frontend/src/themes/mito/dashboard.css","anchors":["html[data-ui-theme='mito']",".mito-admin-dashboard","mito-dash-card-in","mito-dash-sweep","prefers-reduced-motion"]},
+  {"path":"frontend/src/themes/mito/index.ts","anchors":["import './dashboard.css'"]},
   {"path":"frontend/src/components/common/GroupBadge.vue","anchors":["<span class=\"truncate\">{{ name }}</span>","alwaysShowRate?: boolean"]},
   { path: 'frontend/src/themes/mito/useUsageFilters.ts', anchors: ['export function useUsageFilters', 'export function defaultUsageRange', 'export function usageGranularity'] },
   { path: 'frontend/src/themes/mito/requestLogColumns.ts', anchors: ['export function useRequestLogColumns'] },

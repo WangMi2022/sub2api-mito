@@ -6,6 +6,7 @@ import './accounts.css'
 import './audit-log.css'
 import './channel-status.css'
 import './available-channels.css'
+import './dashboard.css'
 import './table-resize.css'
 
 /** Build-time escape hatch: VITE_UI_THEME=upstream restores the upstream UI. */

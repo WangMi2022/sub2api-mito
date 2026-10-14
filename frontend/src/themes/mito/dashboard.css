@@ -1,0 +1,505 @@
+/* Dashboards (user `/dashboard` and admin `/admin/dashboard`): presentation only.
+   Every rule is scoped to `.mito-dashboard` / `.mito-admin-dashboard`, so data,
+   permissions, refresh logic and chart behaviour stay upstream. */
+html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) {
+  --mito-dash-ease: cubic-bezier(.22, 1, .36, 1);
+  --mito-dash-line: linear-gradient(90deg, #2563eb, #38bdf8 45%, #22c55e);
+  --mito-dash-halo: rgb(37 99 235 / 18%);
+}
+
+html[data-ui-theme='mito'].dark :is(.mito-dashboard, .mito-admin-dashboard) {
+  --mito-dash-line: linear-gradient(90deg, #60a5fa, #38bdf8 45%, #4ade80);
+  --mito-dash-halo: rgb(96 165 250 / 24%);
+}
+
+@keyframes mito-dash-card-in {
+  0% { opacity: 0; transform: translate3d(0, 16px, 0) scale(.988); }
+  62% { opacity: 1; transform: translate3d(0, -2px, 0) scale(1.001); }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes mito-dash-panel-in {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes mito-dash-line-grow {
+  from { opacity: .2; transform: scaleX(.06); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+
+@keyframes mito-dash-sweep {
+  from { background-position: 0 0; }
+  to { background-position: 220% 0; }
+}
+
+/* ---------------------------------------------------------------- Shared shell */
+
+html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) {
+  animation: mito-dash-panel-in 480ms var(--mito-dash-ease) backwards;
+  transform-origin: top center;
+}
+
+html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) .card {
+  position: relative;
+  border-color: var(--mito-card-border);
+  transition:
+    transform 320ms var(--mito-dash-ease),
+    box-shadow 320ms ease,
+    border-color 240ms ease;
+}
+
+/* A hairline that only materialises on hover, so the grid stays calm at rest. */
+html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) .card::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  border-radius: 16px 16px 0 0;
+  background-image: var(--mito-dash-line);
+  background-size: 220% 100%;
+  opacity: 0;
+  transition: opacity 260ms ease;
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) .card:hover {
+    transform: translateY(-3px);
+    border-color: var(--mito-blue-border);
+    box-shadow:
+      0 2px 4px rgb(15 23 42 / 5%),
+      0 26px 52px -30px var(--mito-dash-halo);
+  }
+
+  html[data-ui-theme='mito'].dark :is(.mito-dashboard, .mito-admin-dashboard) .card:hover {
+    box-shadow:
+      0 2px 4px rgb(0 0 0 / 30%),
+      0 26px 52px -30px rgb(56 189 248 / 22%);
+  }
+
+  html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) .card:hover::after {
+    opacity: .95;
+    animation: mito-dash-sweep 2.6s linear infinite;
+  }
+}
+
+/* Section headings get a short gradient rule of their own. */
+html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) .card > :is(h2, h3),
+html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) .card > div > :is(h2, h3) {
+  position: relative;
+  letter-spacing: -.01em;
+}
+
+/* --------------------------------------------------- Stat tiles (shared look) */
+
+html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) .card > .flex > .rounded-lg,
+html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) .card > .flex > div > .rounded-lg {
+  transition: transform 300ms var(--mito-dash-ease), box-shadow 300ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) .card:hover > .flex > .rounded-lg,
+  html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) .card:hover > .flex > div > .rounded-lg {
+    transform: translateY(-1px) scale(1.06);
+    box-shadow: 0 10px 20px -14px currentColor;
+  }
+}
+
+/* Numeric readouts keep one consistent rhythm across both dashboards. */
+html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) :is(.text-xl, .text-2xl) {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.02em;
+}
+
+/* ------------------------------------------------ Admin dashboard specifics */
+
+html[data-ui-theme='mito'] .mito-admin-dashboard > .grid > .card {
+  min-height: 104px;
+  overflow: hidden;
+  animation: mito-dash-card-in 540ms var(--mito-dash-ease) backwards;
+}
+
+html[data-ui-theme='mito'] .mito-admin-dashboard > .grid:nth-of-type(1) > .card:nth-child(1) { animation-delay: 40ms; }
+html[data-ui-theme='mito'] .mito-admin-dashboard > .grid:nth-of-type(1) > .card:nth-child(2) { animation-delay: 90ms; }
+html[data-ui-theme='mito'] .mito-admin-dashboard > .grid:nth-of-type(1) > .card:nth-child(3) { animation-delay: 140ms; }
+html[data-ui-theme='mito'] .mito-admin-dashboard > .grid:nth-of-type(1) > .card:nth-child(4) { animation-delay: 190ms; }
+html[data-ui-theme='mito'] .mito-admin-dashboard > .grid:nth-of-type(2) > .card:nth-child(1) { animation-delay: 240ms; }
+html[data-ui-theme='mito'] .mito-admin-dashboard > .grid:nth-of-type(2) > .card:nth-child(2) { animation-delay: 290ms; }
+html[data-ui-theme='mito'] .mito-admin-dashboard > .grid:nth-of-type(2) > .card:nth-child(3) { animation-delay: 340ms; }
+html[data-ui-theme='mito'] .mito-admin-dashboard > .grid:nth-of-type(2) > .card:nth-child(4) { animation-delay: 390ms; }
+
+/* Each stat tile keeps the platform wash of its icon in the corner. */
+html[data-ui-theme='mito'] .mito-admin-dashboard > .grid > .card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 130% at 0% 0%, rgb(37 99 235 / 6%), transparent 58%);
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-ui-theme='mito'] .mito-admin-dashboard > .grid > .card:hover::before { opacity: 1; }
+}
+
+html[data-ui-theme='mito'].dark .mito-admin-dashboard > .grid > .card::before {
+  background: radial-gradient(120% 130% at 0% 0%, rgb(96 165 250 / 12%), transparent 58%);
+}
+
+html[data-ui-theme='mito'] .mito-admin-dashboard > .grid > .card > .flex {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+}
+
+/* Quick actions: the arrow slides out and the tile washes with its own colour. */
+html[data-ui-theme='mito'] .mito-admin-dashboard > .card .grid > button {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  transition:
+    transform 260ms var(--mito-dash-ease),
+    border-color 220ms ease,
+    background-color 220ms ease,
+    box-shadow 260ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-ui-theme='mito'] .mito-admin-dashboard > .card .grid > button:hover {
+    transform: translateY(-2px);
+    border-color: var(--mito-blue-border);
+    box-shadow: 0 14px 28px -22px var(--mito-dash-halo);
+  }
+}
+
+html[data-ui-theme='mito'] .mito-admin-dashboard > .card .grid > button > span:first-child {
+  transition: transform 320ms var(--mito-dash-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-ui-theme='mito'] .mito-admin-dashboard > .card .grid > button:hover > span:first-child {
+    transform: scale(1.08) rotate(-4deg);
+  }
+}
+
+html[data-ui-theme='mito'] .mito-admin-dashboard > .card .grid > button > svg:last-child {
+  transition: transform 300ms var(--mito-dash-ease), color 220ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-ui-theme='mito'] .mito-admin-dashboard > .card .grid > button:hover > svg:last-child {
+    transform: translateX(3px);
+  }
+}
+
+/* Filter strip: surfaces on hover and focus like the request-log filters. */
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .card:first-child {
+  border-radius: 14px;
+  background: var(--mito-surface);
+  transition: border-color 240ms ease, box-shadow 280ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .card:first-child:hover,
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .card:first-child:focus-within {
+  border-color: var(--mito-blue-border);
+  box-shadow: 0 14px 32px -28px var(--mito-dash-halo);
+}
+
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .card:first-child .btn-secondary {
+  transition: transform 200ms var(--mito-dash-ease), border-color 200ms ease, color 200ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .card:first-child .btn-secondary:hover:not(:disabled) {
+  border-color: var(--mito-blue-border);
+  color: var(--mito-blue);
+  transform: translateY(-1px);
+}
+
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .card:first-child .btn-secondary:active:not(:disabled) {
+  transform: translateY(0) scale(.97);
+}
+
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .card:first-child .btn-secondary:disabled svg {
+  animation: mito-dash-refresh 1s linear infinite;
+}
+
+@keyframes mito-dash-refresh { to { transform: rotate(360deg); } }
+
+/* Charts: a soft wash behind the plotting area, panels step in left then right. */
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .grid > .card,
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .card {
+  overflow: hidden;
+  animation: mito-dash-card-in 560ms var(--mito-dash-ease) backwards;
+}
+
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .grid > .card:nth-child(1) { animation-delay: 60ms; }
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .grid > .card:nth-child(2) { animation-delay: 140ms; }
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .card { animation-delay: 220ms; }
+
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .grid > .card::before,
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .card::before {
+  content: '';
+  position: absolute;
+  inset: 44px 0 0;
+  background-image: radial-gradient(120% 90% at 8% 0%, rgb(37 99 235 / 5%), transparent 62%);
+  opacity: 1;
+  pointer-events: none;
+}
+
+html[data-ui-theme='mito'].dark .mito-admin-dashboard > .space-y-6 > .grid > .card::before,
+html[data-ui-theme='mito'].dark .mito-admin-dashboard > .space-y-6 > .card::before {
+  background-image: radial-gradient(120% 90% at 8% 0%, rgb(96 165 250 / 9%), transparent 62%);
+}
+
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .grid > .card > *,
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Metric toggle inside the trend card reads as a segmented control. */
+html[data-ui-theme='mito'] .mito-admin-dashboard [role='group'] {
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--mito-border);
+  border-radius: 8px;
+  background: var(--mito-subtle);
+}
+
+html[data-ui-theme='mito'] .mito-admin-dashboard [role='group'] > button {
+  border-radius: 6px;
+  transition: background-color 180ms ease, color 180ms ease, box-shadow 220ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-admin-dashboard [role='group'] > button[aria-pressed='true'] {
+  background: var(--mito-blue);
+  color: #fff;
+  box-shadow: 0 8px 16px -12px var(--mito-dash-halo);
+}
+
+html[data-ui-theme='mito'] .mito-admin-dashboard [role='group'] > button[aria-pressed='false']:hover {
+  background: var(--mito-surface);
+  color: var(--mito-blue);
+}
+
+/* ------------------------------------------------- User dashboard specifics */
+
+html[data-ui-theme='mito'] .mito-dashboard .mito-stat {
+  animation: mito-dash-card-in 520ms var(--mito-dash-ease) backwards;
+  animation-delay: calc(40ms + var(--mito-motion-order, 0) * 60ms);
+}
+
+html[data-ui-theme='mito'] .mito-dashboard .mito-stats-grid--secondary .mito-stat {
+  animation-delay: calc(280ms + var(--mito-motion-order, 0) * 60ms);
+}
+
+html[data-ui-theme='mito'] .mito-dashboard .mito-stats-grid--secondary .mito-stat:nth-child(1) { --mito-motion-order: 0; }
+html[data-ui-theme='mito'] .mito-dashboard .mito-stats-grid--secondary .mito-stat:nth-child(2) { --mito-motion-order: 1; }
+html[data-ui-theme='mito'] .mito-dashboard .mito-stats-grid--secondary .mito-stat:nth-child(3) { --mito-motion-order: 2; }
+html[data-ui-theme='mito'] .mito-dashboard .mito-stats-grid--secondary .mito-stat:nth-child(4) { --mito-motion-order: 3; }
+
+/* The tinted tiles carry a matching inner glow so the emphasis reads as depth. */
+html[data-ui-theme='mito'] .mito-dashboard .mito-stat--blue {
+  background-image: radial-gradient(130% 140% at 0% 0%, rgb(37 99 235 / 10%), transparent 62%);
+}
+
+html[data-ui-theme='mito'] .mito-dashboard .mito-stat--green {
+  background-image: radial-gradient(130% 140% at 0% 0%, rgb(22 163 74 / 10%), transparent 62%);
+}
+
+html[data-ui-theme='mito'].dark .mito-dashboard .mito-stat--blue {
+  background-image: radial-gradient(130% 140% at 0% 0%, rgb(96 165 250 / 14%), transparent 62%);
+}
+
+html[data-ui-theme='mito'].dark .mito-dashboard .mito-stat--green {
+  background-image: radial-gradient(130% 140% at 0% 0%, rgb(74 222 128 / 12%), transparent 62%);
+}
+
+html[data-ui-theme='mito'] .mito-dashboard .mito-panel {
+  animation: mito-dash-card-in 540ms var(--mito-dash-ease) backwards;
+}
+
+html[data-ui-theme='mito'] .mito-dashboard .mito-chart-grid > .mito-panel:nth-child(1) { animation-delay: 60ms; }
+html[data-ui-theme='mito'] .mito-dashboard .mito-chart-grid > .mito-panel:nth-child(2) { animation-delay: 120ms; }
+html[data-ui-theme='mito'] .mito-dashboard .mito-chart-grid > .mito-panel:nth-child(3) { animation-delay: 180ms; }
+html[data-ui-theme='mito'] .mito-dashboard .mito-chart-grid > .mito-panel:nth-child(4) { animation-delay: 240ms; }
+
+html[data-ui-theme='mito'] .mito-dashboard .mito-chart-body {
+  background-image: radial-gradient(120% 100% at 10% 0%, rgb(37 99 235 / 5%), transparent 60%);
+  background-repeat: no-repeat;
+}
+
+html[data-ui-theme='mito'].dark .mito-dashboard .mito-chart-body {
+  background-image: radial-gradient(120% 100% at 10% 0%, rgb(96 165 250 / 9%), transparent 60%);
+}
+
+/* Shortcut rows light up their icon and slide the chevron out on hover. */
+html[data-ui-theme='mito'] .mito-dashboard .mito-account-shortcuts a {
+  padding-inline: 10px;
+  margin-inline: -10px;
+  border-radius: 10px;
+  transition: background-color 200ms ease, color 200ms ease, transform 260ms var(--mito-dash-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-ui-theme='mito'] .mito-dashboard .mito-account-shortcuts a:hover {
+    background: var(--mito-blue-soft);
+    transform: translateX(2px);
+  }
+
+  html[data-ui-theme='mito'] .mito-dashboard .mito-account-shortcuts a:hover > svg:first-child {
+    transform: scale(1.08);
+  }
+
+  html[data-ui-theme='mito'] .mito-dashboard .mito-account-shortcuts a:hover > svg:last-child {
+    transform: translateX(3px);
+  }
+}
+
+html[data-ui-theme='mito'] .mito-dashboard .mito-account-shortcuts a > svg {
+  transition: transform 300ms var(--mito-dash-ease);
+}
+
+html[data-ui-theme='mito'] .mito-dashboard .mito-panel-footer {
+  transition: color 200ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-dashboard .mito-panel-footer:hover { color: var(--mito-blue); }
+
+html[data-ui-theme='mito'] .mito-dashboard .mito-model-details summary {
+  transition: color 200ms ease, background-color 200ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-dashboard .mito-model-details summary:hover {
+  color: var(--mito-blue);
+  background: var(--mito-subtle);
+}
+
+/* The date/granularity strip behaves like the admin filter bar. */
+html[data-ui-theme='mito'] .mito-dashboard .mito-date-filter {
+  border-radius: 14px;
+  transition: border-color 240ms ease, box-shadow 280ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-dashboard .mito-date-filter:hover,
+html[data-ui-theme='mito'] .mito-dashboard .mito-date-filter:focus-within {
+  border-color: var(--mito-blue-border);
+  box-shadow: 0 14px 32px -28px var(--mito-dash-halo);
+}
+
+html[data-ui-theme='mito'] .mito-dashboard .mito-date-filter .btn-secondary {
+  transition: transform 200ms var(--mito-dash-ease), border-color 200ms ease, color 200ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-dashboard .mito-date-filter .btn-secondary:hover:not(:disabled) {
+  border-color: var(--mito-blue-border);
+  color: var(--mito-blue);
+  transform: translateY(-1px);
+}
+
+html[data-ui-theme='mito'] .mito-dashboard .mito-date-filter .btn-secondary:active:not(:disabled) {
+  transform: translateY(0) scale(.97);
+}
+
+/* Recent-usage rows: one accent bar per row, revealed on hover. */
+html[data-ui-theme='mito'] .mito-dashboard .rounded-xl.bg-gray-50 {
+  position: relative;
+  border: 1px solid transparent;
+  transition:
+    transform 260ms var(--mito-dash-ease),
+    background-color 220ms ease,
+    border-color 220ms ease,
+    box-shadow 260ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-dashboard .rounded-xl.bg-gray-50::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 3px;
+  height: 0;
+  border-radius: 0 999px 999px 0;
+  background: var(--mito-dash-line);
+  transform: translateY(-50%);
+  transition: height 280ms var(--mito-dash-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-ui-theme='mito'] .mito-dashboard .rounded-xl.bg-gray-50:hover {
+    transform: translateX(2px);
+    border-color: var(--mito-blue-border);
+    box-shadow: 0 12px 26px -22px var(--mito-dash-halo);
+  }
+
+  html[data-ui-theme='mito'] .mito-dashboard .rounded-xl.bg-gray-50:hover::before { height: 56%; }
+}
+
+/* Quick-action tiles on the user dashboard echo the admin pattern. */
+html[data-ui-theme='mito'] .mito-dashboard .card .space-y-3 > button {
+  border: 1px solid transparent;
+  transition:
+    transform 260ms var(--mito-dash-ease),
+    background-color 220ms ease,
+    border-color 220ms ease,
+    box-shadow 260ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-ui-theme='mito'] .mito-dashboard .card .space-y-3 > button:hover {
+    transform: translateY(-2px);
+    border-color: var(--mito-blue-border);
+    box-shadow: 0 14px 28px -22px var(--mito-dash-halo);
+  }
+}
+
+html[data-ui-theme='mito'] .mito-dashboard .card .space-y-3 > button > div:last-child {
+  transition: transform 300ms var(--mito-dash-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-ui-theme='mito'] .mito-dashboard .card .space-y-3 > button:hover > div:last-child {
+    transform: translateX(3px);
+  }
+}
+
+/* ------------------------------------------------------------- Responsive */
+
+@media (max-width: 720px) {
+  html[data-ui-theme='mito'] .mito-admin-dashboard > .grid > .card {
+    min-height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard),
+  html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) .card,
+  html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) .mito-stat,
+  html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) .mito-panel,
+  html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) .card::after,
+  html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .card:first-child .btn-secondary:disabled svg {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) *,
+  html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) *::before,
+  html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) *::after {
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  html[data-ui-theme='mito'] :is(.mito-dashboard, .mito-admin-dashboard) .card:hover,
+  html[data-ui-theme='mito'] .mito-admin-dashboard > .card .grid > button:hover,
+  html[data-ui-theme='mito'] .mito-dashboard .rounded-xl.bg-gray-50:hover,
+  html[data-ui-theme='mito'] .mito-dashboard .card .space-y-3 > button:hover,
+  html[data-ui-theme='mito'] .mito-dashboard .mito-account-shortcuts a:hover {
+    transform: none;
+  }
+
+  html[data-ui-theme='mito'] .mito-dashboard .rounded-xl.bg-gray-50:hover::before { height: 0; }
+}
