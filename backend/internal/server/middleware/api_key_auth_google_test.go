@@ -345,6 +345,7 @@ func TestApiKeyAuthWithSubscriptionGoogleSetsGroupContext(t *testing.T) {
 	}
 	user := &service.User{
 		ID:          7,
+		UserGroupID: userGroupIDPtr(1),
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
 		Balance:     10,
@@ -408,7 +409,7 @@ func TestApiKeyAuthWithSubscriptionGoogle_QueryKeyAllowedOnV1Beta(t *testing.T) 
 				ID:     1,
 				Key:    key,
 				Status: service.StatusActive,
-				User: &service.User{
+				User: &service.User{UserGroupID: userGroupIDPtr(1),
 					ID:     123,
 					Status: service.StatusActive,
 				},
@@ -465,6 +466,7 @@ func TestApiKeyAuthWithSubscriptionGoogle_MarksUnavailableGroupBusinessLimited(t
 	groupID := int64(101)
 	user := &service.User{
 		ID:          7,
+		UserGroupID: userGroupIDPtr(1),
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
 		Balance:     10,
@@ -561,7 +563,7 @@ func TestApiKeyAuthWithSubscriptionGoogle_DisabledKey(t *testing.T) {
 				ID:     1,
 				Key:    key,
 				Status: service.StatusDisabled,
-				User: &service.User{
+				User: &service.User{UserGroupID: userGroupIDPtr(1),
 					ID:     123,
 					Status: service.StatusActive,
 				},
@@ -594,7 +596,7 @@ func TestApiKeyAuthWithSubscriptionGoogle_InsufficientBalance(t *testing.T) {
 				ID:     1,
 				Key:    key,
 				Status: service.StatusActive,
-				User: &service.User{
+				User: &service.User{UserGroupID: userGroupIDPtr(1),
 					ID:      123,
 					Status:  service.StatusActive,
 					Balance: 0,
@@ -630,7 +632,7 @@ func TestApiKeyAuthWithSubscriptionGoogle_BalanceBelowMinimumReserve(t *testing.
 				ID:     1,
 				Key:    key,
 				Status: service.StatusActive,
-				User: &service.User{
+				User: &service.User{UserGroupID: userGroupIDPtr(1),
 					ID:      123,
 					Status:  service.StatusActive,
 					Balance: 0.005,
@@ -661,7 +663,7 @@ func TestApiKeyAuthWithSubscriptionGoogle_RejectsExhaustedBalance(t *testing.T) 
 				ID:     1,
 				Key:    key,
 				Status: service.StatusActive,
-				User: &service.User{
+				User: &service.User{UserGroupID: userGroupIDPtr(1),
 					ID:      123,
 					Status:  service.StatusActive,
 					Balance: 0,
@@ -691,6 +693,7 @@ func TestApiKeyAuthWithSubscriptionGoogle_TouchesLastUsedOnSuccess(t *testing.T)
 
 	user := &service.User{
 		ID:          11,
+		UserGroupID: userGroupIDPtr(1),
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
 		Balance:     10,
@@ -740,6 +743,7 @@ func TestApiKeyAuthWithSubscriptionGoogle_TouchFailureDoesNotBlock(t *testing.T)
 
 	user := &service.User{
 		ID:          12,
+		UserGroupID: userGroupIDPtr(1),
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
 		Balance:     10,
@@ -786,6 +790,7 @@ func TestApiKeyAuthWithSubscriptionGoogle_TouchesLastUsedInStandardMode(t *testi
 
 	user := &service.User{
 		ID:          13,
+		UserGroupID: userGroupIDPtr(1),
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
 		Balance:     10,
@@ -842,6 +847,7 @@ func TestApiKeyAuthWithSubscriptionGoogle_SubscriptionLimitExceededReturns429(t 
 	}
 	user := &service.User{
 		ID:          999,
+		UserGroupID: userGroupIDPtr(1),
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
 		Balance:     10,

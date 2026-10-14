@@ -34,6 +34,7 @@ func UserFromServiceShallow(u *service.User) *User {
 		BalanceNotifyExtraEmails:   NotifyEmailEntriesFromService(u.BalanceNotifyExtraEmails),
 		TotalRecharged:             u.TotalRecharged,
 		RPMLimit:                   u.RPMLimit,
+		UserGroupID:                u.UserGroupID,
 		DeletedAt:                  u.DeletedAt,
 	}
 }

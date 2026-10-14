@@ -374,6 +374,20 @@ func (_c *UserCreate) SetNillableRpmLimit(v *int) *UserCreate {
 	return _c
 }
 
+// SetUserGroupID sets the "user_group_id" field.
+func (_c *UserCreate) SetUserGroupID(v int64) *UserCreate {
+	_c.mutation.SetUserGroupID(v)
+	return _c
+}
+
+// SetNillableUserGroupID sets the "user_group_id" field if the given value is not nil.
+func (_c *UserCreate) SetNillableUserGroupID(v *int64) *UserCreate {
+	if v != nil {
+		_c.SetUserGroupID(*v)
+	}
+	return _c
+}
+
 // AddAPIKeyIDs adds the "api_keys" edge to the APIKey entity by IDs.
 func (_c *UserCreate) AddAPIKeyIDs(ids ...int64) *UserCreate {
 	_c.mutation.AddAPIKeyIDs(ids...)
@@ -909,6 +923,10 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.RpmLimit(); ok {
 		_spec.SetField(user.FieldRpmLimit, field.TypeInt, value)
 		_node.RpmLimit = value
+	}
+	if value, ok := _c.mutation.UserGroupID(); ok {
+		_spec.SetField(user.FieldUserGroupID, field.TypeInt64, value)
+		_node.UserGroupID = &value
 	}
 	if nodes := _c.mutation.APIKeysIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -1546,6 +1564,30 @@ func (u *UserUpsert) AddRpmLimit(v int) *UserUpsert {
 	return u
 }
 
+// SetUserGroupID sets the "user_group_id" field.
+func (u *UserUpsert) SetUserGroupID(v int64) *UserUpsert {
+	u.Set(user.FieldUserGroupID, v)
+	return u
+}
+
+// UpdateUserGroupID sets the "user_group_id" field to the value that was provided on create.
+func (u *UserUpsert) UpdateUserGroupID() *UserUpsert {
+	u.SetExcluded(user.FieldUserGroupID)
+	return u
+}
+
+// AddUserGroupID adds v to the "user_group_id" field.
+func (u *UserUpsert) AddUserGroupID(v int64) *UserUpsert {
+	u.Add(user.FieldUserGroupID, v)
+	return u
+}
+
+// ClearUserGroupID clears the value of the "user_group_id" field.
+func (u *UserUpsert) ClearUserGroupID() *UserUpsert {
+	u.SetNull(user.FieldUserGroupID)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -2022,6 +2064,34 @@ func (u *UserUpsertOne) AddRpmLimit(v int) *UserUpsertOne {
 func (u *UserUpsertOne) UpdateRpmLimit() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdateRpmLimit()
+	})
+}
+
+// SetUserGroupID sets the "user_group_id" field.
+func (u *UserUpsertOne) SetUserGroupID(v int64) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetUserGroupID(v)
+	})
+}
+
+// AddUserGroupID adds v to the "user_group_id" field.
+func (u *UserUpsertOne) AddUserGroupID(v int64) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.AddUserGroupID(v)
+	})
+}
+
+// UpdateUserGroupID sets the "user_group_id" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateUserGroupID() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateUserGroupID()
+	})
+}
+
+// ClearUserGroupID clears the value of the "user_group_id" field.
+func (u *UserUpsertOne) ClearUserGroupID() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearUserGroupID()
 	})
 }
 
@@ -2667,6 +2737,34 @@ func (u *UserUpsertBulk) AddRpmLimit(v int) *UserUpsertBulk {
 func (u *UserUpsertBulk) UpdateRpmLimit() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdateRpmLimit()
+	})
+}
+
+// SetUserGroupID sets the "user_group_id" field.
+func (u *UserUpsertBulk) SetUserGroupID(v int64) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetUserGroupID(v)
+	})
+}
+
+// AddUserGroupID adds v to the "user_group_id" field.
+func (u *UserUpsertBulk) AddUserGroupID(v int64) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.AddUserGroupID(v)
+	})
+}
+
+// UpdateUserGroupID sets the "user_group_id" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateUserGroupID() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateUserGroupID()
+	})
+}
+
+// ClearUserGroupID clears the value of the "user_group_id" field.
+func (u *UserUpsertBulk) ClearUserGroupID() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearUserGroupID()
 	})
 }
 

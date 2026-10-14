@@ -29,7 +29,7 @@ func queueAuthTestKey(status string, limit int) *service.APIKey {
 		Platform: service.PlatformOpenAI,
 		Hydrated: true,
 	}
-	user := &service.User{ID: 7, Status: service.StatusActive, Concurrency: 3}
+	user := &service.User{UserGroupID: userGroupIDPtr(1), ID: 7, Status: service.StatusActive, Concurrency: 3}
 	apiKey := &service.APIKey{
 		ID:               100,
 		UserID:           user.ID,

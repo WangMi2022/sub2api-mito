@@ -78,7 +78,7 @@ func wsRevalidationKey(limit int, allowlistEnabled bool, models []string, allowI
 			Models:  models,
 		},
 	}
-	user := &service.User{ID: 1701, Status: service.StatusActive, Concurrency: 3}
+	user := &service.User{UserGroupID: userGroupIDPtr(1), ID: 1701, Status: service.StatusActive, Concurrency: 3}
 	key := &service.APIKey{
 		ID:               1801,
 		UserID:           user.ID,

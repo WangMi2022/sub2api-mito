@@ -180,6 +180,11 @@ func RpmLimit(v int) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldRpmLimit, v))
 }
 
+// UserGroupID applies equality check predicate on the "user_group_id" field. It's identical to UserGroupIDEQ.
+func UserGroupID(v int64) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldUserGroupID, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldCreatedAt, v))
@@ -1398,6 +1403,56 @@ func RpmLimitLT(v int) predicate.User {
 // RpmLimitLTE applies the LTE predicate on the "rpm_limit" field.
 func RpmLimitLTE(v int) predicate.User {
 	return predicate.User(sql.FieldLTE(FieldRpmLimit, v))
+}
+
+// UserGroupIDEQ applies the EQ predicate on the "user_group_id" field.
+func UserGroupIDEQ(v int64) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldUserGroupID, v))
+}
+
+// UserGroupIDNEQ applies the NEQ predicate on the "user_group_id" field.
+func UserGroupIDNEQ(v int64) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldUserGroupID, v))
+}
+
+// UserGroupIDIn applies the In predicate on the "user_group_id" field.
+func UserGroupIDIn(vs ...int64) predicate.User {
+	return predicate.User(sql.FieldIn(FieldUserGroupID, vs...))
+}
+
+// UserGroupIDNotIn applies the NotIn predicate on the "user_group_id" field.
+func UserGroupIDNotIn(vs ...int64) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldUserGroupID, vs...))
+}
+
+// UserGroupIDGT applies the GT predicate on the "user_group_id" field.
+func UserGroupIDGT(v int64) predicate.User {
+	return predicate.User(sql.FieldGT(FieldUserGroupID, v))
+}
+
+// UserGroupIDGTE applies the GTE predicate on the "user_group_id" field.
+func UserGroupIDGTE(v int64) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldUserGroupID, v))
+}
+
+// UserGroupIDLT applies the LT predicate on the "user_group_id" field.
+func UserGroupIDLT(v int64) predicate.User {
+	return predicate.User(sql.FieldLT(FieldUserGroupID, v))
+}
+
+// UserGroupIDLTE applies the LTE predicate on the "user_group_id" field.
+func UserGroupIDLTE(v int64) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldUserGroupID, v))
+}
+
+// UserGroupIDIsNil applies the IsNil predicate on the "user_group_id" field.
+func UserGroupIDIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldUserGroupID))
+}
+
+// UserGroupIDNotNil applies the NotNil predicate on the "user_group_id" field.
+func UserGroupIDNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldUserGroupID))
 }
 
 // HasAPIKeys applies the HasEdge predicate on the "api_keys" edge.

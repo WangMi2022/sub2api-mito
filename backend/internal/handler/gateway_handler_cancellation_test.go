@@ -55,7 +55,7 @@ func TestGatewayHandlerPreCancelledCompatibleRequestsDoNotSelectAccount(t *testi
 	}
 	apiKey := &service.APIKey{
 		ID: 9102, UserID: 9103, GroupID: &groupID, Group: group, Status: service.StatusActive,
-		User: &service.User{ID: 9103, Concurrency: 10, Balance: 100},
+		User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 9103, Concurrency: 10, Balance: 100},
 	}
 
 	tests := []struct {

@@ -22,7 +22,7 @@ func TestAdminAuthJWTValidatesTokenVersion(t *testing.T) {
 	cfg := &config.Config{JWT: config.JWTConfig{Secret: "test-secret", ExpireHour: 1}}
 	authService := service.NewAuthService(nil, nil, nil, nil, cfg, nil, nil, nil, nil, nil, nil, nil, nil)
 
-	admin := &service.User{
+	admin := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:           1,
 		Email:        "admin@example.com",
 		Role:         service.RoleAdmin,
@@ -49,7 +49,7 @@ func TestAdminAuthJWTValidatesTokenVersion(t *testing.T) {
 	})
 
 	t.Run("token_version_mismatch_rejected", func(t *testing.T) {
-		token, err := authService.GenerateToken(context.Background(), &service.User{
+		token, err := authService.GenerateToken(context.Background(), &service.User{UserGroupID: userGroupIDPtr(1),
 			ID:           admin.ID,
 			Email:        admin.Email,
 			Role:         admin.Role,
@@ -67,7 +67,7 @@ func TestAdminAuthJWTValidatesTokenVersion(t *testing.T) {
 	})
 
 	t.Run("token_version_match_allows", func(t *testing.T) {
-		token, err := authService.GenerateToken(context.Background(), &service.User{
+		token, err := authService.GenerateToken(context.Background(), &service.User{UserGroupID: userGroupIDPtr(1),
 			ID:           admin.ID,
 			Email:        admin.Email,
 			Role:         admin.Role,
@@ -84,7 +84,7 @@ func TestAdminAuthJWTValidatesTokenVersion(t *testing.T) {
 	})
 
 	t.Run("websocket_token_version_mismatch_rejected", func(t *testing.T) {
-		token, err := authService.GenerateToken(context.Background(), &service.User{
+		token, err := authService.GenerateToken(context.Background(), &service.User{UserGroupID: userGroupIDPtr(1),
 			ID:           admin.ID,
 			Email:        admin.Email,
 			Role:         admin.Role,
@@ -104,7 +104,7 @@ func TestAdminAuthJWTValidatesTokenVersion(t *testing.T) {
 	})
 
 	t.Run("websocket_token_version_match_allows", func(t *testing.T) {
-		token, err := authService.GenerateToken(context.Background(), &service.User{
+		token, err := authService.GenerateToken(context.Background(), &service.User{UserGroupID: userGroupIDPtr(1),
 			ID:           admin.ID,
 			Email:        admin.Email,
 			Role:         admin.Role,
@@ -264,7 +264,7 @@ func TestAdminAuthRejectsObserverUsageAndCleanup(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	cfg := &config.Config{JWT: config.JWTConfig{Secret: "observer-usage-test", ExpireHour: 1}}
 	auth := service.NewAuthService(nil, nil, nil, nil, cfg, nil, nil, nil, nil, nil, nil, nil, nil)
-	observer := &service.User{ID: 42, Email: "observer@test.com", Role: service.RoleObserver, Status: service.StatusActive}
+	observer := &service.User{UserGroupID: userGroupIDPtr(1), ID: 42, Email: "observer@test.com", Role: service.RoleObserver, Status: service.StatusActive}
 	repo := &stubUserRepo{getByID: func(context.Context, int64) (*service.User, error) { return observer, nil }}
 	token, err := auth.GenerateToken(context.Background(), observer)
 	require.NoError(t, err)

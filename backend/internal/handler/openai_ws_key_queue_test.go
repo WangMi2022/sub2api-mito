@@ -563,7 +563,7 @@ func TestOpenAIResponsesWebSocketFirstTurnKeyWaitEndsWithoutUpstream(t *testing.
 				concurrencyHelper:   helper,
 			}
 
-			apiKey := &service.APIKey{ID: 1801, GroupID: &groupID, ConcurrencyLimit: 1, User: &service.User{ID: 1701, Status: service.StatusActive}}
+			apiKey := &service.APIKey{ID: 1801, GroupID: &groupID, ConcurrencyLimit: 1, User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 1701, Status: service.StatusActive}}
 			ownerCtx, cancelOwner := service.WithAPIKeyAdmissionOwner(context.Background())
 			defer cancelOwner()
 			router := gin.New()
@@ -679,7 +679,7 @@ func TestOpenAIResponsesWebSocketFirstTurnCarriesPermissionsToWorker(t *testing.
 		concurrencyHelper:   helper,
 	}
 
-	apiKey := &service.APIKey{ID: apiKeyID, GroupID: &groupID, ConcurrencyLimit: 1, User: &service.User{ID: userID, Status: service.StatusActive}}
+	apiKey := &service.APIKey{ID: apiKeyID, GroupID: &groupID, ConcurrencyLimit: 1, User: &service.User{UserGroupID: userGroupIDPtr(1), ID: userID, Status: service.StatusActive}}
 	ownerCtx, cancelOwner := service.WithAPIKeyAdmissionOwner(context.Background())
 	defer cancelOwner()
 	var observedMu sync.Mutex

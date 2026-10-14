@@ -135,7 +135,7 @@ func newOpenAICompatibleStreamValidationContext(path, body string, claudeCodeOnl
 		ID:      11,
 		GroupID: &groupID,
 		Group:   &service.Group{ID: groupID, ClaudeCodeOnly: claudeCodeOnly},
-		User:    &service.User{ID: 13},
+		User:    &service.User{UserGroupID: userGroupIDPtr(1), ID: 13},
 	})
 	c.Set(string(middleware2.ContextKeyUser), middleware2.AuthSubject{UserID: 13, Concurrency: 1})
 

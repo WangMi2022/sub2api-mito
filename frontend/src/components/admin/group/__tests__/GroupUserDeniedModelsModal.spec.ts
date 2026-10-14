@@ -5,20 +5,18 @@ import GroupUserDeniedModelsModal from '../GroupUserDeniedModelsModal.vue'
 
 const mocks = vi.hoisted(() => ({
   list: vi.fn(),
-  getGroupUserDeniedModels: vi.fn(),
-  batchSetGroupUserDeniedModels: vi.fn(),
-  clearGroupUserDeniedModels: vi.fn(),
+  getGroupUserGroupPolicies: vi.fn(),
+  batchSetGroupUserGroupDeniedModels: vi.fn(),
   getModelAllowlistCandidates: vi.fn(),
   showError: vi.fn(),
   showSuccess: vi.fn()
 }))
 vi.mock('@/api/admin', () => ({
   adminAPI: {
-    users: { list: mocks.list },
+    userGroups: { list: mocks.list },
     groups: {
-      getGroupUserDeniedModels: mocks.getGroupUserDeniedModels,
-      batchSetGroupUserDeniedModels: mocks.batchSetGroupUserDeniedModels,
-      clearGroupUserDeniedModels: mocks.clearGroupUserDeniedModels,
+      getGroupUserGroupPolicies: mocks.getGroupUserGroupPolicies,
+      batchSetGroupUserGroupDeniedModels: mocks.batchSetGroupUserGroupDeniedModels,
       getModelAllowlistCandidates: mocks.getModelAllowlistCandidates
     }
   }
@@ -29,18 +27,23 @@ enableAutoUnmount(afterEach)
 afterEach(() => vi.useRealTimers())
 
 const savedEntry = {
-  user_id: 3, user_name: 'alice', user_email: 'alice@example.com', user_notes: '', user_status: 'active',
+  user_group_id: 3,
+  user_group_name: 'alice-group',
+  user_group_code: 'alice',
+  is_system: false,
+  member_count: 5,
+  rate_multiplier: null,
+  rpm_override: null,
   denied_models: ['gpt-6-luna']
 }
 
 beforeEach(() => {
   vi.clearAllMocks()
   vi.useFakeTimers()
-  mocks.getGroupUserDeniedModels.mockResolvedValue([savedEntry])
+  mocks.getGroupUserGroupPolicies.mockResolvedValue([savedEntry])
   mocks.getModelAllowlistCandidates.mockResolvedValue(['gpt-6-luna', 'gpt-6-sol'])
-  mocks.list.mockResolvedValue({ items: [{ id: 7, email: 'bob@example.com', status: 'active' }] })
-  mocks.batchSetGroupUserDeniedModels.mockResolvedValue(undefined)
-  mocks.clearGroupUserDeniedModels.mockResolvedValue(undefined)
+  mocks.list.mockResolvedValue([{ id: 7, name: 'bob-group', code: 'bob', is_system: false, member_count: 2 }])
+  mocks.batchSetGroupUserGroupDeniedModels.mockResolvedValue(undefined)
 })
 
 async function openModal() {
@@ -63,13 +66,13 @@ describe('GroupUserDeniedModelsModal', () => {
   it('lists saved limits with their models and offers group models as suggestions', async () => {
     const wrapper = await openModal()
     const row = wrapper.get('[data-testid="denied-models-row-3"]')
-    expect(row.text()).toContain('alice@example.com')
+    expect(row.text()).toContain('alice-group')
     expect(row.findAll('[data-testid="model-tag"]').map(tag => tag.text())).toEqual(['gpt-6-luna'])
     expect(mocks.getModelAllowlistCandidates).toHaveBeenCalledWith(1)
     expect(buttonByText(wrapper, 'common.save')).toBeUndefined()
   })
 
-  it('adds a user with denied models and saves the whole group', async () => {
+  it('adds a user group with denied models and saves the whole group', async () => {
     const wrapper = await openModal()
     await wrapper.get('[data-testid="denied-models-user-search"]').setValue('bob')
     await vi.advanceTimersByTimeAsync(300)
@@ -78,30 +81,32 @@ describe('GroupUserDeniedModelsModal', () => {
 
     const addButton = wrapper.get('[data-testid="denied-models-add"]')
     expect(addButton.attributes('disabled')).toBeDefined()
-    const draft = wrapper.findAll('[data-testid="model-tag-draft"]')[0]
+    const drafts = wrapper.findAll('[data-testid="model-tag-draft"]')
+    const draft = drafts[drafts.length - 1]
     await draft.setValue('gpt-6-*')
     await draft.trigger('keydown', { key: 'Enter' })
+    await flushPromises()
     await addButton.trigger('click')
 
     await wrapper.get('[data-testid="denied-models-save"]').trigger('click')
     await flushPromises()
-    expect(mocks.batchSetGroupUserDeniedModels).toHaveBeenCalledWith(1, [
-      { user_id: 3, denied_models: ['gpt-6-luna'] },
-      { user_id: 7, denied_models: ['gpt-6-*'] }
+    expect(mocks.batchSetGroupUserGroupDeniedModels).toHaveBeenCalledWith(1, [
+      { user_group_id: 3, denied_models: ['gpt-6-luna'] },
+      { user_group_id: 7, denied_models: ['gpt-6-*'] }
     ])
     expect(wrapper.emitted('close')).toBeTruthy()
   })
 
-  it('drops users whose list became empty or who were removed', async () => {
+  it('drops user groups whose list became empty or who were removed', async () => {
     const wrapper = await openModal()
     await wrapper.get('[data-testid="denied-models-remove-3"]').trigger('click')
     await wrapper.get('[data-testid="denied-models-save"]').trigger('click')
     await flushPromises()
-    expect(mocks.batchSetGroupUserDeniedModels).toHaveBeenCalledWith(1, [])
+    expect(mocks.batchSetGroupUserGroupDeniedModels).toHaveBeenCalledWith(1, [])
   })
 
   it('shows the server reason when saving fails', async () => {
-    mocks.batchSetGroupUserDeniedModels.mockRejectedValueOnce({ message: 'wildcard "*" is only allowed at the end of a model name' })
+    mocks.batchSetGroupUserGroupDeniedModels.mockRejectedValueOnce({ message: 'wildcard "*" is only allowed at the end of a model name' })
     const wrapper = await openModal()
     await wrapper.get('[data-testid="denied-models-remove-3"]').trigger('click')
     await wrapper.get('[data-testid="denied-models-save"]').trigger('click')
@@ -126,7 +131,7 @@ describe('GroupUserDeniedModelsModal', () => {
     const wrapper = await openModal()
     await wrapper.get('[data-testid="denied-models-clear-all"]').trigger('click')
     await flushPromises()
-    expect(mocks.clearGroupUserDeniedModels).toHaveBeenCalledWith(1)
+    expect(mocks.batchSetGroupUserGroupDeniedModels).toHaveBeenCalledWith(1, [{ user_group_id: 3, denied_models: [] }])
     expect(wrapper.find('[data-testid="denied-models-row-3"]').exists()).toBe(false)
   })
 })

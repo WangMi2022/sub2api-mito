@@ -3,16 +3,36 @@ import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import type { AdminGroup } from '@/types'
 import GroupRPMOverridesModal from '../GroupRPMOverridesModal.vue'
 
-const mocks = vi.hoisted(() => ({ getGroupRPMOverrides: vi.fn(), batchSetGroupRPMOverrides: vi.fn() }))
-vi.mock('@/api/admin', () => ({ adminAPI: { groups: mocks } }))
+const mocks = vi.hoisted(() => ({
+  getGroupUserGroupPolicies: vi.fn(),
+  batchSetGroupUserGroupRPM: vi.fn()
+}))
+vi.mock('@/api/admin', () => ({
+  adminAPI: {
+    userGroups: { list: vi.fn() },
+    groups: {
+      getGroupUserGroupPolicies: mocks.getGroupUserGroupPolicies,
+      batchSetGroupUserGroupRPM: mocks.batchSetGroupUserGroupRPM
+    }
+  }
+}))
 vi.mock('@/stores/app', () => ({ useAppStore: () => ({ showSuccess: vi.fn(), showError: vi.fn() }) }))
 vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: (key: string) => key }) }))
 enableAutoUnmount(afterEach)
 
 beforeEach(() => {
   vi.resetAllMocks()
-  mocks.getGroupRPMOverrides.mockResolvedValue([
-    { user_id: 7, user_email: 'user@example.com', user_name: '', user_status: 'active', rpm_override: 100 }
+  mocks.getGroupUserGroupPolicies.mockResolvedValue([
+    {
+      user_group_id: 7,
+      user_group_name: 'VIP',
+      user_group_code: 'vip',
+      is_system: false,
+      member_count: 3,
+      rate_multiplier: null,
+      rpm_override: 100,
+      denied_models: null
+    }
   ])
 })
 
@@ -34,7 +54,7 @@ describe('existing RPM override edits', () => {
     const wrapper = await openEditor()
     await wrapper.get('tbody input[type="number"]').setValue(value)
     expect(wrapper.findAll('button').some(button => button.text() === 'common.save')).toBe(false)
-    expect(mocks.batchSetGroupRPMOverrides).not.toHaveBeenCalled()
+    expect(mocks.batchSetGroupUserGroupRPM).not.toHaveBeenCalled()
   })
 
   it.each([['0', 0], ['200', 200], ['1e3', 1000]])('saves %s as %i', async (input, expected) => {
@@ -42,6 +62,6 @@ describe('existing RPM override edits', () => {
     await wrapper.get('tbody input[type="number"]').setValue(input)
     await wrapper.findAll('button').find(button => button.text() === 'common.save')!.trigger('click')
     await flushPromises()
-    expect(mocks.batchSetGroupRPMOverrides).toHaveBeenCalledWith(1, [{ user_id: 7, rpm_override: expected }])
+    expect(mocks.batchSetGroupUserGroupRPM).toHaveBeenCalledWith(1, [{ user_group_id: 7, rpm_override: expected }])
   })
 })

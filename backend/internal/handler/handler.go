@@ -14,6 +14,7 @@ type AdminHandlers struct {
 	Dashboard              *admin.DashboardHandler
 	User                   *admin.UserHandler
 	Group                  *admin.GroupHandler
+	UserGroup              *admin.UserGroupHandler
 	Account                *admin.AccountHandler
 	Announcement           *admin.AnnouncementHandler
 	DataManagement         *admin.DataManagementHandler

@@ -20,7 +20,7 @@ func TestAPIKeyAuthPelicanReadsSkipBillingAndWrites(t *testing.T) {
 	group := &service.Group{ID: 42, Status: service.StatusActive, Hydrated: true, SubscriptionType: service.SubscriptionTypeSubscription}
 	key := &service.APIKey{
 		ID: 100, UserID: 7, Key: "pelican-read-auth-only", Status: service.StatusAPIKeyQuotaExhausted,
-		User:    &service.User{ID: 7, Role: service.RoleUser, Status: service.StatusActive, Balance: 0},
+		User:    &service.User{UserGroupID: userGroupIDPtr(1), ID: 7, Role: service.RoleUser, Status: service.StatusActive, Balance: 0},
 		GroupID: &group.ID, Group: group, Quota: 1, QuotaUsed: 1,
 	}
 	touchCalls, subscriptionCalls := 0, 0

@@ -208,7 +208,7 @@ func newCyberIdentityAdmissionTestHandler(settings map[string]string) *OpenAIGat
 }
 
 func TestRejectIfCyberSessionBlocked_StrictIdentityGate(t *testing.T) {
-	apiKey := &service.APIKey{ID: 77, Key: "sk-test", User: &service.User{ID: 9}}
+	apiKey := &service.APIKey{ID: 77, Key: "sk-test", User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 9}}
 
 	t.Run("strict off remains compatible", func(t *testing.T) {
 		h := newCyberIdentityAdmissionTestHandler(map[string]string{
@@ -260,7 +260,7 @@ func TestRejectIfCyberSessionBlocked_StrictIdentityGate(t *testing.T) {
 }
 
 func TestWriteCyberSessionIdentityRejectedResponseFormats(t *testing.T) {
-	apiKey := &service.APIKey{ID: 77, Key: "sk-test", User: &service.User{ID: 9}}
+	apiKey := &service.APIKey{ID: 77, Key: "sk-test", User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 9}}
 	metadata := service.OpenAIClientSessionIdentityMetadata{
 		Status: service.OpenAIClientSessionIdentityConflict,
 		Kind:   "thread",

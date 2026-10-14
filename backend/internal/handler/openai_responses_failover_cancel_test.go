@@ -143,7 +143,7 @@ func newOpenAIResponsesFailoverTestContext(t *testing.T, ctx context.Context) (*
 			ID:       groupID,
 			Platform: service.PlatformOpenAI,
 		},
-		User: &service.User{ID: 100},
+		User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 100},
 	})
 	c.Set(string(middleware2.ContextKeyUser), middleware2.AuthSubject{UserID: 100, Concurrency: 0})
 	return c, rec

@@ -117,7 +117,7 @@ func TestCompositeCompatibleImagesEndToEnd(t *testing.T) {
 			resolver := service.NewCompositeRouteResolver(compositeRouteRepoStub{routes: []service.CompositeModelRoute{{ID: 1, GroupID: groupID, PublicModel: publicModel, MatchType: service.CompositeRouteMatchExact, TargetPlatform: service.PlatformOpenAI, UpstreamModel: model, Endpoint: service.CompositeRouteEndpointImages, Enabled: true}}})
 			router := gin.New()
 			router.Use(func(c *gin.Context) {
-				c.Set(string(servermiddleware.ContextKeyAPIKey), &service.APIKey{ID: 202, GroupID: &groupID, Group: group, User: &service.User{ID: 303}})
+				c.Set(string(servermiddleware.ContextKeyAPIKey), &service.APIKey{ID: 202, GroupID: &groupID, Group: group, User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 303}})
 				c.Set(string(servermiddleware.ContextKeyUser), servermiddleware.AuthSubject{UserID: 303})
 				c.Next()
 			})

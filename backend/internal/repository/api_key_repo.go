@@ -166,6 +166,7 @@ func (r *apiKeyRepository) GetByKeyForAuth(ctx context.Context, key string) (*se
 				user.FieldLastLoginAt,
 				user.FieldLastActiveAt,
 				user.FieldRpmLimit,
+				user.FieldUserGroupID,
 			)
 			q.WithAllowedGroups(func(gq *dbent.GroupQuery) {
 				gq.Select(group.FieldID)
@@ -960,6 +961,7 @@ func userEntityToService(u *dbent.User) *service.User {
 		BalanceNotifyThreshold:     u.BalanceNotifyThreshold,
 		TotalRecharged:             u.TotalRecharged,
 		RPMLimit:                   u.RpmLimit,
+		UserGroupID:                u.UserGroupID,
 		CreatedAt:                  u.CreatedAt,
 		UpdatedAt:                  u.UpdatedAt,
 		DeletedAt:                  u.DeletedAt,

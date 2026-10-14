@@ -70,6 +70,8 @@ type User struct {
 	TotalRecharged float64 `json:"total_recharged,omitempty"`
 	// RpmLimit holds the value of the "rpm_limit" field.
 	RpmLimit int `json:"rpm_limit,omitempty"`
+	// 所属用户组 ID；NULL 表示未分组
+	UserGroupID *int64 `json:"user_group_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
@@ -248,7 +250,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case user.FieldBalance, user.FieldFrozenBalance, user.FieldBalanceNotifyThreshold, user.FieldTotalRecharged:
 			values[i] = new(sql.NullFloat64)
-		case user.FieldID, user.FieldConcurrency, user.FieldRpmLimit:
+		case user.FieldID, user.FieldConcurrency, user.FieldRpmLimit, user.FieldUserGroupID:
 			values[i] = new(sql.NullInt64)
 		case user.FieldEmail, user.FieldPasswordHash, user.FieldRole, user.FieldStatus, user.FieldUsername, user.FieldNotes, user.FieldTotpSecretEncrypted, user.FieldSignupSource, user.FieldBalanceNotifyThresholdType, user.FieldBalanceNotifyExtraEmails:
 			values[i] = new(sql.NullString)
@@ -438,6 +440,13 @@ func (_m *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field rpm_limit", values[i])
 			} else if value.Valid {
 				_m.RpmLimit = int(value.Int64)
+			}
+		case user.FieldUserGroupID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field user_group_id", values[i])
+			} else if value.Valid {
+				_m.UserGroupID = new(int64)
+				*_m.UserGroupID = value.Int64
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -634,6 +643,11 @@ func (_m *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("rpm_limit=")
 	builder.WriteString(fmt.Sprintf("%v", _m.RpmLimit))
+	builder.WriteString(", ")
+	if v := _m.UserGroupID; v != nil {
+		builder.WriteString("user_group_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

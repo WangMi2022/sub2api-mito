@@ -19,7 +19,7 @@ func TestObserverPublicGroupRestrictionRejectsExistingAPIKey(t *testing.T) {
 	for _, mode := range []string{config.RunModeStandard, config.RunModeSimple} {
 		t.Run(mode, func(t *testing.T) {
 			group := &service.Group{ID: 20, Name: "public", Status: service.StatusActive, SubscriptionType: service.SubscriptionTypeStandard, Hydrated: true}
-			user := &service.User{ID: 7, Role: service.RoleObserver, Status: service.StatusActive, Balance: 100, Concurrency: 1000, RestrictPublicGroups: true, AllowedGroups: []int64{11}}
+			user := &service.User{UserGroupID: userGroupIDPtr(1), ID: 7, Role: service.RoleObserver, Status: service.StatusActive, Balance: 100, Concurrency: 1000, RestrictPublicGroups: true, AllowedGroups: []int64{11}}
 			key := &service.APIKey{ID: 1, UserID: user.ID, Key: "existing-public-key", Status: service.StatusActive, User: user, Group: group, GroupID: &group.ID}
 			repo := &stubApiKeyRepo{getByKey: func(context.Context, string) (*service.APIKey, error) { return key, nil }}
 			cfg := &config.Config{RunMode: mode}

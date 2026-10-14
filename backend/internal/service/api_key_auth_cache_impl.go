@@ -14,7 +14,7 @@ import (
 	"github.com/dgraph-io/ristretto"
 )
 
-const apiKeyAuthSnapshotVersion = 27 // v27: include API key concurrency limit; retain stream_only and user-group denied models
+const apiKeyAuthSnapshotVersion = 28 // v28: carry user_group_id for user-group policy resolution
 
 type apiKeyAuthCacheConfig struct {
 	l1Size        int
@@ -385,6 +385,7 @@ func (s *APIKeyService) snapshotFromAPIKey(ctx context.Context, apiKey *APIKey) 
 			TotalRecharged:             apiKey.User.TotalRecharged,
 			RPMLimit:                   apiKey.User.RPMLimit,
 			UserGroupDeniedModels:      apiKey.User.UserGroupDeniedModels,
+			UserGroupID:                apiKey.User.UserGroupID,
 		},
 	}
 
@@ -498,6 +499,7 @@ func (s *APIKeyService) snapshotToAPIKey(key string, snapshot *APIKeyAuthSnapsho
 			RPMLimit:                   snapshot.User.RPMLimit,
 			UserGroupRPMOverride:       snapshot.User.UserGroupRPMOverride,
 			UserGroupDeniedModels:      snapshot.User.UserGroupDeniedModels,
+			UserGroupID:                snapshot.User.UserGroupID,
 		},
 	}
 	if snapshot.Group != nil {

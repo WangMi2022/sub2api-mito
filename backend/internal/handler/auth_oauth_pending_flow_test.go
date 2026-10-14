@@ -3474,7 +3474,7 @@ func oauthPendingFlowServiceUser(entity *dbent.User) *service.User {
 	if entity == nil {
 		return nil
 	}
-	return &service.User{
+	return &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:                  entity.ID,
 		Email:               entity.Email,
 		Username:            entity.Username,

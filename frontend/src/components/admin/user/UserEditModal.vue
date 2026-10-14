@@ -38,6 +38,7 @@
         />
       </div>
       <ObserverGroupSelector v-if="form.role === 'observer'" v-model="form.observer_group_ids" />
+      <UserGroupSelect v-model="form.user_group_id" />
       <fieldset v-if="promotingObserver" class="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-dark-600" data-test="observer-setup">
         <legend class="px-1 text-sm font-medium">{{ t('admin.users.observerSetup.title') }}</legend>
         <label class="flex items-start gap-2 text-sm">
@@ -108,6 +109,7 @@ import { useClipboard } from '@/composables/useClipboard'
 import { adminAPI } from '@/api/admin'
 import type { AdminUser, ObserverSetupOptions, UpdateUserRequest, UserAttributeValuesMap } from '@/types'
 import ObserverGroupSelector from './ObserverGroupSelector.vue'
+import UserGroupSelect from './UserGroupSelect.vue'
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import Select from '@/components/common/Select.vue'
 import UserAttributeForm from '@/components/user/UserAttributeForm.vue'
@@ -137,6 +139,7 @@ const form = reactive({
   notes: '',
   role: 'user' as AdminUser['role'],
   observer_group_ids: [] as number[],
+  user_group_id: null as number | null,
   concurrency: 1,
   rpm_limit: 0,
   customAttributes: {} as UserAttributeValuesMap
@@ -146,7 +149,7 @@ watch(() => props.user, (u) => {
   resetObserverSetup()
   observerPromotionSaved.value = false
   if (u) {
-    Object.assign(form, { email: u.email, password: '', username: u.username || '', notes: u.notes || '', role: u.role || 'user', observer_group_ids: [...(u.observer_group_ids || [])], concurrency: u.concurrency, rpm_limit: u.rpm_limit ?? 0, customAttributes: {} })
+    Object.assign(form, { email: u.email, password: '', username: u.username || '', notes: u.notes || '', role: u.role || 'user', observer_group_ids: [...(u.observer_group_ids || [])], user_group_id: u.user_group_id ?? null, concurrency: u.concurrency, rpm_limit: u.rpm_limit ?? 0, customAttributes: {} })
     passwordCopied.value = false
   }
 }, { immediate: true })
@@ -183,7 +186,7 @@ const handleUpdateUser = async () => {
   const userId = props.user.id
   submitting.value = true
   try {
-    const data: UpdateUserRequest = { email: form.email, username: form.username, notes: form.notes, role: form.role, observer_group_ids: form.observer_group_ids, concurrency: form.concurrency, rpm_limit: form.rpm_limit }
+    const data: UpdateUserRequest = { email: form.email, username: form.username, notes: form.notes, role: form.role, observer_group_ids: form.observer_group_ids, user_group_id: form.user_group_id, concurrency: form.concurrency, rpm_limit: form.rpm_limit }
     if (promotingObserver.value && Object.values(observerSetup).some(Boolean)) data.observer_setup = { ...observerSetup }
     if (form.password.trim()) data.password = form.password.trim()
     // 提升为管理员属敏感操作：后端返回 STEP_UP_REQUIRED 时弹 TOTP 验证并重试

@@ -70,6 +70,7 @@ type CreateUserRequest struct {
 	AllowedGroups        []int64  `json:"allowed_groups"`
 	ObserverGroupIDs     []int64  `json:"observer_group_ids"`
 	RestrictPublicGroups bool     `json:"restrict_public_groups"`
+	UserGroupID          *int64   `json:"user_group_id"`
 }
 
 // UpdateUserRequest represents admin update user request
@@ -88,6 +89,7 @@ type UpdateUserRequest struct {
 	ObserverGroupIDs     *[]int64                      `json:"observer_group_ids"`
 	ObserverSetup        *service.ObserverSetupOptions `json:"observer_setup"`
 	RestrictPublicGroups *bool                         `json:"restrict_public_groups"`
+	UserGroupID          *int64                        `json:"user_group_id"`
 	// GroupRates 用户专属分组倍率配置
 	// map[groupID]*rate，nil 表示删除该分组的专属倍率
 	GroupRates map[int64]*float64 `json:"group_rates"`
@@ -300,6 +302,7 @@ func (h *UserHandler) Create(c *gin.Context) {
 		AllowedGroups:        req.AllowedGroups,
 		ObserverGroupIDs:     req.ObserverGroupIDs,
 		RestrictPublicGroups: req.RestrictPublicGroups,
+		UserGroupID:          req.UserGroupID,
 		ActorAdminID:         getAdminIDFromContext(c),
 	})
 	if err != nil {
@@ -361,6 +364,7 @@ func (h *UserHandler) Update(c *gin.Context) {
 		AllowedGroups:        req.AllowedGroups,
 		ObserverGroupIDs:     req.ObserverGroupIDs,
 		RestrictPublicGroups: req.RestrictPublicGroups,
+		UserGroupID:          req.UserGroupID,
 		GroupRates:           req.GroupRates,
 		ObserverSetup:        req.ObserverSetup,
 		ActorAdminID:         getAdminIDFromContext(c),

@@ -58,7 +58,7 @@ func newKeyBillingRouteTestRouter(runMode string) (*gin.Engine, *keyBillingRoute
 		SubscriptionType: service.SubscriptionTypeStandard,
 		RateMultiplier:   0.75,
 	}
-	user := &service.User{ID: 7, Role: service.RoleUser, Status: service.StatusActive, Balance: 10}
+	user := &service.User{UserGroupID: userGroupIDPtr(1), ID: 7, Role: service.RoleUser, Status: service.StatusActive, Balance: 10}
 	var groupID *int64
 	var apiKeyGroup *service.Group
 	if runMode != config.RunModeSimple {

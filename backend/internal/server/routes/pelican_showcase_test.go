@@ -47,7 +47,7 @@ func (r *pelicanRouteKeyRepo) GetByKeyForAuth(_ context.Context, key string) (*s
 func newPelicanRouteAuth(runMode string) (middleware.APIKeyAuthMiddleware, *pelicanRouteKeyRepo, *service.APIKeyService) {
 	repo := &pelicanRouteKeyRepo{key: &service.APIKey{
 		ID: 100, UserID: 7, Key: "pelican-route-test-key", Status: service.StatusActive,
-		User: &service.User{ID: 7, Role: service.RoleUser, Status: service.StatusActive, Balance: 0},
+		User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 7, Role: service.RoleUser, Status: service.StatusActive, Balance: 0},
 	}}
 	cfg := &config.Config{RunMode: runMode}
 	keys := service.NewAPIKeyService(repo, nil, nil, nil, nil, nil, cfg)

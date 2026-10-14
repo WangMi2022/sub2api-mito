@@ -117,6 +117,8 @@ type UserUpdateFields struct {
 	ObserverGroupIDs bool
 	// RestrictPublicGroups 覆盖 restrict_public_groups 列。
 	RestrictPublicGroups bool
+	// UserGroupID 覆盖 user_group_id 列（nil 表示移出用户组 → 未分组）。
+	UserGroupID bool
 }
 
 // BalanceChange 记录一次余额变更前后的值。

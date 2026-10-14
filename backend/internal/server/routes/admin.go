@@ -54,6 +54,9 @@ func RegisterAdminRoutes(
 		// 分组管理
 		registerGroupRoutes(admin, h)
 
+		// 用户组管理
+		registerUserGroupRoutes(admin, h)
+
 		// 账号管理
 		registerAccountRoutes(admin, h, stepUpAuth)
 
@@ -382,7 +385,25 @@ func registerGroupRoutes(admin *gin.RouterGroup, h *handler.Handlers) {
 		groups.DELETE("/:id/rpm-overrides", h.Admin.Group.ClearGroupRPMOverrides)
 		groups.PUT("/:id/user-denied-models", h.Admin.Group.BatchSetGroupUserDeniedModels)
 		groups.DELETE("/:id/user-denied-models", h.Admin.Group.ClearGroupUserDeniedModels)
+		groups.GET("/:id/user-group-policies", h.Admin.Group.GetGroupUserGroupPolicies)
+		groups.PUT("/:id/user-group-rates", h.Admin.Group.BatchSetGroupUserGroupRates)
+		groups.PUT("/:id/user-group-rpm", h.Admin.Group.BatchSetGroupUserGroupRPM)
+		groups.PUT("/:id/user-group-denied-models", h.Admin.Group.BatchSetGroupUserGroupDeniedModels)
+		groups.DELETE("/:id/user-group-policies", h.Admin.Group.ClearGroupUserGroupPolicies)
 		groups.GET("/:id/api-keys", h.Admin.Group.GetGroupAPIKeys)
+	}
+}
+
+func registerUserGroupRoutes(admin *gin.RouterGroup, h *handler.Handlers) {
+	userGroups := admin.Group("/user-groups")
+	{
+		userGroups.GET("", h.Admin.UserGroup.List)
+		userGroups.POST("", h.Admin.UserGroup.Create)
+		userGroups.GET("/:id", h.Admin.UserGroup.GetByID)
+		userGroups.PUT("/:id", h.Admin.UserGroup.Update)
+		userGroups.DELETE("/:id", h.Admin.UserGroup.Delete)
+		userGroups.GET("/:id/members", h.Admin.UserGroup.ListMembers)
+		userGroups.PUT("/:id/members", h.Admin.UserGroup.SyncMembers)
 	}
 }
 

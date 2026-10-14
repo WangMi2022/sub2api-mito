@@ -155,7 +155,7 @@ func TestOpenAIGatewayHandlerResponses_ImageIntentRejectedByImageConcurrency(t *
 			ID:                   groupID,
 			AllowImageGeneration: true,
 		},
-		User: &service.User{ID: 20},
+		User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 20},
 	})
 	c.Set(string(middleware2.ContextKeyUser), middleware2.AuthSubject{UserID: 20, Concurrency: 1})
 
@@ -200,7 +200,7 @@ func TestOpenAIGatewayHandlerResponses_TextOnlyNotRejectedByImageConcurrency(t *
 			ID:                   groupID,
 			AllowImageGeneration: true,
 		},
-		User: &service.User{ID: 20},
+		User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 20},
 	})
 	c.Set(string(middleware2.ContextKeyUser), middleware2.AuthSubject{UserID: 20, Concurrency: 1})
 

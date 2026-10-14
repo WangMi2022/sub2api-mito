@@ -3,8 +3,20 @@ import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import type { AdminGroup } from '@/types'
 import GroupRateMultipliersModal from '../GroupRateMultipliersModal.vue'
 
-const mocks = vi.hoisted(() => ({ list: vi.fn(), getGroupRateMultipliers: vi.fn(), batchSetGroupRateMultipliers: vi.fn() }))
-vi.mock('@/api/admin', () => ({ adminAPI: { users: { list: mocks.list }, groups: mocks } }))
+const mocks = vi.hoisted(() => ({
+  list: vi.fn(),
+  getGroupUserGroupPolicies: vi.fn(),
+  batchSetGroupUserGroupRates: vi.fn()
+}))
+vi.mock('@/api/admin', () => ({
+  adminAPI: {
+    userGroups: { list: mocks.list },
+    groups: {
+      getGroupUserGroupPolicies: mocks.getGroupUserGroupPolicies,
+      batchSetGroupUserGroupRates: mocks.batchSetGroupUserGroupRates
+    }
+  }
+}))
 vi.mock('@/stores/app', () => ({ useAppStore: () => ({ showSuccess: vi.fn(), showError: vi.fn() }) }))
 vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: (key: string) => key }) }))
 enableAutoUnmount(afterEach)
@@ -12,12 +24,12 @@ afterEach(() => vi.useRealTimers())
 beforeEach(() => {
   vi.clearAllMocks()
   vi.useFakeTimers()
-  mocks.getGroupRateMultipliers.mockResolvedValue([])
-  mocks.list.mockResolvedValue({ items: [{ id: 7, email: 'user@example.com', status: 'active' }] })
-  mocks.batchSetGroupRateMultipliers.mockResolvedValue(undefined)
+  mocks.getGroupUserGroupPolicies.mockResolvedValue([])
+  mocks.list.mockResolvedValue([{ id: 7, name: 'VIP', code: 'vip', is_system: false, member_count: 3 }])
+  mocks.batchSetGroupUserGroupRates.mockResolvedValue(undefined)
 })
 
-async function selectUser() {
+async function selectUserGroup() {
   const wrapper = mount(GroupRateMultipliersModal, {
     props: { show: false, group: { id: 1, name: 'Group', platform: 'openai' } as AdminGroup },
     global: { stubs: {
@@ -27,16 +39,16 @@ async function selectUser() {
   })
   await wrapper.setProps({ show: true })
   await flushPromises()
-  await wrapper.get('input[type="text"]').setValue('user')
-  await vi.advanceTimersByTimeAsync(300)
+  await wrapper.get('input[type="text"]').setValue('VIP')
+  await vi.advanceTimersByTimeAsync(200)
   await flushPromises()
-  await wrapper.findAll('button').find(b => b.text().includes('user@example.com'))!.trigger('click')
+  await wrapper.findAll('button').find(b => b.text().includes('VIP'))!.trigger('click')
   return wrapper
 }
 
-describe('GroupRateMultipliersModal new override validation', () => {
+describe('GroupRateMultipliersModal new user group override validation', () => {
   it.each(['', '0', '-1'])('does not add invalid rate %j', async (value) => {
-    const wrapper = await selectUser()
+    const wrapper = await selectUserGroup()
     const input = wrapper.get('input[placeholder="1.0"]')
     await input.setValue('100')
     await input.setValue(value)
@@ -44,15 +56,15 @@ describe('GroupRateMultipliersModal new override validation', () => {
     expect(add.attributes('disabled')).toBeDefined()
     await add.trigger('click')
     expect(wrapper.find('tbody tr').exists()).toBe(false)
-    expect(mocks.batchSetGroupRateMultipliers).not.toHaveBeenCalled()
+    expect(mocks.batchSetGroupUserGroupRates).not.toHaveBeenCalled()
   })
 
-  it.each([0.25, 1])('saves positive rate %s', async (value) => {
-    const wrapper = await selectUser()
+  it.each([0.25, 1])('saves positive rate %s for the user group', async (value) => {
+    const wrapper = await selectUserGroup()
     await wrapper.get('input[placeholder="1.0"]').setValue(String(value))
     await wrapper.findAll('button').find(b => b.text() === 'common.add')!.trigger('click')
     await wrapper.findAll('button').find(b => b.text() === 'common.save')!.trigger('click')
     await flushPromises()
-    expect(mocks.batchSetGroupRateMultipliers).toHaveBeenCalledWith(1, [{ user_id: 7, rate_multiplier: value }])
+    expect(mocks.batchSetGroupUserGroupRates).toHaveBeenCalledWith(1, [{ user_group_id: 7, rate_multiplier: value }])
   })
 })

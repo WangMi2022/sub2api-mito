@@ -148,7 +148,7 @@ func TestGatewayOpenAICompatibleHandlersClaudeCodeOnlyFallback(t *testing.T) {
 				primaryGroupIDRef := primaryGroupID
 				apiKey := &service.APIKey{
 					ID: 9320, UserID: 9330, GroupID: &primaryGroupIDRef, Group: primary, Status: service.StatusActive,
-					User: &service.User{ID: 9330, Concurrency: 10, Balance: 100},
+					User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 9330, Concurrency: 10, Balance: 100},
 				}
 				recorder := httptest.NewRecorder()
 				c, _ := gin.CreateTestContext(recorder)

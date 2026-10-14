@@ -459,6 +459,33 @@ func (_u *UserUpdate) AddRpmLimit(v int) *UserUpdate {
 	return _u
 }
 
+// SetUserGroupID sets the "user_group_id" field.
+func (_u *UserUpdate) SetUserGroupID(v int64) *UserUpdate {
+	_u.mutation.ResetUserGroupID()
+	_u.mutation.SetUserGroupID(v)
+	return _u
+}
+
+// SetNillableUserGroupID sets the "user_group_id" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableUserGroupID(v *int64) *UserUpdate {
+	if v != nil {
+		_u.SetUserGroupID(*v)
+	}
+	return _u
+}
+
+// AddUserGroupID adds value to the "user_group_id" field.
+func (_u *UserUpdate) AddUserGroupID(v int64) *UserUpdate {
+	_u.mutation.AddUserGroupID(v)
+	return _u
+}
+
+// ClearUserGroupID clears the value of the "user_group_id" field.
+func (_u *UserUpdate) ClearUserGroupID() *UserUpdate {
+	_u.mutation.ClearUserGroupID()
+	return _u
+}
+
 // AddAPIKeyIDs adds the "api_keys" edge to the APIKey entity by IDs.
 func (_u *UserUpdate) AddAPIKeyIDs(ids ...int64) *UserUpdate {
 	_u.mutation.AddAPIKeyIDs(ids...)
@@ -1136,6 +1163,15 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.AddedRpmLimit(); ok {
 		_spec.AddField(user.FieldRpmLimit, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.UserGroupID(); ok {
+		_spec.SetField(user.FieldUserGroupID, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedUserGroupID(); ok {
+		_spec.AddField(user.FieldUserGroupID, field.TypeInt64, value)
+	}
+	if _u.mutation.UserGroupIDCleared() {
+		_spec.ClearField(user.FieldUserGroupID, field.TypeInt64)
 	}
 	if _u.mutation.APIKeysCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -2172,6 +2208,33 @@ func (_u *UserUpdateOne) AddRpmLimit(v int) *UserUpdateOne {
 	return _u
 }
 
+// SetUserGroupID sets the "user_group_id" field.
+func (_u *UserUpdateOne) SetUserGroupID(v int64) *UserUpdateOne {
+	_u.mutation.ResetUserGroupID()
+	_u.mutation.SetUserGroupID(v)
+	return _u
+}
+
+// SetNillableUserGroupID sets the "user_group_id" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableUserGroupID(v *int64) *UserUpdateOne {
+	if v != nil {
+		_u.SetUserGroupID(*v)
+	}
+	return _u
+}
+
+// AddUserGroupID adds value to the "user_group_id" field.
+func (_u *UserUpdateOne) AddUserGroupID(v int64) *UserUpdateOne {
+	_u.mutation.AddUserGroupID(v)
+	return _u
+}
+
+// ClearUserGroupID clears the value of the "user_group_id" field.
+func (_u *UserUpdateOne) ClearUserGroupID() *UserUpdateOne {
+	_u.mutation.ClearUserGroupID()
+	return _u
+}
+
 // AddAPIKeyIDs adds the "api_keys" edge to the APIKey entity by IDs.
 func (_u *UserUpdateOne) AddAPIKeyIDs(ids ...int64) *UserUpdateOne {
 	_u.mutation.AddAPIKeyIDs(ids...)
@@ -2879,6 +2942,15 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if value, ok := _u.mutation.AddedRpmLimit(); ok {
 		_spec.AddField(user.FieldRpmLimit, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.UserGroupID(); ok {
+		_spec.SetField(user.FieldUserGroupID, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedUserGroupID(); ok {
+		_spec.AddField(user.FieldUserGroupID, field.TypeInt64, value)
+	}
+	if _u.mutation.UserGroupIDCleared() {
+		_spec.ClearField(user.FieldUserGroupID, field.TypeInt64)
 	}
 	if _u.mutation.APIKeysCleared() {
 		edge := &sqlgraph.EdgeSpec{

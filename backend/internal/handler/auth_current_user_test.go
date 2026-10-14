@@ -20,7 +20,7 @@ func TestAuthHandlerGetCurrentUserReturnsProfileCompatibilityFields(t *testing.T
 
 	verifiedAt := time.Date(2026, 4, 20, 8, 30, 0, 0, time.UTC)
 	repo := &userHandlerRepoStub{
-		user: &service.User{
+		user: &service.User{UserGroupID: userGroupIDPtr(1),
 			ID:           31,
 			Email:        "me@example.com",
 			Username:     "linuxdo-handle",

@@ -132,7 +132,7 @@ func newExcelBPSImageAdmissionTestContext(groupID int64) (*gin.Context, *httptes
 		ID:      99,
 		GroupID: &groupID,
 		Group:   &service.Group{ID: groupID, Platform: service.PlatformOpenAI},
-		User:    &service.User{ID: 100},
+		User:    &service.User{UserGroupID: userGroupIDPtr(1), ID: 100},
 	})
 	service.MarkExcelBPSImageAdmission(c)
 	return c, rec

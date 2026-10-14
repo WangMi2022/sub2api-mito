@@ -67,7 +67,7 @@ func newGeminiClientCancelFixture(t *testing.T) *geminiClientCancelFixture {
 
 	apiKey := &service.APIKey{
 		ID: 9202, UserID: 9203, GroupID: &groupID, Group: group, Status: service.StatusActive,
-		User: &service.User{ID: 9203, Concurrency: 10, Balance: 100},
+		User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 9203, Concurrency: 10, Balance: 100},
 	}
 	return &geminiClientCancelFixture{handler: h, group: group, apiKey: apiKey, upstream: upstream, ctx: ctx}
 }

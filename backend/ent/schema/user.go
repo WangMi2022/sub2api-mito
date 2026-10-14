@@ -121,6 +121,13 @@ func (User) Fields() []ent.Field {
 		// 用户级每分钟请求数上限（0 = 不限制）。仅当所在分组未设置 rpm_limit 时作为兜底生效。
 		field.Int("rpm_limit").
 			Default(0),
+
+		// UserGroupID 用户所属用户组 ID；NULL 表示未分组。
+		// 未分组用户不允许登录或调用 API（见中间件与网关准入）。
+		field.Int64("user_group_id").
+			Optional().
+			Nillable().
+			Comment("所属用户组 ID；NULL 表示未分组"),
 	}
 }
 

@@ -12,7 +12,7 @@ import (
 // deniedModelsAPIKey 构造一个所属用户在分组内禁用了部分模型的 Key；allowlist 为 nil 时分组不开白名单。
 func deniedModelsAPIKey(allowlist []string, denied ...string) *service.APIKey {
 	return &service.APIKey{
-		User: &service.User{ID: 7, UserGroupDeniedModels: denied},
+		User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 7, UserGroupDeniedModels: denied},
 		Group: &service.Group{
 			Platform: service.PlatformOpenAI,
 			ModelAllowlist: service.GroupModelAllowlist{

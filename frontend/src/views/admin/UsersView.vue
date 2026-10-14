@@ -73,6 +73,17 @@
               />
             </div>
 
+            <!-- User Group Filter (visible when enabled) -->
+            <div v-if="visibleFilters.has('userGroup')" class="w-full sm:w-44">
+              <Select
+                v-model="filters.userGroup"
+                :options="userGroupFilterOptions"
+                searchable
+                :search-placeholder="t('admin.userGroups.searchPlaceholder')"
+                @change="applyFilter"
+              />
+            </div>
+
             <!-- Dynamic Attribute Filters -->
             <template v-for="(value, attrId) in activeAttributeFilters" :key="attrId">
               <div
@@ -335,6 +346,18 @@
                 {{ getAttributeValue(row.id, def.id) }}
               </span>
             </div>
+          </template>
+
+          <template #cell-user_group_id="{ row }">
+            <span
+              v-if="row.user_group_id != null"
+              class="badge badge-primary"
+            >{{ getUserGroupName(row) }}</span>
+            <span
+              v-else
+              class="badge badge-warning"
+              :title="t('admin.userGroups.ungroupedWarning')"
+            >{{ t('admin.userGroups.ungroupedOption') }}</span>
           </template>
 
           <template #cell-role="{ value }">
@@ -803,7 +826,7 @@ import Icon from '@/components/icons/Icon.vue'
 
 const { t } = useI18n()
 import { adminAPI } from '@/api/admin'
-import type { AdminUser, AdminGroup, UserAttributeDefinition } from '@/types'
+import type { AdminUser, AdminGroup, UserAttributeDefinition, UserGroup } from '@/types'
 import type { BatchUserUsageStats } from '@/api/admin/dashboard'
 import type { PlatformQuotaItem } from '@/api/admin/users'
 import type { Column } from '@/components/common/types'
@@ -899,6 +922,7 @@ const allColumns = computed<Column[]>(() => [
   { key: 'usage_gemini', label: t('admin.users.columns.usageGemini'), sortable: false },
   { key: 'usage_antigravity', label: t('admin.users.columns.usageAntigravity'), sortable: false },
   { key: 'concurrency', label: t('admin.users.columns.concurrency'), sortable: true },
+  { key: 'user_group_id', label: t('admin.userGroups.usersColumn'), sortable: false },
   { key: 'status', label: t('admin.users.columns.status'), sortable: true },
   { key: 'last_active_at', label: t('admin.users.columns.lastActive'), sortable: true },
   { key: 'last_used_at', label: t('admin.users.columns.lastUsed'), sortable: true },
@@ -1085,6 +1109,23 @@ const loadAllGroupsForApiKeyFilter = async () => {
     console.error('Failed to load groups for API key filter:', e)
   }
 }
+// 用户组列表（用户组列与用户组筛选使用）
+const allUserGroups = ref<UserGroup[]>([])
+const loadAllUserGroups = async () => {
+  if (allUserGroups.value.length > 0) return
+  try {
+    allUserGroups.value = await adminAPI.userGroups.list()
+  } catch (e) {
+    console.error('Failed to load user groups:', e)
+  }
+}
+
+// 根据 user_group_id 解析用户组名称，未分组显示占位。
+const getUserGroupName = (user: AdminUser): string => {
+  if (user.user_group_id == null) return t('admin.userGroups.ungroupedOption')
+  return allUserGroups.value.find(g => g.id === user.user_group_id)?.name ?? `#${user.user_group_id}`
+}
+
 // Resolve user's accessible groups: exclusive groups first, then public groups
 const getUserGroups = (user: AdminUser) => {
   const exclusive: AdminGroup[] = []
@@ -1126,12 +1167,20 @@ const apiKeyGroupFilterOptions = computed(() =>
   }) as SelectOption[]
 )
 
+// 用户组列表与筛选选项（'none' 用于筛出未分组用户）
+const userGroupFilterOptions = computed(() => [
+  { value: null as number | 'none' | null, label: t('admin.users.allAuthorizedGroups') },
+  { value: 'none' as const, label: t('admin.userGroups.ungroupedOption') },
+  ...allUserGroups.value.map(g => ({ value: g.id as number | 'none' | null, label: g.name }))
+])
+
 // Filter values (role, status, and custom attributes)
 const filters = reactive({
   role: '',
   status: '',
   group: '',  // group name for fuzzy match, '' = all
-  apiKeyGroup: null as number | null  // group id bound to the user's API keys, null = all
+  apiKeyGroup: null as number | null,  // group id bound to the user's API keys, null = all
+  userGroup: null as number | 'none' | null  // user group id, 'none' = ungrouped only, null = all
 })
 const activeAttributeFilters = reactive<Record<number, string>>({})
 
@@ -1161,7 +1210,8 @@ const builtInFilters = computed(() => [
   { key: 'role', name: t('admin.users.columns.role'), type: 'select' as const },
   { key: 'status', name: t('admin.users.columns.status'), type: 'select' as const },
   { key: 'group', name: t('admin.users.authorizedGroupFilter'), type: 'select' as const },
-  { key: 'apiKeyGroup', name: t('admin.users.apiKeyGroupFilter'), type: 'select' as const }
+  { key: 'apiKeyGroup', name: t('admin.users.apiKeyGroupFilter'), type: 'select' as const },
+  { key: 'userGroup', name: t('admin.userGroups.usersColumn'), type: 'select' as const }
 ])
 
 // Load saved filters from localStorage
@@ -1181,6 +1231,7 @@ const loadSavedFilters = () => {
       if (parsed.status) filters.status = parsed.status
       if (parsed.group) filters.group = parsed.group
       if (typeof parsed.apiKeyGroup === 'number') filters.apiKeyGroup = parsed.apiKeyGroup
+      if (typeof parsed.userGroup === 'number' || parsed.userGroup === 'none') filters.userGroup = parsed.userGroup
       if (parsed.attributes) {
         Object.assign(activeAttributeFilters, parsed.attributes)
       }
@@ -1607,6 +1658,7 @@ const loadUsers = async () => {
         search: searchQuery.value || undefined,
         group_name: filters.group || undefined,
         api_key_group_id: filters.apiKeyGroup ?? undefined,
+        user_group_id: filters.userGroup ?? undefined,
         attributes: Object.keys(attrFilters).length > 0 ? attrFilters : undefined,
         // 始终请求 subscriptions：列隐藏时仍需用于 UserPlatformQuotaModal 的 active-subscription 警示 banner
         include_subscriptions: true,
@@ -1900,6 +1952,7 @@ onMounted(async () => {
   if (visibleFilters.has('apiKeyGroup')) {
     loadAllGroupsForApiKeyFilter()
   }
+  loadAllUserGroups()
   document.addEventListener('click', handleClickOutside)
   window.addEventListener('scroll', handleScroll, true)
 })

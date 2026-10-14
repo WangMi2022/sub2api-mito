@@ -161,7 +161,7 @@ func TestUserHandlerUpdateProfileReturnsAvatarURL(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	repo := &userHandlerRepoStub{
-		user: &service.User{
+		user: &service.User{UserGroupID: userGroupIDPtr(1),
 			ID:       11,
 			Email:    "handler-avatar@example.com",
 			Username: "handler-avatar",
@@ -200,7 +200,7 @@ func TestUserHandlerGetProfileReturnsIdentitySummaries(t *testing.T) {
 
 	verifiedAt := time.Date(2026, 4, 20, 8, 30, 0, 0, time.UTC)
 	repo := &userHandlerRepoStub{
-		user: &service.User{
+		user: &service.User{UserGroupID: userGroupIDPtr(1),
 			ID:       11,
 			Email:    "identity@example.com",
 			Username: "identity-user",
@@ -288,7 +288,7 @@ func TestUserHandlerGetProfileReturnsLegacyCompatibilityFields(t *testing.T) {
 
 	verifiedAt := time.Date(2026, 4, 20, 8, 30, 0, 0, time.UTC)
 	repo := &userHandlerRepoStub{
-		user: &service.User{
+		user: &service.User{UserGroupID: userGroupIDPtr(1),
 			ID:           21,
 			Email:        "legacy-profile@example.com",
 			Username:     "linuxdo-handle",
@@ -368,7 +368,7 @@ func TestUserHandlerGetProfileDoesNotInferEditedProfileSourcesWithoutMatchingIde
 	gin.SetMode(gin.TestMode)
 
 	repo := &userHandlerRepoStub{
-		user: &service.User{
+		user: &service.User{UserGroupID: userGroupIDPtr(1),
 			ID:           22,
 			Email:        "edited-profile@example.com",
 			Username:     "custom-name",
@@ -516,7 +516,7 @@ func TestUserHandlerBindEmailIdentityReturnsProfileResponse(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	repo := &userHandlerRepoStub{
-		user: &service.User{
+		user: &service.User{UserGroupID: userGroupIDPtr(1),
 			ID:       11,
 			Email:    "legacy-user" + service.LinuxDoConnectSyntheticEmailDomain,
 			Username: "legacy-user",
@@ -570,7 +570,7 @@ func TestUserHandlerUnbindIdentityReturnsUpdatedProfile(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	repo := &userHandlerRepoStub{
-		user: &service.User{
+		user: &service.User{UserGroupID: userGroupIDPtr(1),
 			ID:       21,
 			Email:    "identity@example.com",
 			Username: "identity-user",
@@ -624,7 +624,7 @@ func TestUserHandlerUnbindIdentityRevokesAllUserSessionsWhenAuthServiceConfigure
 	gin.SetMode(gin.TestMode)
 
 	repo := &userHandlerRepoStub{
-		user: &service.User{
+		user: &service.User{UserGroupID: userGroupIDPtr(1),
 			ID:           23,
 			Email:        "identity@example.com",
 			Username:     "identity-user",
@@ -676,7 +676,7 @@ func TestUserHandlerUnbindIdentityDoesNotRevokeSessionsWhenNothingWasUnbound(t *
 	gin.SetMode(gin.TestMode)
 
 	repo := &userHandlerRepoStub{
-		user: &service.User{
+		user: &service.User{UserGroupID: userGroupIDPtr(1),
 			ID:           24,
 			Email:        "identity@example.com",
 			Username:     "identity-user",
@@ -719,7 +719,7 @@ func TestUserHandlerUnbindIdentityDoesNotRevokeSessionsWhenNothingWasUnbound(t *
 func TestUserHandlerBindEmailIdentityRejectsWrongCurrentPasswordForBoundEmail(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:       11,
 		Email:    "current@example.com",
 		Username: "bound-user",
@@ -773,7 +773,7 @@ func TestUserHandlerStartIdentityBindingReturnsAuthorizeURL(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	repo := &userHandlerRepoStub{
-		user: &service.User{
+		user: &service.User{UserGroupID: userGroupIDPtr(1),
 			ID:       11,
 			Email:    "identity@example.com",
 			Username: "identity-user",

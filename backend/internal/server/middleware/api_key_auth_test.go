@@ -62,7 +62,7 @@ func TestSimpleModeBypassesQuotaCheck(t *testing.T) {
 		SubscriptionType: service.SubscriptionTypeSubscription,
 		DailyLimitUSD:    &limit,
 	}
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:          7,
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
@@ -280,7 +280,7 @@ func TestAPIKeyAuthSetsGroupContext(t *testing.T) {
 		Platform: service.PlatformAnthropic,
 		Hydrated: true,
 	}
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:          7,
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
@@ -343,7 +343,7 @@ func TestAPIKeyAuthRejectsExclusiveGroupWhenUserNoLongerAllowed(t *testing.T) {
 		IsExclusive: true,
 		Hydrated:    true,
 	}
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:            7,
 		Role:          service.RoleUser,
 		Status:        service.StatusActive,
@@ -394,7 +394,7 @@ func TestAPIKeyAuthOverwritesInvalidContextGroup(t *testing.T) {
 		Platform: service.PlatformAnthropic,
 		Hydrated: true,
 	}
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:          7,
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
@@ -453,7 +453,7 @@ func TestAPIKeyAuthRejectsUnavailableGroup(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	groupID := int64(101)
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:          7,
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
@@ -687,7 +687,7 @@ func TestAPIKeyAuthSetsOpsFallbackKeyOnEarlyAbort(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	groupID := int64(101)
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:          7,
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
@@ -756,7 +756,7 @@ func TestAPIKeyAuthGoogleSetsOpsFallbackKeyOnEarlyAbort(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	groupID := int64(202)
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:          9,
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
@@ -866,7 +866,7 @@ func TestRequireGroupAssignmentMarksUngroupedKeyBusinessLimited(t *testing.T) {
 func TestAPIKeyAuthIPRestrictionUsesTrustedPathWhenSwitchDisabled(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:          7,
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
@@ -929,7 +929,7 @@ func TestAPIKeyAuthIPRestrictionUsesTrustedPathWhenSwitchDisabled(t *testing.T) 
 func TestAPIKeyAuthIPRestrictionIncludesClientIPForBlacklistDenial(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:          7,
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
@@ -977,7 +977,7 @@ func TestAPIKeyAuthIPRestrictionIncludesClientIPForBlacklistDenial(t *testing.T)
 func TestAPIKeyAuthIPRestrictionUsesConfiguredTrustedProxy(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:          7,
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
@@ -1028,7 +1028,7 @@ func TestAPIKeyAuthIPRestrictionUsesConfiguredTrustedProxy(t *testing.T) {
 func TestAPIKeyAuthIPRestrictionUsesForwardedClientIPInDenialWhenTrusted(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:          7,
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
@@ -1080,7 +1080,7 @@ func TestAPIKeyAuthIPRestrictionUsesForwardedClientIPInDenialWhenTrusted(t *test
 func TestAPIKeyAuthTouchesLastUsedOnSuccess(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:          7,
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
@@ -1129,7 +1129,7 @@ func TestAPIKeyAuthTouchesLastUsedOnSuccess(t *testing.T) {
 func TestAPIKeyAuthTouchLastUsedFailureDoesNotBlock(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:          8,
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
@@ -1175,7 +1175,7 @@ func TestAPIKeyAuthTouchLastUsedFailureDoesNotBlock(t *testing.T) {
 func TestAPIKeyAuthTouchesLastUsedInStandardMode(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:          9,
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
@@ -1228,7 +1228,7 @@ func TestAPIKeyAuthBillingInfoSkipsBillingAndSideEffects(t *testing.T) {
 		Hydrated:         true,
 		SubscriptionType: service.SubscriptionTypeSubscription,
 	}
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:          7,
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
@@ -1286,7 +1286,7 @@ func TestAPIKeyAuthBillingInfoSkipsBillingAndSideEffects(t *testing.T) {
 func TestAPIKeyAuthBillingInfoSkipsLastUsedInSimpleMode(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	user := &service.User{ID: 7, Role: service.RoleUser, Status: service.StatusActive}
+	user := &service.User{UserGroupID: userGroupIDPtr(1), ID: 7, Role: service.RoleUser, Status: service.StatusActive}
 	apiKey := &service.APIKey{ID: 100, UserID: user.ID, Key: "billing-info-simple", Status: service.StatusActive, User: user}
 	touchCalls := 0
 	apiKeyRepo := &stubApiKeyRepo{
@@ -1315,7 +1315,7 @@ func TestAPIKeyAuthBillingInfoSkipsLastUsedInSimpleMode(t *testing.T) {
 func TestAPIKeyAuthUsageStillTouchesLastUsed(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	user := &service.User{ID: 7, Role: service.RoleUser, Status: service.StatusActive, Balance: 10}
+	user := &service.User{UserGroupID: userGroupIDPtr(1), ID: 7, Role: service.RoleUser, Status: service.StatusActive, Balance: 10}
 	apiKey := &service.APIKey{ID: 100, UserID: user.ID, Key: "usage-touch", Status: service.StatusActive, User: user}
 	touchCalls := 0
 	apiKeyRepo := &stubApiKeyRepo{
@@ -1344,7 +1344,7 @@ func TestAPIKeyAuthUsageStillTouchesLastUsed(t *testing.T) {
 func TestAPIKeyAuthAllowsBalanceBelowMinimumReserve(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:          10,
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
@@ -1388,7 +1388,7 @@ func TestAPIKeyAuthAllowsBalanceBelowMinimumReserve(t *testing.T) {
 func TestAPIKeyAuthRejectsExhaustedBalance(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	user := &service.User{
+	user := &service.User{UserGroupID: userGroupIDPtr(1),
 		ID:          10,
 		Role:        service.RoleUser,
 		Status:      service.StatusActive,
@@ -1430,7 +1430,7 @@ func TestAPIKeyAuthRejectsExhaustedBalance(t *testing.T) {
 func TestAPIKeyAuthOpenAIQuotaErrorFormat(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	user := &service.User{ID: 11, Role: service.RoleUser, Status: service.StatusActive, Balance: 10}
+	user := &service.User{UserGroupID: userGroupIDPtr(1), ID: 11, Role: service.RoleUser, Status: service.StatusActive, Balance: 10}
 	group := &service.Group{ID: 8, Platform: service.PlatformOpenAI, Status: service.StatusActive}
 	apiKey := &service.APIKey{
 		ID: 105, UserID: user.ID, Key: "openai-quota-exhausted", Status: service.StatusAPIKeyQuotaExhausted,
@@ -1472,7 +1472,7 @@ func TestAPIKeyAuthOpenAIQuotaErrorFormat(t *testing.T) {
 func TestAPIKeyAuthQuotaErrorKeepsLegacyFormatOutsideResponses(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	user := &service.User{ID: 11, Role: service.RoleUser, Status: service.StatusActive, Balance: 10}
+	user := &service.User{UserGroupID: userGroupIDPtr(1), ID: 11, Role: service.RoleUser, Status: service.StatusActive, Balance: 10}
 	group := &service.Group{ID: 8, Platform: service.PlatformOpenAI, Status: service.StatusActive}
 	apiKey := &service.APIKey{
 		ID: 105, UserID: user.ID, Key: "openai-quota-exhausted", Status: service.StatusAPIKeyQuotaExhausted,

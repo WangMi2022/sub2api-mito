@@ -42,7 +42,7 @@ func newWSGroupPricingAPIKeyRepoStub(rate float64) *wsGroupPricingAPIKeyRepoStub
 			Key:     wsGroupPricingKey,
 			Status:  service.StatusActive,
 			GroupID: &groupID,
-			User:    &service.User{ID: 1701, Status: service.StatusActive, Concurrency: 1},
+			User:    &service.User{UserGroupID: userGroupIDPtr(1), ID: 1701, Status: service.StatusActive, Concurrency: 1},
 		},
 		group: service.Group{
 			ID:             groupID,
@@ -199,7 +199,7 @@ func TestRefreshOpenAIWSTurnBillingAPIKey(t *testing.T) {
 		ID:      5,
 		Key:     "sk-conn",
 		GroupID: &groupID,
-		User:    &service.User{ID: 9},
+		User:    &service.User{UserGroupID: userGroupIDPtr(1), ID: 9},
 		Group:   &service.Group{ID: groupID, Platform: service.PlatformOpenAI, SubscriptionType: service.SubscriptionTypeStandard, RateMultiplier: 3},
 	}
 	latestWith := func(mutate func(k *service.APIKey)) *service.APIKey {
@@ -208,7 +208,7 @@ func TestRefreshOpenAIWSTurnBillingAPIKey(t *testing.T) {
 			ID:      5,
 			Key:     "sk-conn",
 			GroupID: &gid,
-			User:    &service.User{ID: 9, Balance: 123},
+			User:    &service.User{UserGroupID: userGroupIDPtr(1), ID: 9, Balance: 123},
 			Group:   &service.Group{ID: groupID, Platform: service.PlatformOpenAI, SubscriptionType: service.SubscriptionTypeStandard, RateMultiplier: 0.3},
 		}
 		if mutate != nil {

@@ -268,7 +268,7 @@ func TestGatewayHandlerMessages_InterceptWarmup_AntigravityAccount_MixedScheduli
 		UserID:  4001,
 		GroupID: &groupID,
 		Status:  service.StatusActive,
-		User: &service.User{
+		User: &service.User{UserGroupID: userGroupIDPtr(1),
 			ID:          4001,
 			Concurrency: 10,
 			Balance:     100,
@@ -358,7 +358,7 @@ func TestGatewayHandlerMessages_InterceptWarmup_AntigravityAccount_ForcePlatform
 		UserID:  4002,
 		GroupID: &groupID,
 		Status:  service.StatusActive,
-		User: &service.User{
+		User: &service.User{UserGroupID: userGroupIDPtr(1),
 			ID:          4002,
 			Concurrency: 10,
 			Balance:     100,

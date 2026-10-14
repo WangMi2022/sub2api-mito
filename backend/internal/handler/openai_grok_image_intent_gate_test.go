@@ -93,7 +93,7 @@ func runOpenAIResponsesImagePermissionGateTest(t *testing.T, platform string, bo
 			Platform:             platform,
 			AllowImageGeneration: false,
 		},
-		User: &service.User{ID: userID, Status: service.StatusActive},
+		User: &service.User{UserGroupID: userGroupIDPtr(1), ID: userID, Status: service.StatusActive},
 	})
 	c.Set(string(middleware2.ContextKeyUser), middleware2.AuthSubject{UserID: userID, Concurrency: 1})
 

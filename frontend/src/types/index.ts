@@ -113,6 +113,21 @@ export interface AdminUser extends User {
   restrict_public_groups?: boolean
   // 当前并发数（仅管理员列表接口返回）
   current_concurrency?: number
+  // 用户组 ID；null/undefined 表示未分组（未分组用户禁止登录与调用）
+  user_group_id?: number | null
+}
+
+// 用户组：把专属倍率 / 专属 RPM / 用户模型限制从按用户配置改为按用户组配置。
+export interface UserGroup {
+  id: number
+  name: string
+  code: string
+  description: string
+  is_system: boolean
+  status: string
+  member_count: number
+  created_at: string
+  updated_at: string
 }
 
 export interface LoginRequest {
@@ -2253,6 +2268,8 @@ export interface UpdateUserRequest {
   // 用户专属分组倍率配置 (group_id -> rate_multiplier | null)
   // null 表示删除该分组的专属倍率
   group_rates?: Record<number, number | null>
+  // 用户组 ID；null 表示移出用户组（未分组用户禁止登录与调用）
+  user_group_id?: number | null
 }
 
 export interface ChangePasswordRequest {

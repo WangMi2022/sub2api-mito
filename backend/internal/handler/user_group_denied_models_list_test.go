@@ -20,7 +20,7 @@ func deniedModelsTestContext(t *testing.T, path string, denied ...string) (*gin.
 	c, _ := gin.CreateTestContext(w)
 	c.Request = httptest.NewRequest(http.MethodGet, path, nil)
 	c.Set(string(middleware.ContextKeyAPIKey), &service.APIKey{
-		User: &service.User{ID: 7, UserGroupDeniedModels: denied},
+		User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 7, UserGroupDeniedModels: denied},
 	})
 	return c, w
 }

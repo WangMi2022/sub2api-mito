@@ -18,7 +18,7 @@ func TestObserverAdminAuthCapabilitiesAndRevocation(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	cfg := &config.Config{JWT: config.JWTConfig{Secret: "observer-auth-test", ExpireHour: 1}}
 	auth := service.NewAuthService(nil, nil, nil, nil, cfg, nil, nil, nil, nil, nil, nil, nil, nil)
-	user := &service.User{ID: 12, Role: service.RoleObserver, Status: service.StatusActive, ObserverGroupIDs: []int64{7}}
+	user := &service.User{UserGroupID: userGroupIDPtr(1), ID: 12, Role: service.RoleObserver, Status: service.StatusActive, ObserverGroupIDs: []int64{7}}
 	repo := &stubUserRepo{getByID: func(context.Context, int64) (*service.User, error) { clone := *user; return &clone, nil }}
 	users := service.NewUserService(repo, nil, nil, nil)
 	token, err := auth.GenerateToken(context.Background(), user)

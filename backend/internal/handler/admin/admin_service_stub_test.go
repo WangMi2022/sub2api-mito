@@ -836,6 +836,58 @@ func (s *stubAdminService) ReplaceUserGroup(ctx context.Context, userID, oldGrou
 	return &service.ReplaceUserGroupResult{MigratedKeys: 0}, nil
 }
 
+func (s *stubAdminService) ListUserGroups(_ context.Context) ([]service.UserGroup, error) {
+	return nil, nil
+}
+
+func (s *stubAdminService) GetUserGroup(_ context.Context, id int64) (*service.UserGroup, error) {
+	return nil, nil
+}
+
+func (s *stubAdminService) CreateUserGroup(_ context.Context, input service.CreateUserGroupInput) (*service.UserGroup, error) {
+	return &service.UserGroup{ID: 1, Name: input.Name, Description: input.Description}, nil
+}
+
+func (s *stubAdminService) UpdateUserGroup(_ context.Context, id int64, input service.UpdateUserGroupInput) (*service.UserGroup, error) {
+	return &service.UserGroup{ID: id}, nil
+}
+
+func (s *stubAdminService) DeleteUserGroup(_ context.Context, id int64) error {
+	return nil
+}
+
+func (s *stubAdminService) ListUserGroupMembers(_ context.Context, id int64) ([]int64, error) {
+	return nil, nil
+}
+
+func (s *stubAdminService) SyncUserGroupMembers(_ context.Context, id int64, userIDs []int64) (int, error) {
+	return len(userIDs), nil
+}
+
+func (s *stubAdminService) GetGroupUserGroupPolicies(_ context.Context, groupID int64) ([]service.UserGroupPolicyRow, error) {
+	return nil, nil
+}
+
+func (s *stubAdminService) BatchSetGroupUserGroupRates(_ context.Context, groupID int64, entries []service.GroupUserGroupRateInput) error {
+	s.advancedGroupOperationCalls++
+	return nil
+}
+
+func (s *stubAdminService) BatchSetGroupUserGroupRPM(_ context.Context, groupID int64, entries []service.GroupUserGroupRPMInput) error {
+	s.advancedGroupOperationCalls++
+	return nil
+}
+
+func (s *stubAdminService) BatchSetGroupUserGroupDeniedModels(_ context.Context, groupID int64, entries []service.GroupUserGroupDeniedModelsInput) error {
+	s.advancedGroupOperationCalls++
+	return nil
+}
+
+func (s *stubAdminService) ClearGroupUserGroupPolicies(_ context.Context, groupID int64) error {
+	s.advancedGroupOperationCalls++
+	return nil
+}
+
 func (s *stubAdminService) RevertAccountProxyFallback(ctx context.Context, id int64) error {
 	return nil
 }

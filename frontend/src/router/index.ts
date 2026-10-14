@@ -510,6 +510,18 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/admin/user-groups',
+    name: 'AdminUserGroups',
+    component: () => import('@/views/admin/UserGroupsView.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,
+      title: 'User Groups',
+      titleKey: 'admin.userGroups.title',
+      descriptionKey: 'admin.userGroups.description'
+    }
+  },
+  {
     path: '/admin/channels',
     redirect: '/admin/channels/pricing'
   },

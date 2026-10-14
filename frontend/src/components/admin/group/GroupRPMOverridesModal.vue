@@ -15,72 +15,7 @@
         </span>
       </div>
 
-      <!-- 操作区：添加用户 -->
-      <div class="rounded-lg border border-gray-200 p-3 dark:border-dark-600">
-        <h4 class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-          {{ t('admin.groups.addUserRpm') }}
-        </h4>
-        <div class="flex items-end gap-2">
-          <div class="relative flex-1">
-            <input
-              v-model="searchQuery"
-              type="text"
-              autocomplete="off"
-              class="input w-full"
-              :placeholder="t('admin.groups.searchUserPlaceholder')"
-              @input="handleSearchUsers"
-              @focus="showDropdown = true"
-            />
-            <div
-              v-if="showDropdown && searchResults.length > 0"
-              class="absolute left-0 right-0 top-full z-10 mt-1 max-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-dark-500 dark:bg-dark-700"
-            >
-              <button
-                v-for="user in searchResults"
-                :key="user.id"
-                type="button"
-                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-dark-600"
-                @click="selectUser(user)"
-              >
-                <span class="text-gray-400">#{{ user.id }}</span>
-                <span class="text-gray-900 dark:text-white">{{ user.username || user.email }}</span>
-                <span v-if="user.username" class="text-xs text-gray-400">{{ user.email }}</span>
-              </button>
-            </div>
-          </div>
-          <div class="w-24">
-            <input
-              v-model.number="newRpm"
-              type="number"
-              step="1"
-              min="0"
-              autocomplete="off"
-              class="hide-spinner input w-full"
-              placeholder="100"
-            />
-          </div>
-          <button
-            type="button"
-            class="btn btn-primary shrink-0"
-            :disabled="!selectedUser || newRpm == null || !Number.isInteger(newRpm) || newRpm < 0"
-            @click="handleAddLocal"
-          >
-            {{ t('common.add') }}
-          </button>
-        </div>
-
-        <div v-if="localEntries.length > 0" class="mt-3 flex items-center justify-end border-t border-gray-100 pt-3 dark:border-dark-600">
-          <button
-            type="button"
-            :disabled="clearing"
-            class="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40"
-            @click="clearAllLocal"
-          >
-            <Icon v-if="clearing" name="refresh" size="sm" class="mr-1 inline animate-spin" />
-            {{ t('admin.groups.clearAll') }}
-          </button>
-        </div>
-      </div>
+      <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('admin.groups.userGroupPolicyHint') }}</p>
 
       <!-- 加载状态 -->
       <div v-if="loading" class="flex justify-center py-6">
@@ -90,14 +25,26 @@
         </svg>
       </div>
 
-      <!-- 列表 -->
       <div v-else>
-        <h4 class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-          {{ t('admin.groups.rpmOverrides') }} ({{ localEntries.length }})
-        </h4>
+        <div class="mb-2 flex items-center gap-3">
+          <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">
+            {{ t('admin.groups.rpmOverrides') }} ({{ localEntries.length }})
+          </h4>
+          <div class="ml-auto">
+            <button
+              type="button"
+              :disabled="clearing"
+              class="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40"
+              @click="clearAllLocal"
+            >
+              <Icon v-if="clearing" name="refresh" size="sm" class="mr-1 inline animate-spin" />
+              {{ t('admin.groups.clearAll') }}
+            </button>
+          </div>
+        </div>
 
         <div v-if="localEntries.length === 0" class="py-6 text-center text-sm text-gray-400 dark:text-gray-500">
-          {{ t('admin.groups.noRpmOverrides') }}
+          {{ t('admin.groups.noUserGroupRpmOverrides') }}
         </div>
 
         <div v-else>
@@ -106,11 +53,9 @@
               <table class="w-full min-w-max text-sm">
                 <thead class="sticky top-0 z-[1]">
                   <tr class="border-b border-gray-200 bg-gray-50 dark:border-dark-600 dark:bg-dark-700">
-                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('admin.groups.columns.userEmail') }}</th>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('admin.groups.columns.userGroup') }}</th>
                     <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">ID</th>
-                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('admin.groups.columns.userName') }}</th>
-                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('admin.groups.columns.userNotes') }}</th>
-                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('admin.groups.columns.userStatus') }}</th>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('admin.groups.columns.memberCount') }}</th>
                     <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400" :title="t('admin.groups.columns.rpmOverrideHint')">{{ t('admin.groups.columns.rpmOverride') }}</th>
                     <th class="w-10 px-2 py-2"></th>
                   </tr>
@@ -118,25 +63,17 @@
                 <tbody class="divide-y divide-gray-100 dark:divide-dark-600">
                   <tr
                     v-for="entry in paginatedLocalEntries"
-                    :key="entry.user_id"
+                    :key="entry.user_group_id"
                     class="hover:bg-gray-50 dark:hover:bg-dark-700/50"
                   >
-                    <td class="px-3 py-2 text-gray-600 dark:text-gray-400">{{ entry.user_email }}</td>
-                    <td class="whitespace-nowrap px-3 py-2 text-gray-400 dark:text-gray-500">{{ entry.user_id }}</td>
-                    <td class="whitespace-nowrap px-3 py-2 text-gray-900 dark:text-white">{{ entry.user_name || '-' }}</td>
-                    <td class="max-w-[160px] truncate px-3 py-2 text-gray-500 dark:text-gray-400" :title="entry.user_notes">{{ entry.user_notes || '-' }}</td>
-                    <td class="whitespace-nowrap px-3 py-2">
-                      <span
-                        :class="[
-                          'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
-                          entry.user_status === 'active'
-                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                            : 'bg-gray-100 text-gray-600 dark:bg-dark-600 dark:text-gray-400'
-                        ]"
-                      >
-                        {{ entry.user_status }}
+                    <td class="px-3 py-2 text-gray-900 dark:text-white">
+                      <span>{{ entry.user_group_name }}</span>
+                      <span v-if="entry.is_system" class="ml-1.5 inline-flex rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500 dark:bg-dark-600 dark:text-gray-400">
+                        {{ t('admin.userGroups.systemBadge') }}
                       </span>
                     </td>
+                    <td class="whitespace-nowrap px-3 py-2 text-gray-400 dark:text-gray-500">{{ entry.user_group_id }}</td>
+                    <td class="whitespace-nowrap px-3 py-2 text-gray-500 dark:text-gray-400">{{ entry.member_count }}</td>
                     <td class="whitespace-nowrap px-3 py-2">
                       <input
                         type="number"
@@ -145,14 +82,14 @@
                         autocomplete="off"
                         :value="entry.rpm_override"
                         class="hide-spinner w-20 rounded border border-gray-200 bg-white px-2 py-1 text-center text-sm font-medium transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500/20 dark:border-dark-500 dark:bg-dark-700 dark:focus:border-primary-500"
-                        @change="updateLocalRpm(entry.user_id, ($event.target as HTMLInputElement).value)"
+                        @change="updateLocalRpm(entry.user_group_id, ($event.target as HTMLInputElement).value)"
                       />
                     </td>
                     <td class="px-2 py-2">
                       <button
                         type="button"
                         class="rounded p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400"
-                        @click="removeLocal(entry.user_id)"
+                        @click="removeLocal(entry.user_group_id)"
                       >
                         <Icon name="trash" size="sm" />
                       </button>
@@ -170,6 +107,61 @@
             @update:page="currentPage = $event"
             @update:pageSize="handlePageSizeChange"
           />
+        </div>
+      </div>
+
+      <!-- 操作区：添加用户组 -->
+      <div class="rounded-lg border border-gray-200 p-3 dark:border-dark-600">
+        <h4 class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+          {{ t('admin.groups.addUserGroupRpm') }}
+        </h4>
+        <div class="flex items-end gap-2">
+          <div class="relative flex-1">
+            <input
+              v-model="searchQuery"
+              type="text"
+              autocomplete="off"
+              class="input w-full"
+              :placeholder="t('admin.groups.searchUserGroupPlaceholder')"
+              @input="handleSearchGroups"
+              @focus="showDropdown = true"
+            />
+            <div
+              v-if="showDropdown && searchResults.length > 0"
+              class="absolute left-0 right-0 top-full z-10 mt-1 max-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-dark-500 dark:bg-dark-700"
+            >
+              <button
+                v-for="ug in searchResults"
+                :key="ug.id"
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-dark-600"
+                @click="selectUserGroup(ug)"
+              >
+                <span class="text-gray-400">#{{ ug.id }}</span>
+                <span class="text-gray-900 dark:text-white">{{ ug.name }}</span>
+                <span class="text-xs text-gray-400">{{ t('admin.groups.columns.memberCount') }} {{ ug.member_count }}</span>
+              </button>
+            </div>
+          </div>
+          <div class="w-24">
+            <input
+              v-model.number="newRpm"
+              type="number"
+              step="1"
+              min="0"
+              autocomplete="off"
+              class="hide-spinner input w-full"
+              placeholder="100"
+            />
+          </div>
+          <button
+            type="button"
+            class="btn btn-primary shrink-0"
+            :disabled="!selectedUserGroup || newRpm == null || !Number.isInteger(newRpm) || newRpm < 0"
+            @click="handleAddLocal"
+          >
+            {{ t('common.add') }}
+          </button>
         </div>
       </div>
 
@@ -210,15 +202,17 @@ import { ref, computed, watch, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { adminAPI } from '@/api/admin'
-import type { GroupRPMOverrideEntry } from '@/api/admin/groups'
-import type { AdminGroup, AdminUser } from '@/types'
+import type { GroupUserGroupPolicyRow } from '@/api/admin/groups'
+import type { AdminGroup, UserGroup } from '@/types'
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import Pagination from '@/components/common/Pagination.vue'
 import Icon from '@/components/icons/Icon.vue'
 import PlatformIcon from '@/components/common/PlatformIcon.vue'
 import { platformLabel } from '@/utils/platformColors'
 
-interface LocalEntry extends GroupRPMOverrideEntry {}
+interface LocalEntry extends GroupUserGroupPolicyRow {
+  rpm_override: number
+}
 
 const props = defineProps<{
   show: boolean
@@ -235,17 +229,19 @@ const appStore = useAppStore()
 
 const loading = ref(false)
 const saving = ref(false)
-const serverEntries = ref<GroupRPMOverrideEntry[]>([])
+const clearing = ref(false)
+const serverEntries = ref<LocalEntry[]>([])
 const localEntries = ref<LocalEntry[]>([])
 const searchQuery = ref('')
-const searchResults = ref<AdminUser[]>([])
+const searchResults = ref<UserGroup[]>([])
 const showDropdown = ref(false)
-const selectedUser = ref<AdminUser | null>(null)
+const selectedUserGroup = ref<UserGroup | null>(null)
 const newRpm = ref<number | null>(null)
 const currentPage = ref(1)
 const pageSize = ref(10)
 
 let searchTimeout: ReturnType<typeof setTimeout>
+let loadVersion = 0
 
 const platformColorClass = computed(() => {
   switch (props.group?.platform) {
@@ -258,8 +254,8 @@ const platformColorClass = computed(() => {
 
 const isDirty = computed(() => {
   if (localEntries.value.length !== serverEntries.value.length) return true
-  const serverMap = new Map(serverEntries.value.map(e => [e.user_id, e.rpm_override]))
-  return localEntries.value.some(e => serverMap.get(e.user_id) !== e.rpm_override)
+  const serverMap = new Map(serverEntries.value.map(e => [e.user_group_id, e.rpm_override]))
+  return localEntries.value.some(e => serverMap.get(e.user_group_id) !== e.rpm_override)
 })
 
 const paginatedLocalEntries = computed(() => {
@@ -267,22 +263,29 @@ const paginatedLocalEntries = computed(() => {
   return localEntries.value.slice(start, start + pageSize.value)
 })
 
-const cloneEntries = (entries: GroupRPMOverrideEntry[]): LocalEntry[] => {
-  return entries.map(e => ({ ...e }))
-}
+const cloneEntries = (entries: LocalEntry[]): LocalEntry[] =>
+  entries.map(e => ({ ...e, denied_models: e.denied_models ? [...e.denied_models] : null }))
 
 const loadEntries = async () => {
   if (!props.group) return
+  const version = ++loadVersion
   loading.value = true
+  serverEntries.value = []
+  localEntries.value = []
   try {
-    serverEntries.value = await adminAPI.groups.getGroupRPMOverrides(props.group.id)
+    const raw = await adminAPI.groups.getGroupUserGroupPolicies(props.group.id)
+    if (version !== loadVersion) return
+    serverEntries.value = raw
+      .filter(e => e.rpm_override != null)
+      .map(e => ({ ...e, rpm_override: e.rpm_override as number }))
     localEntries.value = cloneEntries(serverEntries.value)
     adjustPage()
   } catch (error) {
+    if (version !== loadVersion) return
     appStore.showError(t('admin.groups.failedToLoad'))
     console.error('Error loading RPM overrides:', error)
   } finally {
-    loading.value = false
+    if (version === loadVersion) loading.value = false
   }
 }
 
@@ -291,12 +294,13 @@ const adjustPage = () => {
   if (currentPage.value > totalPages) currentPage.value = totalPages
 }
 
-watch(() => props.show, (val) => {
+watch([() => props.show, () => props.group?.id], ([val]) => {
+  loadVersion++
   if (val && props.group) {
     currentPage.value = 1
     searchQuery.value = ''
     searchResults.value = []
-    selectedUser.value = null
+    selectedUserGroup.value = null
     newRpm.value = null
     loadEntries()
   }
@@ -307,9 +311,9 @@ const handlePageSizeChange = (newSize: number) => {
   currentPage.value = 1
 }
 
-const handleSearchUsers = () => {
+const handleSearchGroups = () => {
   clearTimeout(searchTimeout)
-  selectedUser.value = null
+  selectedUserGroup.value = null
   if (!searchQuery.value.trim()) {
     searchResults.value = []
     showDropdown.value = false
@@ -317,33 +321,39 @@ const handleSearchUsers = () => {
   }
   searchTimeout = setTimeout(async () => {
     try {
-      const res = await adminAPI.users.list(1, 10, { search: searchQuery.value.trim() })
-      searchResults.value = res.items
+      const keyword = searchQuery.value.trim().toLowerCase()
+      const all = await adminAPI.userGroups.list()
+      searchResults.value = all
+        .filter(ug => !localEntries.value.some(e => e.user_group_id === ug.id))
+        .filter(ug => ug.name.toLowerCase().includes(keyword) || ug.code.toLowerCase().includes(keyword))
+        .slice(0, 10)
       showDropdown.value = true
     } catch {
       searchResults.value = []
     }
-  }, 300)
+  }, 200)
 }
 
-const selectUser = (user: AdminUser) => {
-  selectedUser.value = user
-  searchQuery.value = user.email
+const selectUserGroup = (ug: UserGroup) => {
+  selectedUserGroup.value = ug
+  searchQuery.value = ug.name
   showDropdown.value = false
   searchResults.value = []
 }
 
 const handleAddLocal = () => {
-  if (!selectedUser.value || newRpm.value == null || !Number.isInteger(newRpm.value) || newRpm.value < 0) return
-  const user = selectedUser.value
-  const idx = localEntries.value.findIndex(e => e.user_id === user.id)
+  if (!selectedUserGroup.value || newRpm.value == null || !Number.isInteger(newRpm.value) || newRpm.value < 0) return
+  const ug = selectedUserGroup.value
+  const idx = localEntries.value.findIndex(e => e.user_group_id === ug.id)
   const entry: LocalEntry = {
-    user_id: user.id,
-    user_name: user.username || '',
-    user_email: user.email,
-    user_notes: user.notes || '',
-    user_status: user.status || 'active',
-    rpm_override: newRpm.value
+    user_group_id: ug.id,
+    user_group_name: ug.name,
+    user_group_code: ug.code,
+    is_system: ug.is_system,
+    member_count: ug.member_count ?? 0,
+    rate_multiplier: null,
+    rpm_override: newRpm.value,
+    denied_models: null
   }
   if (idx >= 0) {
     localEntries.value[idx] = entry
@@ -351,30 +361,30 @@ const handleAddLocal = () => {
     localEntries.value.push(entry)
   }
   searchQuery.value = ''
-  selectedUser.value = null
+  selectedUserGroup.value = null
   newRpm.value = null
   adjustPage()
 }
 
-const updateLocalRpm = (userId: number, value: string) => {
+const updateLocalRpm = (userGroupId: number, value: string) => {
   if (!value.trim()) return
   const num = Number(value)
   if (!Number.isInteger(num) || num < 0) return
-  const entry = localEntries.value.find(e => e.user_id === userId)
+  const entry = localEntries.value.find(e => e.user_group_id === userGroupId)
   if (entry) entry.rpm_override = num
 }
 
-const removeLocal = (userId: number) => {
-  localEntries.value = localEntries.value.filter(e => e.user_id !== userId)
+const removeLocal = (userGroupId: number) => {
+  localEntries.value = localEntries.value.filter(e => e.user_group_id !== userGroupId)
   adjustPage()
 }
 
-const clearing = ref(false)
 const clearAllLocal = async () => {
   if (!props.group || clearing.value) return
   clearing.value = true
   try {
-    await adminAPI.groups.clearGroupRPMOverrides(props.group.id)
+    const entries = serverEntries.value.map(e => ({ user_group_id: e.user_group_id, rpm_override: null }))
+    await adminAPI.groups.batchSetGroupUserGroupRPM(props.group.id, entries)
     localEntries.value = []
     serverEntries.value = []
     appStore.showSuccess(t('admin.groups.rpmSaved'))
@@ -396,10 +406,10 @@ const handleSave = async () => {
   saving.value = true
   try {
     const entries = localEntries.value.map(e => ({
-      user_id: e.user_id,
+      user_group_id: e.user_group_id,
       rpm_override: e.rpm_override
     }))
-    await adminAPI.groups.batchSetGroupRPMOverrides(props.group.id, entries)
+    await adminAPI.groups.batchSetGroupUserGroupRPM(props.group.id, entries)
     appStore.showSuccess(t('admin.groups.rpmSaved'))
     emit('success')
     emit('close')
@@ -423,6 +433,7 @@ if (typeof document !== 'undefined') {
   document.addEventListener('click', handleClickOutside)
 }
 onUnmounted(() => {
+  loadVersion++
   clearTimeout(searchTimeout)
   document.removeEventListener('click', handleClickOutside)
 })

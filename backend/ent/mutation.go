@@ -49249,6 +49249,8 @@ type UserMutation struct {
 	addtotal_recharged            *float64
 	rpm_limit                     *int
 	addrpm_limit                  *int
+	user_group_id                 *int64
+	adduser_group_id              *int64
 	clearedFields                 map[string]struct{}
 	api_keys                      map[int64]struct{}
 	removedapi_keys               map[int64]struct{}
@@ -50542,6 +50544,76 @@ func (m *UserMutation) ResetRpmLimit() {
 	m.addrpm_limit = nil
 }
 
+// SetUserGroupID sets the "user_group_id" field.
+func (m *UserMutation) SetUserGroupID(i int64) {
+	m.user_group_id = &i
+	m.adduser_group_id = nil
+}
+
+// UserGroupID returns the value of the "user_group_id" field in the mutation.
+func (m *UserMutation) UserGroupID() (r int64, exists bool) {
+	v := m.user_group_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserGroupID returns the old "user_group_id" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldUserGroupID(ctx context.Context) (v *int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserGroupID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserGroupID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserGroupID: %w", err)
+	}
+	return oldValue.UserGroupID, nil
+}
+
+// AddUserGroupID adds i to the "user_group_id" field.
+func (m *UserMutation) AddUserGroupID(i int64) {
+	if m.adduser_group_id != nil {
+		*m.adduser_group_id += i
+	} else {
+		m.adduser_group_id = &i
+	}
+}
+
+// AddedUserGroupID returns the value that was added to the "user_group_id" field in this mutation.
+func (m *UserMutation) AddedUserGroupID() (r int64, exists bool) {
+	v := m.adduser_group_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearUserGroupID clears the value of the "user_group_id" field.
+func (m *UserMutation) ClearUserGroupID() {
+	m.user_group_id = nil
+	m.adduser_group_id = nil
+	m.clearedFields[user.FieldUserGroupID] = struct{}{}
+}
+
+// UserGroupIDCleared returns if the "user_group_id" field was cleared in this mutation.
+func (m *UserMutation) UserGroupIDCleared() bool {
+	_, ok := m.clearedFields[user.FieldUserGroupID]
+	return ok
+}
+
+// ResetUserGroupID resets all changes to the "user_group_id" field.
+func (m *UserMutation) ResetUserGroupID() {
+	m.user_group_id = nil
+	m.adduser_group_id = nil
+	delete(m.clearedFields, user.FieldUserGroupID)
+}
+
 // AddAPIKeyIDs adds the "api_keys" edge to the APIKey entity by ids.
 func (m *UserMutation) AddAPIKeyIDs(ids ...int64) {
 	if m.api_keys == nil {
@@ -51278,7 +51350,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 26)
+	fields := make([]string, 0, 27)
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
 	}
@@ -51357,6 +51429,9 @@ func (m *UserMutation) Fields() []string {
 	if m.rpm_limit != nil {
 		fields = append(fields, user.FieldRpmLimit)
 	}
+	if m.user_group_id != nil {
+		fields = append(fields, user.FieldUserGroupID)
+	}
 	return fields
 }
 
@@ -51417,6 +51492,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.TotalRecharged()
 	case user.FieldRpmLimit:
 		return m.RpmLimit()
+	case user.FieldUserGroupID:
+		return m.UserGroupID()
 	}
 	return nil, false
 }
@@ -51478,6 +51555,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldTotalRecharged(ctx)
 	case user.FieldRpmLimit:
 		return m.OldRpmLimit(ctx)
+	case user.FieldUserGroupID:
+		return m.OldUserGroupID(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -51669,6 +51748,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetRpmLimit(v)
 		return nil
+	case user.FieldUserGroupID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserGroupID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -51695,6 +51781,9 @@ func (m *UserMutation) AddedFields() []string {
 	if m.addrpm_limit != nil {
 		fields = append(fields, user.FieldRpmLimit)
 	}
+	if m.adduser_group_id != nil {
+		fields = append(fields, user.FieldUserGroupID)
+	}
 	return fields
 }
 
@@ -51715,6 +51804,8 @@ func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedTotalRecharged()
 	case user.FieldRpmLimit:
 		return m.AddedRpmLimit()
+	case user.FieldUserGroupID:
+		return m.AddedUserGroupID()
 	}
 	return nil, false
 }
@@ -51766,6 +51857,13 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddRpmLimit(v)
 		return nil
+	case user.FieldUserGroupID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUserGroupID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User numeric field %s", name)
 }
@@ -51791,6 +51889,9 @@ func (m *UserMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(user.FieldBalanceNotifyThreshold) {
 		fields = append(fields, user.FieldBalanceNotifyThreshold)
+	}
+	if m.FieldCleared(user.FieldUserGroupID) {
+		fields = append(fields, user.FieldUserGroupID)
 	}
 	return fields
 }
@@ -51823,6 +51924,9 @@ func (m *UserMutation) ClearField(name string) error {
 		return nil
 	case user.FieldBalanceNotifyThreshold:
 		m.ClearBalanceNotifyThreshold()
+		return nil
+	case user.FieldUserGroupID:
+		m.ClearUserGroupID()
 		return nil
 	}
 	return fmt.Errorf("unknown User nullable field %s", name)
@@ -51909,6 +52013,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldRpmLimit:
 		m.ResetRpmLimit()
+		return nil
+	case user.FieldUserGroupID:
+		m.ResetUserGroupID()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

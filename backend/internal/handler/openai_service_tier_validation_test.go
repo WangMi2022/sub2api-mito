@@ -52,7 +52,7 @@ func runOpenAIHandlerServiceTierTest(t *testing.T, path, body string, handler fu
 			ID:       groupID,
 			Platform: service.PlatformOpenAI,
 		},
-		User: &service.User{ID: userID, Status: service.StatusActive},
+		User: &service.User{UserGroupID: userGroupIDPtr(1), ID: userID, Status: service.StatusActive},
 	})
 	c.Set(string(middleware2.ContextKeyUser), middleware2.AuthSubject{UserID: userID, Concurrency: 1})
 

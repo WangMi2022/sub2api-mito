@@ -3,8 +3,12 @@ import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import type { AdminGroup } from '@/types'
 import GroupRateMultipliersModal from '../GroupRateMultipliersModal.vue'
 
-const mocks = vi.hoisted(() => ({ getGroupRateMultipliers: vi.fn(), batchSetGroupRateMultipliers: vi.fn(), showError: vi.fn() }))
-vi.mock('@/api/admin', () => ({ adminAPI: { groups: mocks } }))
+const mocks = vi.hoisted(() => ({
+  getGroupUserGroupPolicies: vi.fn(),
+  batchSetGroupUserGroupRates: vi.fn(),
+  showError: vi.fn()
+}))
+vi.mock('@/api/admin', () => ({ adminAPI: { groups: mocks, userGroups: { list: vi.fn() } } }))
 vi.mock('@/stores/app', () => ({ useAppStore: () => ({ showError: mocks.showError, showSuccess: vi.fn() }) }))
 vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: (key: string) => key }) }))
 enableAutoUnmount(afterEach)
@@ -18,7 +22,16 @@ function deferred() {
   return { promise, resolve, reject }
 }
 const group = (id: number) => ({ id, name: `Group ${id}`, platform: 'openai', rate_multiplier: 1 } as AdminGroup)
-const entries = (id: number) => [{ user_id: id, user_name: '', user_email: `user${id}@example.com`, user_status: 'active', rate_multiplier: 2, rpm_override: null }]
+const entries = (id: number) => [{
+  user_group_id: id,
+  user_group_name: `UG ${id}`,
+  user_group_code: `ug${id}`,
+  is_system: false,
+  member_count: 2,
+  rate_multiplier: 2,
+  rpm_override: null,
+  denied_models: null
+}]
 
 async function openGroup() {
   const wrapper = mount(GroupRateMultipliersModal, {
@@ -35,25 +48,25 @@ async function openGroup() {
 describe('group rate multiplier request ownership', () => {
   it('keeps the reopened group data when an older response finishes last', async () => {
     const old = deferred()
-    mocks.getGroupRateMultipliers.mockReturnValueOnce(old.promise).mockResolvedValueOnce(entries(2))
+    mocks.getGroupUserGroupPolicies.mockReturnValueOnce(old.promise).mockResolvedValueOnce(entries(2))
     const wrapper = await openGroup()
     await wrapper.setProps({ show: false })
     await wrapper.setProps({ show: true, group: group(2) })
     await flushPromises()
     old.resolve(entries(1))
     await flushPromises()
-    expect(wrapper.get('tbody').text()).toContain('user2@example.com')
-    expect(wrapper.get('tbody').text()).not.toContain('user1@example.com')
+    expect(wrapper.get('tbody').text()).toContain('UG 2')
+    expect(wrapper.get('tbody').text()).not.toContain('UG 1')
     await wrapper.get('tbody input[type="number"]').setValue('3')
     await wrapper.findAll('button').find(button => button.text() === 'common.save')!.trigger('click')
-    expect(mocks.batchSetGroupRateMultipliers).toHaveBeenCalledWith(2, [{ user_id: 2, rate_multiplier: 3 }])
+    expect(mocks.batchSetGroupUserGroupRates).toHaveBeenCalledWith(2, [{ user_group_id: 2, rate_multiplier: 3 }])
   })
 
   it('does not end the new load or report an error when an old request fails', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     const old = deferred()
     const current = deferred()
-    mocks.getGroupRateMultipliers.mockReturnValueOnce(old.promise).mockReturnValueOnce(current.promise)
+    mocks.getGroupUserGroupPolicies.mockReturnValueOnce(old.promise).mockReturnValueOnce(current.promise)
     const wrapper = await openGroup()
     await wrapper.setProps({ show: false })
     await wrapper.setProps({ show: true, group: group(2) })
@@ -63,21 +76,21 @@ describe('group rate multiplier request ownership', () => {
     expect(wrapper.find('svg.animate-spin').exists()).toBe(true)
     current.resolve(entries(2))
     await flushPromises()
-    expect(wrapper.get('tbody').text()).toContain('user2@example.com')
+    expect(wrapper.get('tbody').text()).toContain('UG 2')
   })
 
   it('loads a different group while the dialog remains open', async () => {
-    mocks.getGroupRateMultipliers.mockResolvedValueOnce(entries(1)).mockResolvedValueOnce(entries(2))
+    mocks.getGroupUserGroupPolicies.mockResolvedValueOnce(entries(1)).mockResolvedValueOnce(entries(2))
     const wrapper = await openGroup()
     await flushPromises()
     await wrapper.setProps({ group: group(2) })
     await flushPromises()
-    expect(mocks.getGroupRateMultipliers).toHaveBeenLastCalledWith(2)
-    expect(wrapper.get('tbody').text()).toContain('user2@example.com')
+    expect(mocks.getGroupUserGroupPolicies).toHaveBeenLastCalledWith(2)
+    expect(wrapper.get('tbody').text()).toContain('UG 2')
   })
 
   it('discards the previous group draft before loading the next group', async () => {
-    mocks.getGroupRateMultipliers.mockResolvedValueOnce(entries(1)).mockReturnValueOnce(deferred().promise)
+    mocks.getGroupUserGroupPolicies.mockResolvedValueOnce(entries(1)).mockReturnValueOnce(deferred().promise)
     const wrapper = await openGroup()
     await flushPromises()
     await wrapper.get('tbody input[type="number"]').setValue('3')
@@ -89,7 +102,7 @@ describe('group rate multiplier request ownership', () => {
   it('ignores a request failure after unmounting', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     const request = deferred()
-    mocks.getGroupRateMultipliers.mockReturnValue(request.promise)
+    mocks.getGroupUserGroupPolicies.mockReturnValue(request.promise)
     const wrapper = await openGroup()
     wrapper.unmount()
     request.reject(new Error('offline'))

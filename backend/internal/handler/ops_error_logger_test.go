@@ -1937,7 +1937,7 @@ func TestGetOpsAPIKeyFallsBackToOpsFallbackKey(t *testing.T) {
 	apiKey := &service.APIKey{
 		ID:      100,
 		GroupID: &groupID,
-		User:    &service.User{ID: 7},
+		User:    &service.User{UserGroupID: userGroupIDPtr(1), ID: 7},
 		Group:   &service.Group{ID: groupID, Platform: service.PlatformAnthropic},
 	}
 	c.Set(string(middleware2.ContextKeyOpsFallbackAPIKey), apiKey)

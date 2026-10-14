@@ -90,7 +90,7 @@ func newOpenAIImageChatRejectionHandlerWithCache(t *testing.T, cache *concurrenc
 }
 
 func setImageChatTestAuth(c *gin.Context) {
-	apiKey := &service.APIKey{ID: 4348, UserID: 4348, User: &service.User{ID: 4348}}
+	apiKey := &service.APIKey{ID: 4348, UserID: 4348, User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 4348}}
 	c.Set(string(middleware.ContextKeyAPIKey), apiKey)
 	c.Set(string(middleware.ContextKeyUser), middleware.AuthSubject{UserID: apiKey.UserID, Concurrency: 1})
 }

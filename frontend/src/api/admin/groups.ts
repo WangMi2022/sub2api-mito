@@ -328,6 +328,72 @@ export async function previewCompositeRoute(
 }
 
 /**
+ * 「API 分组 × 用户组」策略行：管理端渲染用户组策略矩阵使用。
+ */
+export interface GroupUserGroupPolicyRow {
+  user_group_id: number
+  user_group_name: string
+  user_group_code: string
+  is_system: boolean
+  member_count: number
+  rate_multiplier?: number | null
+  rpm_override?: number | null
+  denied_models?: string[] | null
+}
+
+/** 返回该 API 分组下全部用户组的策略行（含未配置的用户组）。 */
+export async function getGroupUserGroupPolicies(id: number): Promise<GroupUserGroupPolicyRow[]> {
+  const { data } = await apiClient.get<GroupUserGroupPolicyRow[]>(
+    `/admin/groups/${id}/user-group-policies`
+  )
+  return data
+}
+
+/** 批量设置该 API 分组的用户组专属倍率（整组覆盖，只动 rate_multiplier）。 */
+export async function batchSetGroupUserGroupRates(
+  id: number,
+  entries: Array<{ user_group_id: number; rate_multiplier: number }>
+): Promise<{ message: string }> {
+  const { data } = await apiClient.put<{ message: string }>(
+    `/admin/groups/${id}/user-group-rates`,
+    { entries }
+  )
+  return data
+}
+
+/** 批量设置该 API 分组的用户组专属 RPM（整组覆盖，只动 rpm_override）。 */
+export async function batchSetGroupUserGroupRPM(
+  id: number,
+  entries: Array<{ user_group_id: number; rpm_override: number | null }>
+): Promise<{ message: string }> {
+  const { data } = await apiClient.put<{ message: string }>(
+    `/admin/groups/${id}/user-group-rpm`,
+    { entries }
+  )
+  return data
+}
+
+/** 批量设置该 API 分组的用户组模型限制（整组覆盖，只动 denied_models）。 */
+export async function batchSetGroupUserGroupDeniedModels(
+  id: number,
+  entries: Array<{ user_group_id: number; denied_models: string[] }>
+): Promise<{ message: string }> {
+  const { data } = await apiClient.put<{ message: string }>(
+    `/admin/groups/${id}/user-group-denied-models`,
+    { entries }
+  )
+  return data
+}
+
+/** 清空该 API 分组的全部用户组策略。 */
+export async function clearGroupUserGroupPolicies(id: number): Promise<{ message: string }> {
+  const { data } = await apiClient.delete<{ message: string }>(
+    `/admin/groups/${id}/user-group-policies`
+  )
+  return data
+}
+
+/**
  * Rate multiplier entry for a user in a group
  */
 export interface GroupRateMultiplierEntry {
@@ -550,6 +616,11 @@ export const groupsAPI = {
   getGroupUserDeniedModels,
   batchSetGroupUserDeniedModels,
   clearGroupUserDeniedModels,
+  getGroupUserGroupPolicies,
+  batchSetGroupUserGroupRates,
+  batchSetGroupUserGroupRPM,
+  batchSetGroupUserGroupDeniedModels,
+  clearGroupUserGroupPolicies,
   updateSortOrder,
   getUsageSummary,
   getCapacitySummary

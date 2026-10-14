@@ -26,6 +26,7 @@ import (
 var (
 	ErrInvalidCredentials           = infraerrors.Unauthorized("INVALID_CREDENTIALS", "invalid email or password")
 	ErrUserNotActive                = infraerrors.Forbidden("USER_NOT_ACTIVE", "user is not active")
+	ErrUserGroupRequired            = infraerrors.Forbidden("USER_GROUP_REQUIRED", "user is not assigned to any user group")
 	ErrEmailExists                  = infraerrors.Conflict("EMAIL_EXISTS", "email already exists")
 	ErrEmailReserved                = infraerrors.BadRequest("EMAIL_RESERVED", "email is reserved")
 	ErrInvalidToken                 = infraerrors.Unauthorized("INVALID_TOKEN", "invalid token")
@@ -552,6 +553,12 @@ func (s *AuthService) Login(ctx context.Context, email, password string) (string
 	// 检查用户状态
 	if !user.IsActive() {
 		return "", nil, ErrUserNotActive
+	}
+
+	// 未归属用户组的用户不允许登录：没有用户组就无法解析专属倍率、
+	// RPM 与模型限制，直接放行会绕过全部准入策略。
+	if user.UserGroupID == nil || *user.UserGroupID <= 0 {
+		return "", nil, ErrUserGroupRequired
 	}
 
 	// 生成JWT token

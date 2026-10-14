@@ -67,6 +67,21 @@ type AdminService interface {
 	BatchSetGroupUserDeniedModels(ctx context.Context, groupID int64, entries []GroupUserDeniedModelsInput) error
 	UpdateGroupSortOrders(ctx context.Context, updates []GroupSortOrderUpdate) error
 
+	// 用户组管理
+	ListUserGroups(ctx context.Context) ([]UserGroup, error)
+	GetUserGroup(ctx context.Context, id int64) (*UserGroup, error)
+	CreateUserGroup(ctx context.Context, input CreateUserGroupInput) (*UserGroup, error)
+	UpdateUserGroup(ctx context.Context, id int64, input UpdateUserGroupInput) (*UserGroup, error)
+	DeleteUserGroup(ctx context.Context, id int64) error
+	ListUserGroupMembers(ctx context.Context, id int64) ([]int64, error)
+	SyncUserGroupMembers(ctx context.Context, id int64, userIDs []int64) (int, error)
+	// GetGroupUserGroupPolicies 返回某 API 分组下全部用户组的策略矩阵。
+	GetGroupUserGroupPolicies(ctx context.Context, groupID int64) ([]UserGroupPolicyRow, error)
+	BatchSetGroupUserGroupRates(ctx context.Context, groupID int64, entries []GroupUserGroupRateInput) error
+	BatchSetGroupUserGroupRPM(ctx context.Context, groupID int64, entries []GroupUserGroupRPMInput) error
+	BatchSetGroupUserGroupDeniedModels(ctx context.Context, groupID int64, entries []GroupUserGroupDeniedModelsInput) error
+	ClearGroupUserGroupPolicies(ctx context.Context, groupID int64) error
+
 	// API Key management (admin)
 	AdminUpdateAPIKeyGroupID(ctx context.Context, keyID int64, groupID *int64) (*AdminUpdateAPIKeyGroupIDResult, error)
 	AdminResetAPIKeyRateLimitUsage(ctx context.Context, keyID int64) (*APIKey, error)
@@ -179,6 +194,8 @@ type CreateUserInput struct {
 	AllowedGroups        []int64
 	ObserverGroupIDs     []int64
 	RestrictPublicGroups bool
+	// UserGroupID 归属的用户组；nil 表示未提供（走系统默认组）。
+	UserGroupID *int64
 	// ActorAdminID 执行本次操作的管理员ID(来自JWT)，仅用于权限敏感操作的审计日志。
 	ActorAdminID int64
 }
@@ -201,6 +218,8 @@ type UpdateUserInput struct {
 	// GroupRates 用户专属分组倍率配置
 	// map[groupID]*rate，nil 表示删除该分组的专属倍率
 	GroupRates map[int64]*float64
+	// UserGroupID 归属的用户组；nil 表示不修改，指向 0 表示移出用户组。
+	UserGroupID *int64
 	// ActorAdminID 执行本次操作的管理员ID(来自JWT)，仅用于权限敏感操作的审计日志。
 	ActorAdminID int64
 }
@@ -729,6 +748,7 @@ type adminServiceImpl struct {
 	apiKeyRepo           APIKeyRepository
 	redeemCodeRepo       RedeemCodeRepository
 	userGroupRateRepo    UserGroupRateRepository
+	userGroupRepo        UserGroupRepository
 	userRPMCache         UserRPMCache
 	billingCacheService  *BillingCacheService
 	proxyProber          ProxyExitInfoProber
@@ -771,6 +791,7 @@ func NewAdminService(
 	apiKeyRepo APIKeyRepository,
 	redeemCodeRepo RedeemCodeRepository,
 	userGroupRateRepo UserGroupRateRepository,
+	userGroupRepo UserGroupRepository,
 	userRPMCache UserRPMCache,
 	billingCacheService *BillingCacheService,
 	proxyProber ProxyExitInfoProber,
@@ -800,6 +821,7 @@ func NewAdminService(
 		apiKeyRepo:           apiKeyRepo,
 		redeemCodeRepo:       redeemCodeRepo,
 		userGroupRateRepo:    userGroupRateRepo,
+		userGroupRepo:        userGroupRepo,
 		userRPMCache:         userRPMCache,
 		billingCacheService:  billingCacheService,
 		proxyProber:          proxyProber,

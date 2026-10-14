@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/Wei-Shaw/sub2api/internal/service"
@@ -142,7 +143,17 @@ func (r *userGroupRateRepository) GetByGroupID(ctx context.Context, groupID int6
 
 // GetByUserAndGroup 获取用户在特定分组的专属 rate_multiplier（NULL 返回 nil）
 func (r *userGroupRateRepository) GetByUserAndGroup(ctx context.Context, userID, groupID int64) (*float64, error) {
-	query := `SELECT rate_multiplier FROM user_group_rate_multipliers WHERE user_id = $1 AND group_id = $2`
+	// 优先级：用户级专属倍率 > 用户组策略倍率 > 分组默认值。
+	// 用户级条目由旧版面板写入，保留以兼容仍在运行的旧实例。
+	query := `
+		SELECT COALESCE(ugr.rate_multiplier, ugp.rate_multiplier)
+		FROM users u
+		LEFT JOIN user_group_rate_multipliers ugr
+			ON ugr.user_id = u.id AND ugr.group_id = $2
+		LEFT JOIN user_group_policies ugp
+			ON ugp.user_group_id = u.user_group_id AND ugp.group_id = $2
+		WHERE u.id = $1
+	`
 	var rate sql.NullFloat64
 	err := scanSingleRow(ctx, r.sql, query, []any{userID, groupID}, &rate)
 	if err == sql.ErrNoRows {
@@ -160,7 +171,16 @@ func (r *userGroupRateRepository) GetByUserAndGroup(ctx context.Context, userID,
 
 // GetRPMOverrideByUserAndGroup 获取用户在特定分组的 rpm_override（NULL 返回 nil）
 func (r *userGroupRateRepository) GetRPMOverrideByUserAndGroup(ctx context.Context, userID, groupID int64) (*int, error) {
-	query := `SELECT rpm_override FROM user_group_rate_multipliers WHERE user_id = $1 AND group_id = $2`
+	// 优先级同倍率：用户级 > 用户组策略 > 分组 RPM。
+	query := `
+		SELECT COALESCE(ugr.rpm_override, ugp.rpm_override)
+		FROM users u
+		LEFT JOIN user_group_rate_multipliers ugr
+			ON ugr.user_id = u.id AND ugr.group_id = $2
+		LEFT JOIN user_group_policies ugp
+			ON ugp.user_group_id = u.user_group_id AND ugp.group_id = $2
+		WHERE u.id = $1
+	`
 	var rpm sql.NullInt32
 	err := scanSingleRow(ctx, r.sql, query, []any{userID, groupID}, &rpm)
 	if err == sql.ErrNoRows {
@@ -396,7 +416,16 @@ func (r *userGroupRateRepository) ClearGroupRPMOverrides(ctx context.Context, gr
 
 // GetDeniedModelsByUserAndGroup 获取用户在特定分组被禁用的模型（未设置返回 nil）
 func (r *userGroupRateRepository) GetDeniedModelsByUserAndGroup(ctx context.Context, userID, groupID int64) ([]string, error) {
-	query := `SELECT denied_models FROM user_group_rate_multipliers WHERE user_id = $1 AND group_id = $2`
+	// 禁用模型是准入限制，取用户级与用户组策略的并集：任一来源禁用即禁用。
+	query := `
+		SELECT COALESCE(ugr.denied_models, '[]'::jsonb) || COALESCE(ugp.denied_models, '[]'::jsonb)
+		FROM users u
+		LEFT JOIN user_group_rate_multipliers ugr
+			ON ugr.user_id = u.id AND ugr.group_id = $2
+		LEFT JOIN user_group_policies ugp
+			ON ugp.user_group_id = u.user_group_id AND ugp.group_id = $2
+		WHERE u.id = $1
+	`
 	var denied []byte
 	err := scanSingleRow(ctx, r.sql, query, []any{userID, groupID}, &denied)
 	if err == sql.ErrNoRows {
@@ -405,7 +434,11 @@ func (r *userGroupRateRepository) GetDeniedModelsByUserAndGroup(ctx context.Cont
 	if err != nil {
 		return nil, err
 	}
-	return decodeUserGroupDeniedModels(denied)
+	models, err := decodeUserGroupDeniedModels(denied)
+	if err != nil {
+		return nil, err
+	}
+	return dedupeDeniedModels(models), nil
 }
 
 // GetDeniedModelsByUserID 获取用户在各分组被禁用的模型（只返回有设置的分组）
@@ -542,4 +575,29 @@ func (r *userGroupRateRepository) DeleteByGroupID(ctx context.Context, groupID i
 func (r *userGroupRateRepository) DeleteByUserID(ctx context.Context, userID int64) error {
 	_, err := r.sql.ExecContext(ctx, `DELETE FROM user_group_rate_multipliers WHERE user_id = $1`, userID)
 	return err
+}
+
+// dedupeDeniedModels 合并用户级与用户组策略的禁用模型并去重（忽略大小写）。
+func dedupeDeniedModels(models []string) []string {
+	if len(models) == 0 {
+		return nil
+	}
+	seen := make(map[string]struct{}, len(models))
+	out := make([]string, 0, len(models))
+	for _, m := range models {
+		trimmed := strings.TrimSpace(m)
+		if trimmed == "" {
+			continue
+		}
+		key := strings.ToLower(trimmed)
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		out = append(out, trimmed)
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
 }

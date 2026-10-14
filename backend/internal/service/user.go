@@ -65,6 +65,10 @@ type User struct {
 	// 避免每请求查 DB。字段不持久化到数据库。
 	UserGroupRPMOverride *int
 
+	// UserGroupID 用户所属用户组 ID；nil 表示未分组。
+	// 未分组用户不允许登录面板，也不允许调用网关接口。
+	UserGroupID *int64
+
 	// UserGroupDeniedModels 来自 auth cache snapshot 的 (user, group) 禁用模型，
 	// 即该 API Key 所属用户在 Key 分组内不能使用的模型。字段不持久化到 users 表。
 	UserGroupDeniedModels []string

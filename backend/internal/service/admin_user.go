@@ -137,6 +137,17 @@ func (s *adminServiceImpl) CreateUser(ctx context.Context, input *CreateUserInpu
 	if role != RoleObserver {
 		input.ObserverGroupIDs = []int64{}
 	}
+	// 用户组：显式指定时校验存在性；未指定时留空，由数据库触发器按角色
+	// 落入内置组，保证与仍在运行的旧 8080 实例行为一致。
+	if input.UserGroupID != nil && *input.UserGroupID > 0 {
+		if _, err := s.GetUserGroup(ctx, *input.UserGroupID); err != nil {
+			return nil, err
+		}
+		input.UserGroupID = ptrInt64(*input.UserGroupID)
+	} else {
+		input.UserGroupID = nil
+	}
+
 	user := &User{
 		Email:            input.Email,
 		Username:         input.Username,
@@ -148,6 +159,7 @@ func (s *adminServiceImpl) CreateUser(ctx context.Context, input *CreateUserInpu
 		Status:           StatusActive,
 		AllowedGroups:    input.AllowedGroups,
 		ObserverGroupIDs: input.ObserverGroupIDs,
+		UserGroupID:      input.UserGroupID,
 
 		RestrictPublicGroups: input.RestrictPublicGroups,
 	}
@@ -316,6 +328,20 @@ func (s *adminServiceImpl) UpdateUser(ctx context.Context, id int64, input *Upda
 		user.RestrictPublicGroups = *input.RestrictPublicGroups
 		fields.RestrictPublicGroups = true
 	}
+
+	oldUserGroupID := user.UserGroupID
+	if input.UserGroupID != nil {
+		if *input.UserGroupID > 0 {
+			if _, err := s.GetUserGroup(ctx, *input.UserGroupID); err != nil {
+				return nil, err
+			}
+			user.UserGroupID = ptrInt64(*input.UserGroupID)
+		} else {
+			// 0 表示显式移出用户组 → 未分组。
+			user.UserGroupID = nil
+		}
+		fields.UserGroupID = true
+	}
 	var dedicatedGroupID int64
 	if setupTx != nil {
 		dedicatedGroupID, err = s.applyObserverSetup(ctx, user, &fields, input.ObserverSetup)
@@ -375,7 +401,7 @@ func (s *adminServiceImpl) UpdateUser(ctx context.Context, id int64, input *Upda
 	if s.authCacheInvalidator != nil {
 		// RPMLimit 直接参与 billing_cache_service.checkRPM 的三级级联，
 		// allowed_groups 参与 API Key 专属分组授权判断；不失效缓存会让修改在一个 L2 TTL 内失去效果。
-		if user.Concurrency != oldConcurrency || user.Status != oldStatus || user.Role != oldRole || user.RPMLimit != oldRPMLimit || user.RestrictPublicGroups != oldRestrictPublicGroups || !sameInt64Set(user.AllowedGroups, oldAllowedGroups) {
+		if user.Concurrency != oldConcurrency || user.Status != oldStatus || user.Role != oldRole || user.RPMLimit != oldRPMLimit || user.RestrictPublicGroups != oldRestrictPublicGroups || !sameInt64Set(user.AllowedGroups, oldAllowedGroups) || !sameOptionalInt64(user.UserGroupID, oldUserGroupID) {
 			s.authCacheInvalidator.InvalidateAuthCacheByUserID(ctx, user.ID)
 		}
 	}
@@ -1392,4 +1418,17 @@ func (s *adminServiceImpl) ExpireRedeemCode(ctx context.Context, id int64) (*Red
 		return nil, err
 	}
 	return code, nil
+}
+
+// ptrInt64 返回指向 v 的指针，避免调用方逃逸出局部变量。
+func ptrInt64(v int64) *int64 {
+	return &v
+}
+
+// sameOptionalInt64 比较两个可空 int64 是否指向相同值。
+func sameOptionalInt64(a, b *int64) bool {
+	if a == nil || b == nil {
+		return a == nil && b == nil
+	}
+	return *a == *b
 }

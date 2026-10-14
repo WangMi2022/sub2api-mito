@@ -63,7 +63,7 @@ func TestAutoConfigGatewayLargeCompletedStream(t *testing.T) {
 			router := gin.New()
 			router.Use(OpsErrorLoggerMiddleware(ops))
 			router.Use(func(c *gin.Context) {
-				c.Set(string(middleware.ContextKeyAPIKey), &service.APIKey{ID: 17, GroupID: &groupID, User: &service.User{ID: 19, Status: service.StatusActive}, Group: &service.Group{ID: groupID, Platform: service.PlatformOpenAI, Status: service.StatusActive}})
+				c.Set(string(middleware.ContextKeyAPIKey), &service.APIKey{ID: 17, GroupID: &groupID, User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 19, Status: service.StatusActive}, Group: &service.Group{ID: groupID, Platform: service.PlatformOpenAI, Status: service.StatusActive}})
 				c.Set(string(middleware.ContextKeyUser), middleware.AuthSubject{UserID: 19, Concurrency: 0})
 				c.Next()
 			})
