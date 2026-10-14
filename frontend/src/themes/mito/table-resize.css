@@ -2,7 +2,9 @@
 html[data-ui-theme='mito'] .mito-resizable-table { table-layout: fixed; min-width: 0; }
 html[data-ui-theme='mito'] .mito-resizable-table th[data-column-key]:not([data-column-key='select']),
 html[data-ui-theme='mito'] .mito-accounts-table .mito-resizable-table th[data-column-key]:not([data-column-key='select']) { padding-right: 20px; }
-html[data-ui-theme='mito'] .mito-resizable-table :is(th, td)[data-column-key] { white-space: normal; overflow-wrap: anywhere; }
+html[data-ui-theme='mito'] .mito-resizable-table td[data-column-key] { white-space: normal; overflow-wrap: anywhere; }
+/* Headers break between words so short columns never split a label mid-word. */
+html[data-ui-theme='mito'] .mito-resizable-table th[data-column-key] { white-space: normal; overflow-wrap: break-word; word-break: normal; }
 html[data-ui-theme='mito'] .mito-resizable-table td[data-column-key] > * { min-width: 0; max-width: 100%; }
 html[data-ui-theme='mito'] .mito-column-resize-handle {
   position: absolute;

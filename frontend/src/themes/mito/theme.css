@@ -161,6 +161,9 @@ html[data-ui-theme='mito'] .modal-overlay { background: rgb(15 23 42 / 40%); bac
 html[data-ui-theme='mito'] :is(.table-container, .table-scroll-container) { border-color: var(--mito-border); border-radius: 16px; }
 html[data-ui-theme='mito'] :is(.table, .table-wrapper table) { font-variant-numeric: tabular-nums; border-color: var(--mito-border); }
 html[data-ui-theme='mito'] :is(.table, .table-wrapper table) th { background: var(--mito-subtle); color: var(--mito-muted); font-size: 12px; font-weight: 600; border-color: var(--mito-border); }
+/* List headers read as one centered unit with their sort arrows. */
+html[data-ui-theme='mito'] :is(.table, .table-wrapper table) thead th { text-align: center; }
+html[data-ui-theme='mito'] :is(.table, .table-wrapper table) thead th > div { justify-content: center; }
 html[data-ui-theme='mito'] :is(.table, .table-wrapper table) td { color: var(--mito-text); border-color: var(--mito-border); }
 html[data-ui-theme='mito'] .table-wrapper :is(thead, tbody) { background: var(--mito-surface); border-color: var(--mito-border); }
 html[data-ui-theme='mito'] .table-wrapper td.sticky-col { background: var(--mito-surface); }

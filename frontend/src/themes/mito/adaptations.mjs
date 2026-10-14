@@ -744,6 +744,7 @@ export const contracts = [
   { path: 'frontend/src/style.css', anchors: ['.card {', '.input {', '.btn-primary {', '.sidebar-link-active {'] },
   { path: 'frontend/src/themes/mito/index.ts', anchors: ['export const isMitoTheme'] },
   { path: 'frontend/src/themes/mito/theme.css', anchors: ["html[data-ui-theme='mito']", '--mito-primary-600:', '.mito-request-log-table', '.mito-request-log-pagination', '@keyframes mito-request-log-progress'] },
+  { path: 'frontend/src/themes/mito/channel-status.css', anchors: ["html[data-ui-theme='mito']", 'monitor-v3-category', 'monitor-v3-featured-availability', 'prefers-reduced-motion'] },
   { path: 'frontend/src/themes/mito/DashboardStats.vue', anchors: ['stats: UserDashboardStats'] },
   { path: 'frontend/src/themes/mito/DashboardCharts.vue', anchors: ['trend: TrendDataPoint[]', 'models: ModelStat[]'] },
   { path: 'frontend/src/themes/mito/useChartTooltip.ts', anchors: ['export function useChartTooltip'] },

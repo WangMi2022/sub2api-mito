@@ -35,6 +35,15 @@ html[data-ui-theme='mito'] .mito-accounts-table .mito-account-usage-stats { marg
 html[data-ui-theme='mito'] .mito-accounts-table .mito-account-usage-metrics { flex-wrap: wrap; gap: 2px 4px; }
 html[data-ui-theme='mito'] .mito-accounts-table .mito-account-usage-metrics > span { padding-block: 0; }
 html[data-ui-theme='mito'] .mito-accounts-table .mito-account-usage-progress { min-height: 14px; line-height: 14px; }
+/* Group badges fill the resizable 分组 column instead of staying pinned to their 96px cap. */
+html[data-ui-theme='mito'] .mito-accounts-table td[data-column-key='groups'] > div,
+html[data-ui-theme='mito'] .mito-accounts-table td[data-column-key='groups'] .max-w-24 {
+  max-width: 100%;
+}
+html[data-ui-theme='mito'] .mito-accounts-table td[data-column-key='groups'] .truncate {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 
 @media (max-width: 767px), (pointer: coarse) {
   html[data-ui-theme='mito'] .mito-accounts-table .mito-account-actions { flex-wrap: wrap; gap: 4px; }

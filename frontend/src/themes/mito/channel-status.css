@@ -1,0 +1,208 @@
+/* Channel status (V3) presentation. Selectors stay on the upstream test ids and
+   utility hooks, so behaviour, data and tests are untouched. */
+html[data-ui-theme='mito'] [data-testid='monitor-v3-page'] {
+  font-family: var(--mito-font), system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Toolbar */
+html[data-ui-theme='mito'] [data-testid='monitor-v3-refresh'] {
+  min-height: 36px;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--mito-text);
+  color: var(--mito-surface);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 12%);
+  transition: background-color 140ms ease, transform 140ms ease, box-shadow 140ms ease;
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-refresh']:hover:not(:disabled) {
+  background: var(--mito-blue);
+  box-shadow: 0 4px 12px rgb(37 99 235 / 22%);
+  transform: translateY(-1px);
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-refresh']:disabled { opacity: .55; }
+
+/* Panels */
+html[data-ui-theme='mito'] [data-testid='monitor-v3-page'] :is(
+  [data-testid='monitor-v3-featured'],
+  [data-testid='monitor-v3-system']
+) {
+  padding: clamp(18px, 2.2vw, 28px);
+  border: 1px solid var(--mito-card-border);
+  border-radius: 18px;
+  background: var(--mito-surface);
+  box-shadow: var(--mito-shadow);
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-page'] :is(
+  [data-testid='monitor-v3-featured'] h2,
+  [data-testid='monitor-v3-system'] h2
+) {
+  color: var(--mito-text);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.015em;
+}
+
+/* Featured card: quiet blue wash plus a left accent rail. */
+html[data-ui-theme='mito'] [data-testid='monitor-v3-featured'] {
+  position: relative;
+  overflow: hidden;
+  border-color: var(--mito-blue-border);
+  background:
+    linear-gradient(180deg, var(--mito-blue-soft), transparent 72%),
+    var(--mito-surface);
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-featured']::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--mito-blue);
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-featured-availability'] {
+  color: var(--mito-text);
+  font-size: clamp(28px, 3.4vw, 40px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -.03em;
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-featured'] h2 { font-size: clamp(17px, 2vw, 20px); font-weight: 700; }
+
+/* System panel header */
+html[data-ui-theme='mito'] [data-testid='monitor-v3-system'] > header {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--mito-border);
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-system'] > header :is(button:not([data-testid])) {
+  border-radius: 8px;
+  color: var(--mito-muted);
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-system'] > header :is(button:not([data-testid])):hover:not(:disabled) {
+  background: var(--mito-subtle);
+  color: var(--mito-text);
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-system'] > header > .flex:last-child > span {
+  color: var(--mito-muted);
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-system'] > header i {
+  border-radius: 3px;
+}
+
+/* Category lanes */
+html[data-ui-theme='mito'] [data-testid='monitor-v3-category'] {
+  padding: 18px 20px;
+  border: 1px solid var(--mito-border);
+  border-radius: 14px;
+  background: var(--mito-subtle);
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-category']:hover {
+  border-color: var(--mito-blue-border);
+  background: var(--mito-surface);
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-category'] > .flex:first-child {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--mito-border);
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-category'] > .flex:first-child > .flex > span:first-child {
+  color: var(--mito-text);
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -.01em;
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-category-toggle'] {
+  min-height: 26px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  color: var(--mito-muted);
+  font-size: 12px;
+  font-weight: 550;
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-category-toggle']:hover {
+  background: var(--mito-blue-soft);
+  color: var(--mito-blue);
+}
+
+/* Component rows */
+html[data-ui-theme='mito'] [data-testid='monitor-v3-component'] .font-medium {
+  color: var(--mito-text);
+  font-weight: 600;
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-component'] .tabular-nums {
+  color: var(--mito-muted);
+  font-weight: 600;
+}
+
+/* Status bars: slightly taller cells with a softer track. */
+html[data-ui-theme='mito'] [data-testid='monitor-v3-bar'] {
+  gap: 2px;
+  padding: 2px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--mito-border) 55%, transparent);
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-bar'] > :is(
+  [data-testid='monitor-v3-cell'],
+  [data-testid='monitor-v3-cell-empty']
+) {
+  border-radius: 4px;
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-cell']:hover {
+  opacity: 1;
+  filter: brightness(.92);
+}
+
+/* Empty state */
+html[data-ui-theme='mito'] [data-testid='monitor-v3-empty'] {
+  margin-top: 20px;
+  padding: 56px 20px;
+  border: 1px dashed var(--mito-border);
+  border-radius: 14px;
+  background: var(--mito-subtle);
+  color: var(--mito-muted);
+  font-size: 13px;
+}
+
+/* Footer */
+html[data-ui-theme='mito'] [data-testid='monitor-v3-page'] > footer { gap: 12px; }
+html[data-ui-theme='mito'] [data-testid='monitor-v3-incidents'] {
+  min-height: 36px;
+  border-radius: 10px;
+  border-color: var(--mito-border);
+  background: var(--mito-surface);
+  color: var(--mito-text);
+  font-weight: 550;
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-incidents']:hover {
+  border-color: var(--mito-blue-border);
+  background: var(--mito-blue-soft);
+}
+html[data-ui-theme='mito'] [data-testid='monitor-v3-page'] > footer p {
+  color: var(--mito-muted);
+  line-height: 1.7;
+}
+
+/* Detail tooltip */
+html[data-ui-theme='mito'] [data-testid='monitor-v3-tooltip'] {
+  border-radius: 14px;
+  border-color: var(--mito-border);
+  background: var(--mito-surface);
+  color: var(--mito-text);
+  box-shadow: 0 12px 32px rgb(15 23 42 / 14%);
+}
+
+@media (max-width: 767px) {
+  html[data-ui-theme='mito'] [data-testid='monitor-v3-featured-availability'] { font-size: 30px; }
+  html[data-ui-theme='mito'] [data-testid='monitor-v3-category'] { padding: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] [data-testid='monitor-v3-page'] :is(button, [data-testid='monitor-v3-category']) {
+    transition: none;
+  }
+  html[data-ui-theme='mito'] [data-testid='monitor-v3-refresh']:hover:not(:disabled) { transform: none; }
+}
