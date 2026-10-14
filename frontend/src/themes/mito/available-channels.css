@@ -1,0 +1,366 @@
+/* Available channels: presentation only. Every rule is scoped to the desktop or
+   mobile test id of this single route, so data, filtering, permissions and the
+   pricing popovers keep their upstream behaviour. */
+html[data-ui-theme='mito'] .table-page-layout:has([data-testid='desktop-channels']) {
+  --mito-channels-ring: rgb(37 99 235 / 22%);
+  --mito-channels-line: linear-gradient(90deg, #2563eb, #38bdf8 45%, #22c55e);
+}
+
+html[data-ui-theme='mito'].dark .table-page-layout:has([data-testid='desktop-channels']) {
+  --mito-channels-ring: rgb(96 165 250 / 30%);
+  --mito-channels-line: linear-gradient(90deg, #60a5fa, #38bdf8 45%, #4ade80);
+}
+
+/* ---------- Filter strip ---------- */
+html[data-ui-theme='mito'] .table-page-layout:has([data-testid='desktop-channels']) .layout-section-fixed:first-of-type {
+  transition: box-shadow 220ms ease;
+}
+
+html[data-ui-theme='mito'] .table-page-layout:has([data-testid='desktop-channels']) .layout-section-fixed:first-of-type .input {
+  height: 42px;
+  padding-left: 42px;
+  border-color: var(--mito-border);
+  border-radius: 12px;
+  background: var(--mito-surface);
+  box-shadow: var(--mito-shadow);
+  transition: border-color 180ms ease, box-shadow 220ms ease, background-color 180ms ease;
+}
+
+html[data-ui-theme='mito'] .table-page-layout:has([data-testid='desktop-channels']) .layout-section-fixed:first-of-type .input:hover {
+  border-color: var(--mito-blue-border);
+}
+
+html[data-ui-theme='mito'] .table-page-layout:has([data-testid='desktop-channels']) .layout-section-fixed:first-of-type .input:focus,
+html[data-ui-theme='mito'] .table-page-layout:has([data-testid='desktop-channels']) .layout-section-fixed:first-of-type .input:focus-visible {
+  border-color: var(--mito-blue);
+  box-shadow: 0 0 0 4px var(--mito-channels-ring), var(--mito-shadow);
+  outline: none;
+}
+
+html[data-ui-theme='mito'] .table-page-layout:has([data-testid='desktop-channels']) .layout-section-fixed:first-of-type .relative > svg {
+  color: var(--mito-muted);
+  transition: color 180ms ease, transform 220ms ease;
+}
+
+html[data-ui-theme='mito'] .table-page-layout:has([data-testid='desktop-channels']) .layout-section-fixed:first-of-type .relative:focus-within > svg {
+  color: var(--mito-blue);
+  transform: scale(1.06);
+}
+
+/* Refresh button: quiet by default, lifts and turns on hover. */
+html[data-ui-theme='mito'] .table-page-layout:has([data-testid='desktop-channels']) .layout-section-fixed:first-of-type .btn-secondary {
+  height: 42px;
+  min-width: 42px;
+  padding: 0 12px;
+  border-color: var(--mito-border);
+  border-radius: 12px;
+  background: var(--mito-surface);
+  color: var(--mito-muted);
+  box-shadow: var(--mito-shadow);
+  transition: color 180ms ease, border-color 180ms ease, box-shadow 220ms ease, transform 180ms ease;
+}
+
+html[data-ui-theme='mito'] .table-page-layout:has([data-testid='desktop-channels']) .layout-section-fixed:first-of-type .btn-secondary:hover:not(:disabled) {
+  color: var(--mito-blue);
+  border-color: var(--mito-blue-border);
+  box-shadow: 0 8px 20px -10px var(--mito-channels-ring);
+  transform: translateY(-1px);
+}
+
+html[data-ui-theme='mito'] .table-page-layout:has([data-testid='desktop-channels']) .layout-section-fixed:first-of-type .btn-secondary:hover:not(:disabled) svg {
+  transform: rotate(180deg);
+}
+
+html[data-ui-theme='mito'] .table-page-layout:has([data-testid='desktop-channels']) .layout-section-fixed:first-of-type .btn-secondary svg {
+  transition: transform 420ms cubic-bezier(.22, 1, .36, 1);
+}
+
+html[data-ui-theme='mito'] .table-page-layout:has([data-testid='desktop-channels']) .layout-section-fixed:first-of-type .btn-secondary:active:not(:disabled) {
+  transform: translateY(0) scale(.97);
+}
+
+html[data-ui-theme='mito'] .table-page-layout:has([data-testid='desktop-channels']) .layout-section-fixed:first-of-type .btn-secondary:disabled {
+  opacity: .6;
+  box-shadow: none;
+}
+
+/* ---------- Card shell ---------- */
+html[data-ui-theme='mito'] .table-scroll-container:has([data-testid='desktop-channels']) {
+  position: relative;
+  border-color: var(--mito-card-border);
+  border-radius: 20px;
+  background: var(--mito-surface);
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 4%),
+    0 18px 44px -28px rgb(15 23 42 / 22%);
+  animation: mito-channels-card-in 520ms cubic-bezier(.22, 1, .36, 1) both;
+}
+
+html[data-ui-theme='mito'] .table-scroll-container:has([data-testid='desktop-channels'])::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 6;
+  height: 2px;
+  background: var(--mito-channels-line);
+  opacity: .95;
+  pointer-events: none;
+}
+
+/* Soft halo behind the header row, so the card reads as layered rather than flat. */
+html[data-ui-theme='mito'] .table-scroll-container:has([data-testid='desktop-channels'])::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 0;
+  height: 132px;
+  background: radial-gradient(120% 100% at 12% 0%, rgb(37 99 235 / 7%), transparent 62%);
+  pointer-events: none;
+}
+
+html[data-ui-theme='mito'].dark .table-scroll-container:has([data-testid='desktop-channels'])::before {
+  background: radial-gradient(120% 100% at 12% 0%, rgb(96 165 250 / 12%), transparent 62%);
+}
+
+@keyframes mito-channels-card-in {
+  from { opacity: 0; transform: translateY(10px) scale(.995); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- Table head ---------- */
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] thead {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] thead tr {
+  background: linear-gradient(180deg, var(--mito-subtle), var(--mito-surface));
+  animation: mito-channels-head-in 420ms ease both;
+}
+
+@keyframes mito-channels-head-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] thead th {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--mito-border);
+  color: var(--mito-muted);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] thead th::after {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 2px;
+  margin: 7px auto 0;
+  border-radius: 999px;
+  background: var(--mito-channels-line);
+}
+
+/* Column one is the channel identity: keep its rule shorter and left aligned
+   with the centred upstream header. */
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] thead th:first-child::after {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ---------- Channel blocks ---------- */
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody {
+  background: var(--mito-surface);
+  opacity: 0;
+  animation: mito-channels-row-in 460ms cubic-bezier(.22, 1, .36, 1) forwards;
+}
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody:nth-of-type(1) { animation-delay: 60ms; }
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody:nth-of-type(2) { animation-delay: 120ms; }
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody:nth-of-type(3) { animation-delay: 180ms; }
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody:nth-of-type(4) { animation-delay: 240ms; }
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody:nth-of-type(5) { animation-delay: 300ms; }
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody:nth-of-type(6) { animation-delay: 360ms; }
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody:nth-of-type(n + 7) { animation-delay: 400ms; }
+
+@keyframes mito-channels-row-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody {
+  border-bottom-color: var(--mito-border);
+  transition: box-shadow 220ms ease;
+}
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody:hover {
+  box-shadow: inset 3px 0 0 0 var(--mito-blue), 0 10px 24px -20px var(--mito-channels-ring);
+}
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody tr {
+  background: transparent;
+  transition: background-color 200ms ease;
+}
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody tr:hover {
+  background: color-mix(in srgb, var(--mito-blue-soft) 55%, transparent);
+}
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] td {
+  padding: 14px 16px;
+  border-color: var(--mito-border);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* The first cell spans every platform row of a channel, so the vertical accent
+   reads as one marker per channel. */
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] td:first-child {
+  position: relative;
+  color: var(--mito-text);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] td:first-child::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 3px;
+  height: 0;
+  border-radius: 0 999px 999px 0;
+  background: var(--mito-channels-line);
+  transform: translateY(-50%);
+  transition: height 260ms cubic-bezier(.22, 1, .36, 1);
+}
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody:hover td:first-child::before { height: 62%; }
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] td:nth-child(2) {
+  color: var(--mito-muted);
+  font-size: 12.5px;
+}
+
+/* Platform badge (third column from the right). */
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] td:nth-last-child(3) > span {
+  padding: 3px 9px;
+  border-radius: 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 45%);
+  transition: transform 180ms cubic-bezier(.22, 1, .36, 1), box-shadow 200ms ease;
+}
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody:hover td:nth-last-child(3) > span {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px -8px currentColor, inset 0 1px 0 rgb(255 255 255 / 45%);
+}
+
+/* Group badges and their public/exclusive labels (second column from the right). */
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] td:nth-last-child(2) span[class*='rounded-md'] {
+  transition: transform 200ms cubic-bezier(.22, 1, .36, 1), box-shadow 220ms ease;
+}
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody:hover td:nth-last-child(2) span[class*='rounded-md'] {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px -10px currentColor;
+}
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] td:nth-last-child(2) > div > div > span {
+  opacity: .72;
+  letter-spacing: .04em;
+  transition: opacity 180ms ease;
+}
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody:hover td:nth-last-child(2) > div > div > span { opacity: 1; }
+
+/* Model chips (last column). */
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] td:last-child .cursor-help {
+  border-radius: 8px;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 600;
+  transition: transform 180ms cubic-bezier(.22, 1, .36, 1), box-shadow 200ms ease, filter 180ms ease;
+}
+
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] td:last-child .cursor-help:hover,
+html[data-ui-theme='mito'] [data-testid='desktop-channels'] td:last-child .cursor-help:focus-visible {
+  filter: saturate(1.15);
+  box-shadow: 0 8px 18px -10px currentColor;
+  transform: translateY(-2px);
+}
+
+/* ---------- Mobile cards ---------- */
+html[data-ui-theme='mito'] [data-testid='mobile-channels'] > section {
+  border-bottom-color: var(--mito-border);
+  padding: 18px 16px;
+  transition: background-color 200ms ease;
+  animation: mito-channels-row-in 460ms cubic-bezier(.22, 1, .36, 1) both;
+}
+
+html[data-ui-theme='mito'] [data-testid='mobile-channels'] > section:nth-of-type(2) { animation-delay: 60ms; }
+html[data-ui-theme='mito'] [data-testid='mobile-channels'] > section:nth-of-type(3) { animation-delay: 120ms; }
+html[data-ui-theme='mito'] [data-testid='mobile-channels'] > section:nth-of-type(4) { animation-delay: 180ms; }
+html[data-ui-theme='mito'] [data-testid='mobile-channels'] > section:nth-of-type(n + 5) { animation-delay: 240ms; }
+
+html[data-ui-theme='mito'] [data-testid='mobile-channels'] h3 {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+html[data-ui-theme='mito'] [data-testid='mobile-channels'] h3::after {
+  content: '';
+  display: block;
+  width: 22px;
+  height: 2px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: var(--mito-channels-line);
+}
+
+html[data-ui-theme='mito'] [data-testid='mobile-channels'] dt {
+  color: var(--mito-muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+/* Below 1024px the desktop table is hidden and TablePageLayout switches to its
+   borderless mobile shell, so the card treatment must not re-introduce a frame. */
+@media (max-width: 1023px) {
+  html[data-ui-theme='mito'] .table-scroll-container:has([data-testid='desktop-channels']) {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  html[data-ui-theme='mito'] .table-scroll-container:has([data-testid='desktop-channels'])::after { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .table-scroll-container:has([data-testid='desktop-channels']),
+  html[data-ui-theme='mito'] [data-testid='desktop-channels'] thead tr,
+  html[data-ui-theme='mito'] [data-testid='desktop-channels'] tbody,
+  html[data-ui-theme='mito'] [data-testid='mobile-channels'] > section {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  html[data-ui-theme='mito'] .table-page-layout:has([data-testid='desktop-channels']) .layout-section-fixed:first-of-type .btn-secondary:hover:not(:disabled) svg {
+    transform: none;
+  }
+
+  html[data-ui-theme='mito'] [data-testid='desktop-channels'] td:last-child .cursor-help:hover {
+    transform: none;
+  }
+}

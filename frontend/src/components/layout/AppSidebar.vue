@@ -3,7 +3,7 @@
     class="sidebar"
     :class="[
       sidebarCollapsed ? 'w-[72px]' : 'w-64',
-      { '-translate-x-full lg:translate-x-0': !mobileOpen, 'mito-sidebar--collapsed': sidebarCollapsed }
+      { '-translate-x-full lg:translate-x-0': !mobileOpen }
     ]"
   >
     <!-- Logo/Brand -->
@@ -29,9 +29,7 @@
       </div>
     </div>
 
-    <div v-if="isAdmin" class="mito-sidebar-search">
-      <FeatureSearch :items="searchNavItems" :collapsed="sidebarCollapsed" @navigate="handleMenuItemClick" />
-    </div>
+    <FeatureSearch v-if="isAdmin" :items="searchNavItems" :collapsed="sidebarCollapsed" @navigate="handleMenuItemClick" />
 
     <!-- Navigation -->
     <nav ref="sidebarNavRef" class="sidebar-nav scrollbar-hide">
@@ -84,7 +82,7 @@
                 </span>
               </button>
               <!-- Children -->
-              <div v-if="!sidebarCollapsed && isGroupExpanded(item)" class="mito-sidebar-children mb-1 ml-4 border-l border-gray-200 pl-2 dark:border-dark-600">
+              <div v-if="!sidebarCollapsed && isGroupExpanded(item)" class="mb-1 ml-4 border-l border-gray-200 pl-2 dark:border-dark-600">
                 <router-link
                   v-for="child in item.children"
                   :key="child.path"
@@ -173,7 +171,7 @@
     </nav>
 
     <!-- Bottom Section -->
-    <div class="mito-sidebar-footer mt-auto border-t border-gray-100 p-3 dark:border-dark-800">
+    <div class="mt-auto border-t border-gray-100 p-3 dark:border-dark-800">
       <!-- Theme Toggle -->
       <button
         type="button"

@@ -16,8 +16,6 @@ export const adaptations = [
     edits: [
       { before: 'class="min-h-screen bg-gray-50 dark:bg-dark-950"', after: 'class="mito-app-layout min-h-screen bg-gray-50 dark:bg-dark-950"' },
       { before: 'class="pointer-events-none fixed inset-0 bg-mesh-gradient"', after: 'class="mito-app-decoration pointer-events-none fixed inset-0 bg-mesh-gradient"' },
-      { before: 'class="relative min-h-screen transition-all duration-300"', after: 'class="mito-main-frame relative min-h-screen transition-all duration-300"' },
-      { before: ":class=\"[sidebarCollapsed ? 'lg:ml-[72px]' : 'lg:ml-64']\"", after: ":class=\"[sidebarCollapsed ? 'lg:ml-[72px]' : 'lg:ml-64', { 'mito-main-frame--collapsed': sidebarCollapsed }]\"" },
       { before: '<main class="p-4 md:p-6 lg:p-8">\n        <slot />', after: '<main class="mito-main p-4 md:p-6 lg:p-8">\n        <MitoPageHeading v-if="isMitoTheme"><slot name="heading-actions" /></MitoPageHeading>\n        <slot />' },
       { before: "import AppHeader from './AppHeader.vue'", after: "import AppHeader from './AppHeader.vue'\nimport MitoPageHeading from '@/themes/mito/PageHeading.vue'\nimport { isMitoTheme } from '@/themes/mito'" }
     ]
@@ -45,11 +43,7 @@ export const adaptations = [
       {"before":"{ path: '/usage', label: t('nav.usage'), icon: ChartIcon, hideInSimpleMode: !authStore.isObserver },","after":"{ path: '/usage', label: isMitoTheme && !authStore.isObserver ? t('usage.logsTitle') : t('nav.usage'), icon: ChartIcon, hideInSimpleMode: !authStore.isObserver },\n    ...(isMitoTheme && !authStore.isObserver ? [{ path: '/usage-stats', label: t('usage.statsTitle'), icon: ChartIcon, hideInSimpleMode: true }] : []),"},
       { before: "const isDark = ref(document.documentElement.classList.contains('dark'))", after: "const isDark = ref(document.documentElement.classList.contains('dark'))\nif (isMitoTheme) useThemeSync(isDark) // mito-theme: shared preference" },
       { before: '<script setup lang="ts">', after: '<script setup lang="ts">\nimport { isMitoTheme } from \'@/themes/mito\'\nimport { useThemeSync } from \'@/themes/mito/useThemeSync\'' },
-      {"before":"{ '-translate-x-full lg:translate-x-0': !mobileOpen }","after":"{ '-translate-x-full lg:translate-x-0': !mobileOpen, 'mito-sidebar--collapsed': sidebarCollapsed }"},
-      {"before":"    <FeatureSearch v-if=\"isAdmin\" :items=\"searchNavItems\" :collapsed=\"sidebarCollapsed\" @navigate=\"handleMenuItemClick\" />","after":"    <div v-if=\"isAdmin\" class=\"mito-sidebar-search\">\n      <FeatureSearch :items=\"searchNavItems\" :collapsed=\"sidebarCollapsed\" @navigate=\"handleMenuItemClick\" />\n    </div>"},
       {"before":"                :title=\"sidebarCollapsed ? item.label : undefined\"\n                @click=\"handleGroupClick(item)\"","after":"                :title=\"sidebarCollapsed ? item.label : undefined\"\n                :aria-label=\"item.label\"\n                :aria-expanded=\"!sidebarCollapsed && isGroupExpanded(item)\"\n                @click=\"handleGroupClick(item)\""},
-      {"before":"class=\"mb-1 ml-4 border-l border-gray-200 pl-2 dark:border-dark-600\"","after":"class=\"mito-sidebar-children mb-1 ml-4 border-l border-gray-200 pl-2 dark:border-dark-600\""},
-      {"before":"    <div class=\"mt-auto border-t border-gray-100 p-3 dark:border-dark-800\">","after":"    <div class=\"mito-sidebar-footer mt-auto border-t border-gray-100 p-3 dark:border-dark-800\">"},
       {"before":"      <button\n        @click=\"toggleTheme\"","after":"      <button\n        type=\"button\"\n        :aria-label=\"isDark ? t('nav.lightMode') : t('nav.darkMode')\"\n        @click=\"toggleTheme\""},
       {"before":"      <button\n        @click=\"toggleSidebar\"","after":"      <button\n        type=\"button\"\n        :aria-label=\"sidebarCollapsed ? t('nav.expand') : t('nav.collapse')\"\n        :aria-expanded=\"!sidebarCollapsed\"\n        @click=\"toggleSidebar\""}
     ]
@@ -654,8 +648,7 @@ export const contracts = [
   {"path":"frontend/src/themes/mito/useTableColumnResize.ts","anchors":["export function useTableColumnResize","onBeforeUnmount(cancelDrag)","window.removeEventListener('pointermove'","version: 1"]},
   {"path":"frontend/src/themes/mito/accountTableColumns.ts","anchors":["export function withAccountColumnSizes","resizable: false"]},
   {"path":"frontend/src/themes/mito/table-resize.css","anchors":["html[data-ui-theme='mito']",".mito-column-resize-handle","touch-action: none","prefers-reduced-motion"]},
-  {"path":"frontend/src/themes/mito/sidebar.css","anchors":["html[data-ui-theme='mito']",".mito-sidebar--collapsed",".mito-sidebar-children","prefers-reduced-motion"]},
-  {"path":"frontend/src/themes/mito/index.ts","anchors":["import './sidebar.css'","import './table-resize.css'"]},
+  {"path":"frontend/src/themes/mito/index.ts","anchors":["import './table-resize.css'"]},
   {
     "path": "frontend/src/themes/mito/FilterSection.vue",
     "anchors": [
@@ -745,6 +738,8 @@ export const contracts = [
   { path: 'frontend/src/themes/mito/index.ts', anchors: ['export const isMitoTheme'] },
   { path: 'frontend/src/themes/mito/theme.css', anchors: ["html[data-ui-theme='mito']", '--mito-primary-600:', '.mito-request-log-table', '.mito-request-log-pagination', '@keyframes mito-request-log-progress'] },
   { path: 'frontend/src/themes/mito/channel-status.css', anchors: ["html[data-ui-theme='mito']", 'monitor-v3-category', 'monitor-v3-featured-availability', 'prefers-reduced-motion'] },
+  { path: 'frontend/src/themes/mito/available-channels.css', anchors: ["html[data-ui-theme='mito']", "[data-testid='desktop-channels']", "[data-testid='mobile-channels']", 'prefers-reduced-motion'] },
+  { path: 'frontend/src/themes/mito/index.ts', anchors: ["import './available-channels.css'"] },
   { path: 'frontend/src/themes/mito/DashboardStats.vue', anchors: ['stats: UserDashboardStats'] },
   { path: 'frontend/src/themes/mito/DashboardCharts.vue', anchors: ['trend: TrendDataPoint[]', 'models: ModelStat[]'] },
   { path: 'frontend/src/themes/mito/useChartTooltip.ts', anchors: ['export function useChartTooltip'] },

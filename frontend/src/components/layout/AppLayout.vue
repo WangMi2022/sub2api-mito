@@ -8,8 +8,8 @@
 
     <!-- Main Content Area -->
     <div
-      class="mito-main-frame relative min-h-screen transition-all duration-300"
-      :class="[sidebarCollapsed ? 'lg:ml-[72px]' : 'lg:ml-64', { 'mito-main-frame--collapsed': sidebarCollapsed }]"
+      class="relative min-h-screen transition-all duration-300"
+      :class="[sidebarCollapsed ? 'lg:ml-[72px]' : 'lg:ml-64']"
     >
       <!-- Header -->
       <AppHeader />
