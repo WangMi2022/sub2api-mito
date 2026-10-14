@@ -186,6 +186,7 @@
             :server-side-sort="true"
             :show-account-billing="false"
             :show-upstream-endpoint="false"
+            cache-rate-audience="user"
             default-sort-key="created_at"
             default-sort-order="desc"
             @sort="handleSort"
