@@ -137,6 +137,28 @@ export const adaptations = [
     ]
   },
   {
+    path: 'frontend/src/views/admin/ops/OpsDashboard.vue',
+    edits: [
+      {
+        before: "    <div :class=\"[isFullscreen ? 'p-4 md:p-6' : '', 'space-y-6 pb-12']\">",
+        after: "    <div :class=\"[isFullscreen ? 'p-4 md:p-6' : '', 'space-y-6 pb-12', { 'mito-ops-dashboard': isMitoTheme }]\">\n      <OpsParticles v-if=\"isMitoTheme\" />"
+      },
+      {
+        before: "import AppLayout from '@/components/layout/AppLayout.vue'",
+        after: "import AppLayout from '@/components/layout/AppLayout.vue'\nimport OpsParticles from '@/themes/mito/OpsParticles.vue'\nimport { isMitoTheme } from '@/themes/mito'"
+      }
+    ]
+  },
+  {
+    path: 'frontend/src/views/admin/ops/components/OpsDashboardHeader.vue',
+    edits: [
+      {
+        before: "  <div :class=\"['flex flex-col gap-4 rounded-3xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-dark-800 dark:ring-dark-700', props.fullscreen ? 'p-8' : 'p-6']\">",
+        after: "  <div :class=\"['mito-ops-head flex flex-col gap-4 rounded-3xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-dark-800 dark:ring-dark-700', props.fullscreen ? 'p-8' : 'p-6']\">"
+      }
+    ]
+  },
+  {
     path: 'frontend/src/views/user/DashboardView.vue',
     edits: [
       { before: '  <AppLayout>', after: '  <AppLayout>\n    <template v-if="isMitoTheme" #heading-actions>\n      <button class="btn btn-secondary" :disabled="loading || loadingCharts" @click="refreshAll"><Icon name="refresh" size="sm" />{{ t(\'common.refresh\') }}</button>\n    </template>' },
@@ -723,6 +745,7 @@ export const contracts = [
   {"path":"frontend/src/themes/mito/index.ts","anchors":["import './model-plaza.css'"]},
   {"path":"frontend/src/themes/mito/dashboard.css","anchors":["html[data-ui-theme='mito']",".mito-admin-dashboard","mito-dash-card-in","mito-dash-sweep","prefers-reduced-motion"]},
   {"path":"frontend/src/themes/mito/index.ts","anchors":["import './dashboard.css'"]},
+  {"path":"frontend/src/themes/mito/index.ts","anchors":["import './ops-monitor.css'"]},
   {"path":"frontend/src/components/common/GroupBadge.vue","anchors":["<span class=\"truncate\">{{ name }}</span>","alwaysShowRate?: boolean"]},
   { path: 'frontend/src/themes/mito/useUsageFilters.ts', anchors: ['export function useUsageFilters', 'export function defaultUsageRange', 'export function usageGranularity'] },
   { path: 'frontend/src/themes/mito/requestLogColumns.ts', anchors: ['export function useRequestLogColumns'] },
@@ -752,6 +775,8 @@ export const contracts = [
   { path: 'frontend/src/themes/mito/DashboardStats.vue', anchors: ['stats: UserDashboardStats'] },
   { path: 'frontend/src/themes/mito/DashboardCharts.vue', anchors: ['trend: TrendDataPoint[]', 'models: ModelStat[]'] },
   { path: 'frontend/src/themes/mito/useChartTooltip.ts', anchors: ['export function useChartTooltip'] },
+  {"path":"frontend/src/themes/mito/ops-monitor.css","anchors":["html[data-ui-theme='mito']",".mito-ops-dashboard",".mito-ops-particles","mito-ops-card-in","mito-ops-sweep","prefers-reduced-motion"]},
+  {"path":"frontend/src/themes/mito/OpsParticles.vue","anchors":["mito-ops-particles-canvas","prefers-reduced-motion","requestAnimationFrame"]},
   { path: 'frontend/src/themes/mito/assets/outfit-latin.ttf', binary: true },
   { path: 'frontend/src/themes/mito/assets/noto-sans-sc-ui.woff2', binary: true }
 ]
