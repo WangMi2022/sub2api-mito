@@ -712,7 +712,7 @@ export const contracts = [
   {"path":"frontend/src/themes/mito/index.ts","anchors":["import './admin-usage.css'"]},
   {"path":"frontend/src/components/common/DataTable.vue","anchors":["column.class",":data-field=\"column.key\"","data-test=\"mobile-sort-controls\"","virtualPaddingTop"]},
   {"path":"frontend/src/components/admin/usage/UsageStatsCards.vue","anchors":["class=\"card p-4 flex items-center gap-3\"","class=\"text-xl font-bold","showAccountCost && totalAccountCost != null"]},
-  {"path":"frontend/src/themes/mito/model-plaza.css","anchors":["html[data-ui-theme='mito']",".mito-plaza-filters",".mito-plaza-prices","@container mito-plaza","prefers-reduced-motion"]},
+  {"path":"frontend/src/themes/mito/model-plaza.css","anchors":["html[data-ui-theme='mito']",".mito-plaza-filters",".mito-plaza-prices","@container mito-plaza","mito-plaza-page-in","mito-plaza-card-in","mito-plaza-row-in","mito-plaza-sweep","prefers-reduced-motion"]},
   {"path":"frontend/src/themes/mito/index.ts","anchors":["import './model-plaza.css'"]},
   {"path":"frontend/src/components/common/GroupBadge.vue","anchors":["<span class=\"truncate\">{{ name }}</span>","alwaysShowRate?: boolean"]},
   { path: 'frontend/src/themes/mito/useUsageFilters.ts', anchors: ['export function useUsageFilters', 'export function defaultUsageRange', 'export function usageGranularity'] },

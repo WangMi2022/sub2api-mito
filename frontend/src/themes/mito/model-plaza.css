@@ -3,28 +3,95 @@ html[data-ui-theme='mito'] .mito-model-plaza {
   container: mito-plaza / inline-size;
   min-width: 0;
   color: var(--mito-text);
+  --mito-plaza-ease: cubic-bezier(.22, 1, .36, 1);
+  --mito-plaza-line: linear-gradient(90deg, #2563eb, #38bdf8 42%, #22c55e);
+  --mito-plaza-halo: rgb(37 99 235 / 18%);
+  animation: mito-plaza-page-in 520ms var(--mito-plaza-ease) backwards;
+  transform-origin: top center;
+}
+
+html[data-ui-theme='mito'].dark .mito-model-plaza {
+  --mito-plaza-line: linear-gradient(90deg, #60a5fa, #38bdf8 42%, #4ade80);
+  --mito-plaza-halo: rgb(96 165 250 / 26%);
+}
+
+@keyframes mito-plaza-page-in {
+  0% { opacity: 0; transform: translate3d(0, 16px, 0) scale(.994); }
+  62% { opacity: 1; transform: translate3d(0, -2px, 0) scale(1.001); }
+  100% { opacity: 1; transform: none; }
 }
 
 html[data-ui-theme='mito'] .mito-plaza-title {
+  position: relative;
   font-size: 26px;
   line-height: 1.3;
   letter-spacing: -.025em;
 }
 
+/* The title gets a gradient rule that draws itself in, matching the channel page. */
+html[data-ui-theme='mito'] .mito-plaza-title::after {
+  content: '';
+  display: block;
+  width: 46px;
+  height: 3px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: var(--mito-plaza-line);
+  transform-origin: left center;
+  animation: mito-plaza-line-grow 620ms 160ms var(--mito-plaza-ease) backwards;
+}
+
+@keyframes mito-plaza-line-grow {
+  from { opacity: .25; transform: scaleX(.08); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+
 html[data-ui-theme='mito'] .mito-plaza-description {
+  position: relative;
   padding: 14px 18px;
   border-color: var(--mito-border);
   border-radius: 12px;
   background: var(--mito-subtle);
   box-shadow: none;
+  animation: mito-plaza-soft-in 460ms 120ms var(--mito-plaza-ease) backwards;
+  transition: border-color 220ms ease, box-shadow 260ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-description::before {
+  content: '';
+  position: absolute;
+  inset: 10px auto 10px 0;
+  width: 3px;
+  border-radius: 0 999px 999px 0;
+  background: var(--mito-plaza-line);
+  opacity: .8;
+  transform: scaleY(.4);
+  transform-origin: center;
+  transition: transform 320ms var(--mito-plaza-ease), opacity 240ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-description:hover {
+  border-color: var(--mito-blue-border);
+  box-shadow: 0 10px 26px -22px var(--mito-plaza-halo);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-description:hover::before {
+  opacity: 1;
+  transform: scaleY(1);
 }
 
 html[data-ui-theme='mito'] .mito-plaza-description :is(p, li) {
   color: var(--mito-muted);
 }
 
+@keyframes mito-plaza-soft-in {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+  to { opacity: 1; transform: none; }
+}
+
 /* DOM and keyboard order remain platform, group, rate, then search. */
 html[data-ui-theme='mito'] .mito-plaza-filters {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 14px 28px;
@@ -32,6 +99,31 @@ html[data-ui-theme='mito'] .mito-plaza-filters {
   border: 1px solid var(--mito-border);
   border-radius: 16px;
   background: var(--mito-surface);
+  animation: mito-plaza-soft-in 500ms 180ms var(--mito-plaza-ease) backwards;
+  transition: border-color 240ms ease, box-shadow 300ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-filters::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  border-radius: 16px 16px 0 0;
+  background: var(--mito-plaza-line);
+  opacity: 0;
+  transition: opacity 260ms ease;
+  pointer-events: none;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-filters:hover,
+html[data-ui-theme='mito'] .mito-plaza-filters:focus-within {
+  border-color: var(--mito-blue-border);
+  box-shadow: 0 14px 34px -30px var(--mito-plaza-halo);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-filters:hover::after,
+html[data-ui-theme='mito'] .mito-plaza-filters:focus-within::after {
+  opacity: .9;
 }
 
 html[data-ui-theme='mito'] .mito-plaza-filters > :not([hidden]) ~ :not([hidden]) {
@@ -56,6 +148,11 @@ html[data-ui-theme='mito'] .mito-plaza-filter-row > span {
   letter-spacing: 0;
   text-transform: none;
   overflow-wrap: anywhere;
+  transition: color 200ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-filter-row:focus-within > span {
+  color: var(--mito-blue);
 }
 
 html[data-ui-theme='mito'] .mito-plaza-filter-row > div {
@@ -63,7 +160,9 @@ html[data-ui-theme='mito'] .mito-plaza-filter-row > div {
   gap: 6px;
 }
 
+/* Chips: quiet by default, they lift on hover and flash a one-shot sheen on press. */
 html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed] {
+  position: relative;
   justify-content: center;
   max-width: 100%;
   min-height: 36px;
@@ -76,9 +175,22 @@ html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed] {
   font-size: 13px;
   line-height: 20px;
   font-weight: 500;
+  overflow: hidden;
   overflow-wrap: anywhere;
   box-shadow: none;
-  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease;
+  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease,
+    box-shadow 220ms ease, transform 200ms var(--mito-plaza-ease);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(115deg, transparent 32%, rgb(255 255 255 / 55%) 50%, transparent 68%);
+  opacity: 0;
+  transform: translateX(-130%);
+  pointer-events: none;
 }
 
 html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed]:not(:disabled):hover {
@@ -87,17 +199,38 @@ html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed]:not(:disable
   border-color: var(--mito-blue-border);
 }
 
+@media (hover: hover) and (pointer: fine) {
+  html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed]:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px -16px var(--mito-plaza-halo);
+  }
+
+  html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed]:not(:disabled):hover::after {
+    animation: mito-plaza-sheen 640ms var(--mito-plaza-ease);
+  }
+}
+
+html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed]:active:not(:disabled) {
+  transform: translateY(0) scale(.97);
+}
+
 html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed='true'],
 html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed='true']:not(:disabled):hover {
   border-color: var(--mito-blue-border);
   background: var(--mito-blue-soft);
   color: var(--mito-blue);
   font-weight: 700;
-  box-shadow: inset 0 0 0 1px var(--mito-blue-border);
+  box-shadow: inset 0 0 0 1px var(--mito-blue-border), 0 10px 24px -20px var(--mito-halo-blue, var(--mito-plaza-halo));
 }
 
 html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed]:disabled {
   opacity: .45;
+}
+
+@keyframes mito-plaza-sheen {
+  0% { opacity: 0; transform: translateX(-130%); }
+  22% { opacity: .85; }
+  100% { opacity: 0; transform: translateX(130%); }
 }
 
 html[data-ui-theme='mito'] .mito-plaza-search {
@@ -108,6 +241,23 @@ html[data-ui-theme='mito'] .mito-plaza-search .input {
   min-height: 36px;
   height: 36px;
   font-size: 13px;
+  transition: border-color 180ms ease, box-shadow 240ms ease, background-color 180ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-search .input:focus,
+html[data-ui-theme='mito'] .mito-plaza-search .input:focus-visible {
+  border-color: var(--mito-blue);
+  box-shadow: 0 0 0 4px var(--mito-plaza-halo);
+  outline: none;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-search > svg {
+  transition: color 200ms ease, transform 260ms var(--mito-plaza-ease);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-search:focus-within > svg {
+  color: var(--mito-blue);
+  transform: translateY(-50%) scale(1.12);
 }
 
 html[data-ui-theme='mito'] .mito-plaza-search > button {
@@ -119,25 +269,88 @@ html[data-ui-theme='mito'] .mito-plaza-search > button {
   height: 30px;
   border-radius: 6px;
   color: var(--mito-muted);
+  transition: color 180ms ease, background-color 180ms ease, transform 260ms var(--mito-plaza-ease);
 }
 
 html[data-ui-theme='mito'] .mito-plaza-search > button:hover {
   color: var(--mito-text);
   background: var(--mito-subtle);
+  transform: translateY(-50%) rotate(90deg);
 }
 
 /* Group identity stays visible without a platform-colored card border. */
 html[data-ui-theme='mito'] .mito-plaza-group {
+  position: relative;
   min-width: 0;
   border-color: var(--mito-border);
   border-radius: 16px;
   background: var(--mito-surface);
   box-shadow: var(--mito-shadow);
+  --mito-plaza-order: 0;
+  animation: mito-plaza-card-in 560ms var(--mito-plaza-ease) backwards;
+  animation-delay: calc(120ms + var(--mito-plaza-order) * 70ms);
+  transition: transform 320ms var(--mito-plaza-ease), box-shadow 320ms ease, border-color 240ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-groups > .mito-plaza-group:nth-child(1) { --mito-plaza-order: 0; }
+html[data-ui-theme='mito'] .mito-plaza-groups > .mito-plaza-group:nth-child(2) { --mito-plaza-order: 1; }
+html[data-ui-theme='mito'] .mito-plaza-groups > .mito-plaza-group:nth-child(3) { --mito-plaza-order: 2; }
+html[data-ui-theme='mito'] .mito-plaza-groups > .mito-plaza-group:nth-child(4) { --mito-plaza-order: 3; }
+html[data-ui-theme='mito'] .mito-plaza-groups > .mito-plaza-group:nth-child(5) { --mito-plaza-order: 4; }
+html[data-ui-theme='mito'] .mito-plaza-groups > .mito-plaza-group:nth-child(n + 6) { --mito-plaza-order: 5; }
+
+@keyframes mito-plaza-card-in {
+  0% { opacity: 0; transform: translate3d(0, 18px, 0) scale(.988); }
+  62% { opacity: 1; transform: translate3d(0, -2px, 0) scale(1.001); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* Top hairline: a gradient rule that travels along the card on hover. */
+html[data-ui-theme='mito'] .mito-plaza-group::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 2;
+  height: 2px;
+  background-image: var(--mito-plaza-line);
+  background-size: 220% 100%;
+  background-position: 0 0;
+  opacity: .92;
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-ui-theme='mito'] .mito-plaza-group:hover {
+    transform: translateY(-3px);
+    border-color: var(--mito-blue-border);
+    box-shadow:
+      0 2px 4px rgb(15 23 42 / 5%),
+      0 26px 54px -30px var(--mito-plaza-halo);
+  }
+
+  html[data-ui-theme='mito'].dark .mito-plaza-group:hover {
+    box-shadow:
+      0 2px 4px rgb(0 0 0 / 30%),
+      0 26px 54px -30px rgb(56 189 248 / 22%);
+  }
+
+  html[data-ui-theme='mito'] .mito-plaza-group:hover::before {
+    animation: mito-plaza-sweep 2.4s linear infinite;
+  }
+}
+
+@keyframes mito-plaza-sweep {
+  from { background-position: 0 0; }
+  to { background-position: 220% 0; }
 }
 
 html[data-ui-theme='mito'] .mito-plaza-group-header {
+  position: relative;
   padding: 18px 20px;
   border-color: var(--mito-border);
+  background-image: radial-gradient(130% 150% at 0% 0%, var(--mito-plaza-halo), transparent 62%);
+  background-repeat: no-repeat;
+  transition: background-color 260ms ease;
 }
 
 html[data-ui-theme='mito'] .mito-plaza-group-heading {
@@ -176,6 +389,20 @@ html[data-ui-theme='mito'] .mito-plaza-group-badge > .truncate + span {
   font-size: 11px;
   line-height: 16px;
   font-variant-numeric: tabular-nums;
+  transition: transform 220ms var(--mito-plaza-ease), box-shadow 240ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-group-badge > svg {
+  transition: transform 320ms var(--mito-plaza-ease);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-group:hover .mito-plaza-group-badge > .truncate + span {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px -12px var(--mito-blue);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-group:hover .mito-plaza-group-badge > svg {
+  transform: scale(1.08);
 }
 
 html[data-ui-theme='mito'] .mito-plaza-group-description {
@@ -216,6 +443,17 @@ html[data-ui-theme='mito'] .mito-plaza-prices th {
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices thead tr {
+  background-image: linear-gradient(180deg, var(--mito-subtle), transparent);
+  background-repeat: no-repeat;
+  animation: mito-plaza-head-in 420ms var(--mito-plaza-ease) backwards;
+}
+
+@keyframes mito-plaza-head-in {
+  from { opacity: 0; transform: translate3d(0, -6px, 0); }
+  to { opacity: 1; transform: none; }
 }
 
 html[data-ui-theme='mito'] .mito-plaza-prices :is(.mito-plaza-paid-heading, .mito-plaza-official-heading) {
@@ -260,6 +498,26 @@ html[data-ui-theme='mito'] .mito-plaza-prices td {
   line-height: 21px;
 }
 
+/* Rows cascade in from the bottom, one hair apart. */
+html[data-ui-theme='mito'] .mito-plaza-prices tbody td {
+  animation: mito-plaza-row-in 420ms var(--mito-plaza-ease) backwards;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:nth-child(1) td { animation-delay: 60ms; }
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:nth-child(2) td { animation-delay: 100ms; }
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:nth-child(3) td { animation-delay: 140ms; }
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:nth-child(4) td { animation-delay: 180ms; }
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:nth-child(5) td { animation-delay: 220ms; }
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:nth-child(6) td { animation-delay: 260ms; }
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:nth-child(7) td { animation-delay: 300ms; }
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:nth-child(8) td { animation-delay: 340ms; }
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:nth-child(n + 9) td { animation-delay: 380ms; }
+
+@keyframes mito-plaza-row-in {
+  from { opacity: 0; transform: translate3d(0, 8px, 0); }
+  to { opacity: 1; transform: none; }
+}
+
 html[data-ui-theme='mito'] .mito-plaza-prices .mito-plaza-model-col {
   min-width: 190px;
 }
@@ -274,9 +532,13 @@ html[data-ui-theme='mito'] .mito-plaza-model-name {
 }
 
 html[data-ui-theme='mito'] .mito-plaza-prices .pz-cell {
-  background: var(--mito-surface);
+  background-color: var(--mito-surface);
+  background-image: linear-gradient(90deg, color-mix(in srgb, var(--plaza-accent) 15%, transparent), transparent 72%);
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
   color: var(--mito-text);
   font-weight: 650;
+  transition: background-color 200ms ease, background-size 460ms var(--mito-plaza-ease);
 }
 
 html[data-ui-theme='mito'] .mito-plaza-prices .pz-cell .font-mono {
@@ -298,9 +560,53 @@ html[data-ui-theme='mito'] .mito-plaza-prices td.mito-plaza-rate-col > span:not(
   font-size: 12px;
 }
 
+/* The model cell carries one gradient marker per row; it grows on hover. */
+html[data-ui-theme='mito'] .mito-plaza-prices tbody td.mito-plaza-model-col {
+  position: relative;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices tbody td.mito-plaza-model-col::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 3px;
+  height: 0;
+  border-radius: 0 999px 999px 0;
+  background: var(--mito-plaza-line);
+  transform: translateY(-50%);
+  transition: height 280ms var(--mito-plaza-ease);
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:hover td.mito-plaza-model-col::before {
+  height: 58%;
+}
+
 html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:hover,
 html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:hover > td {
   background: var(--mito-subtle);
+}
+
+/* Restate colour and image on hover: the shorthand above would otherwise reset
+   background-image and cancel the platform-tinted sweep. */
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:hover > td.pz-cell {
+  background-color: var(--mito-subtle);
+  background-image: linear-gradient(90deg, color-mix(in srgb, var(--plaza-accent) 15%, transparent), transparent 72%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:hover > td.pz-cell:nth-child(2) { transition-delay: 0ms, 0ms; }
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:hover > td.pz-cell:nth-child(3) { transition-delay: 0ms, 40ms; }
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:hover > td.pz-cell:nth-child(4) { transition-delay: 0ms, 80ms; }
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:hover > td.pz-cell:nth-child(5) { transition-delay: 0ms, 120ms; }
+
+html[data-ui-theme='mito'] .mito-plaza-prices td.mito-plaza-rate-col > span:not(.line-through) {
+  transition: color 200ms ease, text-shadow 240ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:hover td.mito-plaza-rate-col > span:not(.line-through) {
+  text-shadow: 0 0 14px var(--mito-plaza-halo);
 }
 
 html[data-ui-theme='mito'] .mito-plaza-empty {
@@ -308,6 +614,7 @@ html[data-ui-theme='mito'] .mito-plaza-empty {
   border-radius: 16px;
   background: var(--mito-subtle);
   color: var(--mito-muted);
+  animation: mito-plaza-soft-in 420ms 120ms var(--mito-plaza-ease) backwards;
 }
 
 @container mito-plaza (min-width: 760px) {
@@ -354,8 +661,37 @@ html[data-ui-theme='mito'] .mito-plaza-empty {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-model-plaza,
+  html[data-ui-theme='mito'] .mito-plaza-title::after,
+  html[data-ui-theme='mito'] .mito-plaza-description,
+  html[data-ui-theme='mito'] .mito-plaza-filters,
+  html[data-ui-theme='mito'] .mito-plaza-group,
+  html[data-ui-theme='mito'] .mito-plaza-group::before,
+  html[data-ui-theme='mito'] .mito-plaza-prices thead tr,
+  html[data-ui-theme='mito'] .mito-plaza-prices tbody td,
+  html[data-ui-theme='mito'] .mito-plaza-empty {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
   html[data-ui-theme='mito'] .mito-plaza-filters button,
+  html[data-ui-theme='mito'] .mito-plaza-filters button::after,
+  html[data-ui-theme='mito'] .mito-plaza-search > button,
+  html[data-ui-theme='mito'] .mito-plaza-search > svg,
+  html[data-ui-theme='mito'] .mito-plaza-group,
+  html[data-ui-theme='mito'] .mito-plaza-group-badge > svg,
+  html[data-ui-theme='mito'] .mito-plaza-group-badge > .truncate + span,
   html[data-ui-theme='mito'] .mito-plaza-prices :is(tr, td) {
     transition: none;
+  }
+
+  html[data-ui-theme='mito'] .mito-plaza-filters button[aria-pressed]:not(:disabled):hover,
+  html[data-ui-theme='mito'] .mito-plaza-search > button:hover {
+    transform: none;
+  }
+
+  html[data-ui-theme='mito'] .mito-plaza-prices tbody tr:hover td.mito-plaza-model-col::before {
+    height: 0;
   }
 }
