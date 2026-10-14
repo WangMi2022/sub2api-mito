@@ -165,3 +165,9 @@ Mito 主题将个人使用记录拆成两个页面：
 `channel-status.css` 美化用户端渠道状态页（`/monitor`，V3 `StatusPage.vue`）：工具条刷新按钮、系统状态面板、分类泳道、状态条单元格、空状态、底部事件入口与悬浮详情统一为 Mito 的圆角、边框、字号与蓝色强调；状态条单元格加高并加柔和轨道，分类泳道悬停切换边框与底色。样式只挂在现有 `data-testid` 钩子上，页面数据、探测规则、折叠与悬浮逻辑不变；上游主题不加载这些覆盖。
 
 两处样式与契约已登记 `adaptations.mjs`，上游更新后同样按 `check/remove/apply` 维护。
+
+## 鹈鹕测智分组折叠
+
+用户端「鹈鹕测智」（`/pelican-showcase`）的每个分组改为可折叠卡片：标题行整体是切换控件，带 `aria-expanded`、`aria-controls` 与旋转箭头；有作品的分组默认全部收起，只显示平台徽标、组名、平台、数量与最近时间，空分组保持原空态且不显示控件。展开后才挂载当前页的作品与沙箱 iframe，分页、每页条数与已加载内容缓存沿用原有 pager；折叠状态保存在页面层，切换分组页签或刷新列表都不会改变。
+
+主题层 `PelicanShowcaseGroup.vue` 接管原 `<section>` 的整块内容（`PelicanShowcaseGallery.vue` 已移除），`pelican-showcase.css` 提供卡片、标题、箭头与展开动画，并在 `prefers-reduced-motion` 下关闭位移与过渡。上游分支保留原有横向滚动行；新增和变更的模板、状态、双语文案与依赖契约都已登记 `adaptations.mjs`，上游更新后仍按 `check/remove/apply` 维护。

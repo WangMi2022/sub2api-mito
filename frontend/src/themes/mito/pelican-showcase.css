@@ -1,10 +1,91 @@
-/* Pelican showcase gallery. Every rule is scoped to the Mito theme and to the
-   gallery's own test ids, so upstream markup, data and tests stay untouched. */
-html[data-ui-theme='mito'] .mito-pelican-gallery {
+/* Pelican showcase. Every rule is scoped to the Mito theme and to the gallery's
+   own classes, so upstream markup, data and tests stay untouched. */
+html[data-ui-theme='mito'] .mito-pelican-group {
+  overflow: hidden;
+  border: 1px solid var(--mito-card-border);
+  border-radius: 18px;
+  background: var(--mito-surface);
   font-variant-numeric: tabular-nums;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
-html[data-ui-theme='mito'] .mito-pelican-gallery .mito-pelican-grid {
+html[data-ui-theme='mito'] .mito-pelican-group:hover {
+  border-color: var(--mito-blue-border);
+  box-shadow: 0 6px 20px rgb(15 23 42 / 6%);
+}
+
+/* The header row is the disclosure control; the button reset keeps it looking
+   like the upstream heading it replaces. */
+html[data-ui-theme='mito'] .mito-pelican-group-header {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 140ms ease;
+}
+
+html[data-ui-theme='mito'] button.mito-pelican-group-header:hover {
+  background: var(--mito-blue-soft);
+}
+
+html[data-ui-theme='mito'] button.mito-pelican-group-header:focus-visible {
+  outline: 2px solid var(--mito-blue);
+  outline-offset: -2px;
+}
+
+html[data-ui-theme='mito'] .mito-pelican-group-header--static {
+  cursor: default;
+}
+
+html[data-ui-theme='mito'] .mito-pelican-group-header > div {
+  flex: 1 1 auto;
+}
+
+html[data-ui-theme='mito'] .mito-pelican-group-chevron {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: var(--mito-muted);
+  transition: transform 200ms ease, color 140ms ease, background-color 140ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-pelican-group-header[aria-expanded='true'] .mito-pelican-group-chevron {
+  transform: rotate(180deg);
+  color: var(--mito-blue);
+}
+
+html[data-ui-theme='mito'] button.mito-pelican-group-header:hover .mito-pelican-group-chevron {
+  color: var(--mito-blue);
+}
+
+html[data-ui-theme='mito'] .mito-pelican-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 16px 16px;
+  animation: mito-pelican-group-in 200ms ease-out both;
+}
+
+html[data-ui-theme='mito'] .mito-pelican-empty {
+  margin: 0 16px 16px;
+}
+
+@keyframes mito-pelican-group-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+
+html[data-ui-theme='mito'] .mito-pelican-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 20px;
@@ -12,28 +93,39 @@ html[data-ui-theme='mito'] .mito-pelican-gallery .mito-pelican-grid {
 }
 
 @media (min-width: 640px) {
-  html[data-ui-theme='mito'] .mito-pelican-gallery .mito-pelican-grid {
+  html[data-ui-theme='mito'] .mito-pelican-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 1024px) {
-  html[data-ui-theme='mito'] .mito-pelican-gallery .mito-pelican-grid {
+  html[data-ui-theme='mito'] .mito-pelican-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 1536px) {
-  html[data-ui-theme='mito'] .mito-pelican-gallery .mito-pelican-grid {
+  html[data-ui-theme='mito'] .mito-pelican-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
 /* Cards keep their upstream hover lift; the grid cell decides the width instead
    of the fixed percentages the horizontal row used. */
-html[data-ui-theme='mito'] .mito-pelican-gallery [data-testid='pelican-showcase-card'] {
+html[data-ui-theme='mito'] .mito-pelican-grid [data-testid='pelican-showcase-card'] {
   width: 100%;
   min-width: 0;
+  animation: mito-pelican-card-in 260ms ease-out both;
+}
+
+html[data-ui-theme='mito'] .mito-pelican-grid > *:nth-child(2) { animation-delay: 30ms; }
+html[data-ui-theme='mito'] .mito-pelican-grid > *:nth-child(3) { animation-delay: 60ms; }
+html[data-ui-theme='mito'] .mito-pelican-grid > *:nth-child(4) { animation-delay: 90ms; }
+html[data-ui-theme='mito'] .mito-pelican-grid > *:nth-child(n + 5) { animation-delay: 110ms; }
+
+@keyframes mito-pelican-card-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
 }
 
 /* Pager */
@@ -43,7 +135,6 @@ html[data-ui-theme='mito'] .mito-pelican-pager {
   align-items: center;
   justify-content: space-between;
   gap: 10px 16px;
-  margin-top: 18px;
   padding: 10px 14px;
   border: 1px solid var(--mito-card-border);
   border-radius: 14px;
@@ -93,7 +184,7 @@ html[data-ui-theme='mito'] .mito-pelican-pager button {
   font-weight: 550;
   font-variant-numeric: tabular-nums;
   cursor: pointer;
-  transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease, transform 140ms ease;
+  transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease;
 }
 
 html[data-ui-theme='mito'] .mito-pelican-pager button:hover:not(:disabled) {
@@ -140,22 +231,16 @@ html[data-ui-theme='mito'] .mito-pelican-per-page button.is-current {
   color: var(--mito-blue);
 }
 
-/* One soft entrance per rendered page, matching the rest of the Mito pages. */
-html[data-ui-theme='mito'] .mito-pelican-gallery .mito-pelican-grid > * {
-  animation: mito-pelican-card-in 260ms ease-out both;
-}
-
-html[data-ui-theme='mito'] .mito-pelican-gallery .mito-pelican-grid > *:nth-child(2) { animation-delay: 30ms; }
-html[data-ui-theme='mito'] .mito-pelican-gallery .mito-pelican-grid > *:nth-child(3) { animation-delay: 60ms; }
-html[data-ui-theme='mito'] .mito-pelican-gallery .mito-pelican-grid > *:nth-child(4) { animation-delay: 90ms; }
-html[data-ui-theme='mito'] .mito-pelican-gallery .mito-pelican-grid > *:nth-child(n + 5) { animation-delay: 110ms; }
-
-@keyframes mito-pelican-card-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: none; }
-}
-
 @media (max-width: 639px) {
+  html[data-ui-theme='mito'] .mito-pelican-group-header {
+    padding: 12px;
+  }
+  html[data-ui-theme='mito'] .mito-pelican-body {
+    padding: 2px 12px 12px;
+  }
+  html[data-ui-theme='mito'] .mito-pelican-empty {
+    margin: 0 12px 12px;
+  }
   html[data-ui-theme='mito'] .mito-pelican-pager {
     justify-content: center;
     padding: 12px;
@@ -167,7 +252,9 @@ html[data-ui-theme='mito'] .mito-pelican-gallery .mito-pelican-grid > *:nth-chil
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html[data-ui-theme='mito'] .mito-pelican-gallery .mito-pelican-grid > * { animation: none; }
-  html[data-ui-theme='mito'] .mito-pelican-pager button { transition: none; }
-  html[data-ui-theme='mito'] .mito-pelican-pager button:hover:not(:disabled) { transform: none; }
+  html[data-ui-theme='mito'] .mito-pelican-body,
+  html[data-ui-theme='mito'] .mito-pelican-grid [data-testid='pelican-showcase-card'] { animation: none; }
+  html[data-ui-theme='mito'] .mito-pelican-group-chevron,
+  html[data-ui-theme='mito'] .mito-pelican-pager button,
+  html[data-ui-theme='mito'] .mito-pelican-group-header { transition: none; }
 }

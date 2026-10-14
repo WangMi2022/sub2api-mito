@@ -661,11 +661,27 @@ export const adaptations = [
     ]
   },
   {
-    // Mito theme turns the horizontal pelican row into per-group paging; upstream keeps the row.
+    // Mito theme folds every pelican group into a card and pages the open one; upstream keeps the row.
     path: 'frontend/src/views/user/PelicanShowcaseView.vue',
     edits: [
-      { before: '        <!-- Items arrive newest first, so the newest card is on the left and older ones continue to the right. -->\n        <PelicanShowcaseRow v-else :label="t(\'pelicanShowcase.scrollLabel\', { group: group.name })">\n          <PelicanShowcaseCard\n            v-for="item in group.items"\n            :key="item.id"\n            :class="CARD_WIDTH"\n            :item="item"\n            :group-name="group.name"\n            :body="bodies[item.id]"\n            @visible="requestBody(item.id)"\n            @open="openPreview(group, item)"\n          />\n        </PelicanShowcaseRow>', after: '        <!-- Mito theme pages one group at a time, so a long gallery never mounts every sandbox frame at once. -->\n        <MitoPelicanShowcaseGallery\n          v-else-if="isMitoTheme"\n          :group="group"\n          :bodies="bodies"\n          @visible="requestBody"\n          @open="openPreview"\n        />\n        <!-- Upstream keeps the horizontal row: newest on the left, older ones continue to the right. -->\n        <PelicanShowcaseRow v-else :label="t(\'pelicanShowcase.scrollLabel\', { group: group.name })">\n          <PelicanShowcaseCard\n            v-for="item in group.items"\n            :key="item.id"\n            :class="CARD_WIDTH"\n            :item="item"\n            :group-name="group.name"\n            :body="bodies[item.id]"\n            @visible="requestBody(item.id)"\n            @open="openPreview(group, item)"\n          />\n        </PelicanShowcaseRow>' },
-      { before: "import PelicanShowcaseRow from '@/components/user/pelican/PelicanShowcaseRow.vue'", after: "import PelicanShowcaseRow from '@/components/user/pelican/PelicanShowcaseRow.vue'\nimport MitoPelicanShowcaseGallery from '@/themes/mito/PelicanShowcaseGallery.vue'\nimport { isMitoTheme } from '@/themes/mito'" }
+      {
+        before: '      <!-- One section per showcased group -->\n      <section\n        v-for="group in shownGroups"\n        :key="group.id"\n        class="space-y-4"\n        :data-testid="`showcase-group-${group.id}`"\n      >\n',
+        after: '      <!-- One card per showcased group. The Mito theme folds it; the header row is the disclosure control. -->\n      <template v-for="group in shownGroups" :key="group.id">\n        <MitoPelicanShowcaseGroup\n          v-if="isMitoTheme"\n          :group="group"\n          :bodies="bodies"\n          :expanded="expandedGroups.includes(group.id)"\n          @toggle="toggleGroup(group.id)"\n          @visible="requestBody"\n          @open="openPreview"\n        />\n        <section\n          v-else\n          class="space-y-4"\n          :data-testid="`showcase-group-${group.id}`"\n        >\n'
+      },
+      { before: '        </PelicanShowcaseRow>\n      </section>\n', after: '        </PelicanShowcaseRow>\n        </section>\n      </template>\n' },
+      {
+        before: "const activeGroup = ref<TabKey>('all')\n",
+        after: "const activeGroup = ref<TabKey>('all')\n// Every group starts folded: a gallery with many groups opens on the headers alone.\nconst expandedGroups = ref<number[]>([])\n"
+      },
+      {
+        before: "  if (activeGroup.value !== 'all' && !list.some((group) => group.id === activeGroup.value)) activeGroup.value = 'all'\n})\n",
+        after: "  if (activeGroup.value !== 'all' && !list.some((group) => group.id === activeGroup.value)) activeGroup.value = 'all'\n  expandedGroups.value = expandedGroups.value.filter((id) => list.some((group) => group.id === id))\n})\n"
+      },
+      {
+        before: 'function requestBody(id: number) {\n',
+        after: 'function toggleGroup(id: number) {\n  expandedGroups.value = expandedGroups.value.includes(id)\n    ? expandedGroups.value.filter((value) => value !== id)\n    : [...expandedGroups.value, id]\n}\n\nfunction requestBody(id: number) {\n'
+      },
+      { before: "import PelicanShowcaseRow from '@/components/user/pelican/PelicanShowcaseRow.vue'", after: "import PelicanShowcaseRow from '@/components/user/pelican/PelicanShowcaseRow.vue'\nimport MitoPelicanShowcaseGroup from '@/themes/mito/PelicanShowcaseGroup.vue'\nimport { isMitoTheme } from '@/themes/mito'" }
     ]
   },
   {
@@ -786,11 +802,11 @@ export const contracts = [
   {"path":"frontend/src/themes/mito/ops-monitor.css","anchors":["html[data-ui-theme='mito']",".mito-ops-dashboard",".mito-ops-particles","mito-ops-card-in","mito-ops-sweep","prefers-reduced-motion"]},
   {"path":"frontend/src/themes/mito/OpsParticles.vue","anchors":["mito-ops-particles-canvas","prefers-reduced-motion","requestAnimationFrame"]},
   { path: 'frontend/src/themes/mito/assets/outfit-latin.ttf', binary: true },
-  { path: 'frontend/src/themes/mito/PelicanShowcaseGallery.vue', anchors: ['mito-pelican-gallery', 'mito-pelican-grid', 'mito-pelican-pager', 'readPageSize'] },
-  { path: 'frontend/src/themes/mito/pelican-showcase.css', anchors: ["html[data-ui-theme='mito']", '.mito-pelican-grid', '.mito-pelican-pager', 'prefers-reduced-motion'] },
+  { path: 'frontend/src/themes/mito/PelicanShowcaseGroup.vue', anchors: ['mito-pelican-group', 'mito-pelican-group-header', 'mito-pelican-group-chevron', 'aria-expanded', 'data-testid="pelican-showcase-body"'] },
+  { path: 'frontend/src/themes/mito/pelican-showcase.css', anchors: ["html[data-ui-theme='mito']", '.mito-pelican-group-header', '.mito-pelican-group-chevron', '.mito-pelican-grid', 'prefers-reduced-motion'] },
   { path: 'frontend/src/themes/mito/index.ts', anchors: ["import './pelican-showcase.css'"] },
-  { path: 'frontend/src/themes/mito/labels.ts', anchors: ['pelicanPageSummary', 'pelicanPageSize', 'goToPage'] },
+  { path: 'frontend/src/themes/mito/labels.ts', anchors: ['pelicanPageSummary', 'pelicanPageSize', 'goToPage', 'pelicanExpandGroup', 'pelicanCollapseGroup'] },
   { path: 'frontend/src/components/user/pelican/PelicanShowcaseCard.vue', anchors: ['data-testid="pelican-showcase-card"', "emit('visible')", 'scrollMargin'] },
-  { path: 'frontend/src/views/user/PelicanShowcaseView.vue', anchors: ['MitoPelicanShowcaseGallery', 'PelicanShowcaseRow', 'bodies[item.id]', "import { isMitoTheme } from '@/themes/mito'"] },
+  { path: 'frontend/src/views/user/PelicanShowcaseView.vue', anchors: ['MitoPelicanShowcaseGroup', 'expandedGroups', 'toggleGroup', 'PelicanShowcaseRow', 'bodies[item.id]'] },
   { path: 'frontend/src/themes/mito/assets/noto-sans-sc-ui.woff2', binary: true }
 ]

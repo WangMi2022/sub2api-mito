@@ -25,6 +25,8 @@ const labels = {
     pelicanGalleryLabel: '{group}: results by page',
     pelicanPageSummary: 'Page {page} of {total} · {count} results',
     pelicanPageSize: 'Per page',
+    pelicanExpandGroup: 'Expand {group} results',
+    pelicanCollapseGroup: 'Collapse {group} results',
     goToPage: 'Go to page {page}'
   },
   zh: {
@@ -51,6 +53,8 @@ const labels = {
     pelicanGalleryLabel: '{group}：分页浏览作品',
     pelicanPageSummary: '第 {page} / {total} 页 · 共 {count} 张',
     pelicanPageSize: '每页',
+    pelicanExpandGroup: '展开「{group}」的作品',
+    pelicanCollapseGroup: '收起「{group}」的作品',
     goToPage: '跳转到第 {page} 页'
   }
 } as const
