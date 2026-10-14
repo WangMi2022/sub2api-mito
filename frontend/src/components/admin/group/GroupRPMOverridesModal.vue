@@ -294,9 +294,9 @@ const adjustPage = () => {
   if (currentPage.value > totalPages) currentPage.value = totalPages
 }
 
-watch([() => props.show, () => props.group?.id], ([val]) => {
+watch([() => props.show, () => props.group?.id], ([show]) => {
   loadVersion++
-  if (val && props.group) {
+  if (show && props.group) {
     currentPage.value = 1
     searchQuery.value = ''
     searchResults.value = []
