@@ -114,3 +114,29 @@ describe('AppSidebar support tickets', () => {
     expect(componentSource).toContain('.sidebar-nav-badge-collapsed {')
   })
 })
+
+describe('AppSidebar template integrity', () => {
+  it('balances every block element in the template', () => {
+    // A stray opening <div> compiles fine in isolation but breaks `vite build`
+    // with "Element is missing end tag", which is easy to introduce when
+    // restructuring the two-level navigation. Catch it at test time instead.
+    const template = componentSource.slice(
+      componentSource.indexOf('<template>'),
+      componentSource.lastIndexOf('</template>')
+    )
+    const count = (pattern: RegExp) => (template.match(pattern) ?? []).length
+
+    expect(count(/<div\b/g)).toBe(count(/<\/div>/g))
+    expect(count(/<router-link\b/g)).toBe(count(/<\/router-link>/g))
+    expect(count(/<button\b/g)).toBe(count(/<\/button>/g))
+    expect(count(/<span\b/g)).toBe(count(/<\/span>/g))
+  })
+
+  it('keeps the admin two-level structure wired to the section groups', () => {
+    // The section loop replaces the previous flat item loop.
+    expect(componentSource).toContain('v-for="section in adminNavSections"')
+    expect(componentSource).toContain('v-for="item in section.items"')
+    expect(componentSource).toContain('groupMitoSidebarSections<NavItem>(adminNavItems.value)')
+    expect(componentSource).toContain('.mito-sidebar-section-children')
+  })
+})

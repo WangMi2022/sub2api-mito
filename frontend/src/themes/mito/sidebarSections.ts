@@ -99,3 +99,42 @@ export function applyMitoSidebarSections<T extends { path: string }>(
   pushSection(FALLBACK_LABEL_KEY, items.filter((item) => !consumed.has(item.path)))
   return out
 }
+
+export interface NavSection<T> {
+  /** Stable key for the section wrapper. */
+  path: string
+  /** Already-translated section label. */
+  label: string
+  items: T[]
+}
+
+/**
+ * Turn the flat, heading-annotated list into real groups so the template can
+ * render a two-level hierarchy: section heading on top, its entries indented
+ * beneath it.
+ *
+ * An item that is not preceded by a heading is placed in an implicit fallback
+ * group, which keeps the function total — no entry can be dropped.
+ */
+export function groupMitoSidebarSections<T extends { path: string; sectionTitle?: string }>(
+  items: T[]
+): NavSection<T>[] {
+  const sections: NavSection<T>[] = []
+  let current: NavSection<T> | null = null
+
+  for (const item of items) {
+    if (item.sectionTitle) {
+      current = { path: item.path, label: item.sectionTitle, items: [] }
+      sections.push(current)
+      continue
+    }
+    if (!current) {
+      current = { path: '__section__implicit', label: '', items: [] }
+      sections.push(current)
+    }
+    current.items.push(item)
+  }
+
+  // A heading with no surviving entries must not render as an empty group.
+  return sections.filter((section) => section.items.length > 0)
+}

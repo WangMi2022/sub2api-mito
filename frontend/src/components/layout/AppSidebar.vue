@@ -53,11 +53,14 @@
       <template v-if="isAdmin">
         <!-- Admin Section -->
         <div class="sidebar-section">
-          <template v-for="item in adminNavItems" :key="item.path">
-            <!-- Static section heading (mito-theme) -->
+          <div
+            v-for="section in adminNavSections"
+            :key="section.path"
+            class="mito-sidebar-section"
+          >
+            <!-- Level 1: section (mito-theme) -->
             <div
-              v-if="item.sectionTitle"
-              class="sidebar-section-title mito-sidebar-section"
+              class="sidebar-section-title mito-sidebar-section-title"
               :class="{ 'sidebar-section-title-collapsed': sidebarCollapsed }"
               :aria-hidden="sidebarCollapsed ? 'true' : 'false'"
             >
@@ -65,75 +68,84 @@
                 class="sidebar-section-title-text"
                 :class="{ 'sidebar-section-title-text-collapsed': sidebarCollapsed }"
               >
-                {{ item.sectionTitle }}
+                {{ section.label }}
               </span>
             </div>
-            <!-- Collapsible group (has children) -->
-            <template v-else-if="item.children?.length">
-              <button
-                type="button"
-                class="sidebar-link mb-1 w-full"
-                :class="{
-                  'sidebar-link-active': isGroupActive(item) && !isGroupExpanded(item),
-                  'sidebar-link-collapsed': sidebarCollapsed
-                }"
-                :title="sidebarCollapsed ? item.label : undefined"
-                :aria-label="item.label"
-                :aria-expanded="!sidebarCollapsed && isGroupExpanded(item)"
-                @click="handleGroupClick(item)"
-              >
-                <component :is="item.icon" class="h-5 w-5 flex-shrink-0" />
-                <span
-                  class="sidebar-label sidebar-label-flex"
-                  :class="{ 'sidebar-label-collapsed': sidebarCollapsed }"
-                  :aria-hidden="sidebarCollapsed ? 'true' : 'false'"
-                >
-                  <span class="min-w-0 truncate">{{ item.label }}</span>
-                  <ChevronDownIcon
-                    class="h-4 w-4 flex-shrink-0 transition-transform duration-200"
-                    :class="isGroupExpanded(item) ? 'rotate-180' : ''"
-                  />
-                </span>
-              </button>
-              <!-- Children -->
-              <div v-if="!sidebarCollapsed && isGroupExpanded(item)" class="mb-1 ml-4 border-l border-gray-200 pl-2 dark:border-dark-600">
-                <router-link
-                  v-for="child in item.children"
-                  :key="child.path"
-                  :to="child.path"
-                  class="sidebar-link mb-0.5 py-1.5 text-sm"
-                  :class="{ 'sidebar-link-active': route.path === child.path }"
-                  @click="handleMenuItemClick(child.path)"
-                >
-                  <component :is="child.icon" class="h-4 w-4 flex-shrink-0" />
-                  <span>{{ child.label }}</span>
-                </router-link>
-              </div>
-            </template>
-            <!-- Normal item (no children) -->
-            <router-link
-              v-else
-              :to="item.path"
-              class="sidebar-link mb-1"
-              :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
-              :title="sidebarCollapsed ? item.label : undefined"
-              :id="
-                item.path === '/admin/accounts'
-                  ? 'sidebar-channel-manage'
-                  : item.path === '/admin/groups'
-                    ? 'sidebar-group-manage'
-                    : item.path === '/admin/redeem'
-                      ? 'sidebar-wallet'
-                      : undefined
-              "
-              @click="handleMenuItemClick(item.path)"
+
+            <!-- Level 2: entries indented under the section -->
+            <div
+              class="mito-sidebar-section-children"
+              :class="{ 'mito-sidebar-section-children-collapsed': sidebarCollapsed }"
             >
-              <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
-              <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
-              <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
-              <span v-if="navBadge(item)" class="sidebar-nav-badge" :class="{ 'sidebar-nav-badge-collapsed': sidebarCollapsed }" data-testid="sidebar-nav-badge">{{ sidebarCollapsed ? '' : navBadgeText(item) }}</span>
-            </router-link>
-          </template>
+              <template v-for="item in section.items" :key="item.path">
+                <!-- Collapsible group (has children) -->
+                <template v-if="item.children?.length">
+                  <button
+                    type="button"
+                    class="sidebar-link mb-1 w-full"
+                    :class="{
+                      'sidebar-link-active': isGroupActive(item) && !isGroupExpanded(item),
+                      'sidebar-link-collapsed': sidebarCollapsed
+                    }"
+                    :title="sidebarCollapsed ? item.label : undefined"
+                    :aria-label="item.label"
+                    :aria-expanded="!sidebarCollapsed && isGroupExpanded(item)"
+                    @click="handleGroupClick(item)"
+                  >
+                    <component :is="item.icon" class="h-5 w-5 flex-shrink-0" />
+                    <span
+                      class="sidebar-label sidebar-label-flex"
+                      :class="{ 'sidebar-label-collapsed': sidebarCollapsed }"
+                      :aria-hidden="sidebarCollapsed ? 'true' : 'false'"
+                    >
+                      <span class="min-w-0 truncate">{{ item.label }}</span>
+                      <ChevronDownIcon
+                        class="h-4 w-4 flex-shrink-0 transition-transform duration-200"
+                        :class="isGroupExpanded(item) ? 'rotate-180' : ''"
+                      />
+                    </span>
+                  </button>
+                  <!-- Nested children of a collapsible parent -->
+                  <div v-if="!sidebarCollapsed && isGroupExpanded(item)" class="mb-1 ml-4 border-l border-gray-200 pl-2 dark:border-dark-600">
+                    <router-link
+                      v-for="child in item.children"
+                      :key="child.path"
+                      :to="child.path"
+                      class="sidebar-link mb-0.5 py-1.5 text-sm"
+                      :class="{ 'sidebar-link-active': route.path === child.path }"
+                      @click="handleMenuItemClick(child.path)"
+                    >
+                      <component :is="child.icon" class="h-4 w-4 flex-shrink-0" />
+                      <span>{{ child.label }}</span>
+                    </router-link>
+                  </div>
+                </template>
+                <!-- Normal item (no children) -->
+                <router-link
+                  v-else
+                  :to="item.path"
+                  class="sidebar-link mb-1"
+                  :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
+                  :title="sidebarCollapsed ? item.label : undefined"
+                  :id="
+                    item.path === '/admin/accounts'
+                      ? 'sidebar-channel-manage'
+                      : item.path === '/admin/groups'
+                        ? 'sidebar-group-manage'
+                        : item.path === '/admin/redeem'
+                          ? 'sidebar-wallet'
+                          : undefined
+                  "
+                  @click="handleMenuItemClick(item.path)"
+                >
+                  <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
+                  <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
+                  <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
+                  <span v-if="navBadge(item)" class="sidebar-nav-badge" :class="{ 'sidebar-nav-badge-collapsed': sidebarCollapsed }" data-testid="sidebar-nav-badge">{{ sidebarCollapsed ? '' : navBadgeText(item) }}</span>
+                </router-link>
+              </template>
+            </div>
+          </div>
         </div>
 
         <!-- Personal Section for Admin (hidden in simple mode) -->
@@ -232,7 +244,7 @@
 <script setup lang="ts">
 import { isMitoTheme } from '@/themes/mito'
 import { useThemeSync } from '@/themes/mito/useThemeSync'
-import { applyMitoSidebarSections } from '@/themes/mito/sidebarSections'
+import { applyMitoSidebarSections, groupMitoSidebarSections } from '@/themes/mito/sidebarSections'
 import { attachCustomMenuItems } from '@/utils/sidebarCustomMenus'
 import { computed, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -968,6 +980,10 @@ const adminNavItems = computed((): NavItem[] => {
 })
 
 // Use exactly the visible navigation, including the personal section only when shown.
+// Mito theme: adminNavItems is a flat list carrying section markers. Convert it
+// into real groups so the template can render a two-level hierarchy.
+const adminNavSections = computed(() => groupMitoSidebarSections<NavItem>(adminNavItems.value))
+
 const searchNavItems = computed(() => [
   ...adminNavItems.value.filter(item => !item.sectionTitle),
   ...(authStore.isSimpleMode ? [] : personalNavItems.value)
@@ -1149,6 +1165,34 @@ onBeforeUnmount(() => {
   min-height: 1.25rem;
   overflow: hidden;
   white-space: nowrap;
+}
+
+/* Two-level hierarchy: the group label is distinctly lighter/smaller than the
+   entries, and its entries are indented so the parent-child relation is obvious. */
+.mito-sidebar-section-title {
+  margin-bottom: 0.25rem;
+  padding-left: 1.0625rem;
+  padding-right: 0.875rem;
+}
+
+.mito-sidebar-section + .mito-sidebar-section {
+  margin-top: 1rem;
+}
+
+.mito-sidebar-section-children {
+  padding-left: 0.75rem;
+  margin-left: 1.0625rem;
+  border-left: 1px solid rgb(229 231 235);
+}
+
+.dark .mito-sidebar-section-children {
+  border-left-color: rgb(55 65 81);
+}
+
+.mito-sidebar-section-children-collapsed {
+  padding-left: 0;
+  margin-left: 0;
+  border-left: 0;
 }
 
 .sidebar-section-title-text {

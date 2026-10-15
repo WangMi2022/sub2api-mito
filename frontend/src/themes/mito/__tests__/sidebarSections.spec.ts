@@ -7,7 +7,7 @@ vi.mock('../index', () => ({
   }
 }))
 
-import { applyMitoSidebarSections } from '../sidebarSections'
+import { applyMitoSidebarSections, groupMitoSidebarSections } from '../sidebarSections'
 
 const t = (key: string) => key
 const item = (path: string) => ({ path, label: path })
@@ -103,6 +103,44 @@ describe('applyMitoSidebarSections', () => {
   it('uses a unique key for each heading so Vue does not reuse nodes', () => {
     const out = applyMitoSidebarSections([item('/admin/dashboard'), item('/admin/users')], t)
     const keys = out.map((entry) => entry.path)
+
+    expect(new Set(keys).size).toBe(keys.length)
+  })
+})
+
+describe('groupMitoSidebarSections', () => {
+  const heading = (key: string) => ({ path: `__section__${key}`, label: key, sectionTitle: key })
+
+  it('collects items under the heading that precedes them', () => {
+    const grouped = groupMitoSidebarSections([
+      heading('a'), item('/1'), item('/2'),
+      heading('b'), item('/3')
+    ])
+
+    expect(grouped.map((section) => section.label)).toEqual(['a', 'b'])
+    expect(grouped[0].items.map((entry) => entry.path)).toEqual(['/1', '/2'])
+    expect(grouped[1].items.map((entry) => entry.path)).toEqual(['/3'])
+  })
+
+  it('drops a heading that has no entries so no empty group renders', () => {
+    const grouped = groupMitoSidebarSections([heading('a'), item('/1'), heading('empty'), heading('b'), item('/2')])
+
+    expect(grouped.map((section) => section.label)).toEqual(['a', 'b'])
+  })
+
+  it('keeps items that appear before any heading in an implicit group', () => {
+    const grouped = groupMitoSidebarSections([item('/orphan'), heading('a'), item('/1')])
+
+    expect(grouped.map((section) => section.items.map((entry) => entry.path))).toEqual([['/orphan'], ['/1']])
+  })
+
+  it('returns nothing for an empty list', () => {
+    expect(groupMitoSidebarSections([])).toEqual([])
+  })
+
+  it('gives every group a unique key', () => {
+    const grouped = groupMitoSidebarSections([heading('a'), item('/1'), heading('b'), item('/2')])
+    const keys = grouped.map((section) => section.path)
 
     expect(new Set(keys).size).toBe(keys.length)
   })
