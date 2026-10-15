@@ -675,11 +675,24 @@ export default {
     subscriptions: {
       batchAssign: {
         enable: '批量分配订阅',
-        hint: '搜索并添加多个用户，统一分配所选分组和有效期。每次最多 100 人。',
+        hint: '按用户组或单个用户添加，统一分配所选分组和有效期。每次最多 100 人。',
         selected: '已添加 {count} 位用户',
         removeUser: '移除 {email}',
         result: '分配完成：成功 {success} 人，失败 {failed} 人',
         retryHint: '已移除成功项，可检查失败原因后重新提交剩余用户。'
+      },
+      assignTarget: {
+        groupLabel: '用户组',
+        selectPlaceholder: '选择用户组',
+        searchPlaceholder: '搜索用户组名称或编码...',
+        hint: '选择用户组后，该组全部成员会一起分配。',
+        members: '{count} 位成员',
+        remove: '移除 {name}',
+        loadFailed: '用户组加载失败',
+        retry: '重新加载用户组',
+        emptyGroups: '{names} 当前没有成员，不会分配任何用户。',
+        total: '合计 {count} 位用户',
+        limitExceeded: '一次最多分配 100 位用户，当前为 {count} 位'
       },
       bulk: {
         extend: '批量调整有效期',

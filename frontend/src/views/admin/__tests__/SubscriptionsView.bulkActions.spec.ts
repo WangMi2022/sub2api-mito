@@ -111,7 +111,7 @@ describe('subscription bulk operations', () => {
     await wrapper.findAll('button').find(button => button.text() === 'admin.subscriptions.assignSubscription')!.trigger('click')
     const form = wrapper.get('#assign-subscription-form')
     await form.get('input[type="checkbox"]').setValue(true)
-    form.getComponent({ name: 'Select' }).vm.$emit('update:modelValue', 7)
+    form.get('[data-testid="assign-subscription-group"]').findComponent({ name: 'Select' }).vm.$emit('update:modelValue', 7)
     const search = form.get('[data-assign-user-search] input')
     for (const id of [11, 22]) {
       listUsers.mockResolvedValue({ items: [{ id, email: `user${id}@example.com` }] })

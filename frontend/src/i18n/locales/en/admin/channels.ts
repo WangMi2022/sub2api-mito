@@ -675,11 +675,24 @@ export default {
     subscriptions: {
       batchAssign: {
         enable: 'Assign to multiple users',
-        hint: 'Search and add up to 100 users to assign the same group and validity period.',
+        hint: 'Add user groups or individual users to assign the same group and validity period. Up to 100 users per submission.',
         selected: '{count} users added',
         removeUser: 'Remove {email}',
         result: 'Assignment complete: {success} succeeded, {failed} failed',
         retryHint: 'Successful users have been removed. Resolve any errors and submit the remaining users again.'
+      },
+      assignTarget: {
+        groupLabel: 'User Group',
+        selectPlaceholder: 'Select a user group',
+        searchPlaceholder: 'Search user group name or code...',
+        hint: 'Every member of the selected user groups is assigned together.',
+        members: '{count} members',
+        remove: 'Remove {name}',
+        loadFailed: 'Failed to load user groups',
+        retry: 'Reload user groups',
+        emptyGroups: '{names} has no members, so no users will be assigned from it.',
+        total: '{count} users in total',
+        limitExceeded: 'Up to 100 users can be assigned at once, currently {count}'
       },
       bulk: {
         extend: 'Bulk Adjust Expiration',

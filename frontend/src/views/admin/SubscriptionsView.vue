@@ -512,7 +512,7 @@
             <input
               v-model="userSearchKeyword"
               type="text"
-              :disabled="submitting || (batchAssignEnabled && assignUsers.length >= 100)"
+              :disabled="submitting || (batchAssignEnabled && assignUserCount >= 100)"
               class="input pr-8"
               :placeholder="t('admin.usage.searchUserPlaceholder')"
               @input="debounceSearchUsers"
@@ -575,10 +575,22 @@
             </ul>
           </div>
         </div>
+        <div v-if="batchAssignEnabled">
+          <label class="input-label">{{ t('admin.subscriptions.assignTarget.groupLabel') }}</label>
+          <AssignUserGroupPicker v-model="assignGroups" :disabled="submitting" />
+          <p
+            v-if="assignUserCount > 0"
+            class="mt-1 text-sm font-medium text-gray-700 dark:text-gray-300 tabular-nums"
+            data-test="assign-total"
+          >
+            {{ t('admin.subscriptions.assignTarget.total', { count: assignUserCount }) }}
+          </p>
+        </div>
         <div>
           <label class="input-label">{{ t('admin.subscriptions.form.group') }}</label>
           <Select
             v-model="assignForm.group_id"
+            data-testid="assign-subscription-group"
             :disabled="submitting"
             :options="subscriptionGroupOptions"
             :placeholder="t('admin.subscriptions.selectGroup')"
@@ -627,7 +639,7 @@
           <button
             type="submit"
             form="assign-subscription-form"
-            :disabled="submitting || (batchAssignEnabled && assignUsers.length === 0)"
+            :disabled="submitting || (batchAssignEnabled && assignUserCount === 0)"
             class="btn btn-primary"
           >
             <svg
@@ -861,6 +873,7 @@ import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import Select from '@/components/common/Select.vue'
 import GroupBadge from '@/components/common/GroupBadge.vue'
+import AssignUserGroupPicker, { type SelectedAssignUserGroup } from '@/components/admin/subscription/AssignUserGroupPicker.vue'
 import GroupOptionItem from '@/components/common/GroupOptionItem.vue'
 import Icon from '@/components/icons/Icon.vue'
 import {
@@ -1058,6 +1071,17 @@ const showUserDropdown = ref(false)
 const selectedUser = ref<AdminUser | null>(null)
 const batchAssignEnabled = ref(false)
 const assignUsers = ref<AdminUser[]>([])
+const assignGroups = ref<SelectedAssignUserGroup[]>([])
+
+/** 单个用户 + 用户组成员去重后的实际分配对象；后端 user_ids 上限为 100。 */
+const effectiveAssignUserIds = computed(() => {
+  const ids = new Set<number>(assignUsers.value.map((user) => user.id))
+  for (const group of assignGroups.value) {
+    for (const memberId of group.memberIds) ids.add(memberId)
+  }
+  return [...ids]
+})
+const assignUserCount = computed(() => effectiveAssignUserIds.value.length)
 const batchAssignResult = ref<BulkAssignSubscriptionResult | null>(null)
 let userSearchTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -1276,7 +1300,7 @@ const searchUsers = async () => {
 const selectUser = (user: AdminUser) => {
   if (submitting.value) return
   if (batchAssignEnabled.value) {
-    if (assignUsers.value.length < 100 && !assignUsers.value.some((selected) => selected.id === user.id)) {
+    if (assignUserCount.value < 100 && !assignUsers.value.some((selected) => selected.id === user.id)) {
       assignUsers.value = [...assignUsers.value, user]
     }
     userSearchKeyword.value = ''
@@ -1300,6 +1324,7 @@ const clearUserSelection = () => {
 const resetAssignUsers = () => {
   clearUserSelection()
   assignUsers.value = []
+  assignGroups.value = []
   batchAssignResult.value = null
 }
 
@@ -1329,6 +1354,7 @@ const closeAssignModal = () => {
   showAssignModal.value = false
   batchAssignEnabled.value = false
   assignUsers.value = []
+  assignGroups.value = []
   batchAssignResult.value = null
   assignForm.user_id = null
   assignForm.group_id = null
@@ -1342,8 +1368,12 @@ const closeAssignModal = () => {
 
 const handleAssignSubscription = async () => {
   if (submitting.value) return
-  if (batchAssignEnabled.value ? assignUsers.value.length === 0 : !assignForm.user_id) {
+  if (batchAssignEnabled.value ? assignUserCount.value === 0 : !assignForm.user_id) {
     appStore.showError(t('admin.subscriptions.pleaseSelectUser'))
+    return
+  }
+  if (batchAssignEnabled.value && assignUserCount.value > 100) {
+    appStore.showError(t('admin.subscriptions.assignTarget.limitExceeded', { count: assignUserCount.value }))
     return
   }
   if (!assignForm.group_id) {
@@ -1359,13 +1389,16 @@ const handleAssignSubscription = async () => {
   try {
     if (batchAssignEnabled.value) {
       batchAssignResult.value = await adminAPI.subscriptions.bulkAssign({
-        user_ids: assignUsers.value.map((user) => user.id),
+        user_ids: effectiveAssignUserIds.value,
         group_id: assignForm.group_id,
         validity_days: assignForm.validity_days
       })
       const result = batchAssignResult.value
       const successIds = new Set(result.subscriptions.map((subscription) => subscription.user_id))
       assignUsers.value = assignUsers.value.filter((user) => !successIds.has(user.id))
+      assignGroups.value = assignGroups.value
+        .map((group) => ({ ...group, memberIds: group.memberIds.filter((memberId) => !successIds.has(memberId)) }))
+        .filter((group) => group.memberIds.length > 0)
       if (result.success_count > 0) {
         appStore.showSuccess(t('admin.subscriptions.batchAssign.result', { success: result.success_count, failed: result.failed_count }))
         await loadSubscriptions()
