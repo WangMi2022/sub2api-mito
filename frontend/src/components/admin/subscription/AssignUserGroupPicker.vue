@@ -142,9 +142,10 @@ async function loadGroups(): Promise<void> {
   }
 }
 
-async function addGroup(option: { value: unknown } | null): Promise<void> {
-  if (props.disabled || !option) return
-  const id = Number(option.value)
+// Select 的 change 事件第一个参数是 value（用户组 id），第二个才是 option。
+async function addGroup(value: unknown): Promise<void> {
+  if (props.disabled) return
+  const id = Number(value)
   if (!Number.isFinite(id) || selectedIds.value.has(id)) return
 
   const group = groups.value.find((item) => item.id === id)
