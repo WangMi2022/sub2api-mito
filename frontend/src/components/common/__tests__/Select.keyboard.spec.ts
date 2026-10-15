@@ -45,6 +45,22 @@ describe('Select keyboard focus', () => {
     expect(wrapper.emitted('update:modelValue')).toBeUndefined()
   })
 
+  it('closes the menu on Escape without closing its parent dialog', async () => {
+    const parentEscape = vi.fn()
+    document.addEventListener('keydown', parentEscape)
+    try {
+      await open(true)
+      parentEscape.mockClear()
+      await press('Escape')
+      expect(parentEscape).not.toHaveBeenCalled()
+      expect(wrapper.get('button').attributes('aria-expanded')).toBe('false')
+      await press('Escape')
+      expect(parentEscape).toHaveBeenCalledOnce()
+    } finally {
+      document.removeEventListener('keydown', parentEscape)
+    }
+  })
+
   it('keeps focus in the search input when search is enabled', async () => {
     await open(true)
     expect(document.activeElement).toBe(document.querySelector('.select-search-input'))

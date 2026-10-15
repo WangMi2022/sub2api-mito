@@ -204,10 +204,9 @@ export const adaptations = [
       {"before":"  tokenTooltipVisible.value = true","after":"  tokenTooltipVisible.value = true\n  constrainRequestTooltip(() => tokenTooltipElement.value, tokenTooltipPosition.value)"},
       { before: "  <div :class=\"flat ? '' : 'card overflow-hidden'\">", after: "  <div\n    :class=\"[\n      flat ? '' : 'card overflow-hidden',\n      variant === 'request-log' && 'mito-request-log-records'\n    ]\"\n  >" },
       { before: "    <div class=\"overflow-auto\">", after: "    <div class=\"overflow-auto\" :class=\"{ 'mito-request-log-scroll': variant === 'request-log' }\">" },
-      { before: "        :default-sort-order=\"defaultSortOrder\"", after: "        :default-sort-order=\"defaultSortOrder\"\n        :table-variant=\"variant\"" },
+      { before: "        :default-sort-order=\"defaultSortOrder\"", after: "        :default-sort-order=\"defaultSortOrder\"\n        :table-variant=\"variant\"\n        :resizable-columns=\"resizableColumns\"\n        :column-width-storage-key=\"columnWidthStorageKey\"" },
       { before: "  flat: false,\n  cacheRateAudience: 'admin'\n", after: "  flat: false,\n  cacheRateAudience: 'admin',\n  variant: 'default',\n  resizableColumns: false\n" },
       {"before":"  cacheRateAudience?: 'admin' | 'user'\n}","after":"  cacheRateAudience?: 'admin' | 'user'\n  /** 主题表格变体；默认保持上游表格行为 */\n  variant?: 'default' | 'request-log'\n  /** Allow dragging header borders to size columns (Mito usage table). */\n  resizableColumns?: boolean\n  /** Persist column widths separately from the column visibility preference. */\n  columnWidthStorageKey?: string\n}"},
-      {"before":"        :table-variant=\"variant\"","after":"        :table-variant=\"variant\"\n        :resizable-columns=\"resizableColumns\"\n        :column-width-storage-key=\"columnWidthStorageKey\""}
     ]
   },
   {
@@ -788,6 +787,12 @@ export const contracts = [
   { path: 'frontend/src/router/title.ts', anchors: ['export function resolveRouteMetaKeys('] },
   { path: 'frontend/src/components/common/BaseDialog.vue', anchors: ['<Transition name="modal">', "'drawer-content': placement === 'right'"] },
   { path: 'frontend/src/components/common/Select.vue', anchors: ['<Transition name="select-dropdown">', 'select-dropdown-portal'] },
+  { path: 'frontend/src/components/admin/group/GroupPolicyUserGroupSelect.vue', anchors: ['adminAPI.userGroups.list()', '<Select', 'configuredIds', '#option'] },
+  ...['GroupRateMultipliersModal', 'GroupRPMOverridesModal', 'GroupUserDeniedModelsModal'].map(name => ({
+    path: `frontend/src/components/admin/group/${name}.vue`,
+    anchors: ['<GroupPolicyUserGroupSelect', ':configured-ids=', ':key="group.id"']
+  })),
+  { path: 'frontend/src/components/admin/group/ModelTagInput.vue', anchors: ['role="combobox"', 'role="listbox"', 'select-dropdown-portal', 'isComposing'] },
   { path: 'frontend/src/components/common/NavigationProgress.vue', anchors: ['name="progress-fade"', 'navigation-progress-bar'] },
   { path: 'frontend/src/style.css', anchors: ['.card {', '.input {', '.btn-primary {', '.sidebar-link-active {'] },
   { path: 'frontend/src/themes/mito/index.ts', anchors: ['export const isMitoTheme'] },
@@ -806,6 +811,7 @@ export const contracts = [
   { path: 'frontend/src/themes/mito/index.ts', anchors: ["import './pelican-showcase.css'"] },
   { path: 'frontend/src/themes/mito/labels.ts', anchors: ['pelicanPageSummary', 'pelicanPageSize', 'goToPage', 'pelicanExpandGroup', 'pelicanCollapseGroup'] },
   { path: 'frontend/src/components/user/pelican/PelicanShowcaseCard.vue', anchors: ['data-testid="pelican-showcase-card"', "emit('visible')", 'scrollMargin'] },
-  { path: 'frontend/src/views/user/PelicanShowcaseView.vue', anchors: ['MitoPelicanShowcaseGroup', 'expandedGroups', 'toggleGroup', 'PelicanShowcaseRow', 'bodies[item.id]'] },
+  // Contracts also run before apply/after remove; generated Mito seams are checked by edits above.
+  { path: 'frontend/src/views/user/PelicanShowcaseView.vue', anchors: ['PelicanShowcaseRow', 'bodies[item.id]'] },
   { path: 'frontend/src/themes/mito/assets/noto-sans-sc-ui.woff2', binary: true }
 ]

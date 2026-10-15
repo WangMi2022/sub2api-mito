@@ -34,15 +34,14 @@ async function selectUserGroup() {
     props: { show: false, group: { id: 1, name: 'Group', platform: 'openai' } as AdminGroup },
     global: { stubs: {
       BaseDialog: { props: ['show'], template: '<div v-if="show"><slot /></div>' },
-      Icon: true, PlatformIcon: true, Pagination: true
+      Icon: true, PlatformIcon: true, Pagination: true, teleport: true
     } }
   })
   await wrapper.setProps({ show: true })
   await flushPromises()
-  await wrapper.get('input[type="text"]').setValue('VIP')
-  await vi.advanceTimersByTimeAsync(200)
-  await flushPromises()
-  await wrapper.findAll('button').find(b => b.text().includes('VIP'))!.trigger('click')
+  await wrapper.get('.select-trigger').trigger('click')
+  expect(wrapper.findAll('.select-option').map(option => option.text()).join(' ')).toContain('VIP')
+  await wrapper.get('.select-option').trigger('click')
   return wrapper
 }
 

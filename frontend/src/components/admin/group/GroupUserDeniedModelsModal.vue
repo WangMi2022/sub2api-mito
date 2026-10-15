@@ -110,35 +110,14 @@
           {{ t('admin.groups.addUserGroupDeniedModels') }}
         </h4>
         <div class="space-y-2">
-          <div class="relative">
-            <input
-              v-model="searchQuery"
-              type="text"
-              autocomplete="off"
-              class="input w-full"
-              :placeholder="t('admin.groups.searchUserGroupPlaceholder')"
-              data-testid="denied-models-user-search"
-              @input="handleSearchGroups"
-              @focus="showDropdown = true"
-            />
-            <div
-              v-if="showDropdown && searchResults.length > 0"
-              class="absolute left-0 right-0 top-full z-10 mt-1 max-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-dark-500 dark:bg-dark-700"
-            >
-              <button
-                v-for="ug in searchResults"
-                :key="ug.id"
-                type="button"
-                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-dark-600"
-                data-testid="denied-models-user-option"
-                @click="selectUserGroup(ug)"
-              >
-                <span class="text-gray-400">#{{ ug.id }}</span>
-                <span class="text-gray-900 dark:text-white">{{ ug.name }}</span>
-                <span class="text-xs text-gray-400">{{ t('admin.groups.columns.memberCount') }} {{ ug.member_count }}</span>
-              </button>
-            </div>
-          </div>
+          <GroupPolicyUserGroupSelect
+            v-if="show"
+            :key="group.id"
+            v-model="selectedUserGroup"
+            :configured-ids="localEntries.map(entry => entry.user_group_id)"
+            :disabled="loading || saving || clearing"
+            class="min-w-0 flex-1"
+          />
           <div class="flex items-start gap-2">
             <div class="flex-1">
               <ModelTagInput
@@ -150,7 +129,7 @@
             <button
               type="button"
               class="btn btn-primary shrink-0"
-              :disabled="!selectedUserGroup || newModels.length === 0"
+              :disabled="loading || saving || clearing || !selectedUserGroup || newModels.length === 0"
               data-testid="denied-models-add"
               @click="handleAddLocal"
             >
@@ -203,6 +182,7 @@ import type { AdminGroup, UserGroup } from '@/types'
 import { extractApiErrorMessage } from '@/utils/apiError'
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import Pagination from '@/components/common/Pagination.vue'
+import GroupPolicyUserGroupSelect from './GroupPolicyUserGroupSelect.vue'
 import Icon from '@/components/icons/Icon.vue'
 import PlatformIcon from '@/components/common/PlatformIcon.vue'
 import ModelTagInput from '@/components/admin/group/ModelTagInput.vue'
@@ -230,15 +210,11 @@ const clearing = ref(false)
 const serverEntries = ref<LocalEntry[]>([])
 const localEntries = ref<LocalEntry[]>([])
 const candidates = ref<string[]>([])
-const searchQuery = ref('')
-const searchResults = ref<UserGroup[]>([])
-const showDropdown = ref(false)
 const selectedUserGroup = ref<UserGroup | null>(null)
 const newModels = ref<string[]>([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 
-let searchTimeout: ReturnType<typeof setTimeout>
 let loadVersion = 0
 
 const platformColorClass = computed(() => {
@@ -297,10 +273,13 @@ const loadEntries = async () => {
 // 候选模型只是输入提示，拿不到不影响手动填写。
 const loadCandidates = async () => {
   if (!props.group) return
+  const version = loadVersion
+  candidates.value = []
   try {
-    candidates.value = await adminAPI.groups.getModelAllowlistCandidates(props.group.id)
+    const models = await adminAPI.groups.getModelAllowlistCandidates(props.group.id)
+    if (version === loadVersion) candidates.value = models
   } catch {
-    candidates.value = []
+    if (version === loadVersion) candidates.value = []
   }
 }
 
@@ -308,8 +287,6 @@ watch([() => props.show, () => props.group?.id], ([val]) => {
   loadVersion++
   if (val && props.group) {
     currentPage.value = 1
-    searchQuery.value = ''
-    searchResults.value = []
     selectedUserGroup.value = null
     newModels.value = []
     loadEntries()
@@ -322,39 +299,9 @@ const handlePageSizeChange = (newSize: number) => {
   currentPage.value = 1
 }
 
-const handleSearchGroups = () => {
-  clearTimeout(searchTimeout)
-  selectedUserGroup.value = null
-  if (!searchQuery.value.trim()) {
-    searchResults.value = []
-    showDropdown.value = false
-    return
-  }
-  searchTimeout = setTimeout(async () => {
-    try {
-      const keyword = searchQuery.value.trim().toLowerCase()
-      const all = await adminAPI.userGroups.list()
-      searchResults.value = all
-        .filter(ug => !localEntries.value.some(e => e.user_group_id === ug.id))
-        .filter(ug => ug.name.toLowerCase().includes(keyword) || ug.code.toLowerCase().includes(keyword))
-        .slice(0, 10)
-      showDropdown.value = true
-    } catch {
-      searchResults.value = []
-    }
-  }, 200)
-}
-
-const selectUserGroup = (ug: UserGroup) => {
-  selectedUserGroup.value = ug
-  searchQuery.value = ug.name
-  showDropdown.value = false
-  searchResults.value = []
-}
-
 // 同一用户组再次添加时合并清单，而不是覆盖掉已有的禁用模型。
 const handleAddLocal = () => {
-  if (!selectedUserGroup.value || newModels.value.length === 0) return
+  if (loading.value || saving.value || clearing.value || !selectedUserGroup.value || newModels.value.length === 0) return
   const ug = selectedUserGroup.value
   const existing = localEntries.value.find(e => e.user_group_id === ug.id)
   if (existing) {
@@ -375,7 +322,6 @@ const handleAddLocal = () => {
       denied_models: [...newModels.value]
     })
   }
-  searchQuery.value = ''
   selectedUserGroup.value = null
   newModels.value = []
   adjustPage()
@@ -435,15 +381,7 @@ const handleClose = () => {
   emit('close')
 }
 
-const handleClickOutside = () => { showDropdown.value = false }
-if (typeof document !== 'undefined') {
-  document.addEventListener('click', handleClickOutside)
-}
 onBeforeUnmount(() => {
   loadVersion++
-  clearTimeout(searchTimeout)
-  if (typeof document !== 'undefined') {
-    document.removeEventListener('click', handleClickOutside)
-  }
 })
 </script>

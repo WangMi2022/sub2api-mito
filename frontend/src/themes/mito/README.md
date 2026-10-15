@@ -171,3 +171,11 @@ Mito 主题将个人使用记录拆成两个页面：
 用户端「鹈鹕测智」（`/pelican-showcase`）的每个分组改为可折叠卡片：标题行整体是切换控件，带 `aria-expanded`、`aria-controls` 与旋转箭头；有作品的分组默认全部收起，只显示平台徽标、组名、平台、数量与最近时间，空分组保持原空态且不显示控件。展开后才挂载当前页的作品与沙箱 iframe，分页、每页条数与已加载内容缓存沿用原有 pager；折叠状态保存在页面层，切换分组页签或刷新列表都不会改变。
 
 主题层 `PelicanShowcaseGroup.vue` 接管原 `<section>` 的整块内容（`PelicanShowcaseGallery.vue` 已移除），`pelican-showcase.css` 提供卡片、标题、箭头与展开动画，并在 `prefers-reduced-motion` 下关闭位移与过渡。上游分支保留原有横向滚动行；新增和变更的模板、状态、双语文案与依赖契约都已登记 `adaptations.mjs`，上游更新后仍按 `check/remove/apply` 维护。
+
+## 用户组策略选择器
+
+专属倍率、专属 RPM 与用户模型限制共用 `GroupPolicyUserGroupSelect.vue`，通过用户组 API 加载系统已有用户组，沿用共享 `Select.vue` 的可搜索浮层、键盘交互与 Mito 主题样式。打开即可浏览全部用户组，显示名称、编码、成员数和系统标记；已配置或已禁用的组有状态提示，已配置项在原列表编辑。列表加载失败可重试，重新打开弹窗会刷新数据。
+
+分组模型限制的 `ModelTagInput.vue` 使用同一菜单表面与过渡，替换浏览器原生 datalist；保留手动输入、回车/失焦添加、批量粘贴、大小写去重与尾部通配符。候选浮层挂载到 body，随视口调整位置并限制滚动高度。按 Escape 先收起下拉，下一次才交给弹窗处理。
+
+这些组件属于用户组功能的共用实现，随定制分支合并保留；Mito 的通用菜单样式继续由主题层管理。接入点已登记 `adaptations.mjs` 契约，上游升级后若组件或引用丢失，`mito-theme.mjs check` 会明确报错，避免静默退回旧输入框。

@@ -51,7 +51,7 @@ async function openModal() {
     props: { show: false, group: { id: 1, name: 'Group A', platform: 'openai' } as AdminGroup },
     global: { stubs: {
       BaseDialog: { props: ['show'], template: '<div v-if="show"><slot /></div>' },
-      Icon: true, PlatformIcon: true, Pagination: true
+      Icon: true, PlatformIcon: true, Pagination: true, teleport: true
     } }
   })
   await wrapper.setProps({ show: true })
@@ -74,10 +74,9 @@ describe('GroupUserDeniedModelsModal', () => {
 
   it('adds a user group with denied models and saves the whole group', async () => {
     const wrapper = await openModal()
-    await wrapper.get('[data-testid="denied-models-user-search"]').setValue('bob')
-    await vi.advanceTimersByTimeAsync(300)
-    await flushPromises()
-    await wrapper.get('[data-testid="denied-models-user-option"]').trigger('click')
+    await wrapper.get('.select-trigger').trigger('click')
+    await wrapper.get('.select-search-input').setValue('bob')
+    await wrapper.get('.select-option').trigger('click')
 
     const addButton = wrapper.get('[data-testid="denied-models-add"]')
     expect(addButton.attributes('disabled')).toBeDefined()
@@ -125,6 +124,21 @@ describe('GroupUserDeniedModelsModal', () => {
     })
     await flushPromises()
     expect(wrapper.find('[data-testid="denied-models-row-3"]').exists()).toBe(true)
+  })
+
+  it('ignores model suggestions from the previously opened group', async () => {
+    let resolveOld!: (models: string[]) => void
+    mocks.getModelAllowlistCandidates
+      .mockReturnValueOnce(new Promise<string[]>(resolve => { resolveOld = resolve }))
+      .mockResolvedValueOnce(['current-model'])
+    const wrapper = await openModal()
+    await wrapper.setProps({ group: { id: 2, name: 'Group B', platform: 'openai' } as AdminGroup })
+    await flushPromises()
+    resolveOld(['old-model'])
+    await flushPromises()
+    await wrapper.findAll('[data-testid="model-tag-draft"]').at(-1)!.trigger('focus')
+    expect(wrapper.findAll('[role="option"]').map(option => option.text())).toContain('current-model')
+    expect(wrapper.findAll('[role="option"]').map(option => option.text())).not.toContain('old-model')
   })
 
   it('clears every limit of the group at once', async () => {

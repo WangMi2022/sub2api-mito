@@ -115,34 +115,15 @@
         <h4 class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
           {{ t('admin.groups.addUserGroupRpm') }}
         </h4>
-        <div class="flex items-end gap-2">
-          <div class="relative flex-1">
-            <input
-              v-model="searchQuery"
-              type="text"
-              autocomplete="off"
-              class="input w-full"
-              :placeholder="t('admin.groups.searchUserGroupPlaceholder')"
-              @input="handleSearchGroups"
-              @focus="showDropdown = true"
-            />
-            <div
-              v-if="showDropdown && searchResults.length > 0"
-              class="absolute left-0 right-0 top-full z-10 mt-1 max-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-dark-500 dark:bg-dark-700"
-            >
-              <button
-                v-for="ug in searchResults"
-                :key="ug.id"
-                type="button"
-                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-dark-600"
-                @click="selectUserGroup(ug)"
-              >
-                <span class="text-gray-400">#{{ ug.id }}</span>
-                <span class="text-gray-900 dark:text-white">{{ ug.name }}</span>
-                <span class="text-xs text-gray-400">{{ t('admin.groups.columns.memberCount') }} {{ ug.member_count }}</span>
-              </button>
-            </div>
-          </div>
+        <div class="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 sm:flex">
+          <GroupPolicyUserGroupSelect
+            v-if="show"
+            :key="group.id"
+            v-model="selectedUserGroup"
+            :configured-ids="localEntries.map(entry => entry.user_group_id)"
+            :disabled="loading || saving || clearing"
+            class="col-span-2 min-w-0 sm:flex-1"
+          />
           <div class="w-24">
             <input
               v-model.number="newRpm"
@@ -157,7 +138,7 @@
           <button
             type="button"
             class="btn btn-primary shrink-0"
-            :disabled="!selectedUserGroup || newRpm == null || !Number.isInteger(newRpm) || newRpm < 0"
+            :disabled="loading || saving || clearing || !selectedUserGroup || newRpm == null || !Number.isInteger(newRpm) || newRpm < 0"
             @click="handleAddLocal"
           >
             {{ t('common.add') }}
@@ -206,6 +187,7 @@ import type { GroupUserGroupPolicyRow } from '@/api/admin/groups'
 import type { AdminGroup, UserGroup } from '@/types'
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import Pagination from '@/components/common/Pagination.vue'
+import GroupPolicyUserGroupSelect from './GroupPolicyUserGroupSelect.vue'
 import Icon from '@/components/icons/Icon.vue'
 import PlatformIcon from '@/components/common/PlatformIcon.vue'
 import { platformLabel } from '@/utils/platformColors'
@@ -232,15 +214,11 @@ const saving = ref(false)
 const clearing = ref(false)
 const serverEntries = ref<LocalEntry[]>([])
 const localEntries = ref<LocalEntry[]>([])
-const searchQuery = ref('')
-const searchResults = ref<UserGroup[]>([])
-const showDropdown = ref(false)
 const selectedUserGroup = ref<UserGroup | null>(null)
 const newRpm = ref<number | null>(null)
 const currentPage = ref(1)
 const pageSize = ref(10)
 
-let searchTimeout: ReturnType<typeof setTimeout>
 let loadVersion = 0
 
 const platformColorClass = computed(() => {
@@ -298,51 +276,19 @@ watch([() => props.show, () => props.group?.id], ([show]) => {
   loadVersion++
   if (show && props.group) {
     currentPage.value = 1
-    searchQuery.value = ''
-    searchResults.value = []
     selectedUserGroup.value = null
     newRpm.value = null
     loadEntries()
   }
-})
+}, { immediate: true })
 
 const handlePageSizeChange = (newSize: number) => {
   pageSize.value = newSize
   currentPage.value = 1
 }
 
-const handleSearchGroups = () => {
-  clearTimeout(searchTimeout)
-  selectedUserGroup.value = null
-  if (!searchQuery.value.trim()) {
-    searchResults.value = []
-    showDropdown.value = false
-    return
-  }
-  searchTimeout = setTimeout(async () => {
-    try {
-      const keyword = searchQuery.value.trim().toLowerCase()
-      const all = await adminAPI.userGroups.list()
-      searchResults.value = all
-        .filter(ug => !localEntries.value.some(e => e.user_group_id === ug.id))
-        .filter(ug => ug.name.toLowerCase().includes(keyword) || ug.code.toLowerCase().includes(keyword))
-        .slice(0, 10)
-      showDropdown.value = true
-    } catch {
-      searchResults.value = []
-    }
-  }, 200)
-}
-
-const selectUserGroup = (ug: UserGroup) => {
-  selectedUserGroup.value = ug
-  searchQuery.value = ug.name
-  showDropdown.value = false
-  searchResults.value = []
-}
-
 const handleAddLocal = () => {
-  if (!selectedUserGroup.value || newRpm.value == null || !Number.isInteger(newRpm.value) || newRpm.value < 0) return
+  if (loading.value || saving.value || clearing.value || !selectedUserGroup.value || newRpm.value == null || !Number.isInteger(newRpm.value) || newRpm.value < 0) return
   const ug = selectedUserGroup.value
   const idx = localEntries.value.findIndex(e => e.user_group_id === ug.id)
   const entry: LocalEntry = {
@@ -360,7 +306,6 @@ const handleAddLocal = () => {
   } else {
     localEntries.value.push(entry)
   }
-  searchQuery.value = ''
   selectedUserGroup.value = null
   newRpm.value = null
   adjustPage()
@@ -428,14 +373,8 @@ const handleClose = () => {
   emit('close')
 }
 
-const handleClickOutside = () => { showDropdown.value = false }
-if (typeof document !== 'undefined') {
-  document.addEventListener('click', handleClickOutside)
-}
 onUnmounted(() => {
   loadVersion++
-  clearTimeout(searchTimeout)
-  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
