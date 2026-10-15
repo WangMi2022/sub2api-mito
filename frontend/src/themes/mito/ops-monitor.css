@@ -1,7 +1,6 @@
 /* Ops monitoring (`/admin/ops`): presentation only.
    Every rule is scoped to `.mito-ops-dashboard`, so data, polling, thresholds,
-   chart behaviour and permission checks stay upstream. The particle canvas is
-   supplied by the theme component `OpsParticles.vue` and is inert decoration. */
+   chart behaviour and permission checks stay upstream. */
 html[data-ui-theme='mito'] .mito-ops-dashboard {
   --mito-ops-ease: cubic-bezier(.22, 1, .36, 1);
   --mito-ops-line: linear-gradient(90deg, #2563eb, #38bdf8 46%, #22c55e);
@@ -43,35 +42,6 @@ html[data-ui-theme='mito'].dark .mito-ops-dashboard {
 @keyframes mito-ops-grid-drift {
   from { background-position: 0 0, 0 0; }
   to { background-position: 64px 64px, 64px 64px; }
-}
-
-/* ------------------------------------------------------------- Particle field */
-
-html[data-ui-theme='mito'] .mito-ops-particles {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  border-radius: 24px;
-  pointer-events: none;
-}
-
-/* The particle host is the first child of a `space-y-6` stack; keep the original
-   top spacing of the real content regardless of the extra element. */
-html[data-ui-theme='mito'] .mito-ops-particles + * {
-  margin-top: 0 !important;
-}
-
-html[data-ui-theme='mito'] .mito-ops-particles-canvas {
-  display: block;
-  width: 100%;
-  will-change: transform;
-}
-
-/* Keep the real dashboard above the decoration. */
-html[data-ui-theme='mito'] .mito-ops-dashboard > *:not(.mito-ops-particles) {
-  position: relative;
-  z-index: 1;
 }
 
 /* ---------------------------------------------------------------- Header card */
@@ -293,9 +263,6 @@ html[data-ui-theme='mito'].dark .mito-ops-dashboard table tbody tr:hover {
 /* -------------------------------------------------------------- Mobile */
 
 @media (max-width: 767px) {
-  html[data-ui-theme='mito'] .mito-ops-particles {
-    opacity: .55;
-  }
   html[data-ui-theme='mito'] .mito-ops-dashboard .mito-ops-head :is(.rounded-2xl.bg-gray-50, .rounded-xl.bg-gray-50):hover,
   html[data-ui-theme='mito'] .mito-ops-dashboard :is(.rounded-3xl.bg-white, section.rounded-2xl.bg-white):not(.mito-ops-head):hover {
     transform: none;
@@ -303,9 +270,6 @@ html[data-ui-theme='mito'].dark .mito-ops-dashboard table tbody tr:hover {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html[data-ui-theme='mito'] .mito-ops-particles {
-    display: none;
-  }
   html[data-ui-theme='mito'] :is(.mito-ops-dashboard, .mito-ops-head) {
     animation: none;
   }
