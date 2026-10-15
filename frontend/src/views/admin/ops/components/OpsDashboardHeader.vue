@@ -273,6 +273,16 @@ function getThresholdColorClass(level: ThresholdLevel): string {
 
 // --- Realtime / Overview labels ---
 
+// QPS/TPS are per-second rates. A single decimal collapses every rate below
+// 0.05/s (3 requests per minute) to "0.0", which made a lightly loaded but
+// active instance read as idle next to its non-zero tokens. Keep two decimals
+// below 1 so low-rate traffic stays visible.
+function formatRate(value: number | null | undefined): string {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return '-'
+  if (value === 0) return '0.0'
+  return Math.abs(value) < 1 ? value.toFixed(2) : value.toFixed(1)
+}
+
 const totalRequestsLabel = computed(() => formatNumber(overview.value?.request_count_total ?? 0))
 const totalTokensLabel = computed(() => formatNumber(overview.value?.token_consumed ?? 0))
 
@@ -361,31 +371,31 @@ const displayRealTimeTps = computed(() => {
 
 const realtimeQpsPeakLabel = computed(() => {
   const v = realtimeTrafficSummary.value?.qps?.peak
-  return typeof v === 'number' && Number.isFinite(v) ? v.toFixed(1) : '-'
+  return typeof v === 'number' && Number.isFinite(v) ? formatRate(v) : '-'
 })
 const realtimeTpsPeakLabel = computed(() => {
   const v = realtimeTrafficSummary.value?.tps?.peak
-  return typeof v === 'number' && Number.isFinite(v) ? v.toFixed(1) : '-'
+  return typeof v === 'number' && Number.isFinite(v) ? formatRate(v) : '-'
 })
 const realtimeQpsAvgLabel = computed(() => {
   const v = realtimeTrafficSummary.value?.qps?.avg
-  return typeof v === 'number' && Number.isFinite(v) ? v.toFixed(1) : '-'
+  return typeof v === 'number' && Number.isFinite(v) ? formatRate(v) : '-'
 })
 const realtimeTpsAvgLabel = computed(() => {
   const v = realtimeTrafficSummary.value?.tps?.avg
-  return typeof v === 'number' && Number.isFinite(v) ? v.toFixed(1) : '-'
+  return typeof v === 'number' && Number.isFinite(v) ? formatRate(v) : '-'
 })
 
 const qpsAvgLabel = computed(() => {
   const v = overview.value?.qps?.avg
   if (typeof v !== 'number') return '-'
-  return v.toFixed(1)
+  return formatRate(v)
 })
 
 const tpsAvgLabel = computed(() => {
   const v = overview.value?.tps?.avg
   if (typeof v !== 'number') return '-'
-  return v.toFixed(1)
+  return formatRate(v)
 })
 
 const slaPercent = computed(() => {
@@ -426,9 +436,13 @@ const ttftMaxMs = computed(() => overview.value?.ttft?.max_ms ?? null)
 const isSystemIdle = computed(() => {
   const ov = overview.value
   if (!ov) return true
-  const qps = ov.qps?.current
   const errorRate = ov.error_rate ?? 0
-  return (qps ?? 0) === 0 && errorRate === 0
+  // Rates are per-second, so a low-traffic instance can round to "0.0 QPS"
+  // while requests are still being served. Require idle throughput as well,
+  // otherwise the card shows "待机" right next to a non-zero TPS.
+  const qps = ov.qps?.current ?? 0
+  const tps = ov.tps?.current ?? 0
+  return qps === 0 && tps === 0 && errorRate === 0
 })
 
 const healthScoreValue = computed<number | null>(() => {
@@ -1136,11 +1150,11 @@ function handleToolbarRefresh() {
                 <div :class="[props.fullscreen ? 'text-xs' : 'text-[10px]', 'font-bold uppercase text-gray-400']">{{ t('admin.ops.current') }}</div>
                 <div class="mt-1 flex flex-wrap items-baseline gap-x-4 gap-y-2">
                   <div class="flex items-baseline gap-1.5">
-                    <span :class="[props.fullscreen ? 'text-4xl' : 'text-xl sm:text-2xl', 'font-black text-gray-900 dark:text-white']">{{ displayRealTimeQps.toFixed(1) }}</span>
+                    <span :class="[props.fullscreen ? 'text-4xl' : 'text-xl sm:text-2xl', 'font-black text-gray-900 dark:text-white']">{{ formatRate(displayRealTimeQps) }}</span>
                     <span :class="[props.fullscreen ? 'text-sm' : 'text-xs', 'font-bold text-gray-500']">QPS</span>
                   </div>
                   <div class="flex items-baseline gap-1.5">
-                    <span :class="[props.fullscreen ? 'text-4xl' : 'text-xl sm:text-2xl', 'font-black text-gray-900 dark:text-white']">{{ displayRealTimeTps.toFixed(1) }}</span>
+                    <span :class="[props.fullscreen ? 'text-4xl' : 'text-xl sm:text-2xl', 'font-black text-gray-900 dark:text-white']">{{ formatRate(displayRealTimeTps) }}</span>
                     <span :class="[props.fullscreen ? 'text-sm' : 'text-xs', 'font-bold text-gray-500']">{{ t('admin.ops.tps') }}</span>
                   </div>
                 </div>

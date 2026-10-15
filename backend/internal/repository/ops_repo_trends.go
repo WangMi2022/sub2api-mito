@@ -126,8 +126,8 @@ ORDER BY bucket ASC`
 		if denom <= 0 {
 			denom = 60
 		}
-		qps := roundTo1DP(float64(requests) / denom)
-		tps := roundTo1DP(float64(tokenConsumed) / denom)
+		qps := roundRate(float64(requests) / denom)
+		tps := roundRate(float64(tokenConsumed) / denom)
 
 		points = append(points, &service.OpsThroughputTrendPoint{
 			BucketStart:   bucket.UTC(),

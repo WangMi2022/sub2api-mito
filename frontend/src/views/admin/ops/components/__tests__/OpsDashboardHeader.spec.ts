@@ -49,3 +49,41 @@ describe('OpsDashboardHeader output TPS', () => {
   })
 
 })
+
+// Regression: per-second rates below 0.05/s (fewer than 3 requests per minute)
+// used to round to "0.0", so the card labelled an instance that was still
+// serving requests as idle, right next to a non-zero TPS.
+describe('OpsDashboardHeader low-rate traffic', () => {
+  // Exactly the reported shape: a per-minute QPS rate that rounds to 0 while
+  // requests are still completing and consuming tokens.
+  const busyAtLowRate = {
+    tps: { current: 1391.5, peak: 2699, avg: 1250.8 },
+    error_rate: 0,
+    health_score: 63,
+    qps: { current: 0, peak: 0.017, avg: 0.013 },
+    token_consumed: 375236
+  } as unknown as OpsDashboardOverview
+
+  it('does not report idle while tokens are still flowing', async () => {
+    const wrapper = mountHeader(busyAtLowRate)
+    await flushPromises()
+    expect(wrapper.text()).not.toContain('admin.ops.idleStatus')
+    expect(wrapper.text()).toContain('63')
+    wrapper.unmount()
+  })
+
+  it('reports idle only when throughput is zero as well', async () => {
+    const idle = { ...busyAtLowRate, qps: { current: 0, peak: 0, avg: 0 }, tps: { current: 0, peak: 0, avg: 0 } } as OpsDashboardOverview
+    const wrapper = mountHeader(idle)
+    await flushPromises()
+    expect(wrapper.text()).toContain('admin.ops.idleStatus')
+    wrapper.unmount()
+  })
+
+  it('shows sub-1 average QPS with two decimals instead of collapsing it to 0.0', async () => {
+    const wrapper = mountHeader(busyAtLowRate)
+    await flushPromises()
+    expect(wrapper.text()).toContain('0.01')
+    wrapper.unmount()
+  })
+})

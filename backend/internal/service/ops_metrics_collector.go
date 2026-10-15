@@ -320,8 +320,8 @@ func (c *OpsMetricsCollector) collectAndPersist(ctx context.Context) error {
 
 		TokenConsumed:      tokenConsumed,
 		AccountSwitchCount: accountSwitchCount,
-		QPS:                float64Ptr(roundTo1DP(qps)),
-		TPS:                float64Ptr(roundTo1DP(tps)),
+		QPS:                float64Ptr(roundRate(qps)),
+		TPS:                float64Ptr(roundRate(tps)),
 
 		DurationP50Ms: duration.p50,
 		DurationP90Ms: duration.p90,
@@ -938,6 +938,13 @@ func floatToIntPtr(v sql.NullFloat64) *int {
 
 func roundTo1DP(v float64) float64 {
 	return math.Round(v*10) / 10
+}
+
+// roundRate rounds a per-second throughput rate (QPS/TPS). Three decimals keep
+// low-rate traffic visible instead of collapsing it to 0 (see the repository
+// counterpart for the full rationale).
+func roundRate(v float64) float64 {
+	return math.Round(v*1000) / 1000
 }
 
 func truncateString(s string, max int) string {

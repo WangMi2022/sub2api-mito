@@ -115,7 +115,14 @@ const options = computed(() => {
           label: (context: any) => {
             let label = context.dataset.label || ''
             if (label) label += ': '
-            if (context.raw !== null) label += context.parsed.y.toFixed(1)
+            if (context.raw !== null) {
+              // Keep sub-1 rates (a few requests per minute) readable instead
+              // of rounding every low-traffic bucket to "0.0".
+              const value = Number(context.parsed.y)
+              label += Number.isFinite(value) && value !== 0 && Math.abs(value) < 1
+                ? value.toFixed(2)
+                : value.toFixed(1)
+            }
             return label
           }
         }

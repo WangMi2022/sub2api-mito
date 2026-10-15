@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -97,8 +98,8 @@ FROM combined`
 	}
 
 	requestCountTotal := successCount + errorTotal
-	qpsAvg := roundTo1DP(float64(requestCountTotal) / windowSeconds)
-	tpsAvg := roundTo1DP(float64(tokenConsumed) / windowSeconds)
+	qpsAvg := roundRate(float64(requestCountTotal) / windowSeconds)
+	tpsAvg := roundRate(float64(tokenConsumed) / windowSeconds)
 
 	// Keep "current" consistent with the dashboard overview semantics: last 1 minute.
 	// This remains "within the selected window" since end=start+window.
@@ -107,8 +108,14 @@ FROM combined`
 		return nil, err
 	}
 
-	qpsPeak := roundTo1DP(float64(peakRequestsPerMin) / 60.0)
-	tpsPeak := roundTo1DP(float64(peakTokensPerMin) / 60.0)
+	qpsPeak := roundRate(float64(peakRequestsPerMin) / 60.0)
+	tpsPeak := roundRate(float64(peakTokensPerMin) / 60.0)
+
+	// Peak is bucketed per calendar minute while "current" is the rolling last
+	// minute, so a trailing partial bucket can make peak read lower than the
+	// current rate. Peak is a maximum by definition.
+	qpsPeak = roundRate(math.Max(qpsPeak, math.Max(qpsCurrent, qpsAvg)))
+	tpsPeak = roundRate(math.Max(tpsPeak, math.Max(tpsCurrent, tpsAvg)))
 
 	return &service.OpsRealtimeTrafficSummary{
 		StartTime: start,

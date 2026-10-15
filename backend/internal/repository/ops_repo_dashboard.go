@@ -152,8 +152,8 @@ func (r *opsRepository) getDashboardOverviewRaw(ctx context.Context, filter *ser
 		}
 	}
 
-	qpsAvg := roundTo1DP(float64(requestCountTotal) / windowSeconds)
-	tpsAvg := roundTo1DP(float64(tokenConsumed) / windowSeconds)
+	qpsAvg := roundRate(float64(requestCountTotal) / windowSeconds)
+	tpsAvg := roundRate(float64(tokenConsumed) / windowSeconds)
 	if degraded {
 		if qpsCurrent <= 0 {
 			qpsCurrent = qpsAvg
@@ -161,13 +161,14 @@ func (r *opsRepository) getDashboardOverviewRaw(ctx context.Context, filter *ser
 		if tpsCurrent <= 0 {
 			tpsCurrent = tpsAvg
 		}
-		if qpsPeak <= 0 {
-			qpsPeak = roundTo1DP(math.Max(qpsCurrent, qpsAvg))
-		}
-		if tpsPeak <= 0 {
-			tpsPeak = roundTo1DP(math.Max(tpsCurrent, tpsAvg))
-		}
 	}
+
+	// "current" is a rolling last-minute rate while "peak" comes from
+	// calendar-minute buckets, so a trailing partial bucket can make the
+	// bucketed peak smaller than the rolling rate (the UI then showed
+	// 当前 > 峰值). Peak is a maximum by definition.
+	qpsPeak = roundRate(math.Max(qpsPeak, math.Max(qpsCurrent, qpsAvg)))
+	tpsPeak = roundRate(math.Max(tpsPeak, math.Max(tpsCurrent, tpsAvg)))
 
 	return &service.OpsDashboardOverview{
 		StartTime: start,
@@ -335,8 +336,8 @@ func (r *opsRepository) getDashboardOverviewPreaggregated(ctx context.Context, f
 		}
 	}
 
-	qpsAvg := roundTo1DP(float64(requestCountTotal) / windowSeconds)
-	tpsAvg := roundTo1DP(float64(tokenConsumed) / windowSeconds)
+	qpsAvg := roundRate(float64(requestCountTotal) / windowSeconds)
+	tpsAvg := roundRate(float64(tokenConsumed) / windowSeconds)
 	if degraded {
 		if qpsCurrent <= 0 {
 			qpsCurrent = qpsAvg
@@ -344,13 +345,11 @@ func (r *opsRepository) getDashboardOverviewPreaggregated(ctx context.Context, f
 		if tpsCurrent <= 0 {
 			tpsCurrent = tpsAvg
 		}
-		if qpsPeak <= 0 {
-			qpsPeak = roundTo1DP(math.Max(qpsCurrent, qpsAvg))
-		}
-		if tpsPeak <= 0 {
-			tpsPeak = roundTo1DP(math.Max(tpsCurrent, tpsAvg))
-		}
 	}
+
+	// Keep peak >= current/avg (see the overview variant above for details).
+	qpsPeak = roundRate(math.Max(qpsPeak, math.Max(qpsCurrent, qpsAvg)))
+	tpsPeak = roundRate(math.Max(tpsPeak, math.Max(tpsCurrent, tpsAvg)))
 
 	return &service.OpsDashboardOverview{
 		StartTime: start,
@@ -958,8 +957,8 @@ func (r *opsRepository) queryCurrentRates(ctx context.Context, filter *service.O
 		return 0, 0, err
 	}
 
-	qpsCurrent = roundTo1DP(float64(successCount1m+errorCount1m) / 60.0)
-	tpsCurrent = roundTo1DP(float64(token1m) / 60.0)
+	qpsCurrent = roundRate(float64(successCount1m+errorCount1m) / 60.0)
+	tpsCurrent = roundRate(float64(token1m) / 60.0)
 	return qpsCurrent, tpsCurrent, nil
 }
 
@@ -1004,10 +1003,10 @@ FROM combined`
 		return 0, 0, err
 	}
 	if maxReqPerMinute.Valid && maxReqPerMinute.Int64 > 0 {
-		qpsPeak = roundTo1DP(float64(maxReqPerMinute.Int64) / 60.0)
+		qpsPeak = roundRate(float64(maxReqPerMinute.Int64) / 60.0)
 	}
 	if maxTokensPerMinute.Valid && maxTokensPerMinute.Int64 > 0 {
-		tpsPeak = roundTo1DP(float64(maxTokensPerMinute.Int64) / 60.0)
+		tpsPeak = roundRate(float64(maxTokensPerMinute.Int64) / 60.0)
 	}
 	return qpsPeak, tpsPeak, nil
 }
@@ -1104,8 +1103,15 @@ func safeDivideFloat64(numerator float64, denominator float64) float64 {
 	return numerator / denominator
 }
 
-func roundTo1DP(v float64) float64 {
-	return math.Round(v*10) / 10
+// roundRate rounds a per-second throughput rate (QPS/TPS) for transport.
+//
+// One decimal place collapsed every rate below 0.05/s (3 requests per minute)
+// to exactly 0. A lightly loaded but active instance therefore reported
+// "0.0 QPS" and the UI classified it as idle while requests were still being
+// served. Three decimals keep low-rate traffic distinguishable
+// (1 req/min = 0.017, 2 req/min = 0.033).
+func roundRate(v float64) float64 {
+	return math.Round(v*1000) / 1000
 }
 
 func roundTo4DP(v float64) float64 {

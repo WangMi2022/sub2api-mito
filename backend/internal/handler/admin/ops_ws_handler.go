@@ -264,8 +264,8 @@ func (c *opsWSQPSCache) refresh(parentCtx context.Context) {
 	tps := 0.0
 	if c.requestCountWindow > 0 {
 		seconds := c.requestCountWindow.Seconds()
-		qps = roundTo1DP(float64(requestCount) / seconds)
-		tps = roundTo1DP(float64(stats.TokenConsumed) / seconds)
+		qps = roundRate(float64(requestCount) / seconds)
+		tps = roundRate(float64(stats.TokenConsumed) / seconds)
 	}
 
 	payload := gin.H{
@@ -288,8 +288,11 @@ func (c *opsWSQPSCache) refresh(parentCtx context.Context) {
 	c.lastUpdatedUnixNano.Store(now.UnixNano())
 }
 
-func roundTo1DP(v float64) float64 {
-	return math.Round(v*10) / 10
+// roundRate rounds a per-second throughput rate. Three decimals keep
+// low-rate traffic visible instead of collapsing it to 0 (see the repository
+// counterpart for the full rationale).
+func roundRate(v float64) float64 {
+	return math.Round(v*1000) / 1000
 }
 
 func (c *opsWSQPSCache) getPayload() []byte {
