@@ -210,6 +210,8 @@ export interface CustomMenuItem {
   hide_open_button?: boolean
   visibility: 'user' | 'admin'
   sort_order: number
+  /** Built-in sidebar parent path to nest under; empty/absent means top level. */
+  parent_id?: string
 }
 
 export interface CustomEndpoint {

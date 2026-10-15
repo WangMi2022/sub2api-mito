@@ -6970,7 +6970,12 @@
                     >
                       {{ t("admin.settings.customMenu.visibility") }}
                     </label>
-                    <select v-model="item.visibility" class="input text-sm">
+                    <select
+                      v-model="item.visibility"
+                      class="input text-sm"
+                      data-testid="custom-menu-visibility"
+                      @change="handleVisibilityChange(item)"
+                    >
                       <option value="user">
                         {{ t("admin.settings.customMenu.visibilityUser") }}
                       </option>
@@ -6978,6 +6983,34 @@
                         {{ t("admin.settings.customMenu.visibilityAdmin") }}
                       </option>
                     </select>
+                  </div>
+
+                  <!-- Parent menu (admin-only: the user navigation has no collapsible parents) -->
+                  <div v-if="item.visibility === 'admin'" class="sm:col-span-2">
+                    <label
+                      class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400"
+                    >
+                      {{ t("admin.settings.customMenu.parent") }}
+                    </label>
+                    <select
+                      v-model="item.parent_id"
+                      class="input text-sm"
+                      data-testid="custom-menu-parent"
+                    >
+                      <option value="">
+                        {{ t("admin.settings.customMenu.parentTopLevel") }}
+                      </option>
+                      <option
+                        v-for="parent in sidebarParentOptions"
+                        :key="parent.value"
+                        :value="parent.value"
+                      >
+                        {{ t(parent.labelKey) }}
+                      </option>
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      {{ t("admin.settings.customMenu.parentHint") }}
+                    </p>
                   </div>
 
                   <!-- URL (full width) -->
@@ -9442,6 +9475,7 @@ import {
 import TotpStepUpDialog from "@/components/auth/TotpStepUpDialog.vue";
 import { affiliatesAPI, type AffiliateAdminEntry, type SimpleUser as AffiliateSimpleUser } from "@/api/admin/affiliates";
 import { extractApiErrorMessage, extractI18nErrorMessage } from "@/utils/apiError";
+import { SIDEBAR_PARENT_OPTIONS } from "@/utils/sidebarCustomMenus";
 import { useAppStore } from "@/stores";
 import { useAdminSettingsStore } from "@/stores/adminSettings";
 import { normalizeVisibleMethod } from "@/components/payment/paymentFlow";
@@ -9543,6 +9577,9 @@ function handleSettingsTabKeydown(event: KeyboardEvent, tab: SettingsTab): void 
 }
 
 const { copyToClipboard } = useClipboard();
+
+// Built-in sidebar parents a custom entry can nest under (shared with AppSidebar).
+const sidebarParentOptions = SIDEBAR_PARENT_OPTIONS;
 
 const saving = ref(false);
 const testingSmtp = ref(false);
@@ -10244,6 +10281,8 @@ const form = reactive<SettingsForm>({
     visibility: "user" | "admin";
     sort_order: number;
     hide_open_button?: boolean;
+    /** Built-in sidebar parent path to nest under; empty means top level. */
+    parent_id?: string;
   }>,
   custom_endpoints: [] as Array<{
     name: string;
@@ -11256,6 +11295,18 @@ async function setAndCopyOIDCRedirectUrl() {
 }
 
 // Custom menu item management
+
+/**
+ * The user-side navigation has no collapsible parents, so a user-visible entry
+ * cannot nest. Clearing on switch keeps the stored value from contradicting the
+ * control the administrator can actually see.
+ */
+function handleVisibilityChange(item: { visibility: "user" | "admin"; parent_id?: string }) {
+  if (item.visibility !== "admin") {
+    item.parent_id = "";
+  }
+}
+
 function addMenuItem() {
   form.custom_menu_items.push({
     id: "",
@@ -11264,6 +11315,7 @@ function addMenuItem() {
     url: "",
     visibility: "user",
     sort_order: form.custom_menu_items.length,
+    parent_id: "",
   });
 }
 
@@ -11991,7 +12043,10 @@ async function saveSettings() {
       hide_ccs_import_button: form.hide_ccs_import_button,
       table_default_page_size: form.table_default_page_size,
       table_page_size_options: form.table_page_size_options,
-      custom_menu_items: form.custom_menu_items,
+      custom_menu_items: form.custom_menu_items.map((item) => ({
+        ...item,
+        parent_id: item.visibility === "admin" ? item.parent_id || "" : "",
+      })),
       custom_endpoints: form.custom_endpoints,
       frontend_url: form.frontend_url,
       smtp_host: form.smtp_host,

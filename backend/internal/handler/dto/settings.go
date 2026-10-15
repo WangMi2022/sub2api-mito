@@ -17,6 +17,10 @@ type CustomMenuItem struct {
 	Visibility     string `json:"visibility"` // "user" or "admin"
 	SortOrder      int    `json:"sort_order"`
 	HideOpenButton bool   `json:"hide_open_button,omitempty"`
+	// ParentID optionally nests this entry under a built-in sidebar parent menu.
+	// Empty means top level. Unknown/stale values are tolerated: the sidebar falls
+	// back to rendering the entry at top level so a renamed parent never hides it.
+	ParentID string `json:"parent_id,omitempty"`
 }
 
 // CustomEndpoint represents an admin-configured API endpoint for quick copy.

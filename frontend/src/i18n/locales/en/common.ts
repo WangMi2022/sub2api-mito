@@ -173,6 +173,15 @@ export default {
 
   // Navigation
   nav: {
+    sections: {
+      overview: 'Overview',
+      identity: 'Users & Access',
+      runtime: 'Channels & Accounts',
+      commerce: 'Commerce',
+      insights: 'Usage & Audit',
+      system: 'System',
+      other: 'Other'
+    },
     dashboard: 'Dashboard',
     announcements: 'Announcements',
     apiKeys: 'API Keys',

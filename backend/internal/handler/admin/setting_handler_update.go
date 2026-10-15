@@ -1390,6 +1390,7 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		maxMenuItemURLLen     = 2048
 		maxMenuItemIconSVGLen = 10 * 1024 // 10KB
 		maxMenuItemIDLen      = 32
+		maxMenuItemParentLen  = 64
 	)
 
 	customMenuJSON := previousSettings.CustomMenuItems
@@ -1438,6 +1439,16 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 				response.BadRequest(c, "Custom menu item icon SVG is too large (max 10KB)")
 				return
 			}
+			parentID := strings.TrimSpace(item.ParentID)
+			if len(parentID) > maxMenuItemParentLen {
+				response.BadRequest(c, "Custom menu parent is too long (max 64 characters)")
+				return
+			}
+			if parentID != "" && !menuParentIDPattern.MatchString(parentID) {
+				response.BadRequest(c, "Custom menu parent must be a sidebar path such as /admin/channels")
+				return
+			}
+			items[i].ParentID = parentID
 			// Auto-generate ID if missing
 			if strings.TrimSpace(item.ID) == "" {
 				id, err := generateMenuItemID()

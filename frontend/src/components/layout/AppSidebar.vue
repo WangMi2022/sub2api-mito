@@ -54,8 +54,22 @@
         <!-- Admin Section -->
         <div class="sidebar-section">
           <template v-for="item in adminNavItems" :key="item.path">
+            <!-- Static section heading (mito-theme) -->
+            <div
+              v-if="item.sectionTitle"
+              class="sidebar-section-title mito-sidebar-section"
+              :class="{ 'sidebar-section-title-collapsed': sidebarCollapsed }"
+              :aria-hidden="sidebarCollapsed ? 'true' : 'false'"
+            >
+              <span
+                class="sidebar-section-title-text"
+                :class="{ 'sidebar-section-title-text-collapsed': sidebarCollapsed }"
+              >
+                {{ item.sectionTitle }}
+              </span>
+            </div>
             <!-- Collapsible group (has children) -->
-            <template v-if="item.children?.length">
+            <template v-else-if="item.children?.length">
               <button
                 type="button"
                 class="sidebar-link mb-1 w-full"
@@ -218,6 +232,8 @@
 <script setup lang="ts">
 import { isMitoTheme } from '@/themes/mito'
 import { useThemeSync } from '@/themes/mito/useThemeSync'
+import { applyMitoSidebarSections } from '@/themes/mito/sidebarSections'
+import { attachCustomMenuItems } from '@/utils/sidebarCustomMenus'
 import { computed, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -238,6 +254,8 @@ interface NavItem {
   iconSvg?: string
   hideInSimpleMode?: boolean
   children?: NavItem[]
+  /** mito-theme: rendered as a non-clickable section heading; `path` is only a stable key. */
+  sectionTitle?: string
   /**
    * When true, the parent item only toggles the expand/collapse state and
    * does NOT navigate to its `path`. The `path` is purely a stable key.
@@ -809,13 +827,13 @@ function buildSelfNavItems(withDashboard: boolean): NavItem[] {
     { path: '/affiliate', label: t('nav.affiliate'), icon: UsersIcon, hideInSimpleMode: true, featureFlag: flagAffiliate },
     { path: '/support-tickets', label: t('nav.supportTickets'), icon: SupportTicketIcon, featureFlag: flagUserSupportTickets, badge: () => supportTicketStore.userUnread },
     { path: '/profile', label: t('nav.profile'), icon: UserIcon },
-    ...customMenuItemsForUser.value.map((item): NavItem => ({
-      path: `/custom/${item.id}`,
-      label: item.label,
-      icon: null,
-      iconSvg: item.icon_svg,
-    })),
   )
+  attachCustomMenuItems(items, customMenuItemsForUser.value, (menu): NavItem => ({
+    path: `/custom/${menu.id}`,
+    label: menu.label,
+    icon: null,
+    iconSvg: menu.icon_svg,
+  }))
   return items
 }
 
@@ -936,22 +954,22 @@ const adminNavItems = computed((): NavItem[] => {
     const filtered = visible.filter(item => !item.hideInSimpleMode)
     filtered.push({ path: '/keys', label: t('nav.apiKeys'), icon: KeyIcon })
     filtered.push({ path: '/admin/settings', label: t('nav.settings'), icon: CogIcon })
-    for (const cm of customMenuItemsForAdmin.value) {
-      filtered.push({ path: `/custom/${cm.id}`, label: cm.label, icon: null, iconSvg: cm.icon_svg })
-    }
-    return filtered
+    attachCustomMenuItems(filtered, customMenuItemsForAdmin.value, (menu): NavItem => ({
+      path: `/custom/${menu.id}`, label: menu.label, icon: null, iconSvg: menu.icon_svg
+    }))
+    return applyMitoSidebarSections(filtered, t)
   }
 
   visible.push({ path: '/admin/settings', label: t('nav.settings'), icon: CogIcon })
-  for (const cm of customMenuItemsForAdmin.value) {
-    visible.push({ path: `/custom/${cm.id}`, label: cm.label, icon: null, iconSvg: cm.icon_svg })
-  }
-  return visible
+  attachCustomMenuItems(visible, customMenuItemsForAdmin.value, (menu): NavItem => ({
+    path: `/custom/${menu.id}`, label: menu.label, icon: null, iconSvg: menu.icon_svg
+  }))
+  return applyMitoSidebarSections(visible, t)
 })
 
 // Use exactly the visible navigation, including the personal section only when shown.
 const searchNavItems = computed(() => [
-  ...adminNavItems.value,
+  ...adminNavItems.value.filter(item => !item.sectionTitle),
   ...(authStore.isSimpleMode ? [] : personalNavItems.value)
 ])
 

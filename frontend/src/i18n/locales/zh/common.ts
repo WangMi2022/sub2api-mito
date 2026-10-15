@@ -173,6 +173,15 @@ export default {
 
   // Navigation
   nav: {
+    sections: {
+      overview: '概览',
+      identity: '用户与权限',
+      runtime: '渠道与账号',
+      commerce: '商业化',
+      insights: '数据与审计',
+      system: '系统',
+      other: '其他'
+    },
     dashboard: '仪表盘',
     announcements: '公告',
     apiKeys: 'API 密钥',

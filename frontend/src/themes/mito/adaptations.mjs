@@ -45,7 +45,54 @@ export const adaptations = [
       { before: '<script setup lang="ts">', after: '<script setup lang="ts">\nimport { isMitoTheme } from \'@/themes/mito\'\nimport { useThemeSync } from \'@/themes/mito/useThemeSync\'' },
       {"before":"                :title=\"sidebarCollapsed ? item.label : undefined\"\n                @click=\"handleGroupClick(item)\"","after":"                :title=\"sidebarCollapsed ? item.label : undefined\"\n                :aria-label=\"item.label\"\n                :aria-expanded=\"!sidebarCollapsed && isGroupExpanded(item)\"\n                @click=\"handleGroupClick(item)\""},
       {"before":"      <button\n        @click=\"toggleTheme\"","after":"      <button\n        type=\"button\"\n        :aria-label=\"isDark ? t('nav.lightMode') : t('nav.darkMode')\"\n        @click=\"toggleTheme\""},
-      {"before":"      <button\n        @click=\"toggleSidebar\"","after":"      <button\n        type=\"button\"\n        :aria-label=\"sidebarCollapsed ? t('nav.expand') : t('nav.collapse')\"\n        :aria-expanded=\"!sidebarCollapsed\"\n        @click=\"toggleSidebar\""}
+      {"before":"      <button\n        @click=\"toggleSidebar\"","after":"      <button\n        type=\"button\"\n        :aria-label=\"sidebarCollapsed ? t('nav.expand') : t('nav.collapse')\"\n        :aria-expanded=\"!sidebarCollapsed\"\n        @click=\"toggleSidebar\""},
+      // mito-theme: labelled sections for the flat admin menu (themes/mito/sidebarSections.ts)
+      {
+        before: '  hideInSimpleMode?: boolean\n  children?: NavItem[]',
+        after: '  hideInSimpleMode?: boolean\n  children?: NavItem[]\n  /** mito-theme: rendered as a non-clickable section heading; `path` is only a stable key. */\n  sectionTitle?: string'
+      },
+      {
+        before: "import { useThemeSync } from '@/themes/mito/useThemeSync'",
+        after: "import { useThemeSync } from '@/themes/mito/useThemeSync'\nimport { applyMitoSidebarSections } from '@/themes/mito/sidebarSections'"
+      },
+      {
+        // The heading branch sits before the group branch, so the group template
+        // has to become v-else-if; otherwise a heading would fall through to the
+        // trailing v-else router-link and render as a broken link.
+        before: `          <template v-for="item in adminNavItems" :key="item.path">
+            <!-- Collapsible group (has children) -->
+            <template v-if="item.children?.length">`,
+        after: `          <template v-for="item in adminNavItems" :key="item.path">
+            <!-- Static section heading (mito-theme) -->
+            <div
+              v-if="item.sectionTitle"
+              class="sidebar-section-title mito-sidebar-section"
+              :class="{ 'sidebar-section-title-collapsed': sidebarCollapsed }"
+              :aria-hidden="sidebarCollapsed ? 'true' : 'false'"
+            >
+              <span
+                class="sidebar-section-title-text"
+                :class="{ 'sidebar-section-title-text-collapsed': sidebarCollapsed }"
+              >
+                {{ item.sectionTitle }}
+              </span>
+            </div>
+            <!-- Collapsible group (has children) -->
+            <template v-else-if="item.children?.length">`
+      },
+      {
+        before: '  return visible\n})',
+        after: '  return applyMitoSidebarSections(visible, t)\n})'
+      },
+      {
+        before: '    return filtered\n  }\n\n  visible.push(',
+        after: '    return applyMitoSidebarSections(filtered, t)\n  }\n\n  visible.push('
+      },
+      {
+        before: 'const searchNavItems = computed(() => [\n  ...adminNavItems.value,',
+        after: 'const searchNavItems = computed(() => [\n  ...adminNavItems.value.filter(item => !item.sectionTitle),'
+      },
+
     ]
   },
   {
@@ -809,6 +856,7 @@ export const contracts = [
   { path: 'frontend/src/themes/mito/PelicanShowcaseGroup.vue', anchors: ['mito-pelican-group', 'mito-pelican-group-header', 'mito-pelican-group-chevron', 'aria-expanded', 'data-testid="pelican-showcase-body"'] },
   { path: 'frontend/src/themes/mito/pelican-showcase.css', anchors: ["html[data-ui-theme='mito']", '.mito-pelican-group-header', '.mito-pelican-group-chevron', '.mito-pelican-grid', 'prefers-reduced-motion'] },
   { path: 'frontend/src/themes/mito/index.ts', anchors: ["import './pelican-showcase.css'"] },
+  { path: 'frontend/src/themes/mito/sidebarSections.ts', anchors: ['SIDEBAR_SECTIONS', 'export function applyMitoSidebarSections', 'nav.sections.overview'] },
   { path: 'frontend/src/themes/mito/labels.ts', anchors: ['pelicanPageSummary', 'pelicanPageSize', 'goToPage', 'pelicanExpandGroup', 'pelicanCollapseGroup'] },
   { path: 'frontend/src/components/user/pelican/PelicanShowcaseCard.vue', anchors: ['data-testid="pelican-showcase-card"', "emit('visible')", 'scrollMargin'] },
   // Contracts also run before apply/after remove; generated Mito seams are checked by edits above.
