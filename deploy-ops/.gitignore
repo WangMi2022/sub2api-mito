@@ -1,0 +1,42 @@
+# =============================================================================
+# 只版本化「运维规范 + 发布脚本」这类不可再生的资产。
+# 其余一切（密钥、业务数据、源码检出、构建产物、任务目录）都不入库。
+# =============================================================================
+
+# --- 密钥：绝不入库 ---
+.env
+.env.*
+!.env.example
+# 验收账号（含可用密码），只留本机
+.acceptance-accounts.env
+*credentials*
+*accounts.env
+*.pem
+*.key
+*.crt
+
+# --- 业务数据与数据库文件 ---
+data/
+data-mito/
+postgres_data/
+redis_data/
+*.dump
+*.sql.gz
+
+# --- 源码检出（它自己是 git 仓库，跟随上游 ranxi2001/sub2api）---
+sub2api/
+
+# --- 任务目录：交接记录、备份、截图、临时 node_modules ---
+workspace/
+
+# --- 崩溃转储与日志 ---
+core
+core.*
+*.log
+
+# --- 常见构建/编辑残留 ---
+node_modules/
+.pnpm-store/
+dist/
+*.tar.gz
+.DS_Store

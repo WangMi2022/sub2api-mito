@@ -132,6 +132,9 @@ frontend/scripts/*
 #openspec/
 code-reviews/
 AGENTS.md
+!deploy-ops/AGENTS.md
+!deploy-ops/scripts/
+!deploy-ops/scripts/**
 backend/cmd/server/server
 deploy/docker-compose.override.yml
 .gocache/
