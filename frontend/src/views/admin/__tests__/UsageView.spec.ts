@@ -878,3 +878,62 @@ describe('observer own usage view', () => {
     wrapper.unmount()
   })
 })
+
+describe('themed request log cache-rate audience', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.clearAllMocks()
+    Object.keys(routeQuery).forEach(key => delete routeQuery[key])
+    list.mockReset().mockResolvedValue({ items: [], total: 0, pages: 0 })
+    getStats.mockReset().mockResolvedValue({
+      total_requests: 0, total_input_tokens: 0, total_output_tokens: 0,
+      total_cache_tokens: 0, total_tokens: 0, total_cost: 0, total_actual_cost: 0, average_duration_ms: 0,
+    })
+    getSnapshotV2.mockReset().mockResolvedValue({ trend: [], models: [], groups: [] })
+    getModelStats.mockReset().mockResolvedValue({ models: [] })
+    own.list.mockResolvedValue({ items: [], total: 0 })
+    own.getStats.mockResolvedValue({ total_requests: 0 })
+    own.getModelStats.mockResolvedValue({ models: [] })
+    own.getSnapshotV2.mockResolvedValue({ trend: [], groups: [] })
+    own.listErrors.mockResolvedValue({ items: [], total: 0 })
+  })
+  afterEach(() => { vi.useRealTimers() })
+
+  const settings = own.settings as unknown as Record<string, unknown>
+  const mountAudience = (observerMode: boolean) => mount(UsageView, {
+    props: { observerMode },
+    global: { stubs: {
+      AppLayout: AppLayoutStub, UsageStatsCards: true, UsageFilters: UsageFiltersStub,
+      UsageTable: UsageTableStub, UsageExportProgress: true, UsageCleanupDialog: true,
+      UserBalanceHistoryModal: true, Pagination: true, Select: true, DateRangePicker: true,
+      Icon: true, TokenUsageTrend: true, ModelDistributionChart: true, GroupDistributionChart: true,
+      EndpointDistributionChart: true, UserTokenRanking: true, OpsErrorLogTable: true, OpsErrorDetailModal: true,
+    } },
+  })
+  const cacheRateVisible = async (observerMode: boolean) => {
+    const wrapper = mountAudience(observerMode)
+    await vi.advanceTimersByTimeAsync(150)
+    await flushPromises()
+    const keys = (wrapper.findComponent(UsageTableStub).props('columns') as { key: string }[]).map(column => column.key)
+    wrapper.unmount()
+    return keys.includes('cache_hit_rate')
+  }
+
+  it('keeps the cache-rate column for the admin audience', async () => {
+    settings.usage_show_cache_rate = true
+    settings.usage_show_cache_rate_to_users = false
+    expect(await cacheRateVisible(false)).toBe(true)
+  })
+
+  it('hides the cache-rate column from the observer audience by default', async () => {
+    settings.usage_show_cache_rate = true
+    settings.usage_show_cache_rate_to_users = false
+    expect(await cacheRateVisible(true)).toBe(false)
+  })
+
+  it('shows the cache-rate column to the observer audience when the operator opts in', async () => {
+    settings.usage_show_cache_rate = true
+    settings.usage_show_cache_rate_to_users = true
+    expect(await cacheRateVisible(true)).toBe(true)
+  })
+})

@@ -157,6 +157,21 @@ describe('independent usage pages', () => {
     expect(wrapper.getComponent(ModelDistributionChart).props('modelStats')).toEqual([{ model: 'sample-model' }])
   })
 
+  it.each([
+    [false, false],
+    [undefined, false],
+    [true, true],
+  ])('follows usage_show_cache_rate_to_users=%s for the end-user cache-rate column', async (showToUsers, expected) => {
+    Object.assign(settings, { usage_show_cache_rate: true, usage_show_cache_rate_to_users: showToUsers })
+    const wrapper = render(RequestLogsView)
+    await flushPromises()
+    const keys = wrapper.getComponent(RequestLogTable).props('columns').map((column: { key: string }) => column.key)
+    expect(keys.includes('cache_hit_rate')).toBe(expected)
+    await wrapper.get('[data-testid="usage-column-settings"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-testid="usage-column-toggle-cache_hit_rate"]').exists()).toBe(expected)
+  })
+
   it('preserves column preferences and gates error requests with the public setting', async () => {
     const wrapper = render(RequestLogsView)
     await flushPromises()

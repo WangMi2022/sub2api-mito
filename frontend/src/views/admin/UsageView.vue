@@ -660,14 +660,25 @@ const HIDDEN_COLUMNS_CURRENT_VERSION = 'admin-request-log-columns-v2'
 
 const allColumns = useAdminUsageColumns()
 
+// Upstream v2.11.0 adds usage_show_cache_rate_to_users (default: admin-only).
+// The request-log theme renders cache rate as its own column, so the same switch
+// has to filter the column list used by the table and the column picker.
+const cacheRateAudience = computed<'admin' | 'user'>(() => (props.observerMode ? 'user' : 'admin'))
+const showCacheRate = computed(() =>
+  showUsageCacheRate(appStore.cachedPublicSettings, cacheRateAudience.value)
+)
+const columnsForDisplay = computed(() =>
+  showCacheRate.value ? allColumns.value : allColumns.value.filter(col => col.key !== 'cache_hit_rate')
+)
+
 const hiddenColumns = reactive<Set<string>>(new Set())
 
 const toggleableColumns = computed(() =>
-  allColumns.value.filter(col => !ALWAYS_VISIBLE.includes(col.key))
+  columnsForDisplay.value.filter(col => !ALWAYS_VISIBLE.includes(col.key))
 )
 
 const visibleColumns = computed(() =>
-  allColumns.value.filter(col =>
+  columnsForDisplay.value.filter(col =>
     ALWAYS_VISIBLE.includes(col.key) || !hiddenColumns.has(col.key)
   )
 )

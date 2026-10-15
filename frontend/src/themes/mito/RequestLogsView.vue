@@ -65,6 +65,7 @@
           <RequestLogTable
             :data="usageLogs"
             :columns="visibleColumns"
+            :cache-rate-audience="cacheRateAudience"
             :loading="loading"
             @sort="handleSort"
             @ip-geo-batch-failed="handleIpGeoBatchFailed"
@@ -117,6 +118,7 @@ import RequestLogTable from './RequestLogTable.vue'
 import RequestLogPagination from './RequestLogPagination.vue'
 import { useUsageFilters } from './useUsageFilters'
 import { useRequestLogColumns } from './requestLogColumns'
+import { showUsageCacheRate } from '@/utils/usageCacheRate'
 import { useMitoLabels } from './labels'
 
 const { t } = useI18n()
@@ -392,11 +394,20 @@ const DEFAULT_HIDDEN_COLUMNS = ['endpoint', 'ip_address', 'user_agent', 'billing
 // The split table has new column identities; do not overwrite upstream preferences.
 const HIDDEN_COLUMNS_KEY = 'mito-request-log-hidden-columns'
 const allColumns = useRequestLogColumns()
+// Upstream v2.11.0 gates per-request cache rate behind usage_show_cache_rate_to_users
+// (defaults to admin-only). The theme owns this column, so drop it at the source.
+const cacheRateAudience = computed<'user' | 'admin'>(() => 'user')
+const showCacheRate = computed(() =>
+  showUsageCacheRate(appStore.cachedPublicSettings, cacheRateAudience.value)
+)
+const columnsForDisplay = computed(() =>
+  showCacheRate.value ? allColumns.value : allColumns.value.filter((col) => col.key !== 'cache_hit_rate')
+)
 
 const hiddenColumns = reactive<Set<string>>(new Set())
-const toggleableColumns = computed(() => allColumns.value.filter((col) => !ALWAYS_VISIBLE.includes(col.key)))
+const toggleableColumns = computed(() => columnsForDisplay.value.filter((col) => !ALWAYS_VISIBLE.includes(col.key)))
 const visibleColumns = computed(() =>
-  allColumns.value.filter((col) => ALWAYS_VISIBLE.includes(col.key) || !hiddenColumns.has(col.key))
+  columnsForDisplay.value.filter((col) => ALWAYS_VISIBLE.includes(col.key) || !hiddenColumns.has(col.key))
 )
 const isColumnVisible = (key: string) => !hiddenColumns.has(key)
 const toggleColumn = (key: string) => {

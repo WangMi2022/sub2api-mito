@@ -5,6 +5,7 @@
     :data="data"
     :columns="columns"
     :loading="loading"
+    :cache-rate-audience="cacheRateAudience"
     :server-side-sort="true"
     :show-account-billing="false"
     :show-upstream-endpoint="false"
@@ -88,7 +89,12 @@ import type { UsageLog } from '@/types'
 import type { Column } from '@/components/common/types'
 import { useMitoLabels } from './labels'
 
-defineProps<{ data: UsageLog[]; columns: Column[]; loading: boolean }>()
+withDefaults(defineProps<{
+  data: UsageLog[]
+  columns: Column[]
+  loading: boolean
+  cacheRateAudience?: 'admin' | 'user'
+}>(), { cacheRateAudience: 'user' })
 defineEmits<{ sort: [key: string, order: 'asc' | 'desc']; ipGeoBatchFailed: [] }>()
 const { t } = useI18n()
 const label = useMitoLabels()
