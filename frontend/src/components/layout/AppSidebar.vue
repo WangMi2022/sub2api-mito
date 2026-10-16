@@ -11,7 +11,7 @@
       <!-- Custom Logo or Default Logo -->
       <router-link
         :to="homePath"
-        class="sidebar-logo flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl shadow-glow transition-opacity hover:opacity-80"
+        class="sidebar-logo flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl border border-primary-200/40 bg-gradient-to-br from-primary-50 to-primary-100/50 p-1 shadow-2xs transition-all duration-300 hover:scale-105 hover:shadow-xs dark:border-primary-800/30 dark:from-primary-950/40 dark:to-primary-900/20"
         @click="handleMenuItemClick(homePath)"
       >
         <img v-if="settingsLoaded" :src="siteLogo || '/logo.svg'" alt="Logo" class="h-full w-full object-contain" />
@@ -19,7 +19,7 @@
       <div class="sidebar-brand" :class="{ 'sidebar-brand-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">
         <router-link
           :to="homePath"
-          class="sidebar-brand-title text-lg font-bold text-gray-900 transition-colors hover:text-primary-600 dark:text-white dark:hover:text-primary-400"
+          class="sidebar-brand-title text-base font-bold tracking-tight text-gray-900 transition-colors hover:text-primary-600 dark:text-white dark:hover:text-primary-400"
           @click="handleMenuItemClick(homePath)"
         >
           {{ siteName }}
@@ -106,16 +106,16 @@
                     </span>
                   </button>
                   <!-- Nested children of a collapsible parent -->
-                  <div v-if="!sidebarCollapsed && isGroupExpanded(item)" class="mb-1 ml-4 border-l border-gray-200 pl-2 dark:border-dark-600">
+                  <div v-if="!sidebarCollapsed && isGroupExpanded(item)" class="mb-1 ml-4 border-l border-gray-200/90 pl-2.5 dark:border-dark-700/80">
                     <router-link
                       v-for="child in item.children"
                       :key="child.path"
                       :to="child.path"
-                      class="sidebar-link mb-0.5 py-1.5 text-sm"
+                      class="sidebar-link mb-0.5 py-1.5 text-xs font-normal"
                       :class="{ 'sidebar-link-active': route.path === child.path }"
                       @click="handleMenuItemClick(child.path)"
                     >
-                      <component :is="child.icon" class="h-4 w-4 flex-shrink-0" />
+                      <component :is="child.icon" class="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-dark-400" />
                       <span>{{ child.label }}</span>
                     </router-link>
                   </div>
@@ -197,18 +197,18 @@
     </nav>
 
     <!-- Bottom Section -->
-    <div class="mt-auto border-t border-gray-100 p-3 dark:border-dark-800">
+    <div class="mt-auto border-t border-gray-100/90 p-3 dark:border-dark-800/80">
       <!-- Theme Toggle -->
       <button
         type="button"
         :aria-label="isDark ? t('nav.lightMode') : t('nav.darkMode')"
         @click="toggleTheme"
-        class="sidebar-link mb-2 w-full"
+        class="sidebar-link mb-1.5 w-full text-xs"
         :class="{ 'sidebar-link-collapsed': sidebarCollapsed }"
         :title="sidebarCollapsed ? (isDark ? t('nav.lightMode') : t('nav.darkMode')) : undefined"
       >
-        <SunIcon v-if="isDark" class="h-5 w-5 flex-shrink-0 text-amber-500" />
-        <MoonIcon v-else class="h-5 w-5 flex-shrink-0" />
+        <SunIcon v-if="isDark" class="h-5 w-5 flex-shrink-0 text-amber-500 transition-transform duration-300 hover:rotate-45" />
+        <MoonIcon v-else class="h-5 w-5 flex-shrink-0 text-slate-500 transition-colors hover:text-indigo-500 dark:text-slate-400" />
         <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{
           isDark ? t('nav.lightMode') : t('nav.darkMode')
         }}</span>
@@ -220,12 +220,12 @@
         :aria-label="sidebarCollapsed ? t('nav.expand') : t('nav.collapse')"
         :aria-expanded="!sidebarCollapsed"
         @click="toggleSidebar"
-        class="sidebar-link w-full"
+        class="sidebar-link w-full text-xs"
         :class="{ 'sidebar-link-collapsed': sidebarCollapsed }"
         :title="sidebarCollapsed ? t('nav.expand') : t('nav.collapse')"
       >
-        <ChevronDoubleLeftIcon v-if="!sidebarCollapsed" class="h-5 w-5 flex-shrink-0" />
-        <ChevronDoubleRightIcon v-else class="h-5 w-5 flex-shrink-0" />
+        <ChevronDoubleLeftIcon v-if="!sidebarCollapsed" class="h-5 w-5 flex-shrink-0 text-slate-400 transition-transform duration-200 hover:-translate-x-0.5" />
+        <ChevronDoubleRightIcon v-else class="h-5 w-5 flex-shrink-0 text-slate-400 transition-transform duration-200 hover:translate-x-0.5" />
         <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ t('nav.collapse') }}</span>
       </button>
     </div>
@@ -1124,6 +1124,7 @@ onBeforeUnmount(() => {
   gap: 0;
   padding-left: 1.125rem;
   padding-right: 1.125rem;
+  justify-content: center;
 }
 
 .sidebar-brand {
@@ -1156,6 +1157,7 @@ onBeforeUnmount(() => {
   gap: 0;
   padding-left: 0.875rem;
   padding-right: 0.875rem;
+  justify-content: center;
 }
 
 .sidebar-section-title {
@@ -1170,23 +1172,37 @@ onBeforeUnmount(() => {
 /* Two-level hierarchy: the group label is distinctly lighter/smaller than the
    entries, and its entries are indented so the parent-child relation is obvious. */
 .mito-sidebar-section-title {
-  margin-bottom: 0.25rem;
-  padding-left: 1.0625rem;
-  padding-right: 0.875rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.375rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.mito-sidebar-section:first-child .mito-sidebar-section-title {
+  margin-top: 0.25rem;
 }
 
 .mito-sidebar-section + .mito-sidebar-section {
-  margin-top: 1rem;
+  margin-top: 0.875rem;
 }
 
 .mito-sidebar-section-children {
-  padding-left: 0.75rem;
-  margin-left: 1.0625rem;
-  border-left: 1px solid rgb(229 231 235);
+  padding-left: 0.625rem;
+  margin-left: 0.875rem;
+  border-left: 1.5px solid rgb(226 232 240 / 70%);
+  transition: border-color 0.2s ease;
 }
 
 .dark .mito-sidebar-section-children {
-  border-left-color: rgb(55 65 81);
+  border-left-color: rgb(51 65 85 / 50%);
+}
+
+.mito-sidebar-section-children:hover {
+  border-left-color: rgb(148 163 184 / 60%);
+}
+
+.dark .mito-sidebar-section-children:hover {
+  border-left-color: rgb(71 85 105 / 70%);
 }
 
 .mito-sidebar-section-children-collapsed {
@@ -1196,13 +1212,25 @@ onBeforeUnmount(() => {
 }
 
 .sidebar-section-title-text {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgb(148 163 184);
   transition:
     opacity 0.16s ease,
     transform 0.16s ease;
+  max-width: 12rem;
+}
+
+.dark .sidebar-section-title-text {
+  color: rgb(100 116 139);
 }
 
 .sidebar-section-title::after {
@@ -1238,6 +1266,8 @@ onBeforeUnmount(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
   transition:
     max-width 0.2s ease,
     opacity 0.12s ease,
@@ -1254,6 +1284,80 @@ onBeforeUnmount(() => {
 
 .sidebar-link {
   position: relative;
+  border-radius: 0.75rem;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-link:hover:not(.sidebar-link-active) {
+  transform: translateX(1.5px);
+}
+
+.sidebar-link-collapsed.sidebar-link:hover:not(.sidebar-link-active) {
+  transform: none;
+}
+
+.sidebar-link-active {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(59, 130, 246, 0.04) 100%);
+  color: rgb(37 99 235);
+  font-weight: 600;
+  border: 1px solid rgba(191, 219, 254, 0.5);
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.04);
+}
+
+.dark .sidebar-link-active {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.22) 0%, rgba(59, 130, 246, 0.12) 100%);
+  color: rgb(96 165 250);
+  border-color: rgba(59, 130, 246, 0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-link-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3.5px;
+  height: 18px;
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 0 6px rgba(37, 99, 235, 0.45);
+  transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-link-collapsed.sidebar-link-active::before {
+  left: 2px;
+  height: 14px;
+}
+
+.sidebar-nav {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 9999px;
+}
+
+.sidebar-nav:hover::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+}
+
+.dark .sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.25);
+}
+
+.dark .sidebar-nav:hover::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.5);
 }
 
 .sidebar-nav-badge {
@@ -1263,12 +1367,14 @@ onBeforeUnmount(() => {
   height: 1.25rem;
   padding: 0 0.375rem;
   border-radius: 9999px;
-  background: rgb(239 68 68);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.35);
   color: white;
   font-size: 0.6875rem;
   font-weight: 600;
   line-height: 1.25rem;
   text-align: center;
+  transition: all 0.2s ease;
 }
 
 .sidebar-nav-badge-collapsed {
@@ -1279,6 +1385,11 @@ onBeforeUnmount(() => {
   width: 0.5rem;
   height: 0.5rem;
   padding: 0;
+  box-shadow: 0 0 0 2px white;
+}
+
+.dark .sidebar-nav-badge-collapsed {
+  box-shadow: 0 0 0 2px #0f172a;
 }
 
 .sidebar-label-collapsed {
@@ -1291,6 +1402,7 @@ onBeforeUnmount(() => {
 /* Custom SVG icon in sidebar: constrain size without overriding uploaded SVG colors */
 .sidebar-svg-icon {
   color: currentColor;
+  display: block;
 }
 
 .sidebar-svg-icon :deep(svg) {

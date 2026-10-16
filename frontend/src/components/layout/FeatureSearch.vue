@@ -2,7 +2,7 @@
   <div class="px-3 pb-2">
     <button
       type="button"
-      class="flex h-10 w-full items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-500 transition-colors hover:border-primary-300 hover:text-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-dark-600 dark:bg-dark-800 dark:text-dark-300 dark:hover:text-primary-400"
+      class="group flex h-9 w-full items-center gap-2.5 rounded-xl border border-gray-200/80 bg-gray-50/70 px-3 text-xs text-gray-500 transition-all hover:border-primary-300/80 hover:bg-white hover:text-primary-600 hover:shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-dark-700/80 dark:bg-dark-800/50 dark:text-dark-300 dark:hover:border-primary-500/40 dark:hover:bg-dark-800 dark:hover:text-primary-400"
       :class="{ 'justify-center px-0': collapsed }"
       :title="`${t('common.featureSearch.title')} (${shortcut})`"
       :aria-label="t('common.featureSearch.title')"
@@ -10,10 +10,10 @@
       :aria-expanded="show"
       @click="open"
     >
-      <Icon name="search" size="md" class="shrink-0" aria-hidden="true" />
+      <Icon name="search" size="sm" class="shrink-0 text-gray-400 transition-colors group-hover:text-primary-500 dark:text-dark-400 dark:group-hover:text-primary-400" aria-hidden="true" />
       <template v-if="!collapsed">
-        <span class="flex-1 text-left">{{ t('common.featureSearch.title') }}</span>
-        <kbd class="whitespace-nowrap rounded border border-gray-200 px-1 text-xs dark:border-dark-600">{{ shortcut }}</kbd>
+        <span class="flex-1 text-left font-normal">{{ t('common.featureSearch.title') }}</span>
+        <kbd class="whitespace-nowrap rounded border border-gray-200/80 bg-white/80 px-1.5 py-0.5 font-mono text-[10px] text-gray-400 shadow-2xs dark:border-dark-600 dark:bg-dark-700/80 dark:text-dark-400">{{ shortcut }}</kbd>
       </template>
     </button>
   </div>
