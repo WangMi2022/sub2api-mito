@@ -1,4 +1,5 @@
 import { settingsLocation } from '@/utils/settingsSearch'
+import { isMitoTheme } from '@/themes/mito'
 /**
  * Vue Router configuration for Sub2API frontend
  * Defines all application routes with lazy loading and navigation guards
@@ -241,6 +242,20 @@ const routes: RouteRecordRaw[] = [
       descriptionKey: 'usage.description'
     }
   },
+  // mito-theme: separate personal aggregates from request logs.
+  ...(isMitoTheme ? [{
+    path: '/usage-stats',
+    name: 'UsageStats',
+    component: () => import('@/themes/mito/UsageStatsView.vue'),
+    beforeEnter: () => useAuthStore().isObserver ? '/usage' : true,
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: false,
+      title: 'Usage Statistics',
+      titleKey: 'usage.statsTitle',
+      descriptionKey: 'usage.statsDescription'
+    }
+  } satisfies RouteRecordRaw] : []),
   {
     path: '/redeem',
     name: 'Redeem',
