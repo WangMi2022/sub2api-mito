@@ -1,5 +1,10 @@
 <template>
-  <div :class="flat ? '' : 'card overflow-hidden'">
+  <div
+    :class="[
+      flat ? '' : 'card overflow-hidden',
+      variant === 'request-log' && 'mito-request-log-records'
+    ]"
+  >
     <div
       v-if="showIpGeoToolbar"
       class="flex items-center justify-end gap-2 border-b border-gray-200 px-4 py-2 dark:border-dark-700"
@@ -16,7 +21,7 @@
         {{ ipGeoBatchLoading ? t('usage.ipGeo.batchFetching') : t('usage.ipGeo.batchFetch') }}
       </button>
     </div>
-    <div class="overflow-auto">
+    <div class="overflow-auto" :class="{ 'mito-request-log-scroll': variant === 'request-log' }">
       <DataTable
         :columns="columns"
         :data="data"
@@ -24,14 +29,17 @@
         :server-side-sort="serverSideSort"
         :default-sort-key="defaultSortKey"
         :default-sort-order="defaultSortOrder"
+        :table-variant="variant"
+        :resizable-columns="resizableColumns"
+        :column-width-storage-key="columnWidthStorageKey"
         @sort="(key, order) => $emit('sort', key, order)"
       >
         <template #cell-user="{ row }">
-          <div class="text-sm">
+          <div class="mito-usage-user text-sm">
             <span v-if="observerMode" class="font-medium text-gray-900 dark:text-white">{{ row.user?.email || "-" }}</span>
             <button
               v-else-if="row.user?.email"
-              class="font-medium text-primary-600 underline decoration-dashed underline-offset-2 transition-colors hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+              class="mito-usage-user-link font-medium text-primary-600 underline decoration-dashed underline-offset-2 transition-colors hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
               @click="$emit('userClick', row.user_id, row.user?.email)"
               :title="t('admin.usage.clickToViewBalance')"
             >
@@ -41,37 +49,37 @@
             <span v-if="row.user?.deleted_at" class="ml-1 inline-flex items-center rounded px-1 py-px text-[10px] font-medium leading-tight bg-rose-100 text-rose-600 ring-1 ring-inset ring-rose-200 dark:bg-rose-500/20 dark:text-rose-400 dark:ring-rose-500/30">
               {{ t('admin.usage.userDeletedBadge') }}
             </span>
-            <span class="ml-1 text-gray-500 dark:text-gray-400">#{{ row.user_id }}</span>
+            <span class="mito-usage-user-id ml-1 text-gray-500 dark:text-gray-400">#{{ row.user_id }}</span>
           </div>
         </template>
 
         <template #cell-api_key="{ row }">
-          <span class="text-sm text-gray-900 dark:text-white">{{ row.api_key?.name || '-' }}</span>
+          <span class="mito-usage-key text-sm text-gray-900 dark:text-white">{{ row.api_key?.name || '-' }}</span>
         </template>
 
         <template #cell-account="{ row }">
-          <span class="text-sm text-gray-900 dark:text-white">{{ row.account?.name || '-' }}</span>
+          <span class="mito-usage-account text-sm text-gray-900 dark:text-white">{{ row.account?.name || '-' }}</span>
         </template>
 
         <template #cell-model="{ row }">
-          <div class="space-y-0.5 text-xs">
+          <div class="mito-usage-model space-y-0.5 text-xs">
             <div v-if="row.model_mapping_chain && row.model_mapping_chain.includes('→')" class="space-y-0.5">
               <div v-for="(step, i) in row.model_mapping_chain.split('→')" :key="i"
                    class="break-all"
-                   :class="i === 0 ? 'font-medium text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
+                   :class="i === 0 ? 'mito-usage-model-primary font-medium text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
                    :style="i > 0 ? `padding-left: ${i * 0.75}rem` : ''">
                 <span v-if="i > 0" class="mr-0.5">↳</span>{{ step }}
               </div>
             </div>
             <div v-else-if="row.upstream_model && row.upstream_model !== row.model" class="space-y-0.5">
-              <div class="break-all font-medium text-gray-900 dark:text-white">
+              <div class="mito-usage-model-primary break-all font-medium text-gray-900 dark:text-white">
                 {{ row.model }}
               </div>
               <div class="break-all text-gray-500 dark:text-gray-400">
                 <span class="mr-0.5">↳</span>{{ row.upstream_model }}
               </div>
             </div>
-            <span v-else class="font-medium text-gray-900 dark:text-white">{{ row.model }}</span>
+            <span v-else class="mito-usage-model-primary font-medium text-gray-900 dark:text-white">{{ row.model }}</span>
             <div
               v-if="row.upstream_model_mismatch === true && row.upstream_response_model"
               class="break-all pl-3 text-[11px]"
@@ -92,7 +100,7 @@
         </template>
 
         <template #cell-reasoning_effort="{ row }">
-          <div v-if="hasReasoningEffortMapping(row)" data-testid="reasoning-effort-cell" class="space-y-0.5 text-xs">
+          <div v-if="hasReasoningEffortMapping(row)" data-testid="reasoning-effort-cell" class="mito-usage-reasoning space-y-0.5 text-xs">
             <div class="font-medium text-gray-900 dark:text-white">
               {{ formatReasoningEffort(row.reasoning_effort) }}
             </div>
@@ -100,13 +108,13 @@
               <span class="mr-0.5">↳</span>{{ formatReasoningEffort(row.upstream_reasoning_effort) }}
             </div>
           </div>
-          <span v-else data-testid="reasoning-effort-cell" class="text-sm text-gray-900 dark:text-white">
+          <span v-else data-testid="reasoning-effort-cell" class="mito-usage-reasoning text-sm text-gray-900 dark:text-white">
             {{ formatReasoningEffort(row.reasoning_effort) }}
           </span>
         </template>
 
         <template #cell-endpoint="{ row }">
-          <div class="max-w-[320px] space-y-1 text-xs">
+          <div class="mito-usage-endpoint max-w-[320px] space-y-1 text-xs">
             <div class="break-all text-gray-700 dark:text-gray-300">
               <span class="font-medium text-gray-500 dark:text-gray-400">{{ t('usage.inbound') }}:</span>
               <span class="ml-1">{{ row.inbound_endpoint?.trim() || '-' }}</span>
@@ -119,7 +127,7 @@
         </template>
 
         <template #cell-group="{ row }">
-          <span v-if="row.group" class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
+          <span v-if="row.group" class="mito-usage-group inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
             {{ row.group.name }}
           </span>
           <span v-else class="text-sm text-gray-400 dark:text-gray-500">-</span>
@@ -148,7 +156,7 @@
 
         <template #cell-tokens="{ row }">
           <!-- 图片生成请求（仅按次计费时显示图片格式） -->
-          <div v-if="isImageUsage(row)" class="flex items-center gap-1.5">
+          <div v-if="isImageUsage(row)" class="mito-usage-tokens flex items-center gap-1.5">
             <svg class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
@@ -156,22 +164,22 @@
             <span class="text-gray-400">({{ formatImageBillingSize(row, t) }})</span>
           </div>
           <!-- Token 请求 -->
-          <div v-else class="flex items-center gap-1.5">
+          <div v-else class="mito-usage-tokens flex items-center gap-1.5">
             <div class="space-y-1 text-sm">
               <div class="flex items-center gap-2">
                 <div class="inline-flex items-center gap-1">
                   <Icon name="arrowDown" size="sm" class="h-3.5 w-3.5 text-emerald-500" />
-                  <span class="font-medium text-gray-900 dark:text-white">{{ row.input_tokens?.toLocaleString() || 0 }}</span>
+                  <span class="mito-usage-token-value font-medium text-gray-900 dark:text-white">{{ row.input_tokens?.toLocaleString() || 0 }}</span>
                 </div>
                 <div class="inline-flex items-center gap-1">
                   <Icon name="arrowUp" size="sm" class="h-3.5 w-3.5 text-violet-500" />
-                  <span class="font-medium text-gray-900 dark:text-white">{{ row.output_tokens?.toLocaleString() || 0 }}</span>
+                  <span class="mito-usage-token-value font-medium text-gray-900 dark:text-white">{{ row.output_tokens?.toLocaleString() || 0 }}</span>
                 </div>
               </div>
               <div v-if="row.cache_read_tokens > 0 || row.cache_creation_tokens > 0" class="flex items-center gap-2">
                 <div v-if="row.cache_read_tokens > 0" class="inline-flex items-center gap-1">
                   <svg class="h-3.5 w-3.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
-                  <span class="font-medium text-sky-600 dark:text-sky-400">{{ formatCacheTokens(row.cache_read_tokens) }}</span>
+                  <span class="mito-usage-cache-read font-medium text-sky-600 dark:text-sky-400">{{ formatCacheTokens(row.cache_read_tokens) }}</span>
                 </div>
                 <div v-if="row.cache_creation_tokens > 0" class="inline-flex items-center gap-1">
                   <svg class="h-3.5 w-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
@@ -207,9 +215,9 @@
         </template>
 
         <template #cell-cost="{ row }">
-          <div class="text-sm">
+          <div class="mito-usage-cost text-sm">
             <div class="flex items-center gap-1.5">
-              <span class="font-medium text-green-600 dark:text-green-400">${{ row.actual_cost?.toFixed(6) || '0.000000' }}</span>
+              <span class="mito-usage-actual-cost font-medium text-green-600 dark:text-green-400">${{ row.actual_cost?.toFixed(6) || '0.000000' }}</span>
               <span
                 v-if="showLongContextBadge && row.long_context_billing_applied"
                 data-testid="long-context-billing-marker"
@@ -227,7 +235,7 @@
                 </div>
               </div>
             </div>
-            <div v-if="showAccountBilling && row.account_rate_multiplier != null" class="mt-0.5 text-[11px] text-orange-500 dark:text-orange-400">
+            <div v-if="showAccountBilling && row.account_rate_multiplier != null" class="mito-usage-account-cost mt-0.5 text-[11px] text-orange-500 dark:text-orange-400">
               A ${{ accountBilled(row).toFixed(6) }}
             </div>
           </div>
@@ -235,7 +243,7 @@
 
         <!-- 状态列：首字/总耗时/TPS 用左侧色条表示健康度。缓存率百分数为绿色，色条延伸到这一行，但不改变上面三段的健康色。 -->
         <template #cell-latency="{ row }">
-          <component :is="enableTimingDetails ? 'button' : 'div'" :type="enableTimingDetails ? 'button' : undefined" class="grid grid-cols-[0.25rem_max-content_max-content] items-baseline gap-x-2 gap-y-0.5 text-left text-xs" :class="enableTimingDetails ? 'hover:opacity-80 focus-visible:outline focus-visible:outline-primary-500' : ''" :aria-label="enableTimingDetails ? t('requestTiming.title') : undefined" @click="enableTimingDetails && (timingRecord = row)">
+          <component :is="enableTimingDetails ? 'button' : 'div'" :type="enableTimingDetails ? 'button' : undefined" class="mito-usage-latency grid grid-cols-[0.25rem_max-content_max-content] items-baseline gap-x-2 gap-y-0.5 text-left text-xs" :class="enableTimingDetails ? 'hover:opacity-80 focus-visible:outline focus-visible:outline-primary-500' : ''" :aria-label="enableTimingDetails ? t('requestTiming.title') : undefined" @click="enableTimingDetails && (timingRecord = row)">
             <span
               data-testid="latency-bar"
               class="col-start-1 row-start-1 w-1 self-stretch rounded-full"
@@ -271,7 +279,7 @@
         </template>
 
         <template #cell-created_at="{ value }">
-          <span class="text-sm text-gray-600 dark:text-gray-400">{{ formatDateTime(value) }}</span>
+          <span class="mito-usage-time text-sm text-gray-600 dark:text-gray-400">{{ formatDateTime(value) }}</span>
         </template>
 
         <template #cell-request_id="{ row }">
@@ -316,7 +324,7 @@
         </template>
 
         <template #cell-ip_address="{ row }">
-          <div v-if="row.ip_address">
+          <div v-if="row.ip_address" class="mito-usage-ip">
             <span class="text-sm font-mono text-gray-600 dark:text-gray-400">{{ row.ip_address }}</span>
             <IpGeoCell :ip="row.ip_address" />
           </div>
@@ -324,6 +332,16 @@
         </template>
 
         <template #empty><EmptyState :message="t('usage.noRecords')" /></template>
+        <template v-for="(_, name) in $slots" #[name]="slotProps">
+          <slot
+            :name="name"
+            v-bind="slotProps"
+            :show-cost-details="showTooltip"
+            :hide-cost-details="hideTooltip"
+            :show-token-details="showTokenTooltip"
+            :hide-token-details="hideTokenTooltip"
+          />
+        </template>
       </DataTable>
     </div>
   </div>
@@ -332,6 +350,9 @@
   <Teleport to="body">
     <div
       v-if="tokenTooltipVisible"
+      ref="tokenTooltipElement"
+      :class="{ 'mito-request-tooltip': variant === 'request-log' }"
+      role="tooltip"
       class="fixed z-[9999] pointer-events-none -translate-y-1/2"
       :style="{
         left: tokenTooltipPosition.x + 'px',
@@ -420,6 +441,9 @@
   <Teleport to="body">
     <div
       v-if="tooltipVisible"
+      ref="costTooltipElement"
+      :class="{ 'mito-request-tooltip': variant === 'request-log' }"
+      role="tooltip"
       class="fixed z-[9999] pointer-events-none -translate-y-1/2"
       :style="{
         left: tooltipPosition.x + 'px',
@@ -556,7 +580,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, inject } from 'vue'
+import { computed, ref, inject, nextTick } from 'vue'
 import UsageTimingDialog from './UsageTimingDialog.vue'
 import { observerUsageContext } from './observerUsageContext'
 import { useI18n } from 'vue-i18n'
@@ -630,6 +654,12 @@ interface Props {
   flat?: boolean
   /** 管理端默认可见；用户端还要打开「向用户展示」。 */
   cacheRateAudience?: 'admin' | 'user'
+  /** 主题表格变体；默认保持上游表格行为 */
+  variant?: 'default' | 'request-log'
+  /** Allow dragging header borders to size columns (Mito usage table). */
+  resizableColumns?: boolean
+  /** Persist column widths separately from the column visibility preference. */
+  columnWidthStorageKey?: string
 }
 
 const observerMode = inject(observerUsageContext, false)
@@ -645,7 +675,9 @@ const props = withDefaults(defineProps<Props>(), {
   enableTimingDetails: false,
   showUpstreamEndpoint: true,
   flat: false,
-  cacheRateAudience: 'admin'
+  cacheRateAudience: 'admin',
+  variant: 'default',
+  resizableColumns: false
 })
 const emit = defineEmits<{
   userClick: [userID: number, email?: string]
@@ -828,14 +860,29 @@ const cacheRateBarStyle = (row: AdminUsageLog): Record<string, string> | undefin
   }
 }
 
+// Request-list columns can sit at the viewport edge. Measure after rendering
+// to keep both pointer and keyboard details visible without guessing their size.
+const costTooltipElement = ref<HTMLElement | null>(null)
+const tokenTooltipElement = ref<HTMLElement | null>(null)
+const constrainRequestTooltip = (element: () => HTMLElement | null, position: { x: number; y: number }) => {
+  if (props.variant !== 'request-log') return
+  void nextTick(() => {
+    const bounds = element()?.getBoundingClientRect()
+    if (!bounds) return
+    position.x = Math.max(8, Math.min(position.x, window.innerWidth - bounds.width - 8))
+    position.y = Math.max(bounds.height / 2 + 8, Math.min(position.y, window.innerHeight - bounds.height / 2 - 8))
+  })
+}
+
 // Cost tooltip functions
-const showTooltip = (event: MouseEvent, row: AdminUsageLog) => {
+const showTooltip = (event: MouseEvent | FocusEvent, row: AdminUsageLog) => {
   const target = event.currentTarget as HTMLElement
   const rect = target.getBoundingClientRect()
   tooltipData.value = row
   tooltipPosition.value.x = rect.right + 8
   tooltipPosition.value.y = rect.top + rect.height / 2
   tooltipVisible.value = true
+  constrainRequestTooltip(() => costTooltipElement.value, tooltipPosition.value)
 }
 
 const hideTooltip = () => {
@@ -844,13 +891,14 @@ const hideTooltip = () => {
 }
 
 // Token tooltip functions
-const showTokenTooltip = (event: MouseEvent, row: AdminUsageLog) => {
+const showTokenTooltip = (event: MouseEvent | FocusEvent, row: AdminUsageLog) => {
   const target = event.currentTarget as HTMLElement
   const rect = target.getBoundingClientRect()
   tokenTooltipData.value = row
   tokenTooltipPosition.value.x = rect.right + 8
   tokenTooltipPosition.value.y = rect.top + rect.height / 2
   tokenTooltipVisible.value = true
+  constrainRequestTooltip(() => tokenTooltipElement.value, tokenTooltipPosition.value)
 }
 
 const hideTokenTooltip = () => {
