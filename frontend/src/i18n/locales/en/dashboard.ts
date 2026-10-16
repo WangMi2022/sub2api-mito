@@ -370,9 +370,6 @@ export default {
 
   // Usage
   usage: {
-    logsTitle: 'Request Logs',
-    statsTitle: 'Usage Stats',
-    statsDescription: 'Usage, costs and distributions for the selected period',
     title: 'Usage Records',
     description: 'View and analyze your API usage history',
     costDetails: 'Cost Breakdown',
