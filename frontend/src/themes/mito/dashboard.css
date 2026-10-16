@@ -228,6 +228,14 @@ html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .card:first-chil
 
 @keyframes mito-dash-refresh { to { transform: rotate(360deg); } }
 
+/* The filter strip hosts an absolutely positioned date-range dropdown. Clearing
+   the panel clip keeps the whole popover visible instead of cropping it to a
+   sliver; the raised z-index keeps it above the chart panels below. */
+html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .card:has(.date-picker-trigger) {
+  overflow: visible;
+  z-index: 2;
+}
+
 /* Charts: a soft wash behind the plotting area, panels step in left then right. */
 html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .grid > .card,
 html[data-ui-theme='mito'] .mito-admin-dashboard > .space-y-6 > .card {

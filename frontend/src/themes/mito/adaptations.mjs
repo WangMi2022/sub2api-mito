@@ -767,7 +767,7 @@ export const contracts = [
   {"path":"frontend/src/components/admin/usage/UsageStatsCards.vue","anchors":["class=\"card p-4 flex items-center gap-3\"","class=\"text-xl font-bold","showAccountCost && totalAccountCost != null"]},
   {"path":"frontend/src/themes/mito/model-plaza.css","anchors":["html[data-ui-theme='mito']",".mito-plaza-filters",".mito-plaza-prices","@container mito-plaza","mito-plaza-page-in","mito-plaza-card-in","mito-plaza-row-in","mito-plaza-sweep","prefers-reduced-motion"]},
   {"path":"frontend/src/themes/mito/index.ts","anchors":["import './model-plaza.css'"]},
-  {"path":"frontend/src/themes/mito/dashboard.css","anchors":["html[data-ui-theme='mito']",".mito-admin-dashboard","mito-dash-card-in","mito-dash-sweep","prefers-reduced-motion"]},
+  {"path":"frontend/src/themes/mito/dashboard.css","anchors":["html[data-ui-theme='mito']",".mito-admin-dashboard","mito-dash-card-in","mito-dash-sweep","prefers-reduced-motion",".card:has(.date-picker-trigger)"]},
   {"path":"frontend/src/themes/mito/index.ts","anchors":["import './dashboard.css'"]},
   {"path":"frontend/src/themes/mito/index.ts","anchors":["import './ops-monitor.css'"]},
   {"path":"frontend/src/components/common/GroupBadge.vue","anchors":["<span :class=\"truncate ? 'truncate' : 'min-w-0 whitespace-normal [overflow-wrap:anywhere]'\">{{ name }}</span>","alwaysShowRate?: boolean"]},
