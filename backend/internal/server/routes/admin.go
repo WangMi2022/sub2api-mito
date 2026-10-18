@@ -382,6 +382,11 @@ func registerGroupRoutes(admin *gin.RouterGroup, h *handler.Handlers) {
 		groups.DELETE("/:id/rpm-overrides", h.Admin.Group.ClearGroupRPMOverrides)
 		groups.PUT("/:id/user-denied-models", h.Admin.Group.BatchSetGroupUserDeniedModels)
 		groups.DELETE("/:id/user-denied-models", h.Admin.Group.ClearGroupUserDeniedModels)
+		groups.GET("/:id/user-group-policies", h.Admin.Group.GetGroupUserGroupPolicies)
+		groups.PUT("/:id/user-group-rates", h.Admin.Group.BatchSetGroupUserGroupRates)
+		groups.PUT("/:id/user-group-rpm", h.Admin.Group.BatchSetGroupUserGroupRPM)
+		groups.PUT("/:id/user-group-denied-models", h.Admin.Group.BatchSetGroupUserGroupDeniedModels)
+		groups.DELETE("/:id/user-group-policies", h.Admin.Group.ClearGroupUserGroupPolicies)
 		groups.GET("/:id/api-keys", h.Admin.Group.GetGroupAPIKeys)
 	}
 }
