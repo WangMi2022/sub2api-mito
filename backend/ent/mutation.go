@@ -22398,8 +22398,6 @@ type GroupMutation struct {
 	addfallback_group_id                    *int64
 	fallback_group_id_on_invalid_request    *int64
 	addfallback_group_id_on_invalid_request *int64
-	block_subagents                         *bool
-	codex_cli_only                          *bool
 	stream_only                             *bool
 	model_routing                           *map[string][]int64
 	model_routing_enabled                   *bool
@@ -24936,78 +24934,6 @@ func (m *GroupMutation) ResetFallbackGroupIDOnInvalidRequest() {
 	delete(m.clearedFields, group.FieldFallbackGroupIDOnInvalidRequest)
 }
 
-// SetBlockSubagents sets the "block_subagents" field.
-func (m *GroupMutation) SetBlockSubagents(b bool) {
-	m.block_subagents = &b
-}
-
-// BlockSubagents returns the value of the "block_subagents" field in the mutation.
-func (m *GroupMutation) BlockSubagents() (r bool, exists bool) {
-	v := m.block_subagents
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldBlockSubagents returns the old "block_subagents" field's value of the Group entity.
-// If the Group object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GroupMutation) OldBlockSubagents(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBlockSubagents is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBlockSubagents requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBlockSubagents: %w", err)
-	}
-	return oldValue.BlockSubagents, nil
-}
-
-// ResetBlockSubagents resets all changes to the "block_subagents" field.
-func (m *GroupMutation) ResetBlockSubagents() {
-	m.block_subagents = nil
-}
-
-// SetCodexCliOnly sets the "codex_cli_only" field.
-func (m *GroupMutation) SetCodexCliOnly(b bool) {
-	m.codex_cli_only = &b
-}
-
-// CodexCliOnly returns the value of the "codex_cli_only" field in the mutation.
-func (m *GroupMutation) CodexCliOnly() (r bool, exists bool) {
-	v := m.codex_cli_only
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCodexCliOnly returns the old "codex_cli_only" field's value of the Group entity.
-// If the Group object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GroupMutation) OldCodexCliOnly(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCodexCliOnly is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCodexCliOnly requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCodexCliOnly: %w", err)
-	}
-	return oldValue.CodexCliOnly, nil
-}
-
-// ResetCodexCliOnly resets all changes to the "codex_cli_only" field.
-func (m *GroupMutation) ResetCodexCliOnly() {
-	m.codex_cli_only = nil
-}
-
 // SetStreamOnly sets the "stream_only" field.
 func (m *GroupMutation) SetStreamOnly(b bool) {
 	m.stream_only = &b
@@ -26317,7 +26243,7 @@ func (m *GroupMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *GroupMutation) Fields() []string {
-	fields := make([]string, 0, 70)
+	fields := make([]string, 0, 68)
 	if m.created_at != nil {
 		fields = append(fields, group.FieldCreatedAt)
 	}
@@ -26452,12 +26378,6 @@ func (m *GroupMutation) Fields() []string {
 	}
 	if m.fallback_group_id_on_invalid_request != nil {
 		fields = append(fields, group.FieldFallbackGroupIDOnInvalidRequest)
-	}
-	if m.block_subagents != nil {
-		fields = append(fields, group.FieldBlockSubagents)
-	}
-	if m.codex_cli_only != nil {
-		fields = append(fields, group.FieldCodexCliOnly)
 	}
 	if m.stream_only != nil {
 		fields = append(fields, group.FieldStreamOnly)
@@ -26626,10 +26546,6 @@ func (m *GroupMutation) Field(name string) (ent.Value, bool) {
 		return m.FallbackGroupID()
 	case group.FieldFallbackGroupIDOnInvalidRequest:
 		return m.FallbackGroupIDOnInvalidRequest()
-	case group.FieldBlockSubagents:
-		return m.BlockSubagents()
-	case group.FieldCodexCliOnly:
-		return m.CodexCliOnly()
 	case group.FieldStreamOnly:
 		return m.StreamOnly()
 	case group.FieldModelRouting:
@@ -26775,10 +26691,6 @@ func (m *GroupMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldFallbackGroupID(ctx)
 	case group.FieldFallbackGroupIDOnInvalidRequest:
 		return m.OldFallbackGroupIDOnInvalidRequest(ctx)
-	case group.FieldBlockSubagents:
-		return m.OldBlockSubagents(ctx)
-	case group.FieldCodexCliOnly:
-		return m.OldCodexCliOnly(ctx)
 	case group.FieldStreamOnly:
 		return m.OldStreamOnly(ctx)
 	case group.FieldModelRouting:
@@ -27148,20 +27060,6 @@ func (m *GroupMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetFallbackGroupIDOnInvalidRequest(v)
-		return nil
-	case group.FieldBlockSubagents:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetBlockSubagents(v)
-		return nil
-	case group.FieldCodexCliOnly:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCodexCliOnly(v)
 		return nil
 	case group.FieldStreamOnly:
 		v, ok := value.(bool)
@@ -27969,12 +27867,6 @@ func (m *GroupMutation) ResetField(name string) error {
 		return nil
 	case group.FieldFallbackGroupIDOnInvalidRequest:
 		m.ResetFallbackGroupIDOnInvalidRequest()
-		return nil
-	case group.FieldBlockSubagents:
-		m.ResetBlockSubagents()
-		return nil
-	case group.FieldCodexCliOnly:
-		m.ResetCodexCliOnly()
 		return nil
 	case group.FieldStreamOnly:
 		m.ResetStreamOnly()
@@ -49411,6 +49303,8 @@ type UserMutation struct {
 	addtotal_recharged            *float64
 	rpm_limit                     *int
 	addrpm_limit                  *int
+	user_group_id                 *int64
+	adduser_group_id              *int64
 	clearedFields                 map[string]struct{}
 	api_keys                      map[int64]struct{}
 	removedapi_keys               map[int64]struct{}
@@ -50704,6 +50598,76 @@ func (m *UserMutation) ResetRpmLimit() {
 	m.addrpm_limit = nil
 }
 
+// SetUserGroupID sets the "user_group_id" field.
+func (m *UserMutation) SetUserGroupID(i int64) {
+	m.user_group_id = &i
+	m.adduser_group_id = nil
+}
+
+// UserGroupID returns the value of the "user_group_id" field in the mutation.
+func (m *UserMutation) UserGroupID() (r int64, exists bool) {
+	v := m.user_group_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserGroupID returns the old "user_group_id" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldUserGroupID(ctx context.Context) (v *int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserGroupID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserGroupID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserGroupID: %w", err)
+	}
+	return oldValue.UserGroupID, nil
+}
+
+// AddUserGroupID adds i to the "user_group_id" field.
+func (m *UserMutation) AddUserGroupID(i int64) {
+	if m.adduser_group_id != nil {
+		*m.adduser_group_id += i
+	} else {
+		m.adduser_group_id = &i
+	}
+}
+
+// AddedUserGroupID returns the value that was added to the "user_group_id" field in this mutation.
+func (m *UserMutation) AddedUserGroupID() (r int64, exists bool) {
+	v := m.adduser_group_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearUserGroupID clears the value of the "user_group_id" field.
+func (m *UserMutation) ClearUserGroupID() {
+	m.user_group_id = nil
+	m.adduser_group_id = nil
+	m.clearedFields[user.FieldUserGroupID] = struct{}{}
+}
+
+// UserGroupIDCleared returns if the "user_group_id" field was cleared in this mutation.
+func (m *UserMutation) UserGroupIDCleared() bool {
+	_, ok := m.clearedFields[user.FieldUserGroupID]
+	return ok
+}
+
+// ResetUserGroupID resets all changes to the "user_group_id" field.
+func (m *UserMutation) ResetUserGroupID() {
+	m.user_group_id = nil
+	m.adduser_group_id = nil
+	delete(m.clearedFields, user.FieldUserGroupID)
+}
+
 // AddAPIKeyIDs adds the "api_keys" edge to the APIKey entity by ids.
 func (m *UserMutation) AddAPIKeyIDs(ids ...int64) {
 	if m.api_keys == nil {
@@ -51440,7 +51404,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 26)
+	fields := make([]string, 0, 27)
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
 	}
@@ -51519,6 +51483,9 @@ func (m *UserMutation) Fields() []string {
 	if m.rpm_limit != nil {
 		fields = append(fields, user.FieldRpmLimit)
 	}
+	if m.user_group_id != nil {
+		fields = append(fields, user.FieldUserGroupID)
+	}
 	return fields
 }
 
@@ -51579,6 +51546,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.TotalRecharged()
 	case user.FieldRpmLimit:
 		return m.RpmLimit()
+	case user.FieldUserGroupID:
+		return m.UserGroupID()
 	}
 	return nil, false
 }
@@ -51640,6 +51609,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldTotalRecharged(ctx)
 	case user.FieldRpmLimit:
 		return m.OldRpmLimit(ctx)
+	case user.FieldUserGroupID:
+		return m.OldUserGroupID(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -51831,6 +51802,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetRpmLimit(v)
 		return nil
+	case user.FieldUserGroupID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserGroupID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -51857,6 +51835,9 @@ func (m *UserMutation) AddedFields() []string {
 	if m.addrpm_limit != nil {
 		fields = append(fields, user.FieldRpmLimit)
 	}
+	if m.adduser_group_id != nil {
+		fields = append(fields, user.FieldUserGroupID)
+	}
 	return fields
 }
 
@@ -51877,6 +51858,8 @@ func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedTotalRecharged()
 	case user.FieldRpmLimit:
 		return m.AddedRpmLimit()
+	case user.FieldUserGroupID:
+		return m.AddedUserGroupID()
 	}
 	return nil, false
 }
@@ -51928,6 +51911,13 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddRpmLimit(v)
 		return nil
+	case user.FieldUserGroupID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUserGroupID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User numeric field %s", name)
 }
@@ -51953,6 +51943,9 @@ func (m *UserMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(user.FieldBalanceNotifyThreshold) {
 		fields = append(fields, user.FieldBalanceNotifyThreshold)
+	}
+	if m.FieldCleared(user.FieldUserGroupID) {
+		fields = append(fields, user.FieldUserGroupID)
 	}
 	return fields
 }
@@ -51985,6 +51978,9 @@ func (m *UserMutation) ClearField(name string) error {
 		return nil
 	case user.FieldBalanceNotifyThreshold:
 		m.ClearBalanceNotifyThreshold()
+		return nil
+	case user.FieldUserGroupID:
+		m.ClearUserGroupID()
 		return nil
 	}
 	return fmt.Errorf("unknown User nullable field %s", name)
@@ -52071,6 +52067,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldRpmLimit:
 		m.ResetRpmLimit()
+		return nil
+	case user.FieldUserGroupID:
+		m.ResetUserGroupID()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
