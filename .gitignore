@@ -34,6 +34,7 @@ backend/.gocache/
 # ===================
 node_modules/
 frontend/node_modules/
+.pnpm-store/
 frontend/dist/
 *.local
 *.tsbuildinfo
@@ -122,19 +123,12 @@ tests
 CLAUDE.md
 .claude
 scripts
-!frontend/scripts/
-frontend/scripts/*
-!frontend/scripts/mito-theme.mjs
-!frontend/scripts/mito-theme.spec.mjs
 !backend/scripts/
 !backend/scripts/resolve-version.sh
 .code-review-state
 #openspec/
 code-reviews/
 AGENTS.md
-!deploy-ops/AGENTS.md
-!deploy-ops/scripts/
-!deploy-ops/scripts/**
 backend/cmd/server/server
 deploy/docker-compose.override.yml
 .gocache/
@@ -207,3 +201,6 @@ issues/
 /docs/screenshots/**/*.webp
 /docs/screenshots/**/*.avif
 /docs/screenshots/**/*.svg
+
+# Local macOS re-auth Worker runtime (ephemeral, never commit)
+tools/local-worker/

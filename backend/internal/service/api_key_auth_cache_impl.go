@@ -14,7 +14,7 @@ import (
 	"github.com/dgraph-io/ristretto"
 )
 
-const apiKeyAuthSnapshotVersion = 28 // v28: carry user_group_id for user-group policy resolution
+const apiKeyAuthSnapshotVersion = 29 // v29: include group client and subagent admission policies
 
 type apiKeyAuthCacheConfig struct {
 	l1Size        int
@@ -389,7 +389,6 @@ func (s *APIKeyService) snapshotFromAPIKey(ctx context.Context, apiKey *APIKey) 
 			TotalRecharged:             apiKey.User.TotalRecharged,
 			RPMLimit:                   apiKey.User.RPMLimit,
 			UserGroupDeniedModels:      apiKey.User.UserGroupDeniedModels,
-			UserGroupID:                apiKey.User.UserGroupID,
 		},
 	}
 
@@ -437,6 +436,8 @@ func (s *APIKeyService) snapshotFromAPIKey(ctx context.Context, apiKey *APIKey) 
 			FallbackGroupID:                 apiKey.Group.FallbackGroupID,
 			FallbackGroupIDOnInvalidRequest: apiKey.Group.FallbackGroupIDOnInvalidRequest,
 			StreamOnly:                      apiKey.Group.StreamOnly,
+			CodexCLIOnly:                    apiKey.Group.CodexCLIOnly,
+			BlockSubagents:                  apiKey.Group.BlockSubagents,
 			ModelRouting:                    apiKey.Group.ModelRouting,
 			ModelRoutingEnabled:             apiKey.Group.ModelRoutingEnabled,
 			MCPXMLInject:                    apiKey.Group.MCPXMLInject,
@@ -503,7 +504,6 @@ func (s *APIKeyService) snapshotToAPIKey(key string, snapshot *APIKeyAuthSnapsho
 			RPMLimit:                   snapshot.User.RPMLimit,
 			UserGroupRPMOverride:       snapshot.User.UserGroupRPMOverride,
 			UserGroupDeniedModels:      snapshot.User.UserGroupDeniedModels,
-			UserGroupID:                snapshot.User.UserGroupID,
 		},
 	}
 	if snapshot.Group != nil {
@@ -543,6 +543,8 @@ func (s *APIKeyService) snapshotToAPIKey(key string, snapshot *APIKeyAuthSnapsho
 			FallbackGroupID:                 snapshot.Group.FallbackGroupID,
 			FallbackGroupIDOnInvalidRequest: snapshot.Group.FallbackGroupIDOnInvalidRequest,
 			StreamOnly:                      snapshot.Group.StreamOnly,
+			CodexCLIOnly:                    snapshot.Group.CodexCLIOnly,
+			BlockSubagents:                  snapshot.Group.BlockSubagents,
 			ModelRouting:                    snapshot.Group.ModelRouting,
 			ModelRoutingEnabled:             snapshot.Group.ModelRoutingEnabled,
 			MCPXMLInject:                    snapshot.Group.MCPXMLInject,

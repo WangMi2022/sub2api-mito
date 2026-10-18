@@ -54,9 +54,6 @@ func RegisterAdminRoutes(
 		// 分组管理
 		registerGroupRoutes(admin, h)
 
-		// 用户组管理
-		registerUserGroupRoutes(admin, h)
-
 		// 账号管理
 		registerAccountRoutes(admin, h, stepUpAuth)
 
@@ -385,25 +382,7 @@ func registerGroupRoutes(admin *gin.RouterGroup, h *handler.Handlers) {
 		groups.DELETE("/:id/rpm-overrides", h.Admin.Group.ClearGroupRPMOverrides)
 		groups.PUT("/:id/user-denied-models", h.Admin.Group.BatchSetGroupUserDeniedModels)
 		groups.DELETE("/:id/user-denied-models", h.Admin.Group.ClearGroupUserDeniedModels)
-		groups.GET("/:id/user-group-policies", h.Admin.Group.GetGroupUserGroupPolicies)
-		groups.PUT("/:id/user-group-rates", h.Admin.Group.BatchSetGroupUserGroupRates)
-		groups.PUT("/:id/user-group-rpm", h.Admin.Group.BatchSetGroupUserGroupRPM)
-		groups.PUT("/:id/user-group-denied-models", h.Admin.Group.BatchSetGroupUserGroupDeniedModels)
-		groups.DELETE("/:id/user-group-policies", h.Admin.Group.ClearGroupUserGroupPolicies)
 		groups.GET("/:id/api-keys", h.Admin.Group.GetGroupAPIKeys)
-	}
-}
-
-func registerUserGroupRoutes(admin *gin.RouterGroup, h *handler.Handlers) {
-	userGroups := admin.Group("/user-groups")
-	{
-		userGroups.GET("", h.Admin.UserGroup.List)
-		userGroups.POST("", h.Admin.UserGroup.Create)
-		userGroups.GET("/:id", h.Admin.UserGroup.GetByID)
-		userGroups.PUT("/:id", h.Admin.UserGroup.Update)
-		userGroups.DELETE("/:id", h.Admin.UserGroup.Delete)
-		userGroups.GET("/:id/members", h.Admin.UserGroup.ListMembers)
-		userGroups.PUT("/:id/members", h.Admin.UserGroup.SyncMembers)
 	}
 }
 
@@ -493,8 +472,8 @@ func registerAccountRoutes(admin *gin.RouterGroup, h *handler.Handlers, stepUpAu
 		// 账号导出泄露上游凭证原文——要求 step-up 2FA
 		accounts.GET("/data", gin.HandlerFunc(stepUpAuth), h.Admin.Account.ExportData)
 		accounts.POST("/:id/export-session", gin.HandlerFunc(stepUpAuth), h.Admin.Account.ExportOpenAISession)
-		accounts.GET("/:id/session-cookie", h.Admin.Account.GetOpenAISessionCookie)
-		accounts.DELETE("/:id/session-cookie", gin.HandlerFunc(stepUpAuth), h.Admin.Account.DeleteOpenAISessionCookie)
+		accounts.GET("/:id/export-session/:task_id", h.Admin.Account.GetOpenAISessionExportTask)
+		accounts.GET("/:id/export-session/:task_id/download", gin.HandlerFunc(stepUpAuth), h.Admin.Account.DownloadOpenAISessionExport)
 		accounts.POST("/data", h.Admin.Account.ImportData)
 		accounts.POST("/batch-update-credentials", h.Admin.Account.BatchUpdateCredentials)
 		accounts.POST("/batch-refresh-tier", h.Admin.Account.BatchRefreshTier)
@@ -523,6 +502,10 @@ func registerOpenAIOAuthReauthWorkerRoutes(v1 *gin.RouterGroup, h *handler.Handl
 	worker := v1.Group("/internal/openai-reauth")
 	{
 		worker.POST("/claim", h.Admin.OpenAIOAuthReauth.Claim)
+		worker.POST("/session-export/claim", h.Admin.OpenAIOAuthReauth.ClaimSessionExport)
+		worker.POST("/:task_id/session-export/progress", h.Admin.OpenAIOAuthReauth.SessionExportProgress)
+		worker.POST("/:task_id/session-export/result", h.Admin.OpenAIOAuthReauth.SessionExportResult)
+		worker.POST("/:task_id/session-export/fail", h.Admin.OpenAIOAuthReauth.SessionExportFail)
 		worker.POST("/totp-claim", h.Admin.OpenAIOAuthReauth.ClaimTOTP)
 		worker.POST("/:task_id/totp-phase", h.Admin.OpenAIOAuthReauth.TOTPPhase)
 		worker.POST("/:task_id/totp-finish", h.Admin.OpenAIOAuthReauth.TOTPFinish)

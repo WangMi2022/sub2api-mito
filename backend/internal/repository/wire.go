@@ -82,6 +82,7 @@ var ProviderSet = wire.NewSet(
 	NewAccountOpsRepository,
 	NewAccountTokenGuardRepository,
 	NewOpenAIOAuthReauthRepository,
+	NewOpenAISessionExportRepository,
 	NewAccountTokenGuardV2Repository,
 	NewScheduledTestPlanRepository,   // 定时测试计划仓储
 	NewScheduledTestResultRepository, // 定时测试结果仓储
@@ -112,7 +113,6 @@ var ProviderSet = wire.NewSet(
 	NewUserAttributeDefinitionRepository,
 	NewUserAttributeValueRepository,
 	NewUserGroupRateRepository,
-	NewUserGroupRepository,
 	NewErrorPassthroughRepository,
 	NewTLSFingerprintProfileRepository,
 	NewPluginRepository,
@@ -164,7 +164,6 @@ var ProviderSet = wire.NewSet(
 
 	// Encryptors
 	NewAESEncryptor,
-	NewOpenAISessionCookieRepository,
 	NewNewAPIAuthorizationRepository,
 	NewOpenAICredentialEncryptor,
 
