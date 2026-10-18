@@ -14,7 +14,7 @@ import (
 	"github.com/dgraph-io/ristretto"
 )
 
-const apiKeyAuthSnapshotVersion = 29 // v29: include group client and subagent admission policies
+const apiKeyAuthSnapshotVersion = 30 // v30: add user group id (fork) to the auth snapshot
 
 type apiKeyAuthCacheConfig struct {
 	l1Size        int
@@ -389,6 +389,7 @@ func (s *APIKeyService) snapshotFromAPIKey(ctx context.Context, apiKey *APIKey) 
 			TotalRecharged:             apiKey.User.TotalRecharged,
 			RPMLimit:                   apiKey.User.RPMLimit,
 			UserGroupDeniedModels:      apiKey.User.UserGroupDeniedModels,
+			UserGroupID:                apiKey.User.UserGroupID,
 		},
 	}
 
@@ -504,6 +505,7 @@ func (s *APIKeyService) snapshotToAPIKey(key string, snapshot *APIKeyAuthSnapsho
 			RPMLimit:                   snapshot.User.RPMLimit,
 			UserGroupRPMOverride:       snapshot.User.UserGroupRPMOverride,
 			UserGroupDeniedModels:      snapshot.User.UserGroupDeniedModels,
+			UserGroupID:                snapshot.User.UserGroupID,
 		},
 	}
 	if snapshot.Group != nil {
