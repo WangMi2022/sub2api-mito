@@ -552,7 +552,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, inject, onUnmounted, nextTick } from 'vue'
+import { computed, ref, inject, onUnmounted } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import UsageDetailPopover from './UsageDetailPopover.vue'
 import UsageTimingDialog from './UsageTimingDialog.vue'
