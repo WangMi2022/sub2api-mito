@@ -174,24 +174,48 @@
         </div>
       </template>
 
-      <!-- Regular User View -->
+      <!-- Regular User View: themed two-level menu (mito-theme) -->
       <template v-else-if="!appStore.backendModeEnabled">
-        <div class="sidebar-section">
-          <router-link
-            v-for="item in userNavItems"
-            :key="item.path"
-            :to="item.path"
-            class="sidebar-link mb-1"
-            :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
-            :title="sidebarCollapsed ? item.label : undefined"
-            :data-tour="item.path === '/keys' ? 'sidebar-my-keys' : undefined"
-            @click="handleMenuItemClick(item.path)"
+        <div class="sidebar-section mito-user-nav">
+          <div
+            v-for="section in userNavSections"
+            :key="section.path"
+            class="mito-sidebar-section mito-user-section"
           >
-            <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
-            <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
-            <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
-            <span v-if="navBadge(item)" class="sidebar-nav-badge" :class="{ 'sidebar-nav-badge-collapsed': sidebarCollapsed }" data-testid="sidebar-nav-badge">{{ sidebarCollapsed ? '' : navBadgeText(item) }}</span>
-          </router-link>
+            <div
+              class="sidebar-section-title mito-sidebar-section-title"
+              :class="{ 'sidebar-section-title-collapsed': sidebarCollapsed }"
+              :aria-hidden="sidebarCollapsed ? 'true' : 'false'"
+            >
+              <span
+                class="sidebar-section-title-text"
+                :class="{ 'sidebar-section-title-text-collapsed': sidebarCollapsed }"
+              >
+                {{ section.label }}
+              </span>
+            </div>
+
+            <div
+              class="mito-sidebar-section-children mito-user-section-children"
+              :class="{ 'mito-sidebar-section-children-collapsed': sidebarCollapsed }"
+            >
+              <router-link
+                v-for="item in section.items"
+                :key="item.path"
+                :to="item.path"
+                class="sidebar-link mb-1 mito-user-link"
+                :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
+                :title="sidebarCollapsed ? item.label : undefined"
+                :data-tour="item.path === '/keys' ? 'sidebar-my-keys' : undefined"
+                @click="handleMenuItemClick(item.path)"
+              >
+                <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
+                <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
+                <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
+                <span v-if="navBadge(item)" class="sidebar-nav-badge" :class="{ 'sidebar-nav-badge-collapsed': sidebarCollapsed }" data-testid="sidebar-nav-badge">{{ sidebarCollapsed ? '' : navBadgeText(item) }}</span>
+              </router-link>
+            </div>
+          </div>
         </div>
       </template>
     </nav>
@@ -244,7 +268,7 @@
 <script setup lang="ts">
 import { isMitoTheme } from '@/themes/mito'
 import { useThemeSync } from '@/themes/mito/useThemeSync'
-import { applyMitoSidebarSections, groupMitoSidebarSections } from '@/themes/mito/sidebarSections'
+import { applyMitoSidebarSections, applyMitoUserSidebarSections, groupMitoSidebarSections } from '@/themes/mito/sidebarSections'
 import { attachCustomMenuItems } from '@/utils/sidebarCustomMenus'
 import { computed, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -856,7 +880,10 @@ function finalizeNav(items: NavItem[]): NavItem[] {
 }
 
 // User navigation items (for regular users)
-const userNavItems = computed((): NavItem[] => finalizeNav(buildSelfNavItems(true)))
+// Mito theme: headings are inserted here so the template can render the same
+// two-level hierarchy as the admin menu. Upstream builds get the flat list.
+const userNavItems = computed((): NavItem[] => applyMitoUserSidebarSections(finalizeNav(buildSelfNavItems(true)), t))
+const userNavSections = computed(() => groupMitoSidebarSections<NavItem>(userNavItems.value))
 
 // Personal navigation items (for admin's "My Account" section, without Dashboard).
 // Admins access 可用渠道 from this section just like regular users — there is no

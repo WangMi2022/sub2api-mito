@@ -1,0 +1,191 @@
+/**
+ * Mito regular-user sidebar.
+ *
+ * The upstream/regular user menu is a flat list. This theme layer adds a
+ * two-level hierarchy (section heading + entries) and a quieter, more
+ * deliberate visual rhythm: tinted icon tiles, a soft gradient active pill and
+ * hairline section rules. Navigation, permissions and badge logic stay upstream.
+ *
+ * Scope is intentionally limited to `.mito-user-nav`; the administrator menu has
+ * its own (grid/table-heavy) treatment in AppSidebar.vue.
+ */
+html[data-ui-theme='mito'] .mito-user-nav {
+  padding-top: 0.25rem;
+}
+
+html[data-ui-theme='mito'] .mito-user-section .mito-sidebar-section-title {
+  min-height: 1.125rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.1875rem;
+  padding-left: 1.15rem;
+  padding-right: 0.9rem;
+}
+
+html[data-ui-theme='mito'] .mito-user-section:first-child .mito-sidebar-section-title {
+  margin-top: 0.35rem;
+}
+
+html[data-ui-theme='mito'] .mito-user-section .sidebar-section-title-text {
+  font-size: 0.65625rem;
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  color: rgb(148 163 184 / 92%);
+}
+
+html[data-ui-theme='mito'] .mito-user-section .sidebar-section-title::after {
+  content: '';
+  position: absolute;
+  left: 1.15rem;
+  right: 0.9rem;
+  bottom: -0.2rem;
+  height: 1px;
+  background: linear-gradient(90deg, rgb(226 232 240 / 90%), rgb(226 232 240 / 0%));
+  opacity: 1;
+}
+
+html[data-ui-theme='mito'].dark .mito-user-section .sidebar-section-title::after {
+  background: linear-gradient(90deg, rgb(51 65 85 / 85%), rgb(51 65 85 / 0%));
+}
+
+/* Indentation guide is replaced by a softer rail plus breathing room. */
+html[data-ui-theme='mito'] .mito-user-section-children {
+  padding-left: 0.45rem;
+  margin-left: 1.35rem;
+  border-left: 1px solid rgb(226 232 240 / 55%);
+}
+
+html[data-ui-theme='mito'].dark .mito-user-section-children {
+  border-left-color: rgb(51 65 85 / 45%);
+}
+
+html[data-ui-theme='mito'] .mito-user-section-children-collapsed {
+  padding-left: 0;
+  margin-left: 0;
+  border-left: 0;
+}
+
+/* Entry: taller target, rounded tile for the icon, quiet label. */
+html[data-ui-theme='mito'] .mito-user-link {
+  gap: 0.75rem;
+  min-height: 2.5rem;
+  margin-bottom: 0.125rem;
+  padding: 0.3125rem 0.75rem 0.3125rem 0.4375rem;
+  border: 1px solid transparent;
+  border-radius: 0.8125rem;
+  color: rgb(71 85 105);
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+html[data-ui-theme='mito'].dark .mito-user-link {
+  color: rgb(203 213 225);
+}
+
+html[data-ui-theme='mito'] .mito-user-link > :is(svg, .sidebar-svg-icon) {
+  box-sizing: content-box;
+  width: 1.125rem;
+  height: 1.125rem;
+  padding: 0.3125rem;
+  border-radius: 0.5625rem;
+  background: rgb(241 245 249 / 90%);
+  color: rgb(100 116 139);
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+html[data-ui-theme='mito'].dark .mito-user-link > :is(svg, .sidebar-svg-icon) {
+  background: rgb(30 41 59 / 75%);
+  color: rgb(148 163 184);
+}
+
+html[data-ui-theme='mito'] .mito-user-link:hover:not(.sidebar-link-active) {
+  background: rgb(248 250 252 / 92%);
+  border-color: rgb(226 232 240 / 85%);
+  color: rgb(15 23 42);
+  transform: none;
+}
+
+html[data-ui-theme='mito'].dark .mito-user-link:hover:not(.sidebar-link-active) {
+  background: rgb(30 41 59 / 45%);
+  border-color: rgb(51 65 85 / 80%);
+  color: rgb(248 250 252);
+}
+
+html[data-ui-theme='mito'] .mito-user-link:hover:not(.sidebar-link-active) > :is(svg, .sidebar-svg-icon) {
+  background: #fff;
+  color: rgb(37 99 235);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 8%);
+}
+
+html[data-ui-theme='mito'].dark .mito-user-link:hover:not(.sidebar-link-active) > :is(svg, .sidebar-svg-icon) {
+  background: rgb(51 65 85 / 90%);
+  color: rgb(147 197 253);
+}
+
+/* Active entry: gradient pill, white icon tile, soft depth. */
+html[data-ui-theme='mito'] .mito-user-link.sidebar-link-active {
+  background:
+    linear-gradient(100deg, rgb(37 99 235 / 10%) 0%, rgb(59 130 246 / 5%) 55%, rgb(59 130 246 / 0%) 100%);
+  border-color: rgb(37 99 235 / 16%);
+  color: rgb(29 78 216);
+  font-weight: 600;
+  box-shadow:
+    0 1px 2px rgb(37 99 235 / 8%),
+    inset 0 0 0 1px rgb(255 255 255 / 40%);
+}
+
+html[data-ui-theme='mito'].dark .mito-user-link.sidebar-link-active {
+  background:
+    linear-gradient(100deg, rgb(37 99 235 / 26%) 0%, rgb(59 130 246 / 12%) 55%, rgb(59 130 246 / 0%) 100%);
+  border-color: rgb(96 165 250 / 24%);
+  color: rgb(191 219 254);
+  box-shadow: inset 0 0 0 1px rgb(148 197 253 / 6%);
+}
+
+html[data-ui-theme='mito'] .mito-user-link.sidebar-link-active > :is(svg, .sidebar-svg-icon) {
+  background: linear-gradient(145deg, #3b82f6 0%, #2563eb 100%);
+  color: #fff;
+  box-shadow: 0 4px 10px -4px rgb(37 99 235 / 65%);
+}
+
+html[data-ui-theme='mito'].dark .mito-user-link.sidebar-link-active > :is(svg, .sidebar-svg-icon) {
+  background: linear-gradient(145deg, #60a5fa 0%, #2563eb 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px -4px rgb(37 99 235 / 75%);
+}
+
+/* Replace the upstream left bar with a subtle inner glow on the pill. */
+html[data-ui-theme='mito'] .mito-user-link.sidebar-link-active::before {
+  display: none;
+}
+
+/* Section heading hairline replaces the old divider rule from the base theme. */
+html[data-ui-theme='mito'] .mito-user-section .sidebar-section-title::after {
+  opacity: 1;
+}
+
+/* Collapsed rail keeps icons centered and tiles uniform. */
+html[data-ui-theme='mito'] .mito-user-link.sidebar-link-collapsed {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+html[data-ui-theme='mito'] .mito-user-link.sidebar-link-collapsed > :is(svg, .sidebar-svg-icon) {
+  padding: 0.375rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-user-link,
+  html[data-ui-theme='mito'] .mito-user-link > :is(svg, .sidebar-svg-icon),
+  html[data-ui-theme='mito'] .mito-user-section-children {
+    transition-duration: 1ms;
+  }
+}

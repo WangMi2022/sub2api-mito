@@ -7,7 +7,11 @@ vi.mock('../index', () => ({
   }
 }))
 
-import { applyMitoSidebarSections, groupMitoSidebarSections } from '../sidebarSections'
+import {
+  applyMitoSidebarSections,
+  applyMitoUserSidebarSections,
+  groupMitoSidebarSections
+} from '../sidebarSections'
 
 const t = (key: string) => key
 const item = (path: string) => ({ path, label: path })
@@ -143,5 +147,41 @@ describe('groupMitoSidebarSections', () => {
     const keys = grouped.map((section) => section.path)
 
     expect(new Set(keys).size).toBe(keys.length)
+  })
+})
+
+describe('applyMitoUserSidebarSections', () => {
+  const userPaths = [
+    '/dashboard', '/keys', '/batch-image',
+    '/usage', '/usage-stats',
+    '/available-channels', '/monitor',
+    '/subscriptions', '/purchase', '/orders', '/redeem', '/affiliate',
+    '/support-tickets', '/profile'
+  ]
+
+  it('groups the regular-user menu in declared order', () => {
+    const out = applyMitoUserSidebarSections(userPaths.map(item), t)
+    const headings = out.filter((entry) => 'sectionTitle' in entry).map((entry) => entry.sectionTitle)
+
+    expect(headings).toEqual([
+      'nav.sections.workspace',
+      'nav.sections.usage',
+      'nav.sections.services',
+      'nav.sections.billing',
+      'nav.sections.account'
+    ])
+  })
+
+  it('never drops a user entry, including unclaimed custom menus', () => {
+    const out = applyMitoUserSidebarSections([item('/dashboard'), { path: '/custom/3', label: 'Custom' }], t)
+    const paths = out.filter((entry) => !('sectionTitle' in entry)).map((entry) => entry.path)
+
+    expect(paths).toContain('/custom/3')
+    expect(out.at(-1)).toMatchObject({ path: '/custom/3' })
+  })
+
+  it('does not leak user section ids into the admin menu', () => {
+    const out = applyMitoSidebarSections([item('/admin/dashboard'), item('/keys')], t)
+    expect(out.map((entry) => entry.sectionTitle).filter(Boolean)).toEqual(['nav.sections.overview', 'nav.sections.other'])
   })
 })

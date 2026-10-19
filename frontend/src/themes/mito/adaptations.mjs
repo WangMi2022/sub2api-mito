@@ -804,7 +804,10 @@ export const contracts = [
   { path: 'frontend/src/themes/mito/PelicanShowcaseGroup.vue', anchors: ['mito-pelican-group', 'mito-pelican-group-header', 'mito-pelican-group-chevron', 'aria-expanded', 'data-testid="pelican-showcase-body"'] },
   { path: 'frontend/src/themes/mito/pelican-showcase.css', anchors: ["html[data-ui-theme='mito']", '.mito-pelican-group-header', '.mito-pelican-group-chevron', '.mito-pelican-grid', 'prefers-reduced-motion'] },
   { path: 'frontend/src/themes/mito/index.ts', anchors: ["import './pelican-showcase.css'"] },
-  { path: 'frontend/src/themes/mito/sidebarSections.ts', anchors: ['SIDEBAR_SECTIONS', 'export function applyMitoSidebarSections', 'nav.sections.overview'] },
+  { path: 'frontend/src/themes/mito/sidebarSections.ts', anchors: ['SIDEBAR_SECTIONS', 'USER_SIDEBAR_SECTIONS', 'export function applyMitoSidebarSections', 'export function applyMitoUserSidebarSections', 'nav.sections.overview'] },
+  { path: 'frontend/src/themes/mito/user-sidebar.css', anchors: ["html[data-ui-theme='mito']", '.mito-user-nav', '.mito-user-link', '.mito-user-section', 'prefers-reduced-motion'] },
+  { path: 'frontend/src/themes/mito/index.ts', anchors: ["import './user-sidebar.css'"] },
+  { path: 'frontend/src/components/layout/AppSidebar.vue', anchors: ['userNavSections', 'mito-user-nav', 'mito-user-link'] },
   { path: 'frontend/src/themes/mito/labels.ts', anchors: ['pelicanPageSummary', 'pelicanPageSize', 'goToPage', 'pelicanExpandGroup', 'pelicanCollapseGroup'] },
   { path: 'frontend/src/components/user/pelican/PelicanShowcaseCard.vue', anchors: ['data-testid="pelican-showcase-card"', "emit('visible')", 'scrollMargin'] },
   // Contracts also run before apply/after remove; generated Mito seams are checked by edits above.

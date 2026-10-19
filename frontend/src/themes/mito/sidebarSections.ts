@@ -9,6 +9,8 @@
  * still rendered, and items this module does not know about (custom menus,
  * simple-mode entries) fall into a trailing fallback section instead of
  * disappearing.
+ *
+ * The regular-user menu uses the same mechanism with its own section list.
  */
 import { isMitoTheme } from './index'
 
@@ -58,6 +60,40 @@ export const SIDEBAR_SECTIONS: SectionSpec[] = [
   }
 ]
 
+
+/**
+ * Regular-user menu sections. The user menu is much shorter than the admin
+ * menu, but grouping it keeps the entry point scannable and lets the theme
+ * render a calmer, more deliberate hierarchy.
+ */
+export const USER_SIDEBAR_SECTIONS: SectionSpec[] = [
+  {
+    id: 'workspace',
+    labelKey: 'nav.sections.workspace',
+    paths: ['/dashboard', '/keys', '/batch-image']
+  },
+  {
+    id: 'usage',
+    labelKey: 'nav.sections.usage',
+    paths: ['/usage', '/usage-stats']
+  },
+  {
+    id: 'services',
+    labelKey: 'nav.sections.services',
+    paths: ['/available-channels', '/monitor', '/pelican-showcase']
+  },
+  {
+    id: 'billing',
+    labelKey: 'nav.sections.billing',
+    paths: ['/subscriptions', '/purchase', '/orders', '/redeem', '/affiliate']
+  },
+  {
+    id: 'account',
+    labelKey: 'nav.sections.account',
+    paths: ['/support-tickets', '/profile']
+  }
+]
+
 const FALLBACK_LABEL_KEY = 'nav.sections.other'
 
 type Translate = (key: string) => string
@@ -66,7 +102,8 @@ type Translate = (key: string) => string
  * Insert one heading per non-empty section, preserving the relative order that
  * `SIDEBAR_SECTIONS` declares. Upstream theme builds get the list untouched.
  */
-export function applyMitoSidebarSections<T extends { path: string }>(
+function applySections<T extends { path: string }>(
+  specs: SectionSpec[],
   items: T[],
   t: Translate
 ): T[] {
@@ -85,7 +122,7 @@ export function applyMitoSidebarSections<T extends { path: string }>(
     out.push(...sectionItems)
   }
 
-  for (const section of SIDEBAR_SECTIONS) {
+  for (const section of specs) {
     const matched: T[] = []
     for (const path of section.paths) {
       const item = items.find((candidate) => candidate.path === path && !consumed.has(candidate.path))
@@ -98,6 +135,22 @@ export function applyMitoSidebarSections<T extends { path: string }>(
 
   pushSection(FALLBACK_LABEL_KEY, items.filter((item) => !consumed.has(item.path)))
   return out
+}
+
+/** Insert section headings into the admin menu. */
+export function applyMitoSidebarSections<T extends { path: string }>(
+  items: T[],
+  t: Translate
+): T[] {
+  return applySections(SIDEBAR_SECTIONS, items, t)
+}
+
+/** Insert section headings into the regular-user menu. */
+export function applyMitoUserSidebarSections<T extends { path: string }>(
+  items: T[],
+  t: Translate
+): T[] {
+  return applySections(USER_SIDEBAR_SECTIONS, items, t)
 }
 
 export interface NavSection<T> {

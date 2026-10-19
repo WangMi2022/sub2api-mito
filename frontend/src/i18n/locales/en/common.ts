@@ -180,7 +180,12 @@ export default {
       commerce: 'Commerce',
       insights: 'Usage & Audit',
       system: 'System',
-      other: 'Other'
+      other: 'Other',
+      workspace: 'Workspace',
+      usage: 'Usage & Records',
+      services: 'Services & Channels',
+      billing: 'Billing & Plans',
+      account: 'Account & Support'
     },
     dashboard: 'Dashboard',
     announcements: 'Announcements',

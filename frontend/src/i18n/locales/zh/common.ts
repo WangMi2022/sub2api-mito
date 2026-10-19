@@ -180,7 +180,12 @@ export default {
       commerce: '商业化',
       insights: '数据与审计',
       system: '系统',
-      other: '其他'
+      other: '其他',
+      workspace: '工作台',
+      usage: '用量与记录',
+      services: '服务与渠道',
+      billing: '订阅与账单',
+      account: '账户与支持'
     },
     dashboard: '仪表盘',
     announcements: '公告',
