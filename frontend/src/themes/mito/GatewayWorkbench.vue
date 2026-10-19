@@ -13,7 +13,7 @@
         </router-link>
       </div>
 
-      <div class="yuyu-console-workbench-frame" :style="{ '--workbench-accent': accent }">
+      <div class="yuyu-console-workbench-frame">
         <div class="yuyu-console-workbench">
           <header class="yuyu-console-header">
             <div class="yuyu-console-header-left">
@@ -42,9 +42,9 @@
                 <svg viewBox="0 0 600 220" role="img" :aria-label="t('home.mito.workbench.topology')">
                   <defs>
                     <linearGradient id="yuyu-topo-line" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stop-color="#8b96b5" stop-opacity="0.1" />
-                      <stop offset="50%" stop-color="#8b96b5" stop-opacity="0.5" />
-                      <stop offset="100%" stop-color="#8b96b5" stop-opacity="0.1" />
+                      <stop offset="0%" stop-color="var(--wb-accent-bright)" stop-opacity="0.12" />
+                      <stop offset="50%" stop-color="var(--wb-accent-bright)" stop-opacity="0.55" />
+                      <stop offset="100%" stop-color="var(--wb-accent-bright)" stop-opacity="0.12" />
                     </linearGradient>
                   </defs>
                   <ellipse class="topo-orbit" cx="300" cy="110" rx="240" ry="64" />
@@ -265,7 +265,6 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
-const accent = '#10b981'
 const entryPath = computed(() => (props.isAuthenticated ? '/keys' : '/login'))
 
 interface Policy {
