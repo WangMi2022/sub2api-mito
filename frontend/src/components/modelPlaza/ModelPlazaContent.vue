@@ -50,7 +50,10 @@
 
       <!-- 分组分节的模型清单(默认按生效倍率升序) -->
       <div v-if="filteredGroups.length > 0" class="mito-plaza-groups space-y-5">
-        <PlazaGroupSection v-for="g in filteredGroups" :key="g.id" :group="g" />
+        <MitoModelCatalog v-if="isMitoTheme" :groups="filteredGroups" />
+        <template v-else>
+          <PlazaGroupSection v-for="g in filteredGroups" :key="g.id" :group="g" />
+        </template>
       </div>
       <div
         v-else
@@ -70,6 +73,8 @@ import DOMPurify from 'dompurify'
 import Icon from '@/components/icons/Icon.vue'
 import PlazaFilterBar from './PlazaFilterBar.vue'
 import PlazaGroupSection from './PlazaGroupSection.vue'
+import MitoModelCatalog from '@/themes/mito/ModelCatalog.vue'
+import { isMitoTheme } from '@/themes/mito'
 import type { ModelPlazaGroup, ModelPlazaResponse } from '@/api/modelPlaza'
 import { useAuthStore } from '@/stores/auth'
 

@@ -761,6 +761,38 @@ export default {
 
   // Model Plaza (public group/model pricing showcase)
   modelPlaza: {
+    catalog: {
+      categories: {
+        language: 'Language Models (LLM)',
+        embedding: 'Embedding Models',
+        rerank: 'Rerank Models',
+        image: 'Image Models',
+        video: 'Video Models',
+        audio: 'Audio Models',
+        other: 'Other Models'
+      },
+      tags: {
+        language: 'Language',
+        embedding: 'Embedding',
+        rerank: 'Rerank',
+        image: 'Image',
+        video: 'Video',
+        audio: 'Audio',
+        other: 'API'
+      },
+      standardPrice: 'Standard-period price',
+      tiered: 'Tiered pricing',
+      cacheRead: 'Cache read',
+      cacheWrite: 'Cache write',
+      timePricing: 'Time-based pricing',
+      priceHint: 'Prices include the effective group rate and are in USD. Offers for the same model in different groups are shown separately.',
+      priceDescription: 'Prices use the effective rate for this group. Open details for official reference prices and full billing rules.',
+      groupDescription: 'Group notes: {description}',
+      specialPricing: 'Time or reasoning-effort pricing rules also apply. See details.',
+      details: 'Price details',
+      detailsFor: 'View pricing for {model} in {group}',
+      offerCount: '{count} model offers'
+    },
     title: 'Model Plaza',
     description: 'Browse available models and pricing by group',
     loading: 'Loading...',

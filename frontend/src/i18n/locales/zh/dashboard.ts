@@ -766,6 +766,38 @@ export default {
 
   // Model Plaza (public group/model pricing showcase)
   modelPlaza: {
+    catalog: {
+      categories: {
+        language: '大语言模型（LLM）',
+        embedding: '嵌入模型（Embedding）',
+        rerank: '重排序模型（Rerank）',
+        image: '图像模型（Image）',
+        video: '视频模型（Video）',
+        audio: '音频模型（Audio）',
+        other: '其他模型'
+      },
+      tags: {
+        language: '语言模型',
+        embedding: '嵌入',
+        rerank: 'Rerank',
+        image: '图像',
+        video: '视频',
+        audio: '音频',
+        other: 'API'
+      },
+      standardPrice: '标准时段实付',
+      tiered: '区间计费',
+      cacheRead: '缓存读取',
+      cacheWrite: '缓存写入',
+      timePricing: '分时计价',
+      priceHint: '价格已计入分组生效倍率，币种为 USD。同一模型在不同分组的报价分别展示。',
+      priceDescription: '按当前分组的生效倍率展示价格，可查看官方参考价与完整计费规则。',
+      groupDescription: '分组说明：{description}',
+      specialPricing: '另有时段或思考等级计费规则，详见明细。',
+      details: '价格明细',
+      detailsFor: '查看 {group} 的 {model} 价格明细',
+      offerCount: '{count} 个模型报价'
+    },
     title: '模型广场',
     description: '按分组浏览可用模型与价格',
     loading: '加载中...',
