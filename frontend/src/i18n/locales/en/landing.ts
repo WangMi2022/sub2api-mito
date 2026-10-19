@@ -5,6 +5,47 @@ export default {
   },
   // Home Page
   home: {
+    mito: {
+      heroSubtitle: 'One Key, Leading Chinese AI Models',
+      heroDescription: 'Access Kimi, GLM, DeepSeek and MiniMax in one place, with simpler model calls, key management and usage tracking.',
+      heroBadge: 'Chinese LLMs · One Gateway',
+      terminalLabel: 'Example API call',
+      stats: {
+        models: 'Model Families',
+        key: 'Unified Key',
+        failover: 'Smart Routing',
+        billing: 'Cost Tracking',
+        routingValue: 'Auto',
+        billingValue: 'Usage'
+      },
+      steps: {
+        title: 'Three Steps to Your First Call',
+        subtitle: 'Create a key, connect a model and track usage in one dashboard',
+        connect: {
+          title: 'Create a Key',
+          desc: 'Sign in and generate an API key, then choose a group with the models and quota you need.'
+        },
+        call: {
+          title: 'Configure Your Client',
+          desc: 'Set the gateway API address and key in a compatible SDK, then choose a model to get started.'
+        },
+        monitor: {
+          title: 'Track Usage',
+          desc: 'Review request logs, tokens and itemized costs, and manage your quota as needed.'
+        }
+      },
+      providers: {
+        kimi: 'Kimi',
+        glm: 'GLM',
+        deepseek: 'DeepSeek',
+        minimax: 'MiniMax'
+      },
+      cta: {
+        title: 'Connect Your Next Idea',
+        description: 'Manage keys, models and usage in one place. Keep your focus on creating.',
+        button: 'Get Started'
+      }
+    },
     viewOnGithub: 'View on GitHub',
     viewDocs: 'View Documentation',
     docs: 'Docs',

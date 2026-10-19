@@ -1,0 +1,648 @@
+/**
+ * Mito landing page.
+ *
+ * Scoped to the public home view. Motion is atmospheric only: aurora washes and
+ * depth-sorted particle glows, no decorative grid or connector lines.
+ * Everything degrades to static under prefers-reduced-motion.
+ */
+html[data-ui-theme='mito'] .mito-landing {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(1100px 620px at 12% -8%, rgb(37 99 235 / 10%), transparent 62%),
+    radial-gradient(900px 520px at 92% 6%, rgb(14 165 233 / 9%), transparent 60%),
+    linear-gradient(180deg, #f8fafc 0%, #f4f7fb 46%, #eef3fa 100%);
+}
+
+html[data-ui-theme='mito'].dark .mito-landing {
+  background:
+    radial-gradient(1100px 620px at 12% -8%, rgb(37 99 235 / 22%), transparent 62%),
+    radial-gradient(900px 520px at 92% 6%, rgb(14 165 233 / 14%), transparent 60%),
+    linear-gradient(180deg, #020617 0%, #060d1f 46%, #020617 100%);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-particles-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-aurora {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(80px);
+  opacity: 0.5;
+  will-change: transform;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-aurora-a {
+  top: -18%;
+  left: -8%;
+  width: 46rem;
+  height: 30rem;
+  background: radial-gradient(circle at 40% 40%, rgb(59 130 246 / 30%), transparent 68%);
+  animation: mito-aurora-drift-a 26s ease-in-out infinite alternate;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-aurora-b {
+  top: 4%;
+  right: -12%;
+  width: 40rem;
+  height: 28rem;
+  background: radial-gradient(circle at 55% 45%, rgb(34 211 238 / 22%), transparent 68%);
+  animation: mito-aurora-drift-b 32s ease-in-out infinite alternate;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-aurora-c {
+  bottom: -24%;
+  left: 26%;
+  width: 44rem;
+  height: 26rem;
+  background: radial-gradient(circle at 50% 50%, rgb(129 140 248 / 20%), transparent 70%);
+  animation: mito-aurora-drift-c 38s ease-in-out infinite alternate;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-particles-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 50% 18%, transparent 45%, rgb(248 250 252 / 55%) 100%);
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-particles-vignette {
+  background: radial-gradient(120% 90% at 50% 18%, transparent 42%, rgb(2 6 23 / 72%) 100%);
+}
+
+@keyframes mito-aurora-drift-a {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(6%, 8%, 0) scale(1.12); }
+}
+
+@keyframes mito-aurora-drift-b {
+  from { transform: translate3d(0, 0, 0) scale(1.05); }
+  to { transform: translate3d(-7%, 10%, 0) scale(1); }
+}
+
+@keyframes mito-aurora-drift-c {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(4%, -8%, 0) scale(1.14); }
+}
+
+/* ---------- Hero ---------- */
+html[data-ui-theme='mito'] .mito-landing .mito-landing-header {
+  position: relative;
+  z-index: 20;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-landing-nav-pill {
+  border: 1px solid rgb(226 232 240 / 70%);
+  background: rgb(255 255 255 / 62%);
+  backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 4%);
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-landing-nav-pill {
+  border-color: rgb(51 65 85 / 55%);
+  background: rgb(15 23 42 / 55%);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-hero {
+  position: relative;
+  z-index: 10;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem 0.375rem 0.5rem;
+  border: 1px solid rgb(37 99 235 / 18%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 66%);
+  color: rgb(37 99 235);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 30px -22px rgb(37 99 235 / 70%);
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-hero-badge {
+  border-color: rgb(96 165 250 / 24%);
+  background: rgb(15 23 42 / 60%);
+  color: rgb(147 197 253);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-hero-badge-dot {
+  position: relative;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: #22c55e;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-hero-badge-dot::after {
+  content: '';
+  position: absolute;
+  inset: -0.25rem;
+  border-radius: 999px;
+  background: rgb(34 197 94 / 35%);
+  animation: mito-pulse 2.4s ease-out infinite;
+}
+
+@keyframes mito-pulse {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  70% { transform: scale(1.8); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-hero-title {
+  background: linear-gradient(96deg, #0f172a 4%, #1d4ed8 48%, #0891b2 96%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: -0.03em;
+  line-height: 1.06;
+  text-wrap: balance;
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-hero-title {
+  background: linear-gradient(96deg, #ffffff 4%, #93c5fd 48%, #67e8f9 96%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-hero-sub {
+  color: rgb(51 65 85);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-hero-sub {
+  color: rgb(203 213 225);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-hero-desc {
+  max-width: 34rem;
+  color: rgb(100 116 139);
+  line-height: 1.8;
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-hero-desc {
+  color: rgb(148 163 184);
+}
+
+/* Primary CTA with a slow sheen sweep. */
+html[data-ui-theme='mito'] .mito-landing .mito-cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.875rem;
+  background: linear-gradient(120deg, #1d4ed8 0%, #2563eb 52%, #0e7490 100%);
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  overflow: hidden;
+  box-shadow:
+    0 18px 36px -18px rgb(37 99 235 / 80%),
+    inset 0 1px 0 rgb(255 255 255 / 22%);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-cta::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -60%;
+  width: 42%;
+  background: linear-gradient(100deg, transparent, rgb(255 255 255 / 34%), transparent);
+  transform: skewX(-18deg);
+  animation: mito-sheen 5.6s ease-in-out infinite;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-cta:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 22px 44px -18px rgb(37 99 235 / 85%),
+    inset 0 1px 0 rgb(255 255 255 / 28%);
+}
+
+@keyframes mito-sheen {
+  0%, 58% { left: -60%; }
+  78%, 100% { left: 130%; }
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-cta-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid rgb(203 213 225 / 80%);
+  border-radius: 0.875rem;
+  background: rgb(255 255 255 / 55%);
+  color: rgb(51 65 85);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  backdrop-filter: blur(12px);
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-cta-ghost:hover {
+  border-color: rgb(37 99 235 / 40%);
+  background: rgb(255 255 255 / 85%);
+  color: rgb(29 78 216);
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-cta-ghost {
+  border-color: rgb(51 65 85 / 80%);
+  background: rgb(15 23 42 / 55%);
+  color: rgb(203 213 225);
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-cta-ghost:hover {
+  border-color: rgb(96 165 250 / 40%);
+  background: rgb(30 41 59 / 80%);
+  color: rgb(191 219 254);
+}
+
+/* ---------- Stats strip ---------- */
+html[data-ui-theme='mito'] .mito-landing .mito-landing-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid rgb(226 232 240 / 70%);
+  border-radius: 1rem;
+  background: rgb(226 232 240 / 70%);
+  backdrop-filter: blur(16px);
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-landing-stats {
+  border-color: rgb(51 65 85 / 60%);
+  background: rgb(30 41 59 / 55%);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-landing-stat {
+  padding: 1rem 1.25rem;
+  background: rgb(255 255 255 / 72%);
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-landing-stat {
+  background: rgb(15 23 42 / 72%);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-landing-stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: rgb(15 23 42);
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-landing-stat-value {
+  color: rgb(248 250 252);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-landing-stat-label {
+  margin-top: 0.125rem;
+  font-size: 0.75rem;
+  color: rgb(100 116 139);
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-landing-stat-label {
+  color: rgb(148 163 184);
+}
+
+/* ---------- Cards & sections ---------- */
+html[data-ui-theme='mito'] .mito-landing .mito-glass-card {
+  position: relative;
+  border: 1px solid rgb(226 232 240 / 70%);
+  border-radius: 1.125rem;
+  background: linear-gradient(180deg, rgb(255 255 255 / 82%), rgb(255 255 255 / 64%));
+  backdrop-filter: blur(16px);
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 4%),
+    0 18px 40px -32px rgb(15 23 42 / 35%);
+  transition: transform 260ms ease, box-shadow 260ms ease, border-color 260ms ease;
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-glass-card {
+  border-color: rgb(51 65 85 / 60%);
+  background: linear-gradient(180deg, rgb(15 23 42 / 82%), rgb(15 23 42 / 55%));
+  box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-glass-card:hover {
+  transform: translateY(-3px);
+  border-color: rgb(37 99 235 / 28%);
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 4%),
+    0 28px 50px -30px rgb(37 99 235 / 40%);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.875rem;
+  color: #fff;
+  box-shadow: 0 12px 24px -14px rgb(37 99 235 / 70%);
+  transition: transform 260ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-glass-card:hover .mito-feature-icon {
+  transform: translateY(-2px) scale(1.04);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-section-title {
+  font-size: clamp(1.5rem, 1.1rem + 1.2vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: rgb(15 23 42);
+  text-wrap: balance;
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-section-title {
+  color: rgb(248 250 252);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-section-sub {
+  margin-top: 0.5rem;
+  color: rgb(100 116 139);
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-section-sub {
+  color: rgb(148 163 184);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-step-index {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  background: linear-gradient(150deg, rgb(37 99 235 / 90%), rgb(14 165 233 / 45%));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-step-index {
+  background: linear-gradient(150deg, rgb(147 197 253 / 95%), rgb(103 232 249 / 45%));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Provider chips */
+html[data-ui-theme='mito'] .mito-landing .mito-provider {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1.125rem;
+  border: 1px solid rgb(226 232 240 / 80%);
+  border-radius: 0.875rem;
+  background: rgb(255 255 255 / 62%);
+  backdrop-filter: blur(12px);
+  transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-provider:hover {
+  transform: translateY(-2px);
+  border-color: rgb(37 99 235 / 30%);
+  box-shadow: 0 16px 30px -24px rgb(37 99 235 / 70%);
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-provider {
+  border-color: rgb(51 65 85 / 65%);
+  background: rgb(15 23 42 / 62%);
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-provider:hover {
+  border-color: rgb(96 165 250 / 32%);
+}
+
+/* The terminal preview follows the selected color scheme. */
+html[data-ui-theme='mito'] .mito-landing .terminal-container {
+  position: relative;
+  width: min(100%, 28rem);
+  min-width: 0;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-terminal-glow::before {
+  content: '';
+  position: absolute;
+  inset: -10%;
+  z-index: -1;
+  border-radius: 2rem;
+  background: radial-gradient(ellipse at center, rgb(59 130 246 / 14%), transparent 68%);
+  filter: blur(32px);
+}
+
+html[data-ui-theme='mito'] .mito-landing .terminal-window {
+  --terminal-header: #f8fafc;
+  --terminal-body: #fff;
+  --terminal-border: rgb(148 163 184 / 22%);
+  --terminal-muted: #64748b;
+  --terminal-prompt: #047857;
+  --terminal-command: #0369a1;
+  --terminal-flag: #6d28d9;
+  --terminal-url: #0f766e;
+  --terminal-response: #92400e;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--terminal-border);
+  border-radius: 1.125rem;
+  background: var(--terminal-body);
+  box-shadow:
+    0 26px 60px -28px rgb(30 64 175 / 22%),
+    0 8px 20px -12px rgb(15 23 42 / 12%);
+  transition: transform 240ms ease, box-shadow 240ms ease;
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .terminal-window {
+  --terminal-header: #131f33;
+  --terminal-body: #0d1627;
+  --terminal-border: rgb(148 163 184 / 18%);
+  --terminal-muted: #94a3b8;
+  --terminal-prompt: #4ade80;
+  --terminal-command: #7dd3fc;
+  --terminal-flag: #c4b5fd;
+  --terminal-url: #5eead4;
+  --terminal-response: #fcd34d;
+  box-shadow:
+    0 32px 64px -30px rgb(0 0 0 / 65%),
+    0 0 40px -16px rgb(37 99 235 / 22%);
+}
+
+html[data-ui-theme='mito'] .mito-landing .terminal-window:hover {
+  transform: translateY(-3px);
+}
+
+html[data-ui-theme='mito'] .mito-landing .terminal-header {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--terminal-border);
+  background: var(--terminal-header);
+}
+
+html[data-ui-theme='mito'] .mito-landing .terminal-buttons {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.5rem;
+}
+
+html[data-ui-theme='mito'] .mito-landing .terminal-buttons span {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+}
+
+html[data-ui-theme='mito'] .mito-landing .btn-close { background: #ef4444; }
+html[data-ui-theme='mito'] .mito-landing .btn-minimize { background: #eab308; }
+html[data-ui-theme='mito'] .mito-landing .btn-maximize { background: #22c55e; }
+
+html[data-ui-theme='mito'] .mito-landing .terminal-title {
+  flex: 1;
+  margin-right: 2.875rem;
+  color: var(--terminal-muted);
+  font: 0.75rem ui-monospace, monospace;
+  text-align: center;
+}
+
+html[data-ui-theme='mito'] .mito-landing .terminal-body {
+  min-height: 11rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  background: var(--terminal-body);
+  color: var(--terminal-muted);
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  font-size: clamp(0.6875rem, 0.5rem + 0.4vw, 0.875rem);
+  line-height: 2;
+  overflow-wrap: anywhere;
+}
+
+html[data-ui-theme='mito'] .mito-landing .code-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0 0.5rem;
+  opacity: 0;
+  animation: mito-terminal-appear 500ms ease forwards;
+}
+
+html[data-ui-theme='mito'] .mito-landing .line-1 { animation-delay: 150ms; }
+html[data-ui-theme='mito'] .mito-landing .line-2 { animation-delay: 650ms; }
+html[data-ui-theme='mito'] .mito-landing .line-3 { animation-delay: 1200ms; }
+html[data-ui-theme='mito'] .mito-landing .line-4 { animation-delay: 1700ms; }
+
+@keyframes mito-terminal-appear {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+html[data-ui-theme='mito'] .mito-landing .code-prompt {
+  color: var(--terminal-prompt);
+  font-weight: 700;
+}
+html[data-ui-theme='mito'] .mito-landing .code-cmd { color: var(--terminal-command); }
+html[data-ui-theme='mito'] .mito-landing .code-flag { color: var(--terminal-flag); }
+html[data-ui-theme='mito'] .mito-landing .code-url { color: var(--terminal-url); }
+html[data-ui-theme='mito'] .mito-landing .code-comment { color: var(--terminal-muted); }
+html[data-ui-theme='mito'] .mito-landing .code-response { color: var(--terminal-response); }
+
+html[data-ui-theme='mito'] .mito-landing .code-success {
+  padding: 0 0.5rem;
+  border-radius: 0.375rem;
+  background: rgb(34 197 94 / 10%);
+  color: var(--terminal-prompt);
+  font-weight: 600;
+}
+
+html[data-ui-theme='mito'] .mito-landing .cursor {
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.9rem;
+  background: var(--terminal-prompt);
+  animation: mito-terminal-blink 1.2s step-end infinite;
+}
+
+@keyframes mito-terminal-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* CTA band */
+html[data-ui-theme='mito'] .mito-landing .mito-cta-band {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid rgb(37 99 235 / 20%);
+  background:
+    radial-gradient(700px 240px at 15% 0%, rgb(37 99 235 / 16%), transparent 70%),
+    radial-gradient(600px 240px at 88% 100%, rgb(14 165 233 / 14%), transparent 70%),
+    rgb(255 255 255 / 70%);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 30px 60px -40px rgb(37 99 235 / 55%);
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-cta-band {
+  border-color: rgb(96 165 250 / 20%);
+  background:
+    radial-gradient(700px 240px at 15% 0%, rgb(37 99 235 / 26%), transparent 70%),
+    radial-gradient(600px 240px at 88% 100%, rgb(14 165 233 / 18%), transparent 70%),
+    rgb(15 23 42 / 72%);
+}
+
+@media (min-width: 768px) {
+  html[data-ui-theme='mito'] .mito-landing .mito-landing-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-landing .code-line {
+    opacity: 1;
+    transform: none;
+  }
+
+  html[data-ui-theme='mito'] .mito-landing .code-line,
+  html[data-ui-theme='mito'] .mito-landing .cursor,
+  html[data-ui-theme='mito'] .mito-landing .mito-aurora,
+  html[data-ui-theme='mito'] .mito-landing .mito-cta::after,
+  html[data-ui-theme='mito'] .mito-landing .mito-hero-badge-dot::after {
+    animation: none;
+  }
+
+  html[data-ui-theme='mito'] .mito-landing .terminal-window,
+  html[data-ui-theme='mito'] .mito-landing .mito-glass-card,
+  html[data-ui-theme='mito'] .mito-landing .mito-provider,
+  html[data-ui-theme='mito'] .mito-landing .mito-cta,
+  html[data-ui-theme='mito'] .mito-landing .mito-feature-icon {
+    transition-duration: 1ms;
+  }
+
+  html[data-ui-theme='mito'] .mito-landing .terminal-window:hover,
+  html[data-ui-theme='mito'] .mito-landing .mito-glass-card:hover,
+  html[data-ui-theme='mito'] .mito-landing .mito-glass-card:hover .mito-feature-icon,
+  html[data-ui-theme='mito'] .mito-landing .mito-provider:hover,
+  html[data-ui-theme='mito'] .mito-landing .mito-cta:hover {
+    transform: none;
+  }
+}

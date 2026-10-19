@@ -1,6 +1,37 @@
 /** Small, reversible seams. Update these anchors when upstream changes a layout. */
 export const adaptations = [
   {
+    "path": "frontend/src/views/HomeView.vue",
+    "edits": [
+      {
+        "before": "import Icon from '@/components/icons/Icon.vue'",
+        "after": "import Icon from '@/components/icons/Icon.vue'\nimport MitoLandingPage from '@/themes/mito/LandingPage.vue'\nimport { isMitoTheme } from '@/themes/mito'"
+      },
+      {
+        "before": "  <!-- Default Home Page -->",
+        "after": "  <!-- Mito Home Page -->\n  <MitoLandingPage\n    v-else-if=\"isMitoTheme\"\n    :site-name=\"siteName\"\n    :site-logo=\"siteLogo\"\n    :doc-url=\"docUrl\"\n    :github-url=\"githubUrl\"\n    :is-dark=\"isDark\"\n    :is-authenticated=\"isAuthenticated\"\n    :dashboard-path=\"dashboardPath\"\n    :user-initial=\"userInitial\"\n    :current-year=\"currentYear\"\n    :show-model-plaza-entry=\"showModelPlazaEntry\"\n    @toggle-theme=\"toggleTheme\"\n  />\n\n  <!-- Default Home Page -->"
+      }
+    ]
+  },
+  {
+    "path": "frontend/src/i18n/locales/zh/landing.ts",
+    "edits": [
+      {
+        "before": "  home: {\n",
+        "after": "  home: {\n    mito: {\n      heroSubtitle: '一个密钥，畅用国产大模型',\n      heroDescription: '一站式接入 Kimi、GLM、DeepSeek、MiniMax，让模型调用、密钥与用量管理更简单。',\n      heroBadge: '国产大模型 · 统一接入',\n      terminalLabel: 'API 调用示例',\n      stats: {\n        models: '国模生态',\n        key: '统一密钥',\n        failover: '多路调度',\n        billing: '费用可查',\n        routingValue: '自动',\n        billingValue: '按量'\n      },\n      steps: {\n        title: '三步接入，开始调用',\n        subtitle: '从创建密钥到查看用量，在一个控制台完成',\n        connect: {\n          title: '创建密钥',\n          desc: '登录控制台生成 API Key，按分组选择可用模型与额度。'\n        },\n        call: {\n          title: '配置调用',\n          desc: '在兼容的 SDK 中配置本站 API 地址与密钥，选择模型开始调用。'\n        },\n        monitor: {\n          title: '查看用量',\n          desc: '查看请求日志、Token 与费用明细，按需管理调用额度。'\n        }\n      },\n      providers: {\n        kimi: 'Kimi',\n        glm: 'GLM',\n        deepseek: 'DeepSeek',\n        minimax: 'MiniMax'\n      },\n      cta: {\n        title: '让下一次灵感，即刻接入',\n        description: '统一管理密钥、模型与用量，把精力留给创造。',\n        button: '开始使用'\n      }\n    },\n"
+      }
+    ]
+  },
+  {
+    "path": "frontend/src/i18n/locales/en/landing.ts",
+    "edits": [
+      {
+        "before": "  home: {\n",
+        "after": "  home: {\n    mito: {\n      heroSubtitle: 'One Key, Leading Chinese AI Models',\n      heroDescription: 'Access Kimi, GLM, DeepSeek and MiniMax in one place, with simpler model calls, key management and usage tracking.',\n      heroBadge: 'Chinese LLMs · One Gateway',\n      terminalLabel: 'Example API call',\n      stats: {\n        models: 'Model Families',\n        key: 'Unified Key',\n        failover: 'Smart Routing',\n        billing: 'Cost Tracking',\n        routingValue: 'Auto',\n        billingValue: 'Usage'\n      },\n      steps: {\n        title: 'Three Steps to Your First Call',\n        subtitle: 'Create a key, connect a model and track usage in one dashboard',\n        connect: {\n          title: 'Create a Key',\n          desc: 'Sign in and generate an API key, then choose a group with the models and quota you need.'\n        },\n        call: {\n          title: 'Configure Your Client',\n          desc: 'Set the gateway API address and key in a compatible SDK, then choose a model to get started.'\n        },\n        monitor: {\n          title: 'Track Usage',\n          desc: 'Review request logs, tokens and itemized costs, and manage your quota as needed.'\n        }\n      },\n      providers: {\n        kimi: 'Kimi',\n        glm: 'GLM',\n        deepseek: 'DeepSeek',\n        minimax: 'MiniMax'\n      },\n      cta: {\n        title: 'Connect Your Next Idea',\n        description: 'Manage keys, models and usage in one place. Keep your focus on creating.',\n        button: 'Get Started'\n      }\n    },\n"
+      }
+    ]
+  },
+  {
     path: 'frontend/src/main.ts',
     edits: [{ before: "import './style.css'", after: "import './style.css'\nimport '@/themes/mito' // mito-theme: bootstrap" }]
   },
@@ -805,6 +836,12 @@ export const contracts = [
   { path: 'frontend/src/themes/mito/pelican-showcase.css', anchors: ["html[data-ui-theme='mito']", '.mito-pelican-group-header', '.mito-pelican-group-chevron', '.mito-pelican-grid', 'prefers-reduced-motion'] },
   { path: 'frontend/src/themes/mito/index.ts', anchors: ["import './pelican-showcase.css'"] },
   { path: 'frontend/src/themes/mito/sidebarSections.ts', anchors: ['SIDEBAR_SECTIONS', 'USER_SIDEBAR_SECTIONS', 'export function applyMitoSidebarSections', 'export function applyMitoUserSidebarSections', 'nav.sections.overview'] },
+  { path: 'frontend/src/themes/mito/landing.css', anchors: ["html[data-ui-theme='mito']", '.mito-landing', '.mito-hero-title', '.mito-cta', '.mito-glass-card', '--terminal-body: #fff', '--terminal-body: #0d1627', 'prefers-reduced-motion'] },
+  { path: 'frontend/src/themes/mito/LandingParticles.vue', anchors: ['mito-particles', 'prefers-reduced-motion', 'visibilitychange', 'requestAnimationFrame', 'onMotionChange'] },
+  { path: 'frontend/src/themes/mito/README.md', anchors: ['## 默认首页', 'LandingPage.vue', '终端示例'] },
+  { path: 'frontend/src/themes/mito/index.ts', anchors: ["import './landing.css'"] },
+  { path: 'frontend/src/themes/mito/LandingPage.vue', anchors: ['mito-landing', 'LandingParticles', 'mito-hero-title', 'mito-provider', 'showModelPlazaEntry', 'dashboardPath'] },
+  { path: 'frontend/src/views/HomeView.vue', anchors: ['v-else-if="compactHomeEnabled"', 'showModelPlazaEntry', 'const dashboardPath = computed'] },
   { path: 'frontend/src/themes/mito/user-sidebar.css', anchors: ["html[data-ui-theme='mito']", '.mito-user-nav', '.mito-user-link', '.mito-user-section', 'prefers-reduced-motion'] },
   { path: 'frontend/src/themes/mito/index.ts', anchors: ["import './user-sidebar.css'"] },
   { path: 'frontend/src/components/layout/AppSidebar.vue', anchors: ['userNavSections', 'mito-user-nav', 'mito-user-link'] },

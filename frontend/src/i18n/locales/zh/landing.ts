@@ -5,6 +5,47 @@ export default {
   },
   // Home Page
   home: {
+    mito: {
+      heroSubtitle: '一个密钥，畅用国产大模型',
+      heroDescription: '一站式接入 Kimi、GLM、DeepSeek、MiniMax，让模型调用、密钥与用量管理更简单。',
+      heroBadge: '国产大模型 · 统一接入',
+      terminalLabel: 'API 调用示例',
+      stats: {
+        models: '国模生态',
+        key: '统一密钥',
+        failover: '多路调度',
+        billing: '费用可查',
+        routingValue: '自动',
+        billingValue: '按量'
+      },
+      steps: {
+        title: '三步接入，开始调用',
+        subtitle: '从创建密钥到查看用量，在一个控制台完成',
+        connect: {
+          title: '创建密钥',
+          desc: '登录控制台生成 API Key，按分组选择可用模型与额度。'
+        },
+        call: {
+          title: '配置调用',
+          desc: '在兼容的 SDK 中配置本站 API 地址与密钥，选择模型开始调用。'
+        },
+        monitor: {
+          title: '查看用量',
+          desc: '查看请求日志、Token 与费用明细，按需管理调用额度。'
+        }
+      },
+      providers: {
+        kimi: 'Kimi',
+        glm: 'GLM',
+        deepseek: 'DeepSeek',
+        minimax: 'MiniMax'
+      },
+      cta: {
+        title: '让下一次灵感，即刻接入',
+        description: '统一管理密钥、模型与用量，把精力留给创造。',
+        button: '开始使用'
+      }
+    },
     viewOnGithub: '在 GitHub 上查看',
     viewDocs: '查看文档',
     docs: '文档',
