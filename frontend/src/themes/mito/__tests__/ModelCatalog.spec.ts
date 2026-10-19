@@ -5,6 +5,7 @@ import type { UserPricingInterval } from '@/api/channels'
 import PlazaModelPricingTable from '@/components/modelPlaza/PlazaModelPricingTable.vue'
 import ModelCatalogCard from '../ModelCatalogCard.vue'
 import ModelCatalog from '../ModelCatalog.vue'
+import PlazaHomeLink from '../PlazaHomeLink.vue'
 import { catalogCategory, catalogSections } from '../modelCatalog'
 
 vi.mock('vue-i18n', async importOriginal => ({
@@ -101,6 +102,15 @@ describe('Model catalog pricing parity with the existing plaza table', () => {
 })
 
 describe('Model catalog visibility and details', () => {
+  it('provides an explicit home link without relying on browser history', () => {
+    const wrapper = mount(PlazaHomeLink, { global: {
+      stubs: { RouterLink: { props: ['to'], template: '<a :href="to"><slot /></a>' } }
+    } })
+    expect(wrapper.get('a').attributes('href')).toBe('/home')
+    expect(wrapper.get('a').text()).toBe('modelPlaza.nav.home')
+    wrapper.unmount()
+  })
+
   it('keeps different group offers and unknown models without changing source data', () => {
     const g1 = group(), g2 = group({ id: 2, name: 'Exclusive group', rate_multiplier: 3, is_exclusive: true })
     const unknown = { ...model(), name: 'custom-private-model' }

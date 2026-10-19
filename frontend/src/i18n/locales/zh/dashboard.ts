@@ -854,7 +854,8 @@ export default {
     },
     nav: {
       login: '登录',
-      backToDashboard: '回到后台'
+      backToDashboard: '回到后台',
+      home: '返回首页'
     }
   },
 

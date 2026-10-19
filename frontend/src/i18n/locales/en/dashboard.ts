@@ -850,7 +850,8 @@ export default {
     },
     nav: {
       login: 'Sign In',
-      backToDashboard: 'Back to Console'
+      backToDashboard: 'Back to Console',
+      home: 'Back to Home'
     }
   },
 

@@ -1,4 +1,59 @@
 /* Reference-style model cards. All surfaces follow the active colour scheme. */
+html[data-ui-theme='mito'] .mito-plaza-nav-inner {
+  flex-wrap: wrap;
+  row-gap: 10px;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-nav-brand {
+  flex: 1 1 180px;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-nav-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+  margin-left: auto;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-home-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 11px;
+  background: #fff;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 550;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+html[data-ui-theme='mito'].dark .mito-plaza-home-link {
+  border-color: #334155;
+  background: #182235;
+  color: #dbe5f4;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-home-link:hover {
+  border-color: #6f8be8;
+  color: #4263dd;
+}
+
+html[data-ui-theme='mito'].dark .mito-plaza-home-link:hover {
+  color: #b6c6ff;
+}
+
+html[data-ui-theme='mito'] .mito-plaza-home-link:focus-visible {
+  outline: 2px solid #6f8be8;
+  outline-offset: 3px;
+}
+
 html[data-ui-theme='mito'] .mito-model-catalog {
   --catalog-surface: #fff;
   --catalog-section: #f8fafc;

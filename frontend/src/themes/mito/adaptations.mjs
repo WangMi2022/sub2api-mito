@@ -282,6 +282,7 @@ export const adaptations = [
   {
     "path": "frontend/src/i18n/locales/en/dashboard.ts",
     "edits": [
+      {"before": "backToDashboard: 'Back to Console'", "after": "backToDashboard: 'Back to Console',\n      home: 'Back to Home'"},
       {"before": "  modelPlaza: {\n", "after": "  modelPlaza: {\n    catalog: {\n      categories: {\n        language: 'Language Models (LLM)',\n        embedding: 'Embedding Models',\n        rerank: 'Rerank Models',\n        image: 'Image Models',\n        video: 'Video Models',\n        audio: 'Audio Models',\n        other: 'Other Models'\n      },\n      tags: {\n        language: 'Language',\n        embedding: 'Embedding',\n        rerank: 'Rerank',\n        image: 'Image',\n        video: 'Video',\n        audio: 'Audio',\n        other: 'API'\n      },\n      standardPrice: 'Standard-period price',\n      tiered: 'Tiered pricing',\n      cacheRead: 'Cache read',\n      cacheWrite: 'Cache write',\n      timePricing: 'Time-based pricing',\n      priceHint: 'Prices include the effective group rate and are in USD. Offers for the same model in different groups are shown separately.',\n      priceDescription: 'Prices use the effective rate for this group. Open details for official reference prices and full billing rules.',\n      groupDescription: 'Group notes: {description}',\n      specialPricing: 'Time or reasoning-effort pricing rules also apply. See details.',\n      details: 'Price details',\n      detailsFor: 'View pricing for {model} in {group}',\n      offerCount: '{count} model offers'\n    },\n"},
       {
         "before": "  usage: {\n    title: 'Usage Records',",
@@ -292,10 +293,45 @@ export const adaptations = [
   {
     "path": "frontend/src/i18n/locales/zh/dashboard.ts",
     "edits": [
+      {"before": "backToDashboard: '回到后台'", "after": "backToDashboard: '回到后台',\n      home: '返回首页'"},
       {"before": "  modelPlaza: {\n", "after": "  modelPlaza: {\n    catalog: {\n      categories: {\n        language: '大语言模型（LLM）',\n        embedding: '嵌入模型（Embedding）',\n        rerank: '重排序模型（Rerank）',\n        image: '图像模型（Image）',\n        video: '视频模型（Video）',\n        audio: '音频模型（Audio）',\n        other: '其他模型'\n      },\n      tags: {\n        language: '语言模型',\n        embedding: '嵌入',\n        rerank: 'Rerank',\n        image: '图像',\n        video: '视频',\n        audio: '音频',\n        other: 'API'\n      },\n      standardPrice: '标准时段实付',\n      tiered: '区间计费',\n      cacheRead: '缓存读取',\n      cacheWrite: '缓存写入',\n      timePricing: '分时计价',\n      priceHint: '价格已计入分组生效倍率，币种为 USD。同一模型在不同分组的报价分别展示。',\n      priceDescription: '按当前分组的生效倍率展示价格，可查看官方参考价与完整计费规则。',\n      groupDescription: '分组说明：{description}',\n      specialPricing: '另有时段或思考等级计费规则，详见明细。',\n      details: '价格明细',\n      detailsFor: '查看 {group} 的 {model} 价格明细',\n      offerCount: '{count} 个模型报价'\n    },\n"},
       {
         "before": "  usage: {\n    title: '使用记录',",
         "after": "  usage: {\n    logsTitle: '请求日志',\n    statsTitle: '使用量统计',\n    statsDescription: '查看所选时间内的用量、费用和分布',\n    title: '使用记录',"
+      }
+    ]
+  },
+  {
+    "path": "frontend/src/components/modelPlaza/PlazaNavBar.vue",
+    "edits": [
+      {
+        "before": "class=\"mx-auto flex max-w-7xl",
+        "after": "class=\"mito-plaza-nav-inner mx-auto flex max-w-7xl"
+      },
+      {
+        "before": "<div class=\"flex min-w-0 items-center gap-3\">",
+        "after": "<div class=\"mito-plaza-nav-brand flex min-w-0 items-center gap-3\">"
+      },
+      {
+        "before": "      <!-- 右:登录 / 回到后台 -->\n      <RouterLink\n        v-if=\"isAuthenticated\"\n        :to=\"backTarget\"\n        class=\"inline-flex flex-shrink-0 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary-500/25 transition-all duration-200 hover:from-primary-600 hover:to-primary-700 hover:shadow-lg hover:shadow-primary-500/30 active:scale-[0.98] dark:shadow-primary-500/20\"\n      >\n        {{ t('modelPlaza.nav.backToDashboard') }}\n      </RouterLink>\n      <RouterLink\n        v-else\n        :to=\"{ path: '/login', query: { redirect: '/model-plaza' } }\"\n        class=\"inline-flex flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary-500/25 transition-all duration-200 hover:from-primary-600 hover:to-primary-700 hover:shadow-lg hover:shadow-primary-500/30 active:scale-[0.98] dark:shadow-primary-500/20\"\n      >\n        {{ t('modelPlaza.nav.login') }}\n      </RouterLink>\n",
+        "after": "      <!-- 右:返回首页 / 登录 / 回到后台 -->\n      <div class=\"mito-plaza-nav-actions\">\n        <MitoPlazaHomeLink v-if=\"isMitoTheme\" />\n        <RouterLink\n          v-if=\"isAuthenticated\"\n          :to=\"backTarget\"\n          class=\"inline-flex flex-shrink-0 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary-500/25 transition-all duration-200 hover:from-primary-600 hover:to-primary-700 hover:shadow-lg hover:shadow-primary-500/30 active:scale-[0.98] dark:shadow-primary-500/20\"\n        >\n          {{ t('modelPlaza.nav.backToDashboard') }}\n        </RouterLink>\n        <RouterLink\n          v-else\n          :to=\"{ path: '/login', query: { redirect: '/model-plaza' } }\"\n          class=\"inline-flex flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary-500/25 transition-all duration-200 hover:from-primary-600 hover:to-primary-700 hover:shadow-lg hover:shadow-primary-500/30 active:scale-[0.98] dark:shadow-primary-500/20\"\n        >\n          {{ t('modelPlaza.nav.login') }}\n        </RouterLink>\n      </div>\n"
+      },
+      {
+        "before": "import { useAuthStore } from '@/stores/auth'",
+        "after": "import { useAuthStore } from '@/stores/auth'\nimport MitoPlazaHomeLink from '@/themes/mito/PlazaHomeLink.vue'\nimport { isMitoTheme } from '@/themes/mito'"
+      }
+    ]
+  },
+  {
+    "path": "frontend/src/views/ModelPlazaView.vue",
+    "edits": [
+      {
+        "before": "  <AppLayout v-if=\"isEmbedded\">\n",
+        "after": "  <AppLayout v-if=\"isEmbedded\">\n    <template #heading-actions>\n      <MitoPlazaHomeLink v-if=\"isMitoTheme\" />\n    </template>\n"
+      },
+      {
+        "before": "import PlazaNavBar from '@/components/modelPlaza/PlazaNavBar.vue'",
+        "after": "import PlazaNavBar from '@/components/modelPlaza/PlazaNavBar.vue'\nimport MitoPlazaHomeLink from '@/themes/mito/PlazaHomeLink.vue'\nimport { isMitoTheme } from '@/themes/mito'"
       }
     ]
   },
@@ -723,10 +759,11 @@ export const adaptations = [
 
 /** Fail explicitly if a future update breaks the props/utility contracts we use. */
 export const contracts = [
+  {"path": "frontend/src/themes/mito/PlazaHomeLink.vue", "anchors": ["to=\"/home\"", "modelPlaza.nav.home", "mito-plaza-home-link"]},
   {"path": "frontend/src/themes/mito/ModelCatalog.vue", "anchors": ["catalogSections(props.groups)", "ModelCatalogCard", "PlazaGroupSection", "selectedKey"]},
   {"path": "frontend/src/themes/mito/ModelCatalogCard.vue", "anchors": ["catalogPriceRows(props.model)", "catalogRate(props.model, props.group)", "catalogTierLabel", "cache_write_1h_price", "modelPlaza.catalog.standardPrice"]},
   {"path": "frontend/src/themes/mito/modelCatalog.ts", "anchors": ["export function catalogSections", "export function catalogRate", "export function catalogPriceRows", "resolveIntervalPrices", "group.user_rate_multiplier ?? group.rate_multiplier"]},
-  {"path": "frontend/src/themes/mito/model-catalog.css", "anchors": ["html[data-ui-theme='mito']", "--catalog-surface: #fff", "--catalog-surface: #182235", ".mito-model-grid", "repeat(4, minmax(0, 1fr))", "prefers-reduced-motion"]},
+  {"path": "frontend/src/themes/mito/model-catalog.css", "anchors": ["html[data-ui-theme='mito']", "--catalog-surface: #fff", "--catalog-surface: #182235", ".mito-plaza-home-link", ".mito-plaza-nav-actions", ".mito-model-grid", "repeat(4, minmax(0, 1fr))", "prefers-reduced-motion"]},
   {"path": "frontend/src/themes/mito/index.ts", "anchors": ["import './model-catalog.css'"]},
   {"path": "frontend/src/api/modelPlaza.ts", "anchors": ["export interface PlazaModel", "export interface ModelPlazaGroup", "user_rate_multiplier?: number", "long_context_pricing_enabled: boolean"]},
   {"path": "frontend/src/utils/pricing.ts", "anchors": ["export function resolveIntervalPrices", "export function formatScaled"]},
