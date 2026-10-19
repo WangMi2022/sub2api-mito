@@ -49,7 +49,7 @@ func TestModelPlazaMonitoringUsesAuthorizedScopeAndModelWhitelist(t *testing.T) 
 		{ID: 4, Models: []modelPlazaModel{{Name: "gpt", Platform: "openai"}, {Name: "untested", Platform: "openai"}}},
 		{ID: 9, Models: []modelPlazaModel{{Name: "gpt", Platform: "openai"}}},
 	}
-	require.NoError(t, h.attachPlazaMonitoring(c, nil, out, 42))
+	require.NoError(t, h.attachPlazaMonitoring(c, nil, out, 42, true))
 	require.Equal(t, "down", out[0].Models[0].Monitoring.Status)
 	require.Equal(t, "unknown", out[0].Models[1].Monitoring.Status)
 	require.Nil(t, out[1].Models[0].Monitoring)
@@ -58,7 +58,7 @@ func TestModelPlazaMonitoringUsesAuthorizedScopeAndModelWhitelist(t *testing.T) 
 	require.NotContains(t, string(raw), `"errors"`)
 	require.NotContains(t, string(raw), `"requests"`)
 	h.apiKeyService = plazaAccessStub{err: errors.New("scope unavailable")}
-	require.Error(t, h.attachPlazaMonitoring(c, nil, out, 42))
+	require.Error(t, h.attachPlazaMonitoring(c, nil, out, 42, true))
 }
 
 type plazaV3Settings struct{ service.SettingRepository }
@@ -377,7 +377,7 @@ func TestModelPlazaMonitoringDisabledAndAnonymousNeverReadTelemetry(t *testing.T
 	c, _ := gin.CreateTestContext(w)
 	c.Request = httptest.NewRequest(http.MethodGet, "/api/v1/model-plaza", nil)
 	out := []modelPlazaGroup{{ID: 1, Models: []modelPlazaModel{{Name: "gpt", Platform: "openai"}}}}
-	require.NoError(t, h.attachPlazaMonitoring(c, nil, out, 1))
+	require.NoError(t, h.attachPlazaMonitoring(c, nil, out, 1, true))
 	require.Zero(t, repo.calls)
 	require.Nil(t, out[0].Models[0].Monitoring)
 	h.settingService = service.NewSettingService(plazaMonitorSettings{enabled: "true"}, &config.Config{})
@@ -385,9 +385,32 @@ func TestModelPlazaMonitoringDisabledAndAnonymousNeverReadTelemetry(t *testing.T
 	require.Equal(t, http.StatusOK, w.Code)
 	require.Zero(t, repo.calls)
 	// Login-only projection invokes the monitor, but unconfigured models stay omitted.
-	require.NoError(t, h.attachPlazaMonitoring(c, nil, out, 1))
+	require.NoError(t, h.attachPlazaMonitoring(c, nil, out, 1, true))
 	require.Equal(t, 1, repo.calls)
 	raw, err := json.Marshal(out)
 	require.NoError(t, err)
 	require.NotContains(t, string(raw), `"monitoring"`)
+}
+
+func TestModelPlazaAnonymousMonitoringIsPublicOnly(t *testing.T) {
+	_, _, repo := monitorV3HandlerFixtureWithRepo()
+	repo.components = []service.ChannelMonitorV3Component{
+		{ID: 1, Name: "Mine", GroupID: 4, GroupPlatform: "openai", Enabled: true, Visibility: service.ChannelMonitorV3VisibilityGroup},
+		{ID: 2, Name: "Public", GroupID: 5, GroupPlatform: "openai", Enabled: true, Visibility: service.ChannelMonitorV3VisibilityPublic},
+	}
+	settings := service.NewSettingService(plazaV3Settings{}, &config.Config{})
+	h := &ModelPlazaHandler{settingService: settings, monitorV3: service.NewChannelMonitorV3Service(repo, nil)}
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest(http.MethodGet, "/api/v1/model-plaza", nil)
+	out := []modelPlazaGroup{
+		{ID: 4, Models: []modelPlazaModel{{Name: "gpt", Platform: "openai"}}},
+		{ID: 5, Models: []modelPlazaModel{{Name: "gpt", Platform: "openai"}}},
+	}
+	require.NoError(t, h.attachPlazaMonitoring(c, nil, out, 0, false))
+	require.Nil(t, out[0].Models[0].Monitoring, "group-scoped components stay login-only")
+	require.NotNil(t, out[1].Models[0].Monitoring, "public components are visible without a session")
+	raw, err := json.Marshal(out)
+	require.NoError(t, err)
+	require.NotContains(t, string(raw), `"requests"`)
 }

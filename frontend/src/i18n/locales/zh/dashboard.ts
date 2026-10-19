@@ -821,7 +821,7 @@ export default {
       "list": "列表视图",
       "status": "状态",
       "latency": "延迟",
-      "throughput": "吞吐",
+      "throughput": "生成速度",
       "noSamples": "暂无数据",
       "states": {
         "operational": "正常",
@@ -831,11 +831,11 @@ export default {
       },
       "ttftHint": "首 Token 延迟（P50），来自最近采样窗口。",
       "probeHint": "最近一次探测的响应延迟，并非首 Token 延迟。",
-      "throughputHint": "监控窗口内的平均 Token 吞吐量，不代表单次生成速度。",
-      "throughputMissing": "监控未采集或管理员已隐藏此指标。",
+      "throughputHint": "生成速度：成功输出的 Token 数 ÷ 响应耗时，反映单条回复的生成快慢，不随并发量放大。",
+      "throughputMissing": "该监控暂无输出 Token 或响应耗时样本。",
       "availabilityHint": "近 {range} 可用率 {value}",
       "updated": "最近采样：{time}",
-      "loginHint": "登录后查看用户专属报价与有权限访问的模型监控状态。",
+      "loginHint": "登录后查看用户专属报价与专属分组的监控；公开监控无需登录即可查看。",
       "monitorUnavailable": "监控数据暂不可用，已隐藏旧状态；页面会自动重试。",
       "retry": "重新加载"
     },

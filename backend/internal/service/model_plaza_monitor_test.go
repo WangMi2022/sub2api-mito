@@ -161,3 +161,38 @@ func TestModelPlazaV1ExactUnambiguousBindingAndFreshness(t *testing.T) {
 	require.NoError(t, err)
 	require.Nil(t, out[target.Key()])
 }
+
+func TestModelPlazaV3AnonymousSeesOnlyPublicComponents(t *testing.T) {
+	repo := monitorV3StatusFixture()
+	repo.components = []ChannelMonitorV3Component{
+		{ID: 1, GroupID: 4, GroupPlatform: "openai", Enabled: true, Visibility: ChannelMonitorV3VisibilityGroup},
+		{ID: 2, GroupID: 5, GroupPlatform: "openai", Enabled: true, Visibility: ChannelMonitorV3VisibilityPublic},
+	}
+	targets := []PlazaMonitorTarget{
+		{GroupID: 4, Platform: "openai", Model: "gpt"},
+		{GroupID: 5, Platform: "openai", Model: "gpt"},
+	}
+	out, err := monitorV3Service(repo).PlazaStatuses(context.Background(), ChannelMonitorV3Viewer{}, targets)
+	require.NoError(t, err)
+	require.NotContains(t, out, targets[0].Key(), "anonymous viewers must not see group-scoped components")
+	require.Contains(t, out, targets[1].Key())
+	require.Nil(t, out[targets[1].Key()].Availability)
+}
+
+func TestModelPlazaV3ThroughputIsOutputTokensPerSecond(t *testing.T) {
+	repo := monitorV3StatusFixture()
+	repo.components = []ChannelMonitorV3Component{{ID: 1, GroupID: 4, GroupPlatform: "openai", Enabled: true, Visibility: ChannelMonitorV3VisibilityPublic}}
+	repo.totals = ChannelMonitorV3Facts{Metrics: []ChannelMonitorV3Fact{{
+		GroupID: 4, Model: "gpt", Success: 10, OutputTokens: 6000, DurationMs: 120000,
+	}}}
+	target := PlazaMonitorTarget{GroupID: 4, Platform: "openai", Model: "gpt"}
+	out, err := monitorV3Service(repo).PlazaStatuses(context.Background(), ChannelMonitorV3Viewer{}, []PlazaMonitorTarget{target})
+	require.NoError(t, err)
+	require.NotNil(t, out[target.Key()].Throughput)
+	require.InDelta(t, 50, *out[target.Key()].Throughput, 0.001, "6000 output tokens over 120 s")
+
+	repo.totals = ChannelMonitorV3Facts{Metrics: []ChannelMonitorV3Fact{{GroupID: 4, Model: "gpt", Success: 10, OutputTokens: 6000}}}
+	out, err = monitorV3Service(repo).PlazaStatuses(context.Background(), ChannelMonitorV3Viewer{}, []PlazaMonitorTarget{target})
+	require.NoError(t, err)
+	require.Nil(t, out[target.Key()].Throughput, "missing durations must not become zero or infinity")
+}

@@ -180,14 +180,17 @@ func (h *ModelPlazaHandler) Get(c *gin.Context) {
 	// 追加语言缓存维度，保留 CORS 的 Vary: Origin 和用户模型限制。
 	c.Writer.Header().Add("Vary", "Accept-Language")
 	out := toLocalizedModelPlazaGroups(visible, userRates, c.GetHeader("Accept-Language"), deniedModels)
-	// Monitoring remains login-only, as on the old status page. Authorization
-	// is rechecked server-side and only sanitized, exact group/model data leaves.
+	// Authorization is rechecked server-side and only sanitized, exact
+	// group/model data leaves. Anonymous callers can see V3 components that the
+	// operator explicitly marked public; everything else stays login-only.
 	monitoringUnavailable := false
+	var userID int64
 	if authed {
-		if err := h.attachPlazaMonitoring(c, groups, out, subject.UserID); err != nil {
-			monitoringUnavailable = true
-			slog.Warn("model_plaza_monitoring_failed", "error", err)
-		}
+		userID = subject.UserID
+	}
+	if err := h.attachPlazaMonitoring(c, groups, out, userID, authed); err != nil {
+		monitoringUnavailable = true
+		slog.Warn("model_plaza_monitoring_failed", "error", err)
 	}
 	c.Header("Cache-Control", "private, no-store")
 	response.Success(c, modelPlazaResponse{

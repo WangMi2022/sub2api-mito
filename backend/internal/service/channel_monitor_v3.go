@@ -156,6 +156,10 @@ type ChannelMonitorV3Fact struct {
 	Slot    time.Time
 	Success int64
 	Errors  int64
+	// OutputTokens and DurationMs are only filled by the range query. They
+	// never leave the server; the plaza uses them to estimate generation speed.
+	OutputTokens int64
+	DurationMs   int64
 }
 
 type ChannelMonitorV3ErrorFact struct {
@@ -212,6 +216,11 @@ type ChannelMonitorV3ComponentStatus struct {
 	// probes) over the configured range; nil without either.
 	Availability *float64 `json:"availability"`
 	Requests     int64    `json:"requests,omitempty"`
+	// Throughput is generation speed: successful output tokens divided by the
+	// duration those responses took, the same measure as a request log's TPS.
+	// It does not scale with fleet size, so the RPM/TPM privacy switch does not
+	// apply. Nil when the range has no duration samples.
+	Throughput *float64 `json:"throughput,omitempty"`
 	// Probes is the admin-only number of counted idle probes over the range.
 	Probes     int64                   `json:"probes,omitempty"`
 	LastDataAt *time.Time              `json:"last_data_at"`
@@ -281,7 +290,8 @@ type ChannelMonitorV3IncidentPage struct {
 // ChannelMonitorV3Viewer is the server-derived scope of one request.
 type ChannelMonitorV3Viewer struct {
 	Admin bool
-	// AllowedGroups are the groups the user may bind keys to.
+	// AllowedGroups are the groups the user may bind keys to. Anonymous
+	// viewers have an empty set and only see components marked public.
 	AllowedGroups map[int64]bool
 	// GroupRates are the user's own multipliers, shown instead of the group's.
 	GroupRates map[int64]float64
@@ -770,6 +780,13 @@ func (s *ChannelMonitorV3Service) componentStatus(cfg ChannelMonitorV3Config, co
 			item.Requests, item.Probes = counted, probes
 		}
 	}
+	// Successful output tokens over the time those responses actually took.
+	// Input, cache and idle probes are excluded, so this is generation speed,
+	// not request volume. Old rollups without duration simply have no value.
+	if total.output > 0 && total.durationMs > 0 {
+		throughput := float64(total.output) * 1000 / float64(total.durationMs)
+		item.Throughput = &throughput
+	}
 	if component.ShowMultiplier {
 		rate := component.GroupRateMultiplier
 		if custom, ok := viewer.GroupRates[component.GroupID]; ok {
@@ -787,6 +804,8 @@ type channelMonitorV3Acc struct {
 	success    int64
 	errors     int64
 	ignored    int64
+	output     int64
+	durationMs int64
 	categories map[string]int64
 	ttft       map[int64]int64
 
@@ -829,6 +848,8 @@ func channelMonitorV3Accumulate(cfg ChannelMonitorV3Config, component ChannelMon
 		if i := index(f.GroupID, f.Model, f.Slot); i >= 0 {
 			accs[i].success += f.Success
 			accs[i].errors += f.Errors
+			accs[i].output += f.OutputTokens
+			accs[i].durationMs += f.DurationMs
 		}
 	}
 	for _, f := range facts.Errors {

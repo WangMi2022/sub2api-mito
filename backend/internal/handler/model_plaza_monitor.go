@@ -5,7 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *ModelPlazaHandler) attachPlazaMonitoring(c *gin.Context, all []service.PlazaGroup, out []modelPlazaGroup, userID int64) error {
+// attachPlazaMonitoring projects only the monitor data this viewer may see.
+// Anonymous viewers are scoped to V3 components explicitly marked public; V2
+// and V1 have no public visibility flag, so they stay login-only.
+func (h *ModelPlazaHandler) attachPlazaMonitoring(c *gin.Context, all []service.PlazaGroup, out []modelPlazaGroup, userID int64, authenticated bool) error {
 	ctx := c.Request.Context()
 	runtime := h.settingService.GetChannelMonitorRuntime(ctx)
 	if !runtime.Enabled || len(out) == 0 {
@@ -33,23 +36,25 @@ func (h *ModelPlazaHandler) attachPlazaMonitoring(c *gin.Context, all []service.
 	var err error
 	switch runtime.Mode {
 	case service.ChannelMonitorModeV1:
-		if h.monitorV1 != nil {
+		if h.monitorV1 != nil && authenticated {
 			statuses, err = h.monitorV1.PlazaStatuses(ctx, targets, unique)
 		}
 	case service.ChannelMonitorModeV2, service.ChannelMonitorModeV3:
-		available, accessErr := h.apiKeyService.GetAvailableGroups(ctx, userID)
-		if accessErr != nil {
-			return accessErr
-		}
 		allowed := []int64{}
 		viewer := service.ChannelMonitorV3Viewer{AllowedGroups: map[int64]bool{}, Admin: channelMonitorV2IsAdmin(c)}
-		for _, group := range available {
-			allowed = append(allowed, group.ID)
-			viewer.AllowedGroups[group.ID] = true
+		if authenticated {
+			available, accessErr := h.apiKeyService.GetAvailableGroups(ctx, userID)
+			if accessErr != nil {
+				return accessErr
+			}
+			for _, group := range available {
+				allowed = append(allowed, group.ID)
+				viewer.AllowedGroups[group.ID] = true
+			}
 		}
 		if runtime.Mode == service.ChannelMonitorModeV3 && h.monitorV3 != nil {
 			statuses, err = h.monitorV3.PlazaStatuses(ctx, viewer, targets)
-		} else if runtime.Mode == service.ChannelMonitorModeV2 && h.monitorV2 != nil {
+		} else if runtime.Mode == service.ChannelMonitorModeV2 && h.monitorV2 != nil && authenticated {
 			statuses, err = h.monitorV2.PlazaStatuses(ctx, targets, allowed, runtime.HideThroughput)
 		}
 	}

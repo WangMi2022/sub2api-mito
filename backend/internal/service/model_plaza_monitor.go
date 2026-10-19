@@ -99,10 +99,11 @@ func (s *ChannelMonitorV3Service) PlazaStatuses(ctx context.Context, viewer Chan
 	}
 	for key, component := range selected {
 		component.Model = key.Model
+		// Never pass the admin flag: request and probe volumes stay server-side.
 		item := s.componentStatus(*cfg, component, facts, totals, first, interval, ChannelMonitorV3Viewer{})
 		status := &PlazaMonitorStatus{
 			Source: "v3", Status: plazaMonitorState(item.Status), Availability: item.Availability,
-			Range: cfg.AvailabilityRange, UpdatedAt: item.LastDataAt,
+			Range: cfg.AvailabilityRange, UpdatedAt: item.LastDataAt, Throughput: item.Throughput,
 			LatencyKind: "ttft", Cells: make([]PlazaMonitorCell, len(item.Cells)),
 		}
 		for i, cell := range item.Cells {

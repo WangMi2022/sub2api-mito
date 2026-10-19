@@ -325,7 +325,8 @@ func (r *channelMonitorV3Repository) RangeFacts(ctx context.Context, groupIDs []
 	}
 	args := []any{pq.Array(groupIDs), from, to}
 	rows, err := r.db.QueryContext(ctx, `
-		SELECT m.group_id, m.model, SUM(m.success_requests), SUM(m.error_requests)
+		SELECT m.group_id, m.model, SUM(m.success_requests), SUM(m.error_requests),
+		       SUM(m.output_tokens), SUM(m.duration_sum_ms)
 		FROM channel_monitor_v2_metrics_rollup m
 		WHERE m.bucket_seconds = 3600 AND m.group_id = ANY($1) AND m.bucket_start >= $2 AND m.bucket_start < $3
 		GROUP BY 1, 2`, args...)
@@ -334,7 +335,7 @@ func (r *channelMonitorV3Repository) RangeFacts(ctx context.Context, groupIDs []
 	}
 	if err := scanChannelMonitorV3Rows(rows, func(rows *sql.Rows) error {
 		var f service.ChannelMonitorV3Fact
-		if err := rows.Scan(&f.GroupID, &f.Model, &f.Success, &f.Errors); err != nil {
+		if err := rows.Scan(&f.GroupID, &f.Model, &f.Success, &f.Errors, &f.OutputTokens, &f.DurationMs); err != nil {
 			return err
 		}
 		facts.Metrics = append(facts.Metrics, f)
