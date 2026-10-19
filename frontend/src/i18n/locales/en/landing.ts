@@ -40,6 +40,34 @@ export default {
         deepseek: 'DeepSeek',
         minimax: 'MiniMax'
       },
+      core: {
+        eyebrow: 'Core Capabilities',
+        title: 'Core Features',
+        subtitle: 'One key, three layers: access, routing and billing share a single path with no extra hop in between.',
+        items: {
+          gateway: {
+            title: 'Unified access',
+            desc: 'One OpenAI-compatible endpoint covers every listed model. Keep your existing SDKs and clients instead of maintaining a key and a code path per vendor.',
+            tags: { compatible: 'OpenAI-compatible', key: 'Single key', endpoint: 'One endpoint' }
+          },
+          routing: {
+            title: 'Multi-route dispatch',
+            desc: 'Each model sits behind several upstream accounts and is routed by live health. A failing account is swapped out automatically while the conversation stays on one path.',
+            tags: { pool: 'Account pool', failover: 'Auto failover', isolation: 'Group isolation' }
+          },
+          billing: {
+            title: 'Usage and billing',
+            desc: 'Billed on actual tokens, with multipliers, tiers, cache and time-based rules visible before you call. Daily, weekly and monthly limits can be set independently.',
+            tags: { usage: 'Pay per token', quota: 'Quota caps', detail: 'Itemized logs' }
+          }
+        },
+        facts: {
+          key: { label: 'Access', value: 'One API key' },
+          sdk: { label: 'Protocol', value: 'OpenAI-compatible' },
+          route: { label: 'On failure', value: 'Automatic failover' },
+          billing: { label: 'Billing basis', value: 'Actual tokens' }
+        }
+      },
       workbench: {
         title: 'Gateway Workbench',
         subtitle: 'Polymorphic policy routing, live cost modeling and a high-availability dispatch sandbox in one control plane.',

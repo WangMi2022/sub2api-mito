@@ -1591,6 +1591,292 @@ html[data-ui-theme='mito'] .yuyu-reveal.is-visible {
   transform: none;
 }
 
+/* ---------- Core Features ---------- */
+html[data-ui-theme='mito'] .mito-core-section {
+  --core-border: #e2e8f0;
+  --core-surface: #ffffff;
+  --core-surface-soft: #f8fafc;
+  --core-text: #0f172a;
+  --core-muted: #475569;
+  --core-faint: #5b6b82;
+  --core-shadow: 0 24px 60px -46px rgb(15 23 42 / 45%);
+  margin-bottom: 4rem;
+}
+
+html[data-ui-theme='mito'].dark .mito-core-section {
+  --core-border: #1e2a3c;
+  --core-surface: rgb(13 21 34 / 78%);
+  --core-surface-soft: rgb(9 15 26 / 70%);
+  --core-text: #f1f5f9;
+  --core-muted: #b6c2d4;
+  --core-faint: #9dabc0;
+  --core-shadow: 0 24px 60px -40px rgb(0 0 0 / 70%);
+}
+
+html[data-ui-theme='mito'] .mito-core-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.9rem;
+}
+
+html[data-ui-theme='mito'] .mito-core-eyebrow {
+  display: block;
+  margin-bottom: 0.55rem;
+  color: var(--mito-primary, #2563eb);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+html[data-ui-theme='mito'] .mito-core-title {
+  margin: 0;
+  color: var(--core-text);
+  font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+html[data-ui-theme='mito'] .mito-core-subtitle {
+  max-width: 36rem;
+  margin-top: 0.6rem;
+  color: var(--core-muted);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+html[data-ui-theme='mito'] .mito-core-entry {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid rgb(37 99 235 / 28%);
+  border-radius: 12px;
+  padding: 0.68rem 1.05rem;
+  background: rgb(37 99 235 / 7%);
+  color: #1d4ed8;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-core-entry:hover {
+  border-color: rgb(37 99 235 / 55%);
+  background: rgb(37 99 235 / 13%);
+  transform: translateY(-1px);
+}
+
+html[data-ui-theme='mito'].dark .mito-core-entry {
+  border-color: rgb(96 165 250 / 35%);
+  background: rgb(96 165 250 / 10%);
+  color: #bfdbfe;
+}
+
+html[data-ui-theme='mito'].dark .mito-core-entry:hover {
+  border-color: rgb(96 165 250 / 65%);
+  background: rgb(96 165 250 / 18%);
+}
+
+html[data-ui-theme='mito'] .mito-core-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+html[data-ui-theme='mito'] .mito-core-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--core-border);
+  border-radius: 18px;
+  padding: 1.5rem 1.4rem 1.35rem;
+  background: linear-gradient(180deg, var(--core-surface), var(--core-surface-soft));
+  box-shadow: var(--core-shadow);
+  transition: border-color 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-core-card::after {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(59 130 246 / 45%), transparent);
+  content: '';
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-core-card:hover {
+  border-color: rgb(59 130 246 / 32%);
+  transform: translateY(-2px);
+}
+
+html[data-ui-theme='mito'] .mito-core-card:hover::after {
+  opacity: 1;
+}
+
+html[data-ui-theme='mito'] .mito-core-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.15rem;
+}
+
+html[data-ui-theme='mito'] .mito-core-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.85rem;
+  height: 2.85rem;
+  border-radius: 0.85rem;
+  border: 1px solid transparent;
+}
+
+html[data-ui-theme='mito'] .mito-core-icon[data-tone='blue'] {
+  border-color: rgb(59 130 246 / 26%);
+  background: rgb(59 130 246 / 12%);
+  color: #1d4ed8;
+}
+
+html[data-ui-theme='mito'] .mito-core-icon[data-tone='emerald'] {
+  border-color: rgb(5 150 105 / 26%);
+  background: rgb(5 150 105 / 11%);
+  color: #047857;
+}
+
+html[data-ui-theme='mito'] .mito-core-icon[data-tone='violet'] {
+  border-color: rgb(139 92 246 / 28%);
+  background: rgb(139 92 246 / 12%);
+  color: #6d28d9;
+}
+
+html[data-ui-theme='mito'].dark .mito-core-icon[data-tone='blue'] { color: #93c5fd; }
+html[data-ui-theme='mito'].dark .mito-core-icon[data-tone='emerald'] { color: #6ee7b7; }
+html[data-ui-theme='mito'].dark .mito-core-icon[data-tone='violet'] { color: #c4b5fd; }
+
+html[data-ui-theme='mito'] .mito-core-index {
+  color: var(--core-faint);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+}
+
+html[data-ui-theme='mito'] .mito-core-card-title {
+  margin-bottom: 0.5rem;
+  color: var(--core-text);
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+html[data-ui-theme='mito'] .mito-core-card-desc {
+  flex: 1;
+  color: var(--core-muted);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+html[data-ui-theme='mito'] .mito-core-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1.15rem;
+  border-top: 1px solid var(--core-border);
+  padding-top: 0.9rem;
+}
+
+html[data-ui-theme='mito'] .mito-core-tags li {
+  border: 1px solid var(--core-border);
+  border-radius: 999px;
+  padding: 0.18rem 0.6rem;
+  background: var(--core-surface-soft);
+  color: var(--core-faint);
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+html[data-ui-theme='mito'] .mito-core-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--core-border);
+  border-radius: 16px;
+  background: var(--core-surface);
+}
+
+html[data-ui-theme='mito'] .mito-core-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  border-left: 1px solid var(--core-border);
+  padding: 0.95rem 1.15rem;
+}
+
+html[data-ui-theme='mito'] .mito-core-fact:first-child {
+  border-left: 0;
+}
+
+html[data-ui-theme='mito'] .mito-core-fact dt {
+  color: var(--core-faint);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+html[data-ui-theme='mito'] .mito-core-fact dd {
+  color: var(--core-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  html[data-ui-theme='mito'] .mito-core-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html[data-ui-theme='mito'] .mito-core-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  html[data-ui-theme='mito'] .mito-core-fact:nth-child(3) {
+    border-left: 0;
+    border-top: 1px solid var(--core-border);
+  }
+
+  html[data-ui-theme='mito'] .mito-core-fact:nth-child(4) {
+    border-top: 1px solid var(--core-border);
+  }
+}
+
+@media (max-width: 640px) {
+  html[data-ui-theme='mito'] .mito-core-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  html[data-ui-theme='mito'] .mito-core-card {
+    padding: 1.25rem 1.15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-core-card,
+  html[data-ui-theme='mito'] .mito-core-entry {
+    transition: none;
+  }
+
+  html[data-ui-theme='mito'] .mito-core-card:hover,
+  html[data-ui-theme='mito'] .mito-core-entry:hover {
+    transform: none;
+  }
+}
+
 @media (max-width: 900px) {
   html[data-ui-theme='mito'] .yuyu-console-body {
     grid-template-columns: minmax(0, 1fr);

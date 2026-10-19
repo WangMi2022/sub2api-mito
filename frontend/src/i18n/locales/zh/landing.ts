@@ -40,6 +40,34 @@ export default {
         deepseek: 'DeepSeek',
         minimax: 'MiniMax'
       },
+      core: {
+        eyebrow: 'Core Capabilities',
+        title: '核心功能',
+        subtitle: '一个密钥接到底：接入、调度、计费三层能力收束在同一条链路上，不额外引入中间层。',
+        items: {
+          gateway: {
+            title: '统一接入',
+            desc: '一个 OpenAI 兼容端点接全部已上架模型，继续沿用现有 SDK 与客户端，无需为每家供应商改代码或维护多套密钥。',
+            tags: { compatible: 'OpenAI 兼容', key: '单一密钥', endpoint: '统一端点' }
+          },
+          routing: {
+            title: '多路调度',
+            desc: '同一模型背后挂多个上游账号，按实时健康度择路；单账号报错时自动切换，对话与会话保持在同一条链路上。',
+            tags: { pool: '账号池', failover: '自动切换', isolation: '分组隔离' }
+          },
+          billing: {
+            title: '用量与计费',
+            desc: '按实际 Token 计费，倍率、阶梯、缓存与分时规则在请求前即可核对；每日/每周/每月额度可分别设上限。',
+            tags: { usage: '按量计费', quota: '额度上限', detail: '明细可查' }
+          }
+        },
+        facts: {
+          key: { label: '接入方式', value: '单一 API 密钥' },
+          sdk: { label: '协议兼容', value: 'OpenAI 兼容' },
+          route: { label: '故障处理', value: '自动切换' },
+          billing: { label: '计费口径', value: '按 Token 实付' }
+        }
+      },
       workbench: {
         title: '接入工作台',
         subtitle: '多态策略流控、资费即时精算与高可用分发沙盒，收束于单一极客视界。',
