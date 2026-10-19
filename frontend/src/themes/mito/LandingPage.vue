@@ -36,6 +36,14 @@
             <Icon name="book" size="md" />
           </a>
 
+          <a
+            href="#gateway-workbench"
+            class="yuyu-nav-workbench"
+          >
+            <span class="yuyu-nav-workbench-dot"></span>
+            {{ t('home.mito.workbench.enter') }}
+          </a>
+
           <router-link
             v-if="showModelPlazaEntry"
             to="/model-plaza"
@@ -301,6 +309,12 @@
           </div>
         </div>
 
+        <!-- Gateway Workbench -->
+        <GatewayWorkbench
+          :is-authenticated="isAuthenticated"
+          :dashboard-path="dashboardPath"
+        />
+
         <!-- Supported Providers -->
         <div class="mb-7 text-center">
           <h2 class="mito-section-title">{{ t('home.providers.title') }}</h2>
@@ -406,6 +420,7 @@ import { useI18n } from 'vue-i18n'
 import LocaleSwitcher from '@/components/common/LocaleSwitcher.vue'
 import Icon from '@/components/icons/Icon.vue'
 import LandingParticles from './LandingParticles.vue'
+import GatewayWorkbench from './GatewayWorkbench.vue'
 
 defineProps<{
   siteName: string

@@ -646,3 +646,973 @@ html[data-ui-theme='mito'].dark .mito-landing .mito-cta-band {
     transform: none;
   }
 }
+
+/* ---------- Gateway Workbench ---------- */
+html[data-ui-theme='mito'] .yuyu-projects-section {
+  position: relative;
+  z-index: 10;
+  padding: 1rem 0 4rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-workbench-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.75rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-section-heading-standard > span {
+  display: block;
+  margin-bottom: 0.55rem;
+  color: var(--mito-primary, #3b82f6);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+html[data-ui-theme='mito'] .yuyu-section-heading-standard .hero-heading {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+}
+
+html[data-ui-theme='mito'].dark .yuyu-section-heading-standard .hero-heading {
+  color: #f8fafc;
+}
+
+html[data-ui-theme='mito'] .yuyu-section-heading-standard p {
+  max-width: 40rem;
+  margin-top: 0.65rem;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+html[data-ui-theme='mito'].dark .yuyu-section-heading-standard p {
+  color: #94a3b8;
+}
+
+html[data-ui-theme='mito'] .yuyu-workbench-entry {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid rgb(16 185 129 / 45%);
+  border-radius: 12px;
+  padding: 0.72rem 1.1rem;
+  background: rgb(16 185 129 / 10%);
+  color: #059669;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+html[data-ui-theme='mito'] .yuyu-workbench-entry:hover {
+  border-color: rgb(16 185 129 / 75%);
+  background: rgb(16 185 129 / 18%);
+  transform: translateY(-1px);
+}
+
+html[data-ui-theme='mito'].dark .yuyu-workbench-entry {
+  color: #34d399;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-workbench-frame {
+  --workbench-accent: #10b981;
+  position: relative;
+  border: 1px solid rgb(148 163 184 / 16%);
+  border-radius: 26px;
+  padding: 6px;
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgb(16 185 129 / 10%), transparent 48%),
+    linear-gradient(180deg, rgb(148 163 184 / 8%), rgb(148 163 184 / 2%));
+  box-shadow: 0 30px 80px -40px rgb(2 6 23 / 80%);
+}
+
+html[data-ui-theme='mito'] .yuyu-console-workbench {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #172033;
+  border-radius: 21px;
+  background:
+    radial-gradient(80% 60% at 15% 0%, rgb(16 185 129 / 7%), transparent 55%),
+    radial-gradient(60% 50% at 100% 100%, rgb(59 130 246 / 7%), transparent 55%),
+    #050a12;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-workbench::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgb(148 163 184 / 3.5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(148 163 184 / 3.5%) 1px, transparent 1px);
+  background-size: 42px 42px;
+  content: '';
+  pointer-events: none;
+  mask-image: radial-gradient(80% 80% at 50% 30%, #000 20%, transparent 100%);
+}
+
+html[data-ui-theme='mito'] .yuyu-console-header,
+html[data-ui-theme='mito'] .yuyu-console-body {
+  position: relative;
+  z-index: 1;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid #151e2e;
+  padding: 1rem 1.25rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-header-left,
+html[data-ui-theme='mito'] .yuyu-console-badge-list,
+html[data-ui-theme='mito'] .yuyu-console-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-title {
+  color: #e2e8f0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #64748b;
+  font-size: 0.64rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-badge i {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #475569;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-badge.is-active {
+  color: #34d399;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-badge.is-active i {
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-badge b {
+  font-weight: 500;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-header-right {
+  color: #64748b;
+  font-size: 0.64rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+}
+
+html[data-ui-theme='mito'] .yuyu-console-left-panel {
+  padding: 1.1rem 1.25rem 1.25rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-right-panel {
+  border-left: 1px solid #151e2e;
+  padding: 1.1rem 1.25rem 1.25rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-sec-title {
+  color: #8fa0bb;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-topology {
+  margin: 0.6rem 0 1.05rem;
+  border: 1px solid #121b2b;
+  border-radius: 16px;
+  background:
+    radial-gradient(60% 90% at 50% 50%, rgb(16 185 129 / 5%), transparent 70%),
+    rgb(7 13 23 / 82%);
+}
+
+html[data-ui-theme='mito'] .yuyu-console-topology svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+html[data-ui-theme='mito'] .topo-orbit {
+  fill: none;
+  stroke: rgb(148 163 184 / 9%);
+  stroke-width: 1;
+  stroke-dasharray: 2 7;
+}
+
+html[data-ui-theme='mito'] .topo-orbit.is-inner {
+  stroke: rgb(16 185 129 / 10%);
+}
+
+html[data-ui-theme='mito'] .topo-line {
+  stroke: url(#yuyu-topo-line);
+  stroke-width: 1.2;
+}
+
+html[data-ui-theme='mito'] .topo-line.is-dashed {
+  stroke: rgb(16 185 129 / 35%);
+  stroke-width: 1;
+  stroke-dasharray: 3 12;
+  animation: yuyu-route-flow 3.4s linear infinite;
+}
+
+@keyframes yuyu-route-flow {
+  to { stroke-dashoffset: -60; }
+}
+
+html[data-ui-theme='mito'] .topo-node {
+  fill: #0b1524;
+  stroke: #27364d;
+  stroke-width: 1.4;
+  transition: stroke 220ms ease, fill 220ms ease;
+}
+
+html[data-ui-theme='mito'] .topo-node.is-active {
+  fill: #0d2a24;
+  stroke: #10b981;
+}
+
+html[data-ui-theme='mito'] .topo-pulse {
+  fill: #34d399;
+  opacity: 0.9;
+  animation: yuyu-node-pulse 2.4s ease-out infinite;
+}
+
+@keyframes yuyu-node-pulse {
+  0%, 100% { opacity: 0.85; r: 4; }
+  50% { opacity: 0.35; r: 7; }
+}
+
+html[data-ui-theme='mito'] .topo-node-label {
+  fill: #64748b;
+  font-size: 9px;
+  text-anchor: middle;
+  letter-spacing: 0.05em;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-policy-group {
+  margin-bottom: 1.05rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-policy-pills {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-top: 0.6rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-policy-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 0.16rem;
+  border: 1px solid #182233;
+  border-radius: 13px;
+  padding: 0.7rem 0.8rem;
+  background: rgb(10 17 29 / 70%);
+  color: #7d8ca6;
+  text-align: left;
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-policy-pill strong {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-policy-pill small {
+  color: #56657e;
+  font-size: 0.63rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-policy-pill:hover {
+  border-color: #2a3a52;
+  color: #cbd5e1;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-policy-pill.is-active {
+  border-color: rgb(16 185 129 / 55%);
+  background: linear-gradient(180deg, rgb(16 185 129 / 13%), rgb(16 185 129 / 2%));
+  color: #ecfdf5;
+  box-shadow: inset 0 0 24px rgb(16 185 129 / 6%);
+}
+
+html[data-ui-theme='mito'] .yuyu-console-policy-pill.is-active small {
+  color: #34d399;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-policy-desc {
+  margin-top: 0.65rem;
+  color: #7d8ca6;
+  font-size: 0.68rem;
+  line-height: 1.6;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-channel-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-top: 0.6rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-channel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid #182233;
+  border-radius: 13px;
+  padding: 0.85rem 0.5rem;
+  background: rgb(10 17 29 / 70%);
+  color: #8b98af;
+  transition: border-color 180ms ease, color 180ms ease, transform 180ms ease, background-color 180ms ease;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-channel-btn:hover {
+  border-color: #2b3a51;
+  color: #e2e8f0;
+  transform: translateY(-1px);
+}
+
+html[data-ui-theme='mito'] .yuyu-console-channel-btn.is-active {
+  border-color: rgb(16 185 129 / 45%);
+  background: rgb(16 185 129 / 7%);
+  color: #ecfdf5;
+}
+
+html[data-ui-theme='mito'] .yuyu-channel-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--channel-color) 18%, #0a1220);
+  color: var(--channel-color);
+  font-size: 0.58rem;
+  font-weight: 700;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-channel-btn strong {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-calculator {
+  margin-top: 1.1rem;
+  border: 1px solid #121b2b;
+  border-radius: 16px;
+  padding: 0.95rem 1rem;
+  background: rgb(7 13 23 / 82%);
+}
+
+html[data-ui-theme='mito'] .yuyu-console-calc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: #8b98af;
+  font-size: 0.68rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-calc-row b {
+  color: #e2e8f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-calc-row b.is-accent {
+  color: #34d399;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-slider-wrapper {
+  margin: 0.7rem 0 0.9rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-slider-wrapper input[type='range'] {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  outline: none;
+  background: linear-gradient(90deg, #334155, #475569);
+  accent-color: #10b981;
+  cursor: pointer;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-slider-wrapper input[type='range']::-webkit-slider-thumb {
+  width: 13px;
+  height: 13px;
+  border: 2px solid #0b1524;
+  border-radius: 999px;
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgb(16 185 129 / 18%);
+  appearance: none;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.35rem;
+  color: #475569;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.58rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-cost-comparison {
+  display: grid;
+  gap: 0.55rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-cost-bar-item {
+  display: grid;
+  grid-template-columns: 4.2rem minmax(0, 1fr) 3.4rem;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-cost-bar-item small {
+  color: #64748b;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-cost-bar-item strong {
+  color: #cbd5e1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  text-align: right;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-bar-track {
+  overflow: hidden;
+  height: 5px;
+  border-radius: 999px;
+  background: #111a29;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html[data-ui-theme='mito'] .is-official .yuyu-console-bar-fill {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+html[data-ui-theme='mito'] .is-yuyu .yuyu-console-bar-fill {
+  background: linear-gradient(90deg, #059669, #34d399);
+  box-shadow: 0 0 10px rgb(16 185 129 / 45%);
+}
+
+html[data-ui-theme='mito'] .yuyu-console-saved-row {
+  margin-top: 0.8rem;
+  border-top: 1px dashed rgb(148 163 184 / 10%);
+  padding-top: 0.7rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-terminal-shell {
+  overflow: hidden;
+  border: 1px solid #182233;
+  border-radius: 16px;
+  background: rgb(7 13 23 / 88%);
+}
+
+html[data-ui-theme='mito'] .yuyu-console-terminal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #131d2c;
+  padding: 0.6rem 0.85rem;
+  color: #475569;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.6rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-terminal-dots {
+  display: flex;
+  gap: 0.3rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-terminal-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-terminal-dots span:nth-child(1) { background: #ef4444; }
+html[data-ui-theme='mito'] .yuyu-console-terminal-dots span:nth-child(2) { background: #f59e0b; }
+html[data-ui-theme='mito'] .yuyu-console-terminal-dots span:nth-child(3) { background: #10b981; }
+
+html[data-ui-theme='mito'] .yuyu-console-terminal-inputs {
+  padding: 0.9rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-field,
+html[data-ui-theme='mito'] .yuyu-console-dial {
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-field > span,
+html[data-ui-theme='mito'] .yuyu-console-dial > span {
+  color: #7d8ca6;
+  font-size: 0.63rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-field textarea {
+  width: 100%;
+  resize: none;
+  border: 1px solid #1b2638;
+  border-radius: 11px;
+  padding: 0.65rem 0.75rem;
+  background: #0a1220;
+  color: #f1f5f9;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  outline: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-field textarea:focus {
+  border-color: rgb(16 185 129 / 55%);
+  box-shadow: 0 0 0 3px rgb(16 185 129 / 10%);
+}
+
+html[data-ui-theme='mito'] .yuyu-console-param-row {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 0.7rem;
+  margin-top: 0.75rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid #1b2638;
+  border-radius: 11px;
+  padding: 0.55rem 0.65rem;
+  background: #0a1220;
+  color: #e2e8f0;
+  font-size: 0.7rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-select-value {
+  flex: 1;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-select-wrap svg {
+  color: #64748b;
+  pointer-events: none;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-dispatch-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 0.8rem;
+  border-radius: 11px;
+  background: #10b981;
+  color: #04231a;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transition: background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-dispatch-btn:hover:not(:disabled) {
+  background: #34d399;
+  box-shadow: 0 10px 30px -12px rgb(16 185 129 / 75%);
+  transform: translateY(-1px);
+}
+
+html[data-ui-theme='mito'] .yuyu-console-dispatch-btn:disabled {
+  cursor: wait;
+  opacity: 0.8;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgb(4 35 26 / 30%);
+  border-top-color: #04231a;
+  border-radius: 999px;
+  animation: yuyu-spin 0.7s linear infinite;
+}
+
+@keyframes yuyu-spin {
+  to { transform: rotate(360deg); }
+}
+
+html[data-ui-theme='mito'] .yuyu-console-terminal-output {
+  min-height: 180px;
+  max-height: 230px;
+  overflow: auto;
+  border-top: 1px solid #131d2c;
+  padding: 0.85rem 0.95rem 1rem;
+  background: #060c16;
+  scrollbar-width: thin;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-terminal-placeholder {
+  display: flex;
+  min-height: 150px;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.66rem;
+  text-align: center;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-json {
+  margin: 0;
+  color: #cbd5e1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.68rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-json .json-key { color: #7dd3fc; }
+html[data-ui-theme='mito'] .yuyu-console-json .json-string { color: #a7f3d0; }
+html[data-ui-theme='mito'] .yuyu-console-json .json-number { color: #fbbf24; }
+
+html[data-ui-theme='mito'] .yuyu-console-hud {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.8rem;
+  border: 1px solid #121b2b;
+  border-radius: 16px;
+  padding: 0.9rem 1rem;
+  background: rgb(7 13 23 / 82%);
+}
+
+html[data-ui-theme='mito'] .yuyu-radar-hud {
+  position: relative;
+  flex-shrink: 0;
+  width: 66px;
+  height: 66px;
+}
+
+html[data-ui-theme='mito'] .yuyu-radar-rings {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: 1px solid rgb(16 185 129 / 18%);
+  border-radius: 999px;
+  background: radial-gradient(circle, rgb(16 185 129 / 10%), transparent 68%);
+}
+
+html[data-ui-theme='mito'] .yuyu-radar-ring {
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgb(16 185 129 / 16%);
+  border-radius: 999px;
+}
+
+html[data-ui-theme='mito'] .yuyu-radar-ring.is-mid { inset: 18px; }
+html[data-ui-theme='mito'] .yuyu-radar-ring.is-inner { inset: 28px; }
+
+html[data-ui-theme='mito'] .yuyu-radar-sweep {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: conic-gradient(from 0deg, transparent 0 300deg, rgb(16 185 129 / 35%) 350deg, transparent 360deg);
+  animation: yuyu-radar-rotate 3s linear infinite;
+}
+
+html[data-ui-theme='mito'] .is-scanning .yuyu-radar-sweep {
+  animation-duration: 1s;
+}
+
+@keyframes yuyu-radar-rotate {
+  to { transform: rotate(360deg); }
+}
+
+html[data-ui-theme='mito'] .yuyu-radar-blip {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: #34d399;
+  box-shadow: 0 0 8px #34d399;
+  animation: yuyu-blip 2.6s ease-in-out infinite;
+}
+
+@keyframes yuyu-blip {
+  0%, 100% { opacity: 0.25; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.25); }
+}
+
+html[data-ui-theme='mito'] .yuyu-console-hud-metrics {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-hud-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-hud-item small {
+  color: #56657e;
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-hud-item strong {
+  color: #e2e8f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-hud-item em {
+  color: #64748b;
+  font-size: 0.58rem;
+  font-style: normal;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-hud-item.is-saved strong {
+  color: #34d399;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-trace-group {
+  margin-top: 0.8rem;
+  border: 1px solid #121b2b;
+  border-radius: 16px;
+  padding: 0.85rem 1rem;
+  background: rgb(7 13 23 / 82%);
+}
+
+html[data-ui-theme='mito'] .yuyu-console-trace-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.55rem;
+}
+
+html[data-ui-theme='mito'] .yuyu-trace-status {
+  border: 1px solid rgb(16 185 129 / 28%);
+  border-radius: 999px;
+  padding: 0.14rem 0.45rem;
+  background: rgb(16 185 129 / 8%);
+  color: #34d399;
+  font-size: 0.54rem;
+  letter-spacing: 0.08em;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-trace-container {
+  display: flex;
+  max-height: 150px;
+  flex-direction: column;
+  gap: 0.34rem;
+  overflow: hidden;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-trace-item {
+  display: flex;
+  gap: 0.45rem;
+  color: #7d8ca6;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.58rem;
+  line-height: 1.45;
+  animation: yuyu-trace-in 260ms ease both;
+}
+
+@keyframes yuyu-trace-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+html[data-ui-theme='mito'] .yuyu-console-trace-item .log-time {
+  flex-shrink: 0;
+  color: #475569;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-trace-item .log-prefix {
+  flex-shrink: 0;
+  color: #64748b;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-trace-item.is-success .log-prefix {
+  color: #34d399;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-trace-item .log-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-ui-theme='mito'] .yuyu-reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 700ms ease, transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html[data-ui-theme='mito'] .yuyu-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 900px) {
+  html[data-ui-theme='mito'] .yuyu-console-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html[data-ui-theme='mito'] .yuyu-console-right-panel {
+    border-top: 1px solid #151e2e;
+    border-left: 0;
+  }
+
+  html[data-ui-theme='mito'] .yuyu-console-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  html[data-ui-theme='mito'] .yuyu-console-header-right {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 640px) {
+  html[data-ui-theme='mito'] .yuyu-workbench-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  html[data-ui-theme='mito'] .yuyu-console-header-left {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  html[data-ui-theme='mito'] .yuyu-console-policy-pills,
+  html[data-ui-theme='mito'] .yuyu-console-channel-grid,
+  html[data-ui-theme='mito'] .yuyu-console-hud-metrics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html[data-ui-theme='mito'] .yuyu-console-param-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html[data-ui-theme='mito'] .yuyu-console-hud {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  html[data-ui-theme='mito'] .yuyu-console-hud-metrics {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .topo-line.is-dashed,
+  html[data-ui-theme='mito'] .topo-pulse,
+  html[data-ui-theme='mito'] .yuyu-radar-sweep,
+  html[data-ui-theme='mito'] .yuyu-radar-blip,
+  html[data-ui-theme='mito'] .yuyu-console-spinner {
+    animation: none;
+  }
+
+  html[data-ui-theme='mito'] .yuyu-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+html[data-ui-theme='mito'] .yuyu-nav-workbench {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  border: 1px solid rgb(16 185 129 / 22%);
+  border-radius: 999px;
+  padding: 0.42rem 0.78rem;
+  background: rgb(16 185 129 / 7%);
+  color: #059669;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+html[data-ui-theme='mito'] .yuyu-nav-workbench:hover {
+  border-color: rgb(16 185 129 / 45%);
+  background: rgb(16 185 129 / 13%);
+}
+
+html[data-ui-theme='mito'].dark .yuyu-nav-workbench {
+  color: #34d399;
+}
+
+html[data-ui-theme='mito'] .yuyu-nav-workbench-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+@media (max-width: 640px) {
+  html[data-ui-theme='mito'] .yuyu-nav-workbench {
+    display: none;
+  }
+}
