@@ -766,6 +766,79 @@ export default {
 
   // Model Plaza (public group/model pricing showcase)
   modelPlaza: {
+    market: {
+      "total": "本站当前已启用模型，总计 {count} 个",
+      "subtitle": "探索精选 AI 模型，清晰比较价格与状态，为不同场景选择合适的模型。",
+      "search": "搜索模型名称、供应商、端点或标签…",
+      "filters": "筛选",
+      "filterHint": "按供应商、分组、类型和标签细化模型。",
+      "reset": "重置",
+      "expand": "展开",
+      "collapse": "收起",
+      "facets": {
+        "group": "分组",
+        "vendor": "所有供应商",
+        "tag": "模型标签",
+        "billing": "定价类型",
+        "endpoint": "端点类型"
+      },
+      "all": {
+        "group": "所有分组",
+        "vendor": "所有供应商",
+        "tag": "所有标签",
+        "billing": "所有模型",
+        "endpoint": "所有类型"
+      },
+      "billing": {
+        "token": "按量计费",
+        "per_request": "按次计费",
+        "image": "按张计费",
+        "video": "视频计费"
+      },
+      "unknownVendor": "未标注供应商",
+      "noDescription": "暂无描述。",
+      "models": "个模型",
+      "group": "分组",
+      "endpoint": "端点",
+      "copy": "复制模型名称 {model}",
+      "priceDisplay": "价格显示口径",
+      "unit": "Token 价格单位",
+      "prices": {
+        "standard": "标准",
+        "effective": "实付"
+      },
+      "priceHint": {
+        "standard": "标准价为渠道基础单价（USD），不含分组或用户专属倍率。",
+        "effective": "实付展示标准时段下的生效倍率价格（USD）；阶梯、缓存、分时等规则请查看详情。"
+      },
+      "offerHint": "不同分组的同名模型单独展示，价格与状态按分组区分。",
+      "starting": "首档",
+      "sortAscending": "按名称升序，点击切换降序",
+      "sortDescending": "按名称降序，点击切换升序",
+      "name": "名称",
+      "view": "展示方式",
+      "cards": "卡片视图",
+      "list": "列表视图",
+      "status": "状态",
+      "latency": "延迟",
+      "throughput": "吞吐",
+      "noSamples": "暂无数据",
+      "states": {
+        "operational": "正常",
+        "degraded": "性能下降",
+        "down": "不可用",
+        "unknown": "暂无有效样本"
+      },
+      "ttftHint": "首 Token 延迟（P50），来自最近采样窗口。",
+      "probeHint": "最近一次探测的响应延迟，并非首 Token 延迟。",
+      "throughputHint": "监控窗口内的平均 Token 吞吐量，不代表单次生成速度。",
+      "throughputMissing": "监控未采集或管理员已隐藏此指标。",
+      "availabilityHint": "近 {range} 可用率 {value}",
+      "updated": "最近采样：{time}",
+      "loginHint": "登录后查看用户专属报价与有权限访问的模型监控状态。",
+      "monitorUnavailable": "监控数据暂不可用，已隐藏旧状态；页面会自动重试。",
+      "retry": "重新加载"
+    },
     catalog: {
       categories: {
         language: '大语言模型（LLM）',

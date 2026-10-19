@@ -552,7 +552,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/monitor',
     name: 'ChannelStatus',
-    component: () => import('@/views/user/ChannelStatusView.vue'),
+    ...(isMitoTheme ? { redirect: '/model-plaza' } : { component: () => import('@/views/user/ChannelStatusView.vue') }),
     meta: {
       requiresAuth: true,
       requiresAdmin: false,

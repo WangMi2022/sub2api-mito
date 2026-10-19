@@ -761,6 +761,79 @@ export default {
 
   // Model Plaza (public group/model pricing showcase)
   modelPlaza: {
+    market: {
+      "total": "Currently enabled on this site: {count} models",
+      "subtitle": "Explore AI models. Compare prices and live status to find the right fit for your work.",
+      "search": "Search models, providers, endpoints or tags…",
+      "filters": "Filters",
+      "filterHint": "Refine models by provider, group, pricing and tags.",
+      "reset": "Reset",
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "facets": {
+        "group": "Groups",
+        "vendor": "Providers",
+        "tag": "Model tags",
+        "billing": "Pricing type",
+        "endpoint": "Endpoint type"
+      },
+      "all": {
+        "group": "All groups",
+        "vendor": "All providers",
+        "tag": "All tags",
+        "billing": "All models",
+        "endpoint": "All types"
+      },
+      "billing": {
+        "token": "Token-based",
+        "per_request": "Per request",
+        "image": "Per image",
+        "video": "Video pricing"
+      },
+      "unknownVendor": "Unspecified provider",
+      "noDescription": "No description yet.",
+      "models": "models",
+      "group": "Group",
+      "endpoint": "Endpoint",
+      "copy": "Copy model name {model}",
+      "priceDisplay": "Price basis",
+      "unit": "Token price unit",
+      "prices": {
+        "standard": "Base",
+        "effective": "Effective"
+      },
+      "priceHint": {
+        "standard": "Base channel prices in USD, before group or personal multipliers.",
+        "effective": "Effective prices in USD during standard hours. See details for tiers, cache and time-based rules."
+      },
+      "offerHint": "Same-name models in different groups are separate offers with independent prices and monitoring.",
+      "starting": "first tier",
+      "sortAscending": "Name ascending; switch to descending",
+      "sortDescending": "Name descending; switch to ascending",
+      "name": "Name",
+      "view": "Display mode",
+      "cards": "Card view",
+      "list": "List view",
+      "status": "Status",
+      "latency": "Latency",
+      "throughput": "Tokens/s",
+      "noSamples": "No data",
+      "states": {
+        "operational": "Operational",
+        "degraded": "Degraded",
+        "down": "Unavailable",
+        "unknown": "No qualifying samples"
+      },
+      "ttftHint": "Time to first token (P50) in the latest sampled window.",
+      "probeHint": "Latest probe response latency, not time to first token.",
+      "throughputHint": "Average token throughput across the monitoring window, not per-response generation speed.",
+      "throughputMissing": "Not collected by this monitor or hidden by the administrator.",
+      "availabilityHint": "Availability over {range}: {value}",
+      "updated": "Latest sample: {time}",
+      "loginHint": "Sign in for personal prices and monitoring you are authorized to view.",
+      "monitorUnavailable": "Monitoring is temporarily unavailable. Old status is hidden; this page will retry automatically.",
+      "retry": "Reload"
+    },
     catalog: {
       categories: {
         language: 'Language Models (LLM)',

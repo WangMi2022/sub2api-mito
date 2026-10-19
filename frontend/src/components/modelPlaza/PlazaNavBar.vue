@@ -23,6 +23,7 @@
 
       <!-- 右:返回首页 / 登录 / 回到后台 -->
       <div class="mito-plaza-nav-actions">
+        <MitoThemeToggle v-if="isMitoTheme" />
         <MitoPlazaHomeLink v-if="isMitoTheme" />
         <RouterLink
           v-if="isAuthenticated"
@@ -51,6 +52,7 @@ import { useAppStore } from '@/stores/app'
 import { useAuthStore } from '@/stores/auth'
 import MitoPlazaHomeLink from '@/themes/mito/PlazaHomeLink.vue'
 import { isMitoTheme } from '@/themes/mito'
+import MitoThemeToggle from '@/themes/mito/ThemeToggle.vue'
 
 const { t } = useI18n()
 const appStore = useAppStore()

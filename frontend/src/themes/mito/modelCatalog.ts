@@ -77,9 +77,32 @@ export function catalogPriceRows(model: PlazaModel): CatalogPriceRow[] {
   return [pricing]
 }
 
-export function catalogPrice(value: number | null | undefined, rate: number, token = true): string {
-  return value == null ? '—' : formatScaled(value * rate, token ? 1_000_000 : 1, 2)
+export function catalogPrice(value: number | null | undefined, rate: number, token = true, unit = 1_000_000): string {
+  return value == null ? '—' : formatScaled(value * rate, token ? unit : 1, 2)
 }
+
+/** Model family is a display label, not the gateway protocol or a capability claim. */
+export function catalogVendor(model: PlazaModel): { id: string; name: string; icon: string } {
+  const name = model.name.toLowerCase().split('/').at(-1) ?? ''
+  const vendors: Array<[RegExp, string, string, string]> = [
+    [/^deepseek/, 'deepseek', 'DeepSeek', 'deepseek'],
+    [/^(glm|chatglm|cogview|cogvideo)/, 'zhipu', 'Z.ai', 'glm'],
+    [/^(kimi|moonshot)/, 'moonshot', 'Moonshot', 'kimi'],
+    [/^(minimax|abab)/, 'minimax', 'MiniMax', 'minimax'],
+    [/^(gpt-|chatgpt-|o[1-9](?:[-_.]|$)|dall-e|whisper|tts-|sora)/, 'openai', 'OpenAI', 'gpt'],
+    [/^claude/, 'anthropic', 'Anthropic', 'claude'],
+    [/^(gemini|gemma|imagen|veo)/, 'google', 'Google', 'gemini'],
+    [/^(qwen|qwq)/, 'qwen', 'Qwen', 'qwen'],
+    [/^(llama)/, 'meta', 'Meta', 'llama'],
+    [/^(mistral|mixtral|codestral)/, 'mistral', 'Mistral', 'mistral'],
+    [/^grok/, 'xai', 'xAI', 'grok'],
+    [/^doubao/, 'doubao', 'Doubao', 'doubao']
+  ]
+  const vendor = vendors.find(([pattern]) => pattern.test(name))
+  return vendor ? { id: vendor[1], name: vendor[2], icon: vendor[3] } : { id: 'unknown', name: '', icon: model.name }
+}
+
+export type CatalogPriceDisplay = 'standard' | 'effective'
 
 /** Preserve administrator tier labels and the existing inclusive-upper-bound semantics. */
 export function catalogTierLabel(interval: UserPricingInterval): string {

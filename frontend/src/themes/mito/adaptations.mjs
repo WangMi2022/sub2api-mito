@@ -336,29 +336,19 @@ export const adaptations = [
     ]
   },
   {
-    path: "frontend/src/components/modelPlaza/ModelPlazaContent.vue",
-    edits: [
-      {"before": "import PlazaGroupSection from './PlazaGroupSection.vue'", "after": "import PlazaGroupSection from './PlazaGroupSection.vue'\nimport MitoModelCatalog from '@/themes/mito/ModelCatalog.vue'\nimport { isMitoTheme } from '@/themes/mito'"},
-      {"before": "        <PlazaGroupSection v-for=\"g in filteredGroups\" :key=\"g.id\" :group=\"g\" />", "after": "        <MitoModelCatalog v-if=\"isMitoTheme\" :groups=\"filteredGroups\" />\n        <template v-else>\n          <PlazaGroupSection v-for=\"g in filteredGroups\" :key=\"g.id\" :group=\"g\" />\n        </template>"},
+    "path": "frontend/src/components/modelPlaza/ModelPlazaContent.vue",
+    "edits": [
       {
-        before: "<div class=\"space-y-5\">",
-        after: "<div class=\"mito-model-plaza space-y-5\">"
+        "before": "import PlazaGroupSection from './PlazaGroupSection.vue'",
+        "after": "import PlazaGroupSection from './PlazaGroupSection.vue'\nimport MitoModelCatalog from '@/themes/mito/ModelCatalog.vue'\nimport { isMitoTheme } from '@/themes/mito'"
       },
       {
-        before: "<h1 class=\"text-2xl",
-        after: "<h1 class=\"mito-plaza-title text-2xl"
+        "before": "<div class=\"space-y-5\">",
+        "after": "<MitoModelCatalog\n    v-if=\"isMitoTheme\"\n    :groups=\"response?.groups ?? []\"\n    :loading=\"loading\"\n    :error=\"error\"\n    :description-html=\"descriptionHtml\"\n    :anonymous=\"!isAuthenticated\"\n    :monitoring-unavailable=\"response?.monitoring_unavailable\"\n    @refresh=\"$emit('refresh')\"\n  />\n  <div v-else class=\"space-y-5\">"
       },
       {
-        before: "class=\"plaza-description rounded-2xl",
-        after: "class=\"mito-plaza-description plaza-description rounded-2xl"
-      },
-      {
-        before: "<div v-if=\"filteredGroups.length > 0\" class=\"space-y-5\">",
-        after: "<div v-if=\"filteredGroups.length > 0\" class=\"mito-plaza-groups space-y-5\">"
-      },
-      {
-        before: "class=\"rounded-2xl border border-dashed border-gray-300",
-        after: "class=\"mito-plaza-empty rounded-2xl border border-dashed border-gray-300"
+        "before": "const { t } = useI18n()",
+        "after": "defineEmits<{ (event: 'refresh'): void }>()\n\nconst { t } = useI18n()"
       }
     ]
   },
@@ -761,9 +751,9 @@ export const adaptations = [
 export const contracts = [
   {"path": "frontend/src/themes/mito/PlazaHomeLink.vue", "anchors": ["to=\"/home\"", "modelPlaza.nav.home", "mito-plaza-home-link"]},
   {"path": "frontend/src/themes/mito/ModelCatalog.vue", "anchors": ["catalogSections(props.groups)", "ModelCatalogCard", "PlazaGroupSection", "selectedKey"]},
-  {"path": "frontend/src/themes/mito/ModelCatalogCard.vue", "anchors": ["catalogPriceRows(props.model)", "catalogRate(props.model, props.group)", "catalogTierLabel", "cache_write_1h_price", "modelPlaza.catalog.standardPrice"]},
+  {"path": "frontend/src/themes/mito/ModelCatalogCard.vue", "anchors": ["catalogPriceRows(props.model)", "catalogRate(props.model, props.group)", "ModelMonitorStrip", "priceDisplay", "copyToClipboard"]},
   {"path": "frontend/src/themes/mito/modelCatalog.ts", "anchors": ["export function catalogSections", "export function catalogRate", "export function catalogPriceRows", "resolveIntervalPrices", "group.user_rate_multiplier ?? group.rate_multiplier"]},
-  {"path": "frontend/src/themes/mito/model-catalog.css", "anchors": ["html[data-ui-theme='mito']", "--catalog-surface: #fff", "--catalog-surface: #182235", ".mito-plaza-home-link", ".mito-plaza-nav-actions", ".mito-model-grid", "repeat(4, minmax(0, 1fr))", "prefers-reduced-motion"]},
+  {"path": "frontend/src/themes/mito/model-catalog.css", "anchors": ["html[data-ui-theme='mito']", "--catalog-surface: #fff", "--catalog-surface: #182235", ".mito-plaza-home-link", ".mito-plaza-nav-actions", ".mito-model-grid", "repeat(3, minmax(0, 1fr))", "prefers-reduced-motion"]},
   {"path": "frontend/src/themes/mito/index.ts", "anchors": ["import './model-catalog.css'"]},
   {"path": "frontend/src/api/modelPlaza.ts", "anchors": ["export interface PlazaModel", "export interface ModelPlazaGroup", "user_rate_multiplier?: number", "long_context_pricing_enabled: boolean"]},
   {"path": "frontend/src/utils/pricing.ts", "anchors": ["export function resolveIntervalPrices", "export function formatScaled"]},
@@ -901,3 +891,151 @@ export const contracts = [
   { path: 'frontend/src/views/user/PelicanShowcaseView.vue', anchors: ['PelicanShowcaseRow', 'bodies[item.id]'] },
   { path: 'frontend/src/themes/mito/assets/noto-sans-sc-ui.woff2', binary: true }
 ]
+
+// Unified marketplace integration; removable without touching upstream behavior.
+for (const seam of [
+  {
+    "path": "frontend/src/views/ModelPlazaView.vue",
+    "edits": [
+      {
+        "before": "class=\"min-h-screen bg-gray-50 dark:bg-dark-950\"",
+        "after": "class=\"mito-plaza-page min-h-screen bg-gray-50 dark:bg-dark-950\""
+      },
+      {
+        "before": "import { computed, onMounted, ref } from 'vue'",
+        "after": "import { computed, onMounted } from 'vue'"
+      },
+      {
+        "before": "import { getModelPlaza, type ModelPlazaResponse } from '@/api/modelPlaza'",
+        "after": "import { usePlazaData } from '@/themes/mito/usePlazaData'"
+      },
+      {
+        "before": "const data = ref<ModelPlazaResponse | null>(null)\nconst loading = ref(true)\nconst loadFailed = ref(false)\n\nonMounted(async () => {\n  // 独立形态导航条需要站点名/Logo;有 __APP_CONFIG__ 注入时同步命中缓存。\n  void appStore.fetchPublicSettings()\n  try {\n    data.value = await getModelPlaza()\n  } catch {\n    loadFailed.value = true\n  } finally {\n    loading.value = false\n  }\n})",
+        "after": "const { data, loading, loadFailed, refresh } = usePlazaData(() => authStore.isAuthenticated, isMitoTheme)\n\nonMounted(() => { void appStore.fetchPublicSettings() })"
+      },
+      {
+        "before": ":error=\"loadFailed\" embedded",
+        "after": ":error=\"loadFailed\" @refresh=\"refresh\" embedded"
+      },
+      {
+        "before": ":error=\"loadFailed\" />",
+        "after": ":error=\"loadFailed\" @refresh=\"refresh\" />"
+      }
+    ]
+  },
+  {
+    "path": "frontend/src/api/modelPlaza.ts",
+    "edits": [
+      {
+        "before": "import { apiClient } from './client'",
+        "after": "import { apiClient } from './client'\nimport type { PlazaMonitoring } from '@/themes/mito/plazaMonitor'"
+      },
+      {
+        "before": "export interface PlazaModel {",
+        "after": "export interface PlazaModel {\n  /** Omitted unless this exact offer has an authorized, enabled monitor. */\n  monitoring?: PlazaMonitoring"
+      },
+      {
+        "before": "export interface ModelPlazaResponse {",
+        "after": "export interface ModelPlazaResponse {\n  monitoring_unavailable?: boolean"
+      }
+    ]
+  },
+  {
+    "path": "frontend/src/router/index.ts",
+    "edits": [
+      {
+        "before": "  {\n    path: '/monitor',\n    name: 'ChannelStatus',\n    component: () => import('@/views/user/ChannelStatusView.vue'),\n    meta: {\n      requiresAuth: true,\n      requiresAdmin: false,\n      title: 'Channel Status',\n      titleKey: 'nav.channelStatus'\n    }\n  },\n",
+        "after": "  {\n    path: '/monitor',\n    name: 'ChannelStatus',\n    ...(isMitoTheme ? { redirect: '/model-plaza' } : { component: () => import('@/views/user/ChannelStatusView.vue') }),\n    meta: {\n      requiresAuth: true,\n      requiresAdmin: false,\n      title: 'Channel Status',\n      titleKey: 'nav.channelStatus'\n    }\n  },\n"
+      }
+    ]
+  },
+  {
+    "path": "frontend/src/components/layout/AppSidebar.vue",
+    "edits": [
+      {
+        "before": "    { path: '/monitor', label: t('nav.channelStatus'), icon: SignalIcon, featureFlag: flagChannelMonitor },",
+        "after": "    ...(isMitoTheme\n      ? [{ path: '/model-plaza', label: t('modelPlaza.title'), icon: SignalIcon, featureFlag: () => !!appStore.cachedPublicSettings?.model_plaza_enabled }]\n      : [{ path: '/monitor', label: t('nav.channelStatus'), icon: SignalIcon, featureFlag: flagChannelMonitor }]),"
+      }
+    ]
+  },
+  {
+    "path": "frontend/src/components/modelPlaza/PlazaNavBar.vue",
+    "edits": [
+      {
+        "before": "import { isMitoTheme } from '@/themes/mito'",
+        "after": "import { isMitoTheme } from '@/themes/mito'\nimport MitoThemeToggle from '@/themes/mito/ThemeToggle.vue'"
+      },
+      {
+        "before": "<MitoPlazaHomeLink v-if=\"isMitoTheme\" />",
+        "after": "<MitoThemeToggle v-if=\"isMitoTheme\" />\n        <MitoPlazaHomeLink v-if=\"isMitoTheme\" />"
+      }
+    ]
+  },
+  {
+    "path": "frontend/src/i18n/locales/zh/dashboard.ts",
+    "edits": [
+      {
+        "before": "  modelPlaza: {\n",
+        "after": "  modelPlaza: {\n    market: {\n      \"total\": \"本站当前已启用模型，总计 {count} 个\",\n      \"subtitle\": \"探索精选 AI 模型，清晰比较价格与状态，为不同场景选择合适的模型。\",\n      \"search\": \"搜索模型名称、供应商、端点或标签…\",\n      \"filters\": \"筛选\",\n      \"filterHint\": \"按供应商、分组、类型和标签细化模型。\",\n      \"reset\": \"重置\",\n      \"expand\": \"展开\",\n      \"collapse\": \"收起\",\n      \"facets\": {\n        \"group\": \"分组\",\n        \"vendor\": \"所有供应商\",\n        \"tag\": \"模型标签\",\n        \"billing\": \"定价类型\",\n        \"endpoint\": \"端点类型\"\n      },\n      \"all\": {\n        \"group\": \"所有分组\",\n        \"vendor\": \"所有供应商\",\n        \"tag\": \"所有标签\",\n        \"billing\": \"所有模型\",\n        \"endpoint\": \"所有类型\"\n      },\n      \"billing\": {\n        \"token\": \"按量计费\",\n        \"per_request\": \"按次计费\",\n        \"image\": \"按张计费\",\n        \"video\": \"视频计费\"\n      },\n      \"unknownVendor\": \"未标注供应商\",\n      \"noDescription\": \"暂无描述。\",\n      \"models\": \"个模型\",\n      \"group\": \"分组\",\n      \"endpoint\": \"端点\",\n      \"copy\": \"复制模型名称 {model}\",\n      \"priceDisplay\": \"价格显示口径\",\n      \"unit\": \"Token 价格单位\",\n      \"prices\": {\n        \"standard\": \"标准\",\n        \"effective\": \"实付\"\n      },\n      \"priceHint\": {\n        \"standard\": \"标准价为渠道基础单价（USD），不含分组或用户专属倍率。\",\n        \"effective\": \"实付展示标准时段下的生效倍率价格（USD）；阶梯、缓存、分时等规则请查看详情。\"\n      },\n      \"offerHint\": \"不同分组的同名模型单独展示，价格与状态按分组区分。\",\n      \"starting\": \"首档\",\n      \"sortAscending\": \"按名称升序，点击切换降序\",\n      \"sortDescending\": \"按名称降序，点击切换升序\",\n      \"name\": \"名称\",\n      \"view\": \"展示方式\",\n      \"cards\": \"卡片视图\",\n      \"list\": \"列表视图\",\n      \"status\": \"状态\",\n      \"latency\": \"延迟\",\n      \"throughput\": \"吞吐\",\n      \"noSamples\": \"暂无数据\",\n      \"states\": {\n        \"operational\": \"正常\",\n        \"degraded\": \"性能下降\",\n        \"down\": \"不可用\",\n        \"unknown\": \"暂无有效样本\"\n      },\n      \"ttftHint\": \"首 Token 延迟（P50），来自最近采样窗口。\",\n      \"probeHint\": \"最近一次探测的响应延迟，并非首 Token 延迟。\",\n      \"throughputHint\": \"监控窗口内的平均 Token 吞吐量，不代表单次生成速度。\",\n      \"throughputMissing\": \"监控未采集或管理员已隐藏此指标。\",\n      \"availabilityHint\": \"近 {range} 可用率 {value}\",\n      \"updated\": \"最近采样：{time}\",\n      \"loginHint\": \"登录后查看用户专属报价与有权限访问的模型监控状态。\",\n      \"monitorUnavailable\": \"监控数据暂不可用，已隐藏旧状态；页面会自动重试。\",\n      \"retry\": \"重新加载\"\n    },\n"
+      }
+    ]
+  },
+  {
+    "path": "frontend/src/i18n/locales/en/dashboard.ts",
+    "edits": [
+      {
+        "before": "  modelPlaza: {\n",
+        "after": "  modelPlaza: {\n    market: {\n      \"total\": \"Currently enabled on this site: {count} models\",\n      \"subtitle\": \"Explore AI models. Compare prices and live status to find the right fit for your work.\",\n      \"search\": \"Search models, providers, endpoints or tags…\",\n      \"filters\": \"Filters\",\n      \"filterHint\": \"Refine models by provider, group, pricing and tags.\",\n      \"reset\": \"Reset\",\n      \"expand\": \"Expand\",\n      \"collapse\": \"Collapse\",\n      \"facets\": {\n        \"group\": \"Groups\",\n        \"vendor\": \"Providers\",\n        \"tag\": \"Model tags\",\n        \"billing\": \"Pricing type\",\n        \"endpoint\": \"Endpoint type\"\n      },\n      \"all\": {\n        \"group\": \"All groups\",\n        \"vendor\": \"All providers\",\n        \"tag\": \"All tags\",\n        \"billing\": \"All models\",\n        \"endpoint\": \"All types\"\n      },\n      \"billing\": {\n        \"token\": \"Token-based\",\n        \"per_request\": \"Per request\",\n        \"image\": \"Per image\",\n        \"video\": \"Video pricing\"\n      },\n      \"unknownVendor\": \"Unspecified provider\",\n      \"noDescription\": \"No description yet.\",\n      \"models\": \"models\",\n      \"group\": \"Group\",\n      \"endpoint\": \"Endpoint\",\n      \"copy\": \"Copy model name {model}\",\n      \"priceDisplay\": \"Price basis\",\n      \"unit\": \"Token price unit\",\n      \"prices\": {\n        \"standard\": \"Base\",\n        \"effective\": \"Effective\"\n      },\n      \"priceHint\": {\n        \"standard\": \"Base channel prices in USD, before group or personal multipliers.\",\n        \"effective\": \"Effective prices in USD during standard hours. See details for tiers, cache and time-based rules.\"\n      },\n      \"offerHint\": \"Same-name models in different groups are separate offers with independent prices and monitoring.\",\n      \"starting\": \"first tier\",\n      \"sortAscending\": \"Name ascending; switch to descending\",\n      \"sortDescending\": \"Name descending; switch to ascending\",\n      \"name\": \"Name\",\n      \"view\": \"Display mode\",\n      \"cards\": \"Card view\",\n      \"list\": \"List view\",\n      \"status\": \"Status\",\n      \"latency\": \"Latency\",\n      \"throughput\": \"Tokens/s\",\n      \"noSamples\": \"No data\",\n      \"states\": {\n        \"operational\": \"Operational\",\n        \"degraded\": \"Degraded\",\n        \"down\": \"Unavailable\",\n        \"unknown\": \"No qualifying samples\"\n      },\n      \"ttftHint\": \"Time to first token (P50) in the latest sampled window.\",\n      \"probeHint\": \"Latest probe response latency, not time to first token.\",\n      \"throughputHint\": \"Average token throughput across the monitoring window, not per-response generation speed.\",\n      \"throughputMissing\": \"Not collected by this monitor or hidden by the administrator.\",\n      \"availabilityHint\": \"Availability over {range}: {value}\",\n      \"updated\": \"Latest sample: {time}\",\n      \"loginHint\": \"Sign in for personal prices and monitoring you are authorized to view.\",\n      \"monitorUnavailable\": \"Monitoring is temporarily unavailable. Old status is hidden; this page will retry automatically.\",\n      \"retry\": \"Reload\"\n    },\n"
+      }
+    ]
+  }
+]) {
+  const existing = adaptations.find(item => item.path === seam.path)
+  if (!existing) { adaptations.push(seam); continue }
+  for (const edit of seam.edits) {
+    const containing = existing.edits.find(previous => previous.after.includes(edit.before))
+    if (containing) containing.after = containing.after.replace(edit.before, edit.after)
+    else existing.edits.push(edit)
+  }
+}
+
+contracts.push(...[
+  {
+    "path": "frontend/src/themes/mito/plazaMonitor.ts",
+    "anchors": [
+      "export interface PlazaMonitoring",
+      "monitorLatency",
+      "monitorNumber"
+    ]
+  },
+  {
+    "path": "frontend/src/themes/mito/ModelMonitorStrip.vue",
+    "anchors": [
+      "monitor.cells",
+      "aria-label=\"summary\"",
+      "throughputMissing"
+    ]
+  },
+  {
+    "path": "frontend/src/themes/mito/usePlazaData.ts",
+    "anchors": [
+      "AbortController",
+      "60_000",
+      "onBeforeUnmount",
+      "watch(authenticated"
+    ]
+  },
+  {
+    "path": "frontend/src/themes/mito/README.md",
+    "anchors": [
+      "New API",
+      "未配置",
+      "/monitor"
+    ]
+  }
+])
+
+contracts.push({
+  path: 'frontend/src/themes/mito/__tests__/usePlazaData.spec.ts',
+  anchors: ['usePlazaData request lifecycle', 'never restores a stale response']
+})

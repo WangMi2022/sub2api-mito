@@ -80,7 +80,7 @@ export const USER_SIDEBAR_SECTIONS: SectionSpec[] = [
   {
     id: 'services',
     labelKey: 'nav.sections.services',
-    paths: ['/available-channels', '/monitor', '/pelican-showcase']
+    paths: ['/available-channels', '/model-plaza', '/monitor', '/pelican-showcase']
   },
   {
     id: 'billing',

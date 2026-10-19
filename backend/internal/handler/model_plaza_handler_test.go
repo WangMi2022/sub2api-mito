@@ -5,6 +5,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -24,6 +25,46 @@ func plazaGroups() []service.PlazaGroup {
 		{ID: 3, Name: "public-subscription", Platform: "openai", SubscriptionType: "subscription", RateMultiplier: 1},
 		{ID: 4, Name: "exclusive-b", Platform: "openai", IsExclusive: true, RateMultiplier: 0.8},
 	}
+}
+
+type plazaAccessStub struct {
+	*service.APIKeyService
+	allowed []service.Group
+	err     error
+}
+
+func (r plazaAccessStub) GetAvailableGroups(context.Context, int64) ([]service.Group, error) {
+	return r.allowed, r.err
+}
+
+func TestModelPlazaMonitoringUsesAuthorizedScopeAndModelWhitelist(t *testing.T) {
+	_, _, repo := monitorV3HandlerFixtureWithRepo()
+	for i := range repo.components {
+		repo.components[i].GroupPlatform = "openai"
+	}
+	settings := service.NewSettingService(plazaV3Settings{}, &config.Config{})
+	h := &ModelPlazaHandler{settingService: settings, apiKeyService: plazaAccessStub{allowed: []service.Group{{ID: 4}}}, monitorV3: service.NewChannelMonitorV3Service(repo, nil)}
+	c, _ := monitorV3Request("/api/v1/model-plaza", service.RoleUser, "")
+	out := []modelPlazaGroup{
+		{ID: 4, Models: []modelPlazaModel{{Name: "gpt", Platform: "openai"}, {Name: "untested", Platform: "openai"}}},
+		{ID: 9, Models: []modelPlazaModel{{Name: "gpt", Platform: "openai"}}},
+	}
+	require.NoError(t, h.attachPlazaMonitoring(c, nil, out, 42))
+	require.Equal(t, "down", out[0].Models[0].Monitoring.Status)
+	require.Equal(t, "unknown", out[0].Models[1].Monitoring.Status)
+	require.Nil(t, out[1].Models[0].Monitoring)
+	raw, err := json.Marshal(out)
+	require.NoError(t, err)
+	require.NotContains(t, string(raw), `"errors"`)
+	require.NotContains(t, string(raw), `"requests"`)
+	h.apiKeyService = plazaAccessStub{err: errors.New("scope unavailable")}
+	require.Error(t, h.attachPlazaMonitoring(c, nil, out, 42))
+}
+
+type plazaV3Settings struct{ service.SettingRepository }
+
+func (plazaV3Settings) GetMultiple(context.Context, []string) (map[string]string, error) {
+	return map[string]string{service.SettingKeyChannelMonitorEnabled: "true", service.SettingKeyChannelMonitorMode: "v3"}, nil
 }
 
 func TestFilterPlazaVisibleGroups_AnonymousSeesOnlyNonExclusive(t *testing.T) {
@@ -286,6 +327,7 @@ func TestModelPlazaHandler_VaryKeepsCORSOrigin(t *testing.T) {
 		service.NewModelPlazaService(plazaVaryChannelRepo{}, plazaVaryGroupRepo{}, nil, nil, nil),
 		nil,
 		service.NewSettingService(plazaVarySettingRepo{}, &config.Config{}),
+		nil, nil, nil,
 	)
 	r := gin.New()
 	r.Use(middleware.CORS(config.CORSConfig{AllowedOrigins: []string{"https://a.example", "https://b.example"}}))
@@ -303,5 +345,49 @@ func TestModelPlazaHandler_VaryKeepsCORSOrigin(t *testing.T) {
 		require.Equal(t, origin, w.Header().Get("Access-Control-Allow-Origin"))
 		// 共享缓存需同时按来源与语言区分，否则 A 来源的响应可能被复用给 B。
 		require.Equal(t, []string{"Origin", "Accept-Language"}, w.Header().Values("Vary"))
+		require.Equal(t, "private, no-store", w.Header().Get("Cache-Control"))
 	}
+}
+
+type plazaMonitorSettings struct {
+	service.SettingRepository
+	enabled string
+}
+
+func (r plazaMonitorSettings) GetMultiple(context.Context, []string) (map[string]string, error) {
+	return map[string]string{service.SettingKeyModelPlazaEnabled: "true", service.SettingKeyChannelMonitorEnabled: r.enabled, service.SettingKeyChannelMonitorMode: "v1"}, nil
+}
+
+type plazaMonitorRepo struct {
+	service.ChannelMonitorRepository
+	calls int
+}
+
+func (r *plazaMonitorRepo) ListEnabled(context.Context) ([]*service.ChannelMonitor, error) {
+	r.calls++
+	return nil, nil
+}
+
+func TestModelPlazaMonitoringDisabledAndAnonymousNeverReadTelemetry(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	repo := &plazaMonitorRepo{}
+	settings := service.NewSettingService(plazaMonitorSettings{enabled: "false"}, &config.Config{})
+	h := NewModelPlazaHandler(service.NewModelPlazaService(plazaVaryChannelRepo{}, plazaVaryGroupRepo{}, nil, nil, nil), nil, settings, service.NewChannelMonitorService(repo, nil), nil, nil)
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest(http.MethodGet, "/api/v1/model-plaza", nil)
+	out := []modelPlazaGroup{{ID: 1, Models: []modelPlazaModel{{Name: "gpt", Platform: "openai"}}}}
+	require.NoError(t, h.attachPlazaMonitoring(c, nil, out, 1))
+	require.Zero(t, repo.calls)
+	require.Nil(t, out[0].Models[0].Monitoring)
+	h.settingService = service.NewSettingService(plazaMonitorSettings{enabled: "true"}, &config.Config{})
+	h.Get(c) // No JWT subject, even with the runtime enabled.
+	require.Equal(t, http.StatusOK, w.Code)
+	require.Zero(t, repo.calls)
+	// Login-only projection invokes the monitor, but unconfigured models stay omitted.
+	require.NoError(t, h.attachPlazaMonitoring(c, nil, out, 1))
+	require.Equal(t, 1, repo.calls)
+	raw, err := json.Marshal(out)
+	require.NoError(t, err)
+	require.NotContains(t, string(raw), `"monitoring"`)
 }

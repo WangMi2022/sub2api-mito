@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/Wei-Shaw/sub2api/internal/pkg/response"
@@ -9,6 +10,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+type modelPlazaAccess interface {
+	GetUserGroupVisibility(context.Context, int64) (map[int64]struct{}, bool, error)
+	GetUserGroupRates(context.Context, int64) (map[int64]float64, error)
+	GetUserGroupDeniedModels(context.Context, int64) (map[int64][]string, error)
+	GetAvailableGroups(context.Context, int64) ([]service.Group, error)
+}
 
 // ModelPlazaHandler 处理「模型广场」查询。
 //
@@ -19,8 +27,11 @@ import (
 //     若该用户开启了公开分组限制，则公开分组同样需要落在授权集合内。
 type ModelPlazaHandler struct {
 	plazaService   *service.ModelPlazaService
-	apiKeyService  *service.APIKeyService
+	apiKeyService  modelPlazaAccess
 	settingService *service.SettingService
+	monitorV1      *service.ChannelMonitorService
+	monitorV2      *service.ChannelMonitorV2Service
+	monitorV3      *service.ChannelMonitorV3Service
 }
 
 // NewModelPlazaHandler 创建模型广场 handler。
@@ -28,11 +39,17 @@ func NewModelPlazaHandler(
 	plazaService *service.ModelPlazaService,
 	apiKeyService *service.APIKeyService,
 	settingService *service.SettingService,
+	monitorV1 *service.ChannelMonitorService,
+	monitorV2 *service.ChannelMonitorV2Service,
+	monitorV3 *service.ChannelMonitorV3Service,
 ) *ModelPlazaHandler {
 	return &ModelPlazaHandler{
 		plazaService:   plazaService,
 		apiKeyService:  apiKeyService,
 		settingService: settingService,
+		monitorV1:      monitorV1,
+		monitorV2:      monitorV2,
+		monitorV3:      monitorV3,
 	}
 }
 
@@ -71,7 +88,8 @@ type modelPlazaModel struct {
 	// LongContextBasis 多档时的计价基准："whole_request"（整单按档）| "marginal"（仅超出部分）。
 	LongContextBasis string `json:"long_context_basis,omitempty"`
 	// TimePricing 分时倍率时段，落在时段内的请求整单乘倍率；无分时省略。
-	TimePricing *modelPlazaTimePricing `json:"time_pricing,omitempty"`
+	TimePricing *modelPlazaTimePricing      `json:"time_pricing,omitempty"`
+	Monitoring  *service.PlazaMonitorStatus `json:"monitoring,omitempty"`
 }
 
 // modelPlazaGroup 广场分组条目（白名单字段）。
@@ -101,8 +119,9 @@ type modelPlazaGroup struct {
 
 // modelPlazaResponse 广场页响应。
 type modelPlazaResponse struct {
-	Description string            `json:"description"`
-	Groups      []modelPlazaGroup `json:"groups"`
+	Description           string            `json:"description"`
+	Groups                []modelPlazaGroup `json:"groups"`
+	MonitoringUnavailable bool              `json:"monitoring_unavailable,omitempty"`
 }
 
 // Get 返回模型广场数据。
@@ -161,9 +180,20 @@ func (h *ModelPlazaHandler) Get(c *gin.Context) {
 	// 追加语言缓存维度，保留 CORS 的 Vary: Origin 和用户模型限制。
 	c.Writer.Header().Add("Vary", "Accept-Language")
 	out := toLocalizedModelPlazaGroups(visible, userRates, c.GetHeader("Accept-Language"), deniedModels)
+	// Monitoring remains login-only, as on the old status page. Authorization
+	// is rechecked server-side and only sanitized, exact group/model data leaves.
+	monitoringUnavailable := false
+	if authed {
+		if err := h.attachPlazaMonitoring(c, groups, out, subject.UserID); err != nil {
+			monitoringUnavailable = true
+			slog.Warn("model_plaza_monitoring_failed", "error", err)
+		}
+	}
+	c.Header("Cache-Control", "private, no-store")
 	response.Success(c, modelPlazaResponse{
-		Description: rt.Description,
-		Groups:      out,
+		Description:           rt.Description,
+		Groups:                out,
+		MonitoringUnavailable: monitoringUnavailable,
 	})
 }
 

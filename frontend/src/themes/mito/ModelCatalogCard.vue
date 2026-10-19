@@ -1,81 +1,45 @@
 <template>
   <article class="mito-model-card" :data-model="model.name" :data-group-id="group.id">
     <header class="mito-model-card-head">
-      <span class="mito-model-card-icon" aria-hidden="true">
-        <ModelIcon :model="iconName" size="30px" />
-      </span>
-      <h3>{{ model.name }}</h3>
-      <span v-if="group.is_exclusive" class="mito-model-exclusive">{{ t('modelPlaza.badges.exclusive') }}</span>
+      <span class="mito-model-card-icon" aria-hidden="true"><ModelIcon :model="vendor.icon" size="28px" /></span>
+      <div class="mito-model-identity">
+        <h3 :title="model.name">{{ model.name }}</h3>
+        <p>{{ vendor.name || t('modelPlaza.market.unknownVendor') }}</p>
+      </div>
+      <button type="button" class="mito-model-copy" :aria-label="t('modelPlaza.market.copy', { model: model.name })" :title="t('modelPlaza.market.copy', { model: model.name })" @click="copyToClipboard(model.name)">
+        <Icon :name="copied ? 'check' : 'copy'" size="sm" />
+      </button>
     </header>
-
-    <div class="mito-model-card-body">
-      <div class="mito-model-price-heading">
-        <span>{{ t('modelPlaza.catalog.standardPrice') }}</span>
-        <span>{{ tokenBilling ? t('modelPlaza.table.unitPerMillion') : 'USD' }}</span>
-      </div>
-      <div class="mito-model-price-panel">
-        <p v-if="!rows.length" class="mito-model-no-price">{{ t('modelPlaza.detail.noPricing') }}</p>
-        <template v-else>
-          <p v-if="hasTiers" class="mito-model-tier-heading">{{ t('modelPlaza.catalog.tiered') }}</p>
-          <div v-for="(row, index) in rows" :key="index" class="mito-model-price-tier" :class="{ 'is-tiered': hasTiers }">
-            <p v-if="row.interval" class="mito-model-tier-label" :title="tierHint">
-              {{ catalogTierLabel(row.interval) }}<span v-if="tokenBilling"> tokens</span>
-            </p>
-            <template v-if="tokenBilling">
-              <dl class="mito-model-price-grid" :class="{ 'has-cache': row.cache_read_price != null }">
-                <div>
-                  <dt>{{ t('modelPlaza.table.input') }}</dt>
-                  <dd>{{ catalogPrice(row.input_price, rate) }}</dd>
-                </div>
-                <div>
-                  <dt>{{ t('modelPlaza.table.output') }}</dt>
-                  <dd>{{ catalogPrice(row.output_price, rate) }}</dd>
-                </div>
-                <div v-if="row.cache_read_price != null">
-                  <dt>{{ t('modelPlaza.catalog.cacheRead') }}</dt>
-                  <dd>{{ catalogPrice(row.cache_read_price, rate) }}</dd>
-                </div>
-              </dl>
-              <dl v-if="hasCacheWrite(row)" class="mito-model-cache-write">
-                <template v-for="field in cacheWriteFields" :key="field.key">
-                  <div v-if="row[field.key] != null">
-                    <dt>{{ t(field.label) }}{{ field.suffix }}</dt>
-                    <dd>{{ catalogPrice(row[field.key], rate) }}</dd>
-                  </div>
-                </template>
-              </dl>
-            </template>
-            <dl v-else class="mito-model-request-price">
-              <dt>{{ t(mode === BILLING_MODE_IMAGE ? 'modelPlaza.table.perImage' : 'modelPlaza.table.perRequest') }}</dt>
-              <dd>
-                {{ catalogPrice(row.per_request_price, rate, false) }}
-                <span>{{ t(mode === BILLING_MODE_IMAGE ? 'modelPlaza.table.perUnitImage' : 'modelPlaza.table.perUnitRequest') }}</span>
-              </dd>
-            </dl>
-          </div>
-        </template>
-      </div>
-
-      <div class="mito-model-group-line">
-        <span :title="group.name">{{ group.name }}</span>
-        <span class="mito-model-rate" :title="t('modelPlaza.table.rate')">
-          <del v-if="hasPersonalRate">{{ group.rate_multiplier }}×</del>
-          {{ rate }}×
-        </span>
-      </div>
-      <p class="mito-model-card-description" :title="description">{{ description }}</p>
-      <p v-if="specialPricing" class="mito-model-pricing-note">
-        <Icon name="infoCircle" size="xs" />{{ t('modelPlaza.catalog.specialPricing') }}
-      </p>
+    <p class="mito-model-card-description" :title="description">{{ description }}</p>
+    <div class="mito-model-billing" :class="{ 'is-dynamic': hasTiers || specialPricing }">
+      {{ t(`modelPlaza.market.billing.${mode}`) }}
+      <span v-if="hasTiers"> · {{ t('modelPlaza.catalog.tiered') }}</span>
+      <span v-else-if="specialPricing"> · {{ t('modelPlaza.catalog.timePricing') }}</span>
     </div>
-
-    <footer class="mito-model-card-footer">
-      <div class="mito-model-tags">
+    <div class="mito-model-card-prices">
+      <p v-if="!row" class="mito-model-no-price">{{ t('modelPlaza.detail.noPricing') }}</p>
+      <dl v-else-if="tokenBilling" class="mito-model-price-grid">
+        <div v-for="field in tokenFields" :key="field">
+          <dt>{{ t(`modelPlaza.table.${field}`) }}</dt>
+          <dd>{{ catalogPrice(row[`${field}_price`], rate, true, unit) }} <span>/ {{ unit === 1000 ? '1K' : '1M' }}</span><small v-if="hasTiers">{{ t('modelPlaza.market.starting') }}</small></dd>
+        </div>
+      </dl>
+      <dl v-else class="mito-model-price-grid">
+        <div><dt>{{ t(mode === BILLING_MODE_IMAGE ? 'modelPlaza.table.perImage' : 'modelPlaza.table.perRequest') }}</dt>
+          <dd>{{ catalogPrice(row.per_request_price, rate, false) }} <span>{{ t(mode === BILLING_MODE_IMAGE ? 'modelPlaza.table.perUnitImage' : 'modelPlaza.table.perUnitRequest') }}</span><small v-if="hasTiers">{{ t('modelPlaza.market.starting') }}</small></dd>
+        </div>
+      </dl>
+    </div>
+    <div class="mito-model-meta">
+      <p :title="`${group.name} · ${catalogRate(model, group)}×`"><span>{{ t('modelPlaza.market.group') }}</span> {{ group.name }} <small>{{ catalogRate(model, group) }}×</small></p>
+      <p :title="model.platform"><span>{{ t('modelPlaza.market.endpoint') }}</span> {{ model.platform }}</p>
+    </div>
+    <footer class="mito-model-card-footer" :class="{ 'has-monitor': !!model.monitoring }">
+      <ModelMonitorStrip v-if="model.monitoring" :monitor="model.monitoring" />
+      <div v-else class="mito-model-tags">
         <span>{{ t(`modelPlaza.catalog.tags.${category}`) }}</span>
-        <span v-if="hasTiers">{{ t('modelPlaza.catalog.tiered') }}</span>
+        <span v-if="group.is_exclusive">{{ t('modelPlaza.badges.exclusive') }}</span>
         <span v-if="group.subscription_type === 'subscription'">{{ t('modelPlaza.badges.subscription') }}</span>
-        <span v-if="model.long_context_basis === 'marginal'" :title="tierHint">{{ t('modelPlaza.table.marginalBadge') }}</span>
-        <span v-if="model.time_pricing?.periods.length">{{ t('modelPlaza.catalog.timePricing') }}</span>
       </div>
       <button type="button" class="mito-model-details-button" :aria-label="t('modelPlaza.catalog.detailsFor', { model: model.name, group: group.name })" @click="$emit('details')">
         {{ t('modelPlaza.catalog.details') }}<Icon name="chevronRight" size="xs" />
@@ -89,37 +53,28 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ModelIcon from '@/components/common/ModelIcon.vue'
 import Icon from '@/components/icons/Icon.vue'
+import { useClipboard } from '@/composables/useClipboard'
 import type { ModelPlazaGroup, PlazaModel } from '@/api/modelPlaza'
-import { BILLING_MODE_IMAGE, BILLING_MODE_TOKEN, BILLING_MODE_VIDEO } from '@/constants/channel'
+import { BILLING_MODE_IMAGE, BILLING_MODE_TOKEN } from '@/constants/channel'
 import { hasPeakRate } from '@/utils/peak-rate'
-import { catalogBillingMode, catalogCategory, catalogPrice, catalogPriceRows, catalogRate, catalogTierLabel, type CatalogPriceRow } from './modelCatalog'
+import ModelMonitorStrip from './ModelMonitorStrip.vue'
+import { catalogBillingMode, catalogCategory, catalogPrice, catalogPriceRows, catalogRate, catalogVendor, type CatalogPriceDisplay } from './modelCatalog'
 
-const props = defineProps<{ model: PlazaModel; group: ModelPlazaGroup }>()
+const props = withDefaults(defineProps<{ model: PlazaModel; group: ModelPlazaGroup; unit?: number; priceDisplay?: CatalogPriceDisplay }>(), { unit: 1_000_000, priceDisplay: 'effective' })
 defineEmits<{ (event: 'details'): void }>()
 const { t } = useI18n()
+const { copied, copyToClipboard } = useClipboard()
+const vendor = computed(() => catalogVendor(props.model))
 const mode = computed(() => catalogBillingMode(props.model))
 const tokenBilling = computed(() => mode.value === BILLING_MODE_TOKEN)
-const rate = computed(() => catalogRate(props.model, props.group))
+const rate = computed(() => props.priceDisplay === 'standard' ? 1 : catalogRate(props.model, props.group))
 const rows = computed(() => catalogPriceRows(props.model))
+const row = computed(() => rows.value[0])
 const category = computed(() => catalogCategory(props.model))
-const hasTiers = computed(() => rows.value.some(row => row.interval))
-const independentRate = computed(() => (mode.value === BILLING_MODE_IMAGE && props.group.image_rate_independent)
-  || (mode.value === BILLING_MODE_VIDEO && props.group.video_rate_independent))
-const hasPersonalRate = computed(() => !independentRate.value && props.group.user_rate_multiplier != null
-  && props.group.user_rate_multiplier !== props.group.rate_multiplier)
-const tierHint = computed(() => t(props.model.long_context_basis === 'marginal' ? 'modelPlaza.table.tierHintMarginal' : 'modelPlaza.table.tierHint'))
+const hasTiers = computed(() => rows.value.length > 1)
 const description = computed(() => props.group.description
   ? t('modelPlaza.catalog.groupDescription', { description: props.group.description })
-  : t('modelPlaza.catalog.priceDescription'))
-const specialPricing = computed(() => hasPeakRate(props.group) || (props.model.time_pricing?.periods.length ?? 0) > 0
-  || Object.values(props.model.pricing?.reasoning_effort_multipliers ?? {}).some(value => Number.isFinite(value) && value > 0 && value !== 1))
-// A distilled DeepSeek model can include another family's name; retain its leading brand.
-const iconName = computed(() => /(?:^|\/)deepseek/i.test(props.model.name) ? 'deepseek' : props.model.name)
-const cacheWriteFields = [
-  { key: 'cache_write_price', label: 'modelPlaza.catalog.cacheWrite', suffix: '' },
-  { key: 'cache_write_1h_price', label: 'modelPlaza.catalog.cacheWrite', suffix: ' 1h' }
-] as const
-function hasCacheWrite(row: CatalogPriceRow) {
-  return cacheWriteFields.some(field => row[field.key] != null)
-}
+  : t('modelPlaza.market.noDescription'))
+const specialPricing = computed(() => hasPeakRate(props.group) || (props.model.time_pricing?.periods.length ?? 0) > 0)
+const tokenFields = ['input', 'output'] as const
 </script>
