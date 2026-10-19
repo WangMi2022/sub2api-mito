@@ -830,7 +830,7 @@ export default {
       "throughputMissing": "This monitor has no output-token or response-duration samples yet.",
       "availabilityHint": "Availability over {range}: {value}",
       "updated": "Latest sample: {time}",
-      "loginHint": "Sign in for personal prices and group-only monitoring. Public monitoring needs no account.",
+      "loginHint": "Sign in for personal prices and exclusive groups. Public group status needs no account.",
       "monitorUnavailable": "Monitoring is temporarily unavailable. Old status is hidden; this page will retry automatically.",
       "retry": "Reload"
     },

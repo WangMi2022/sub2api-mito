@@ -835,7 +835,7 @@ export default {
       "throughputMissing": "该监控暂无输出 Token 或响应耗时样本。",
       "availabilityHint": "近 {range} 可用率 {value}",
       "updated": "最近采样：{time}",
-      "loginHint": "登录后查看用户专属报价与专属分组的监控；公开监控无需登录即可查看。",
+      "loginHint": "登录后查看用户专属报价与专属分组的状态。公开分组的状态无需登录。",
       "monitorUnavailable": "监控数据暂不可用，已隐藏旧状态；页面会自动重试。",
       "retry": "重新加载"
     },

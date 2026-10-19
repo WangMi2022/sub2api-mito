@@ -184,11 +184,7 @@ func (h *ModelPlazaHandler) Get(c *gin.Context) {
 	// group/model data leaves. Anonymous callers can see V3 components that the
 	// operator explicitly marked public; everything else stays login-only.
 	monitoringUnavailable := false
-	var userID int64
-	if authed {
-		userID = subject.UserID
-	}
-	if err := h.attachPlazaMonitoring(c, groups, out, userID, authed); err != nil {
+	if err := h.attachPlazaMonitoring(c, groups, out); err != nil {
 		monitoringUnavailable = true
 		slog.Warn("model_plaza_monitoring_failed", "error", err)
 	}

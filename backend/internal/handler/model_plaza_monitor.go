@@ -5,10 +5,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// attachPlazaMonitoring projects only the monitor data this viewer may see.
-// Anonymous viewers are scoped to V3 components explicitly marked public; V2
-// and V1 have no public visibility flag, so they stay login-only.
-func (h *ModelPlazaHandler) attachPlazaMonitoring(c *gin.Context, all []service.PlazaGroup, out []modelPlazaGroup, userID int64, authenticated bool) error {
+// attachPlazaMonitoring attaches status to the offers the plaza already renders.
+// Its scope is the plaza's own result: if this viewer may see a group and its
+// prices, they may see that group's configured status too. Using a second,
+// narrower rule (bindable API-key groups, or a component's public flag) made a
+// visible quote silently lose its status and made anonymous and signed-in
+// views disagree.
+func (h *ModelPlazaHandler) attachPlazaMonitoring(c *gin.Context, all []service.PlazaGroup, out []modelPlazaGroup) error {
 	ctx := c.Request.Context()
 	runtime := h.settingService.GetChannelMonitorRuntime(ctx)
 	if !runtime.Enabled || len(out) == 0 {
@@ -32,29 +35,26 @@ func (h *ModelPlazaHandler) attachPlazaMonitoring(c *gin.Context, all []service.
 	if len(targets) == 0 {
 		return nil
 	}
+	// out is already filtered for this viewer (anonymous, group restriction,
+	// exclusive grants), so it is the only scope needed here.
+	allowed := make([]int64, 0, len(out))
+	visible := make(map[int64]bool, len(out))
+	for _, group := range out {
+		allowed = append(allowed, group.ID)
+		visible[group.ID] = true
+	}
 	var statuses map[service.PlazaMonitorKey]*service.PlazaMonitorStatus
 	var err error
 	switch runtime.Mode {
 	case service.ChannelMonitorModeV1:
-		if h.monitorV1 != nil && authenticated {
+		if h.monitorV1 != nil {
 			statuses, err = h.monitorV1.PlazaStatuses(ctx, targets, unique)
 		}
 	case service.ChannelMonitorModeV2, service.ChannelMonitorModeV3:
-		allowed := []int64{}
-		viewer := service.ChannelMonitorV3Viewer{AllowedGroups: map[int64]bool{}, Admin: channelMonitorV2IsAdmin(c)}
-		if authenticated {
-			available, accessErr := h.apiKeyService.GetAvailableGroups(ctx, userID)
-			if accessErr != nil {
-				return accessErr
-			}
-			for _, group := range available {
-				allowed = append(allowed, group.ID)
-				viewer.AllowedGroups[group.ID] = true
-			}
-		}
+		viewer := service.ChannelMonitorV3Viewer{AllowedGroups: visible, Admin: channelMonitorV2IsAdmin(c)}
 		if runtime.Mode == service.ChannelMonitorModeV3 && h.monitorV3 != nil {
 			statuses, err = h.monitorV3.PlazaStatuses(ctx, viewer, targets)
-		} else if runtime.Mode == service.ChannelMonitorModeV2 && h.monitorV2 != nil && authenticated {
+		} else if runtime.Mode == service.ChannelMonitorModeV2 && h.monitorV2 != nil {
 			statuses, err = h.monitorV2.PlazaStatuses(ctx, targets, allowed, runtime.HideThroughput)
 		}
 	}
