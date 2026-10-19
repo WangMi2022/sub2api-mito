@@ -321,6 +321,9 @@
           </div>
         </div>
 
+        <!-- Interactive API Sandbox -->
+        <PlaygroundSandbox />
+
         <!-- Closing CTA band -->
         <div class="mito-cta-band flex flex-col items-center justify-between gap-5 px-6 py-8 text-center sm:px-10 md:flex-row md:text-left">
           <div>
@@ -374,6 +377,7 @@ import Icon from '@/components/icons/Icon.vue'
 import LandingParticles from './LandingParticles.vue'
 import GatewayWorkbench from './GatewayWorkbench.vue'
 import CoreFeatures from './CoreFeatures.vue'
+import PlaygroundSandbox from './PlaygroundSandbox.vue'
 
 defineProps<{
   siteName: string

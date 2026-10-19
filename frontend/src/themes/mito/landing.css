@@ -1877,6 +1877,464 @@ html[data-ui-theme='mito'] .mito-core-fact dd {
   }
 }
 
+/* ---------- Interactive API Playground ---------- */
+html[data-ui-theme='mito'] .mito-playground {
+  --pg-border: #e2e8f0;
+  --pg-surface: #ffffff;
+  --pg-surface-soft: #f8fafc;
+  --pg-text: #0f172a;
+  --pg-muted: #475569;
+  --pg-faint: #55647c;
+  --pg-accent: #1d4ed8;
+  --pg-accent-contrast: #ffffff;
+  --pg-console-bg: #0b1220;
+  --pg-console-text: #e2e8f0;
+  --pg-console-border: #1e2b3f;
+  --pg-shadow: 0 30px 70px -50px rgb(15 23 42 / 45%);
+  margin-bottom: 4.5rem;
+  scroll-margin-top: 5rem;
+}
+
+html[data-ui-theme='mito'].dark .mito-playground {
+  --pg-border: #1e2a3c;
+  --pg-surface: rgb(13 21 34 / 82%);
+  --pg-surface-soft: rgb(9 15 26 / 72%);
+  --pg-text: #f1f5f9;
+  --pg-muted: #b6c2d4;
+  --pg-faint: #9dabc0;
+  --pg-accent: #3b82f6;
+  --pg-accent-contrast: #ffffff;
+  --pg-console-bg: #050a12;
+  --pg-console-text: #dbe4f2;
+  --pg-console-border: #16233a;
+  --pg-shadow: 0 30px 70px -40px rgb(0 0 0 / 75%);
+}
+
+html[data-ui-theme='mito'] .mito-playground-heading {
+  margin-bottom: 1.9rem;
+}
+
+html[data-ui-theme='mito'] .mito-playground-eyebrow {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--mito-primary, #2563eb);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+html[data-ui-theme='mito'] .mito-playground-title {
+  margin: 0;
+  color: var(--pg-text);
+  font-size: clamp(1.9rem, 1.3rem + 2vw, 3rem);
+  font-weight: 750;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+html[data-ui-theme='mito'] .mito-playground-subtitle {
+  max-width: 46rem;
+  margin-top: 0.7rem;
+  color: var(--pg-muted);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+html[data-ui-theme='mito'] .mito-playground-status {
+  border: 1px solid var(--pg-border);
+  border-radius: 16px;
+  padding: 1.4rem;
+  background: var(--pg-surface-soft);
+  color: var(--pg-muted);
+  font-size: 0.85rem;
+}
+
+html[data-ui-theme='mito'] .mito-playground-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+  gap: 1.15rem;
+  align-items: start;
+}
+
+/* Panel must not stretch with the console. */
+html[data-ui-theme='mito'] .mito-playground-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+  align-self: start;
+  border: 1px solid var(--pg-border);
+  border-radius: 20px;
+  padding: 1.35rem 1.3rem;
+  background: var(--pg-surface);
+  box-shadow: var(--pg-shadow);
+}
+
+html[data-ui-theme='mito'] .mito-field,
+html[data-ui-theme='mito'] .mito-slider-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+html[data-ui-theme='mito'] .mito-field-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  color: var(--pg-faint);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+html[data-ui-theme='mito'] .mito-field-label b {
+  color: var(--pg-accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0;
+}
+
+html[data-ui-theme='mito'] .mito-select {
+  position: relative;
+  display: block;
+}
+
+html[data-ui-theme='mito'] .mito-select-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  border: 1px solid var(--pg-border);
+  border-radius: 13px;
+  padding: 0.7rem 0.8rem;
+  background: var(--pg-surface-soft);
+  color: var(--pg-text);
+  font-size: 0.82rem;
+  text-align: left;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-select-trigger:hover,
+html[data-ui-theme='mito'] .mito-select.is-open .mito-select-trigger {
+  border-color: color-mix(in srgb, var(--pg-accent) 45%, var(--pg-border));
+}
+
+html[data-ui-theme='mito'] .mito-select-trigger:focus-visible {
+  outline: 2px solid var(--pg-accent);
+  outline-offset: 2px;
+}
+
+html[data-ui-theme='mito'] .mito-select-trigger > svg:last-child {
+  margin-left: auto;
+  color: var(--pg-faint);
+  transition: transform 160ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-select.is-open .mito-select-trigger > svg:last-child {
+  transform: rotate(180deg);
+}
+
+html[data-ui-theme='mito'] .mito-select-verb {
+  flex-shrink: 0;
+  border-radius: 6px;
+  padding: 0.12rem 0.4rem;
+  background: color-mix(in srgb, var(--pg-accent) 14%, transparent);
+  color: var(--pg-accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+html[data-ui-theme='mito'] .mito-select-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html[data-ui-theme='mito'] .mito-select-trigger.is-model,
+html[data-ui-theme='mito'] .mito-select-option.is-model {
+  align-items: center;
+}
+
+html[data-ui-theme='mito'] .mito-select-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+html[data-ui-theme='mito'] .mito-select-copy strong {
+  overflow: hidden;
+  color: var(--pg-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-ui-theme='mito'] .mito-select-copy small {
+  color: var(--pg-faint);
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+}
+
+html[data-ui-theme='mito'] .mito-select-menu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  margin: 0;
+  max-height: 15rem;
+  overflow: auto;
+  border: 1px solid var(--pg-border);
+  border-radius: 13px;
+  padding: 0.3rem;
+  background: var(--pg-surface);
+  box-shadow: 0 24px 48px -24px rgb(15 23 42 / 45%);
+  list-style: none;
+}
+
+html[data-ui-theme='mito'] .mito-select-option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  border-radius: 9px;
+  padding: 0.55rem 0.6rem;
+  color: var(--pg-text);
+  font-size: 0.8rem;
+  text-align: left;
+}
+
+html[data-ui-theme='mito'] .mito-select-option:hover,
+html[data-ui-theme='mito'] .mito-select-option[aria-selected='true'] {
+  background: color-mix(in srgb, var(--pg-accent) 10%, transparent);
+}
+
+html[data-ui-theme='mito'] .mito-slider-field input[type='range'] {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  outline: none;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--pg-accent) 55%, var(--pg-border)), var(--pg-border));
+  accent-color: var(--pg-accent);
+  cursor: pointer;
+}
+
+html[data-ui-theme='mito'] .mito-slider-field input[type='range']:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+html[data-ui-theme='mito'] .mito-slider-field input[type='range']::-webkit-slider-thumb {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--pg-surface);
+  border-radius: 999px;
+  background: var(--pg-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pg-accent) 18%, transparent);
+  appearance: none;
+}
+
+html[data-ui-theme='mito'] .mito-run {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 0.15rem;
+  border-radius: 12px;
+  background: var(--pg-accent);
+  color: var(--pg-accent-contrast);
+  font-size: 0.86rem;
+  font-weight: 650;
+  transition: filter 160ms ease, transform 160ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-run:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+html[data-ui-theme='mito'] .mito-run:disabled {
+  cursor: progress;
+  opacity: 0.85;
+}
+
+html[data-ui-theme='mito'] .mito-run-spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid color-mix(in srgb, var(--pg-accent-contrast) 35%, transparent);
+  border-top-color: var(--pg-accent-contrast);
+  border-radius: 999px;
+  animation: mito-pg-spin 0.7s linear infinite;
+}
+
+@keyframes mito-pg-spin {
+  to { transform: rotate(360deg); }
+}
+
+html[data-ui-theme='mito'] .mito-estimate {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.6rem;
+  border-top: 1px dashed var(--pg-border);
+  padding-top: 0.9rem;
+}
+
+html[data-ui-theme='mito'] .mito-estimate dt {
+  color: var(--pg-faint);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+html[data-ui-theme='mito'] .mito-estimate dd {
+  margin-top: 0.2rem;
+  color: var(--pg-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+/* Console stays dark in both themes: it reads as a terminal, not a surface. */
+html[data-ui-theme='mito'] .mito-console {
+  display: flex;
+  min-height: 24rem;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--pg-console-border);
+  border-radius: 20px;
+  background:
+    radial-gradient(70% 60% at 12% 0%, rgb(16 185 129 / 6%), transparent 58%),
+    var(--pg-console-bg);
+  box-shadow: var(--pg-shadow);
+}
+
+html[data-ui-theme='mito'] .mito-console-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--pg-console-border);
+  padding: 0.8rem 1rem;
+}
+
+html[data-ui-theme='mito'] .mito-console-dots {
+  display: flex;
+  gap: 0.35rem;
+}
+
+html[data-ui-theme='mito'] .mito-console-dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #475569;
+}
+
+html[data-ui-theme='mito'] .mito-console-dots i:nth-child(1) { background: #ef4444; }
+html[data-ui-theme='mito'] .mito-console-dots i:nth-child(2) { background: #f59e0b; }
+html[data-ui-theme='mito'] .mito-console-dots i:nth-child(3) { background: #10b981; }
+
+html[data-ui-theme='mito'] .mito-console-path {
+  color: #7c8ba3;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.66rem;
+}
+
+html[data-ui-theme='mito'] .mito-console-body {
+  flex: 1;
+  overflow: auto;
+  padding: 1.1rem 1.15rem;
+  scrollbar-width: thin;
+}
+
+html[data-ui-theme='mito'] .mito-console-json {
+  margin: 0;
+  color: var(--pg-console-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+html[data-ui-theme='mito'] .mito-console-json .json-key { color: #7dd3fc; }
+html[data-ui-theme='mito'] .mito-console-json .json-string { color: #6ee7b7; }
+html[data-ui-theme='mito'] .mito-console-json .json-number { color: #fbbf24; }
+
+html[data-ui-theme='mito'] .mito-console-placeholder {
+  display: flex;
+  height: 100%;
+  min-height: 16rem;
+  align-items: center;
+  justify-content: center;
+  color: #6b7a91;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+html[data-ui-theme='mito'] .mito-console-caret {
+  display: inline-block;
+  width: 7px;
+  height: 0.95rem;
+  margin-left: 2px;
+  background: #34d399;
+  vertical-align: text-bottom;
+  animation: mito-pg-blink 1s steps(2, start) infinite;
+}
+
+@keyframes mito-pg-blink {
+  to { visibility: hidden; }
+}
+
+html[data-ui-theme='mito'] .mito-console-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--pg-console-border);
+  padding: 0.7rem 1rem;
+  color: #7c8ba3;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.06em;
+}
+
+html[data-ui-theme='mito'] .mito-console-foot b[data-state='ok'] { color: #34d399; }
+html[data-ui-theme='mito'] .mito-console-foot b[data-state='busy'] { color: #fbbf24; }
+html[data-ui-theme='mito'] .mito-console-foot b[data-state='idle'] { color: #94a3b8; }
+
+@media (max-width: 900px) {
+  html[data-ui-theme='mito'] .mito-playground-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html[data-ui-theme='mito'] .mito-console {
+    min-height: 20rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-run,
+  html[data-ui-theme='mito'] .mito-select-trigger > svg:last-child {
+    transition: none;
+  }
+
+  html[data-ui-theme='mito'] .mito-run:hover:not(:disabled) {
+    transform: none;
+  }
+
+  html[data-ui-theme='mito'] .mito-console-caret,
+  html[data-ui-theme='mito'] .mito-run-spinner {
+    animation: none;
+  }
+}
+
 @media (max-width: 900px) {
   html[data-ui-theme='mito'] .yuyu-console-body {
     grid-template-columns: minmax(0, 1fr);

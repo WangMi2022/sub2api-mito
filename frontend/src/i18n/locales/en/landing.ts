@@ -68,6 +68,26 @@ export default {
           billing: { label: 'Billing basis', value: 'Actual tokens' }
         }
       },
+      playground: {
+        eyebrow: 'Interactive API Sandbox',
+        title: 'Interactive API Sandbox',
+        subtitle: 'Simulate a standard OpenAI SDK call and see routing, latency and token cost. Nothing is sent upstream and no quota is consumed.',
+        endpointLabel: 'Request endpoint',
+        modelLabel: 'Target model',
+        tokensInput: 'Input tokens',
+        tokensOutput: 'Output tokens',
+        run: 'Run simulated request',
+        running: 'Routing request...',
+        placeholder: 'Run a request to see the highlighted JSON stream',
+        status: 'STATUS',
+        stateIdle: 'IDLE',
+        stateBusy: 'ROUTING',
+        stateOk: '200 OK',
+        estimate: 'Estimate',
+        rate: 'Effective rate',
+        rateSuffix: 'x',
+        empty: 'The model price list is unavailable right now. It will retry automatically.'
+      },
       workbench: {
         title: 'Gateway Workbench',
         subtitle: 'Polymorphic policy routing, live cost modeling and a high-availability dispatch sandbox in one control plane.',

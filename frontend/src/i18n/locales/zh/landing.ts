@@ -68,6 +68,26 @@ export default {
           billing: { label: '计费口径', value: '按 Token 实付' }
         }
       },
+      playground: {
+        eyebrow: 'Interactive API Sandbox',
+        title: '交互式 API 调试沙盒',
+        subtitle: '模拟标准 OpenAI SDK 请求，直观看到路由、延迟与 Token 成本——不发起真实调用，也不消耗额度。',
+        endpointLabel: '请求 API 端点',
+        modelLabel: '调试目标模型',
+        tokensInput: '输入 Tokens',
+        tokensOutput: '输出 Tokens',
+        run: '运行模拟请求',
+        running: '请求路由中...',
+        placeholder: '点击运行后查看高亮 JSON 响应流',
+        status: 'STATUS',
+        stateIdle: 'IDLE',
+        stateBusy: 'ROUTING',
+        stateOk: '200 OK',
+        estimate: '本次预估',
+        rate: '生效倍率',
+        rateSuffix: '×',
+        empty: '模型价目暂不可用，稍后会自动重试。'
+      },
       workbench: {
         title: '接入工作台',
         subtitle: '多态策略流控、资费即时精算与高可用分发沙盒，收束于单一极客视界。',
