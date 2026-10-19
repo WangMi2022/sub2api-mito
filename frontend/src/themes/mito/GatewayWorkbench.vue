@@ -133,14 +133,14 @@
                 </div>
                 <div class="yuyu-console-cost-comparison">
                   <div class="yuyu-console-cost-bar-item is-official">
-                    <small>{{ t('home.mito.workbench.official') }}</small>
+                    <small>{{ t('home.mito.workbench.officialPrice') }}</small>
                     <div class="yuyu-console-bar-track">
                       <div class="yuyu-console-bar-fill" :style="{ width: '100%' }"></div>
                     </div>
                     <strong>{{ formatUsd(officialCost) }}</strong>
                   </div>
                   <div class="yuyu-console-cost-bar-item is-yuyu">
-                    <small>YUYU.API</small>
+                    <small>{{ t('home.mito.workbench.ourPrice') }}</small>
                     <div class="yuyu-console-bar-track">
                       <div class="yuyu-console-bar-fill" :style="{ width: `${ourBarWidth}%` }"></div>
                     </div>
@@ -148,8 +148,14 @@
                   </div>
                 </div>
                 <div class="yuyu-console-calc-row yuyu-console-saved-row">
-                  <span>{{ t('home.mito.workbench.monthlySaved') }}</span>
-                  <b class="is-accent">{{ formatUsd(monthlySaved) }} / {{ t('home.mito.workbench.monthUnit') }} ({{ savedPercent }}%)</b>
+                  <template v-if="isParity">
+                    <span>{{ t('home.mito.workbench.parityNote') }}</span>
+                    <b class="is-accent">{{ formatUsd(ourCost) }} / {{ t('home.mito.workbench.monthUnit') }}</b>
+                  </template>
+                  <template v-else>
+                    <span>{{ t('home.mito.workbench.monthlySaved') }}</span>
+                    <b class="is-accent">{{ formatUsd(monthlySaved) }} / {{ t('home.mito.workbench.monthUnit') }} ({{ savedLabel }})</b>
+                  </template>
                 </div>
               </div>
             </div>
@@ -222,8 +228,8 @@
                     <strong>{{ speed }} <em>t/s</em></strong>
                   </div>
                   <div class="yuyu-console-hud-item is-saved">
-                    <small>SAVED RATIO</small>
-                    <strong>{{ savedPercent }}<em>%</em></strong>
+                    <small>{{ t('home.mito.workbench.savedRatio') }}</small>
+                    <strong>{{ savedLabel }}</strong>
                   </div>
                 </div>
               </div>
@@ -276,6 +282,8 @@ interface Policy {
 
 interface Channel {
   id: string
+  /** Actual model ID sent to the gateway, not the display label. */
+  model: string
   name: string
   mark: string
   color: string
@@ -307,7 +315,8 @@ interface DispatchResult {
   ttft_ms: number
   latency_ms: number
   cost: string
-  saved: string
+  /** Charged amount as a share of the vendor list price. */
+  cost_ratio: string
 }
 
 const policies: Policy[] = [
@@ -318,46 +327,49 @@ const policies: Policy[] = [
 
 const channels: Channel[] = [
   {
-    id: 'gpt',
-    name: 'GPT-5.5',
-    mark: 'G',
-    color: '#10b981',
-    terminal: 'yuyu-dispatcher-sandbox.terminal',
-    officialInput: 5,
-    officialOutput: 30,
-    ourInput: 0.25,
-    ourOutput: 1.5,
-    baseTtft: 218,
-    latency: 777,
-    speed: 93
+    id: 'deepseek',
+    model: 'deepseek-v4.1-flash',
+    name: 'DeepSeek V4.1',
+    mark: 'DS',
+    color: '#3b82f6',
+    terminal: 'yuyu-dispatcher-deepseek.terminal',
+    officialInput: 0.15,
+    officialOutput: 0.6,
+    ourInput: 0.15,
+    ourOutput: 0.6,
+    baseTtft: 486,
+    latency: 3120,
+    speed: 47.7
   },
   {
-    id: 'claude',
-    name: 'Claude Opus 4.8',
-    mark: 'C',
-    color: '#ea8f66',
-    terminal: 'yuyu-dispatcher-claude.terminal',
-    officialInput: 15,
-    officialOutput: 75,
-    ourInput: 4,
-    ourOutput: 20,
-    baseTtft: 296,
-    latency: 812,
-    speed: 71
+    id: 'glm',
+    model: 'glm-5.3',
+    name: 'GLM-5.3',
+    mark: 'GLM',
+    color: '#8b5cf6',
+    terminal: 'yuyu-dispatcher-glm.terminal',
+    officialInput: 1.4,
+    officialOutput: 4.4,
+    ourInput: 1.4,
+    ourOutput: 4.4,
+    baseTtft: 742,
+    latency: 4310,
+    speed: 36.2
   },
   {
-    id: 'gemini',
-    name: 'Gemini 3.5 Flash',
-    mark: 'Gem',
-    color: '#6f8cff',
-    terminal: 'yuyu-dispatcher-gemini.terminal',
-    officialInput: 1.71,
-    officialOutput: 6.86,
-    ourInput: 0.51,
-    ourOutput: 2.06,
-    baseTtft: 164,
-    latency: 468,
-    speed: 118
+    id: 'kimi',
+    model: 'kimi-k3',
+    name: 'Kimi K3',
+    mark: 'K3',
+    color: '#0ea5e9',
+    terminal: 'yuyu-dispatcher-kimi.terminal',
+    officialInput: 2.94807,
+    officialOutput: 14.740349,
+    ourInput: 2.94807,
+    ourOutput: 14.740349,
+    baseTtft: 649,
+    latency: 5240,
+    speed: 6.5
   }
 ]
 
@@ -380,13 +392,13 @@ let revealObserver: IntersectionObserver | undefined
 const policy = ref('auto')
 const activeChannel = ref<Channel>(channels[0])
 const monthlyTokens = ref(10_000_000)
-const prompt = ref('Hello Yuyu API!')
+const prompt = ref('用一句话介绍你自己')
 const temperature = ref(0.7)
 const endpoint = ref(endpoints[0].value)
 const running = ref(false)
 const result = ref<DispatchResult | null>(null)
-const ttft = ref(218)
-const speed = ref(93)
+const ttft = ref(channels[0].baseTtft)
+const speed = ref(channels[0].speed)
 const trace = ref<TraceEntry[]>([
   {
     id: 1,
@@ -431,6 +443,8 @@ const savedPercent = computed(() => {
   if (officialCost.value <= 0) return '0.0'
   return ((monthlySaved.value / officialCost.value) * 100).toFixed(1)
 })
+const isParity = computed(() => monthlySaved.value < 0.005)
+const savedLabel = computed(() => (isParity.value ? t('home.mito.workbench.parity') : `${savedPercent.value}%`))
 const ourBarWidth = computed(() => {
   if (officialCost.value <= 0) return 10
   return Math.max(10, Math.min(100, (ourCost.value / officialCost.value) * 100))
@@ -497,15 +511,15 @@ function dispatch() {
         id: `chatcmpl-${Math.random().toString(36).slice(2, 14)}`,
         status: 'ok',
         endpoint: endpoint.value,
-        model: channel.name.toLowerCase().includes('gemini') ? 'gemini-3.5-flash' : channel.name.toLowerCase().includes('claude') ? 'claude-opus-4.8' : 'gpt-5.5',
-        route: `${policy.value === 'failover' ? 'Failover' : policy.value === 'low-ttft' ? 'Low TTFT' : 'OpenAI / auto'} / ${channel.id}-01`,
+        model: channel.model,
+        route: `${policy.value === 'failover' ? 'FAILOVER' : policy.value === 'low-ttft' ? 'LOW TTFT' : 'ADAPTIVE'} / ${channel.id}-01`,
         tokens: '1200 in / 800 out',
         ttft_ms: nextTtft,
         latency_ms: nextLatency,
         cost: `$${(monthlyTokens.value / 1_000_000 * averageOur.value).toFixed(2)}`,
-        saved: `${savedPercent.value}%`
+        cost_ratio: savedLabel.value
       }
-      pushTrace('success', '[SUCCESS]', t('home.mito.workbench.traceSuccess', { saved: savedPercent.value }))
+      pushTrace('success', '[SUCCESS]', t('home.mito.workbench.traceSuccess', { saved: savedLabel.value }))
       running.value = false
     }, 650)
   }, 320)

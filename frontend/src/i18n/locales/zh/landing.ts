@@ -64,6 +64,8 @@ export default {
         },
         volume: '月度吞吐规模精算',
         official: 'OFFICIAL',
+        officialPrice: '官方参考价',
+        ourPrice: '本站实付',
         monthlySaved: '网关精算月节省',
         monthUnit: '月',
         prompt: '仿真输入内容（Prompt）',
@@ -80,7 +82,10 @@ export default {
         traceEdge: '上行边缘通道已连接 · HKG-01 Edge 激活',
         traceTopology: '握手路径建立 -> Client Edge -> YUYU-Router -> {route}',
         traceUpstream: '正在连接上游 {model} · {id}（Ping: {ping}ms）',
-        traceSuccess: '通道调度成功，节省比例保持 {saved}%'
+        traceSuccess: '通道调度成功 · 费用比例 {saved}',
+        savedRatio: '费用比例',
+        parity: '与官价持平',
+        parityNote: '本站按官方参考价计费，无额外溢价'
       },
       cta: {
         title: '让下一次灵感，即刻接入',

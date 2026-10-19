@@ -64,6 +64,8 @@ export default {
         },
         volume: 'MONTHLY VOLUME PROJECTION',
         official: 'OFFICIAL',
+        officialPrice: 'Vendor list price',
+        ourPrice: 'Charged here',
         monthlySaved: 'PROJECTED MONTHLY SAVINGS',
         monthUnit: 'mo',
         prompt: 'SIMULATION PROMPT',
@@ -80,7 +82,10 @@ export default {
         traceEdge: 'Uplink edge channel connected · HKG-01 Edge active',
         traceTopology: 'Handshake path established -> Client Edge -> YUYU-Router -> {route}',
         traceUpstream: 'Connecting upstream {model} · {id} (Ping: {ping}ms)',
-        traceSuccess: 'Channel dispatched successfully. Savings preserved: {saved}%'
+        traceSuccess: 'Channel dispatched · cost ratio {saved}',
+        savedRatio: 'COST RATIO',
+        parity: 'AT PARITY',
+        parityNote: 'Billed at the vendor reference price, no markup'
       },
       cta: {
         title: 'Connect Your Next Idea',
