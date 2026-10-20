@@ -326,12 +326,8 @@ export const adaptations = [
     "path": "frontend/src/views/ModelPlazaView.vue",
     "edits": [
       {
-        "before": "  <AppLayout v-if=\"isEmbedded\">\n",
-        "after": "  <AppLayout v-if=\"isEmbedded\">\n    <template #heading-actions>\n      <MitoPlazaHomeLink v-if=\"isMitoTheme\" />\n    </template>\n"
-      },
-      {
         "before": "import PlazaNavBar from '@/components/modelPlaza/PlazaNavBar.vue'",
-        "after": "import PlazaNavBar from '@/components/modelPlaza/PlazaNavBar.vue'\nimport MitoPlazaHomeLink from '@/themes/mito/PlazaHomeLink.vue'\nimport { isMitoTheme } from '@/themes/mito'"
+        "after": "import PlazaNavBar from '@/components/modelPlaza/PlazaNavBar.vue'\nimport { isMitoTheme } from '@/themes/mito'"
       }
     ]
   },
@@ -344,7 +340,7 @@ export const adaptations = [
       },
       {
         "before": "<div class=\"space-y-5\">",
-        "after": "<MitoModelCatalog\n    v-if=\"isMitoTheme\"\n    :groups=\"response?.groups ?? []\"\n    :loading=\"loading\"\n    :error=\"error\"\n    :description-html=\"descriptionHtml\"\n    :anonymous=\"!isAuthenticated\"\n    :monitoring-unavailable=\"response?.monitoring_unavailable\"\n    @refresh=\"$emit('refresh')\"\n  />\n  <div v-else class=\"space-y-5\">"
+        "after": "<MitoModelCatalog\n    v-if=\"isMitoTheme\"\n    :groups=\"response?.groups ?? []\"\n    :loading=\"loading\"\n    :error=\"error\"\n    :anonymous=\"!isAuthenticated\"\n    :monitoring-unavailable=\"response?.monitoring_unavailable\"\n    @refresh=\"$emit('refresh')\"\n  />\n  <div v-else class=\"space-y-5\">"
       },
       {
         "before": "const { t } = useI18n()",

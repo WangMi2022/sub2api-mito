@@ -4,7 +4,6 @@
     :groups="response?.groups ?? []"
     :loading="loading"
     :error="error"
-    :description-html="descriptionHtml"
     :anonymous="!isAuthenticated"
     :monitoring-unavailable="response?.monitoring_unavailable"
     @refresh="$emit('refresh')"

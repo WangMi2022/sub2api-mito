@@ -10,7 +10,6 @@
         <kbd aria-hidden="true">⌘K</kbd>
       </div>
     </header>
-    <div v-if="descriptionHtml" class="mito-market-description plaza-description" v-html="descriptionHtml"></div>
     <p v-if="anonymous" class="mito-market-notice">{{ t('modelPlaza.market.loginHint') }}</p>
     <p v-if="monitoringUnavailable" class="mito-market-notice is-warning" role="status">{{ t('modelPlaza.market.monitorUnavailable') }}</p>
     <div v-if="loading" class="mito-market-message" role="status"><Icon name="refresh" size="md" />{{ t('common.loading') }}</div>
@@ -81,7 +80,7 @@ import ModelCatalogCard from './ModelCatalogCard.vue'
 import ModelMonitorStrip from './ModelMonitorStrip.vue'
 import { catalogBillingMode, catalogCategory, catalogSections, catalogVendor, type CatalogEntry, type CatalogPriceDisplay } from './modelCatalog'
 
-const props = defineProps<{ groups: ModelPlazaGroup[]; loading?: boolean; error?: boolean; descriptionHtml?: string; anonymous?: boolean; monitoringUnavailable?: boolean }>()
+const props = defineProps<{ groups: ModelPlazaGroup[]; loading?: boolean; error?: boolean; anonymous?: boolean; monitoringUnavailable?: boolean }>()
 defineEmits<{ (event: 'refresh'): void }>()
 const { t } = useI18n()
 const entries = computed(() => catalogSections(props.groups).flatMap(section => section.entries))

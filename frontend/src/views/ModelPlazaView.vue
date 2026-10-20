@@ -1,9 +1,6 @@
 <template>
   <!-- 后台内嵌形态:?embedded=1 且已登录,套完整后台布局 -->
   <AppLayout v-if="isEmbedded">
-    <template #heading-actions>
-      <MitoPlazaHomeLink v-if="isMitoTheme" />
-    </template>
     <ModelPlazaContent :response="data" :loading="loading" :error="loadFailed" @refresh="refresh" embedded />
   </AppLayout>
 
@@ -21,7 +18,6 @@ import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import PlazaNavBar from '@/components/modelPlaza/PlazaNavBar.vue'
-import MitoPlazaHomeLink from '@/themes/mito/PlazaHomeLink.vue'
 import { isMitoTheme } from '@/themes/mito'
 import ModelPlazaContent from '@/components/modelPlaza/ModelPlazaContent.vue'
 import { usePlazaData } from '@/themes/mito/usePlazaData'
