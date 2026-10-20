@@ -354,7 +354,10 @@ func tryServeOverrideFile(c *gin.Context, overrideDir, cleanPath string) bool {
 
 func shouldBypassEmbeddedFrontend(path string) bool {
 	trimmed := strings.TrimSpace(path)
-	return strings.HasPrefix(trimmed, "/api/") ||
+	// Uploaded home backgrounds are served by a dedicated route; the SPA
+	// middleware must not answer them with index.html.
+	return strings.HasPrefix(trimmed, "/public/home-background/") ||
+		strings.HasPrefix(trimmed, "/api/") ||
 		strings.HasPrefix(trimmed, "/v1/") ||
 		strings.HasPrefix(trimmed, "/v1beta/") ||
 		strings.HasPrefix(trimmed, "/v3/") ||
