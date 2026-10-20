@@ -55,7 +55,7 @@
                   <g class="topo-node-group">
                     <circle class="topo-node" cx="230" cy="110" r="16" />
                     <circle class="topo-pulse" cx="230" cy="110" r="6" />
-                    <text class="topo-node-label" x="230" y="148">YUYU Router</text>
+                    <text class="topo-node-label" x="230" y="148">MITO Router</text>
                   </g>
                   <g class="topo-node-group">
                     <circle class="topo-node" :class="{ 'is-active': policy !== 'failover' }" cx="390" cy="110" r="14" />
@@ -322,7 +322,7 @@ const channels: Channel[] = [
     name: 'DeepSeek V4.1',
     mark: 'DS',
     color: '#3b82f6',
-    terminal: 'yuyu-dispatcher-deepseek.terminal',
+    terminal: 'mito-dispatcher-deepseek.terminal',
     officialInput: 0.15,
     officialOutput: 0.6,
     ourInput: 0.15,
@@ -337,7 +337,7 @@ const channels: Channel[] = [
     name: 'GLM-5.3',
     mark: 'GLM',
     color: '#8b5cf6',
-    terminal: 'yuyu-dispatcher-glm.terminal',
+    terminal: 'mito-dispatcher-glm.terminal',
     officialInput: 1.4,
     officialOutput: 4.4,
     ourInput: 1.4,
@@ -352,7 +352,7 @@ const channels: Channel[] = [
     name: 'Kimi K3',
     mark: 'K3',
     color: '#0ea5e9',
-    terminal: 'yuyu-dispatcher-kimi.terminal',
+    terminal: 'mito-dispatcher-kimi.terminal',
     officialInput: 2.94807,
     officialOutput: 14.740349,
     ourInput: 2.94807,

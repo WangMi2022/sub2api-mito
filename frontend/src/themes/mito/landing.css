@@ -953,7 +953,26 @@ html[data-ui-theme='mito'] .yuyu-console-body {
 }
 
 html[data-ui-theme='mito'] .yuyu-console-left-panel {
+  display: flex;
+  flex-direction: column;
   padding: 1.1rem 1.25rem 1.25rem;
+}
+
+/* Absorb the height difference with the terminal column instead of leaving
+   a gap under the calculator. */
+html[data-ui-theme='mito'] .yuyu-console-topology {
+  flex: 0 1 auto;
+  max-height: 250px;
+}
+
+/* Let the calculator sit at the bottom of the column, so any leftover height
+   becomes even breathing room above it rather than a dead gap below. */
+html[data-ui-theme='mito'] .yuyu-console-calculator {
+  margin-top: auto;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-topology svg {
+  height: 100%;
 }
 
 html[data-ui-theme='mito'] .yuyu-console-right-panel {
