@@ -36,6 +36,31 @@ func (s *SettingService) UpdateSettings(ctx context.Context, settings *SystemSet
 	return s.UpdateSettingsOmitting(ctx, settings, nil)
 }
 
+// UpdateSettingValues writes a small, targeted set of settings keys and then
+// refreshes caches / invalidation callbacks the same way a full save does.
+//
+// Used by features that own their own write path (home background upload):
+// they must not round-trip the entire SystemSettings form, otherwise a
+// concurrent admin edit would be overwritten.
+func (s *SettingService) UpdateSettingValues(ctx context.Context, values map[string]string) error {
+	if len(values) == 0 {
+		return nil
+	}
+	if err := s.settingRepo.SetMultiple(ctx, values); err != nil {
+		return err
+	}
+	stored, err := s.GetAllSettings(ctx)
+	if err != nil {
+		slog.Warn("refresh cached settings after targeted update failed", "error", err)
+		if s.onUpdate != nil {
+			s.onUpdate()
+		}
+		return nil
+	}
+	s.refreshCachedSettings(stored)
+	return nil
+}
+
 // UpdateSettingsOmitting persists system settings, leaving the keys in omitted
 // at their stored value.
 func (s *SettingService) UpdateSettingsOmitting(ctx context.Context, settings *SystemSettings, omitted OmittedSettingKeys) error {
@@ -402,6 +427,7 @@ func (s *SettingService) buildSystemSettingsUpdates(ctx context.Context, setting
 	// OEM设置
 	updates[SettingKeySiteName] = settings.SiteName
 	updates[SettingKeySiteLogo] = settings.SiteLogo
+	updates[SettingKeyHomeBackgroundImage] = settings.HomeBackgroundImage
 	updates[SettingKeySiteSubtitle] = settings.SiteSubtitle
 	updates[SettingKeyAPIBaseURL] = settings.APIBaseURL
 	updates[SettingKeyContactInfo] = settings.ContactInfo

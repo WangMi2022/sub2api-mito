@@ -76,6 +76,7 @@ type Handlers struct {
 	AvailableChannel *AvailableChannelHandler
 	PelicanShowcase  *PelicanShowcaseHandler
 	SupportTicket    *SupportTicketHandler
+	HomeBackground   *admin.HomeBackgroundHandler
 	ModelPlaza       *ModelPlazaHandler
 	AsyncImage       *AsyncImageHandler
 	BatchImage       *BatchImageHandler

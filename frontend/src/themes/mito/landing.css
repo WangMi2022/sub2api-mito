@@ -18,6 +18,40 @@ html[data-ui-theme='mito'] .mito-landing {
     linear-gradient(180deg, #f8fafc 0%, #f4f7fb 46%, #eef3fa 100%);
 }
 
+/* Admin-uploaded background photo: fixed to the viewport so the hero and the
+   sections below share one continuous image. A theme-aware scrim keeps the
+   text readable over any photo. */
+html[data-ui-theme='mito'] .mito-landing .mito-landing-photo {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: cover;
+  pointer-events: none;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-landing-photo::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgb(248 250 252 / 72%) 0%,
+    rgb(248 250 252 / 84%) 42%,
+    rgb(248 250 252 / 94%) 100%
+  );
+  content: '';
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-landing-photo::after {
+  background: linear-gradient(
+    180deg,
+    rgb(2 6 23 / 62%) 0%,
+    rgb(2 6 23 / 78%) 42%,
+    rgb(2 6 23 / 92%) 100%
+  );
+}
+
 html[data-ui-theme='mito'].dark .mito-landing {
   background:
     radial-gradient(1100px 620px at 12% -8%, rgb(37 99 235 / 22%), transparent 62%),

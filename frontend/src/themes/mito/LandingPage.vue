@@ -3,6 +3,15 @@
   <div
     class="mito-landing relative flex min-h-screen flex-col overflow-x-clip bg-gradient-to-br from-gray-50 via-primary-50/30 to-gray-100 dark:from-dark-950 dark:via-dark-900 dark:to-dark-950"
   >
+    <!-- Admin-uploaded background (local or S3). Rendered under the ambient
+         layers so the particles still read on top of a photo. -->
+    <div
+      v-if="homeBackgroundImage"
+      class="mito-landing-photo"
+      :style="{ backgroundImage: `url(${homeBackgroundImage})` }"
+      aria-hidden="true"
+    ></div>
+
     <!-- Ambient background: aurora washes + drifting particle glows (no grid, no connector lines) -->
     <LandingParticles />
 
@@ -407,6 +416,7 @@ onBeforeUnmount(() => {
 defineProps<{
   siteName: string
   siteLogo: string
+  homeBackgroundImage?: string
   docUrl: string
   githubUrl: string
   isDark: boolean

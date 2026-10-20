@@ -337,6 +337,9 @@ func diffSettings(before *service.SystemSettings, after *service.SystemSettings,
 	if before.SiteLogo != after.SiteLogo {
 		changed = append(changed, "site_logo")
 	}
+	if before.HomeBackgroundImage != after.HomeBackgroundImage {
+		changed = append(changed, "home_background_image")
+	}
 	if before.SiteSubtitle != after.SiteSubtitle {
 		changed = append(changed, "site_subtitle")
 	}

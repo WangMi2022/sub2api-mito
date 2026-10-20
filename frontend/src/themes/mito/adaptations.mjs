@@ -9,7 +9,7 @@ export const adaptations = [
       },
       {
         "before": "  <!-- Default Home Page -->",
-        "after": "  <!-- Mito Home Page -->\n  <MitoLandingPage\n    v-else-if=\"isMitoTheme\"\n    :site-name=\"siteName\"\n    :site-logo=\"siteLogo\"\n    :doc-url=\"docUrl\"\n    :github-url=\"githubUrl\"\n    :is-dark=\"isDark\"\n    :is-authenticated=\"isAuthenticated\"\n    :dashboard-path=\"dashboardPath\"\n    :user-initial=\"userInitial\"\n    :current-year=\"currentYear\"\n    :show-model-plaza-entry=\"showModelPlazaEntry\"\n    @toggle-theme=\"toggleTheme\"\n  />\n\n  <!-- Default Home Page -->"
+        "after": "  <!-- Mito Home Page -->\n  <MitoLandingPage\n    v-else-if=\"isMitoTheme\"\n    :site-name=\"siteName\"\n    :site-logo=\"siteLogo\"\n    :home-background-image=\"homeBackgroundImage\"\n    :doc-url=\"docUrl\"\n    :github-url=\"githubUrl\"\n    :is-dark=\"isDark\"\n    :is-authenticated=\"isAuthenticated\"\n    :dashboard-path=\"dashboardPath\"\n    :user-initial=\"userInitial\"\n    :current-year=\"currentYear\"\n    :show-model-plaza-entry=\"showModelPlazaEntry\"\n    @toggle-theme=\"toggleTheme\"\n  />\n\n  <!-- Default Home Page -->"
       }
     ]
   },

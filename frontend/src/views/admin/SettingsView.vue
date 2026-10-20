@@ -6815,6 +6815,82 @@
                 />
               </div>
 
+              <!-- Home Background Image -->
+              <div>
+                <label
+                  class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  {{ t("admin.settings.site.homeBackground") }}
+                </label>
+                <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">
+                  {{ t("admin.settings.site.homeBackgroundHint") }}
+                </p>
+
+                <div class="mb-3 flex flex-wrap items-center gap-2">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ t("admin.settings.site.homeBackgroundStorage") }}
+                  </span>
+                  <div class="inline-flex overflow-hidden rounded-lg border border-gray-200 dark:border-dark-700">
+                    <button
+                      v-for="option in homeBackgroundStorageOptions"
+                      :key="option.value"
+                      type="button"
+                      class="px-3 py-1.5 text-xs font-medium transition-colors"
+                      :class="
+                        homeBackgroundStorage === option.value
+                          ? 'bg-primary-500 text-white'
+                          : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-dark-800 dark:text-dark-300 dark:hover:bg-dark-700'
+                      "
+                      @click="homeBackgroundStorage = option.value"
+                    >
+                      {{ option.label }}
+                    </button>
+                  </div>
+                </div>
+
+                <input
+                  ref="homeBackgroundInput"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+                  class="hidden"
+                  @change="onHomeBackgroundSelected"
+                />
+                <div class="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    :disabled="homeBackgroundUploading"
+                    @click="homeBackgroundInput?.click()"
+                  >
+                    <Icon v-if="!homeBackgroundUploading" name="upload" size="sm" />
+                    <span v-else class="mr-1 inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+                    {{ t("admin.settings.site.uploadImage") }}
+                  </button>
+                  <button
+                    v-if="form.home_background_image"
+                    type="button"
+                    class="btn btn-secondary"
+                    :disabled="homeBackgroundUploading"
+                    @click="removeHomeBackground"
+                  >
+                    {{ t("admin.settings.site.remove") }}
+                  </button>
+                </div>
+                <p v-if="homeBackgroundError" class="mt-2 text-xs text-red-500">
+                  {{ homeBackgroundError }}
+                </p>
+                <div
+                  v-if="form.home_background_image"
+                  class="mt-3 overflow-hidden rounded-lg border border-gray-200 dark:border-dark-700"
+                >
+                  <img
+                    :src="form.home_background_image"
+                    alt=""
+                    class="h-32 w-full object-cover"
+                  />
+                </div>
+              </div>
+
               <!-- Home Content -->
               <div>
                 <label
@@ -9425,6 +9501,7 @@ import {
   deriveWeChatConnectStoredMode,
   normalizeDefaultSubscriptionSettings,
   resolveWeChatConnectModeCapabilities,
+  uploadHomeBackground,
 } from "@/api/admin/settings";
 import type {
   AuthSourceDefaultsState,
@@ -10252,6 +10329,7 @@ const form = reactive<SettingsForm>({
   site_name: "Sub2API",
   site_logo: "",
   site_subtitle: "Subscription to API Conversion Platform",
+  home_background_image: "",
   api_base_url: "",
   contact_info: "",
   doc_url: "",
@@ -10544,6 +10622,41 @@ const form = reactive<SettingsForm>({
   excel_bps_image_storage_entries: 512,
   excel_bps_image_ttl_minutes: 30,
 });
+
+// ── Home background image ────────────────────────────────────────────────
+const homeBackgroundInput = ref<HTMLInputElement | null>(null)
+const homeBackgroundUploading = ref(false)
+const homeBackgroundError = ref("")
+const homeBackgroundStorage = ref<"local" | "s3">("local")
+const homeBackgroundStorageOptions = computed(() => [
+  { value: "local" as const, label: t("admin.settings.site.homeBackgroundStorageLocal") },
+  { value: "s3" as const, label: t("admin.settings.site.homeBackgroundStorageS3") },
+])
+
+async function onHomeBackgroundSelected(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ""
+  if (!file) return
+  homeBackgroundError.value = ""
+  homeBackgroundUploading.value = true
+  try {
+    const result = await uploadHomeBackground(file, homeBackgroundStorage.value)
+    form.home_background_image = result.url
+    appStore.showSuccess(t("admin.settings.site.homeBackgroundUploaded"))
+  } catch (error) {
+    homeBackgroundError.value =
+      (error as { message?: string })?.message ||
+      t("admin.settings.site.homeBackgroundUploadFailed")
+  } finally {
+    homeBackgroundUploading.value = false
+  }
+}
+
+function removeHomeBackground() {
+  form.home_background_image = ""
+  homeBackgroundError.value = ""
+}
 
 // 人机验证 UI 状态：单卡片「总开关 + 服务商单选」，落库仍是三个独立
 // enabled 键（与上游一致），由下面的映射保证同一时间至多一家启用。
@@ -12054,6 +12167,7 @@ async function saveSettings() {
       default_user_rpm_limit: form.default_user_rpm_limit,
       site_name: form.site_name,
       site_logo: form.site_logo,
+      home_background_image: form.home_background_image,
       site_subtitle: form.site_subtitle,
       api_base_url: form.api_base_url,
       contact_info: form.contact_info,

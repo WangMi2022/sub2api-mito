@@ -95,6 +95,7 @@
     v-else-if="isMitoTheme"
     :site-name="siteName"
     :site-logo="siteLogo"
+    :home-background-image="homeBackgroundImage"
     :doc-url="docUrl"
     :github-url="githubUrl"
     :is-dark="isDark"
@@ -529,6 +530,12 @@ const appStore = useAppStore()
 const siteName = computed(() => appStore.cachedPublicSettings?.site_name || appStore.siteName || 'Sub2API')
 const siteLogo = computed(() => sanitizeUrl(appStore.cachedPublicSettings?.site_logo || appStore.siteLogo || '', { allowRelative: true, allowDataUrl: true }))
 const siteSubtitle = computed(() => appStore.cachedPublicSettings?.site_subtitle || 'AI API Gateway Platform')
+// 背景图可能是绝对 URL（S3）或站内路径（本地上传），两种都要允许。
+const homeBackgroundImage = computed(() =>
+  sanitizeUrl(appStore.cachedPublicSettings?.home_background_image || '', {
+    allowRelative: true,
+  }),
+)
 const docUrl = computed(() => sanitizeUrl(appStore.cachedPublicSettings?.doc_url || appStore.docUrl || ''))
 const homeContent = computed(() => appStore.cachedPublicSettings?.home_content || '')
 const hasHomeContent = computed(() => homeContent.value.trim().length > 0)

@@ -490,6 +490,7 @@ export interface SystemSettings {
   site_name: string;
   site_logo: string;
   site_subtitle: string;
+  home_background_image: string;
   api_base_url: string;
   contact_info: string;
   doc_url: string;
@@ -889,6 +890,7 @@ export interface UpdateSettingsRequest {
   site_name?: string;
   site_logo?: string;
   site_subtitle?: string;
+  home_background_image?: string;
   api_base_url?: string;
   contact_info?: string;
   doc_url?: string;
@@ -1184,6 +1186,26 @@ export async function updateSettings(
   const { data } = await apiClient.put<SystemSettings>(
     "/admin/settings",
     settings,
+  );
+  return data;
+}
+
+/**
+ * Upload the home page background image.
+ *
+ * The backend stores it either on local disk or in the configured S3 bucket
+ * and persists the resulting URL + destination in one call.
+ */
+export async function uploadHomeBackground(
+  file: File,
+  storage: "local" | "s3",
+): Promise<{ url: string; storage: "local" | "s3" }> {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("storage", storage);
+  const { data } = await apiClient.post<{ url: string; storage: "local" | "s3" }>(
+    "/admin/settings/home-background/upload",
+    form,
   );
   return data;
 }
@@ -1681,6 +1703,7 @@ export async function resetWebSearchUsage(payload: {
 export const settingsAPI = {
   getSettings,
   updateSettings,
+  uploadHomeBackground,
   testSmtpConnection,
   sendTestEmail,
   getEmailTemplates,
