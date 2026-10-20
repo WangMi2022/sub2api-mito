@@ -138,7 +138,7 @@ export default {
       cta: {
         title: '让下一次灵感，即刻接入',
         description: '统一管理密钥、模型与用量，把精力留给创造。',
-        button: '开始使用'
+        button: '接入模型'
       }
     },
     viewOnGithub: '在 GitHub 上查看',

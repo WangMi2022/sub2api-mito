@@ -328,7 +328,7 @@
             <p class="mt-1.5 text-sm text-gray-600 dark:text-dark-300">{{ t('home.mito.cta.description') }}</p>
           </div>
           <router-link :to="isAuthenticated ? dashboardPath : '/login'" class="mito-cta shrink-0">
-            {{ isAuthenticated ? t('home.goToDashboard') : t('home.mito.cta.button') }}
+            {{ t('home.mito.cta.button') }}
             <Icon name="arrowRight" size="md" :stroke-width="2" />
           </router-link>
         </div>

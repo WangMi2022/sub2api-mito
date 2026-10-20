@@ -138,7 +138,7 @@ export default {
       cta: {
         title: 'Connect Your Next Idea',
         description: 'Manage keys, models and usage in one place. Keep your focus on creating.',
-        button: 'Get Started'
+        button: 'Connect a Model'
       }
     },
     viewOnGithub: 'View on GitHub',
