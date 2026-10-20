@@ -168,10 +168,16 @@ func apiKeyAuthWithSubscription(apiKeyService *service.APIKeyService, subscripti
 			AbortWithError(c, http.StatusForbidden, "USER_GROUP_REQUIRED", "User is not assigned to any user group")
 			return
 		}
-		if abortIfAPIKeyGroupUnavailable(c, apiKey) {
+		// v2.13.0: a key may declare several groups; pick the one serving this
+		// request before the availability/allowed checks below.
+		apiKey, err = selectAPIKeyRequestGroup(c, apiKeyService, subscriptionService, cfg, apiKey, false)
+		if err != nil || c.IsAborted() {
 			return
 		}
-		if abortIfAPIKeyGroupNotAllowed(c, apiKey) {
+		if !isMultiGroupBillingInfoRequest(c, apiKey) && abortIfAPIKeyGroupUnavailable(c, apiKey) {
+			return
+		}
+		if !isMultiGroupBillingInfoRequest(c, apiKey) && abortIfAPIKeyGroupNotAllowed(c, apiKey) {
 			return
 		}
 		ctx := context.WithValue(c.Request.Context(), ctxkey.UserID, apiKey.User.ID)
