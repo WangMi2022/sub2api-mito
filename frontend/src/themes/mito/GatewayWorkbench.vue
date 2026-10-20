@@ -432,6 +432,9 @@ const activeEndpoint = computed(() => endpoints.find((item) => item.value === en
 const endpointMethod = computed(() => activeEndpoint.value.method)
 const endpointDescription = computed(() => activeEndpoint.value.description)
 
+/** Both the preview and a dispatch use the reference console's token spread. */
+const SAMPLE_TOKENS = { input: 1200, output: 800 }
+
 const averageOfficial = computed(
   () => (activeChannel.value.officialInput + activeChannel.value.officialOutput) / 2
 )
@@ -467,11 +470,36 @@ function formatUsd(value: number) {
   return `$${value.toFixed(2)}`
 }
 
-function selectChannel(channel: Channel) {
-  activeChannel.value = channel
-  result.value = null
+function buildPayload(channel: Channel, live: boolean): DispatchResult {
+  const cost = (monthlyTokens.value / 1_000_000) * ((channel.ourInput + channel.ourOutput) / 2)
+  return {
+    id: `chatcmpl-${Math.random().toString(36).slice(2, 15)}`,
+    status: live ? 'ok' : 'preview',
+    endpoint: endpoint.value,
+    model: channel.model,
+    route: `ADAPTIVE / ${channel.id}-01`,
+    tokens: `${SAMPLE_TOKENS.input} in / ${SAMPLE_TOKENS.output} out`,
+    ttft_ms: channel.baseTtft,
+    latency_ms: channel.latency,
+    cost: `$${cost.toFixed(4)}`,
+    cost_ratio: savedLabel.value
+  }
+}
+
+/**
+ * The console is never empty: it shows a preview built from the selected
+ * channel so the panel reads as a live sample instead of an empty box.
+ */
+function previewResult() {
+  const channel = activeChannel.value
+  result.value = buildPayload(channel, false)
   ttft.value = channel.baseTtft
   speed.value = channel.speed
+}
+
+function selectChannel(channel: Channel) {
+  activeChannel.value = channel
+  previewResult()
 }
 
 function nowStamp() {
@@ -508,16 +536,10 @@ function dispatch() {
       ttft.value = nextTtft
       speed.value = nextSpeed
       result.value = {
-        id: `chatcmpl-${Math.random().toString(36).slice(2, 14)}`,
-        status: 'ok',
-        endpoint: endpoint.value,
-        model: channel.model,
-        route: `${policy.value === 'failover' ? 'FAILOVER' : policy.value === 'low-ttft' ? 'LOW TTFT' : 'ADAPTIVE'} / ${channel.id}-01`,
-        tokens: '1200 in / 800 out',
+        ...buildPayload(channel, true),
         ttft_ms: nextTtft,
         latency_ms: nextLatency,
-        cost: `$${(monthlyTokens.value / 1_000_000 * averageOur.value).toFixed(2)}`,
-        cost_ratio: savedLabel.value
+        route: `${policy.value === 'failover' ? 'FAILOVER' : policy.value === 'low-ttft' ? 'LOW TTFT' : 'ADAPTIVE'} / ${channel.id}-01`
       }
       pushTrace('success', '[SUCCESS]', t('home.mito.workbench.traceSuccess', { saved: savedLabel.value }))
       running.value = false
@@ -526,6 +548,7 @@ function dispatch() {
 }
 
 onMounted(() => {
+  previewResult()
   const node = root.value
   if (!node || typeof IntersectionObserver === 'undefined') {
     node?.classList.add('is-visible')
