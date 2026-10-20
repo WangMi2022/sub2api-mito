@@ -1,30 +1,25 @@
 <template>
   <!-- 后台内嵌形态:?embedded=1 且已登录,套完整后台布局 -->
   <AppLayout v-if="isEmbedded">
-    <template #heading-actions>
-      <MitoPlazaHomeLink v-if="isMitoTheme" />
-    </template>
-    <ModelPlazaContent :response="data" :loading="loading" :error="loadFailed" @refresh="refresh" embedded />
+    <ModelPlazaContent :response="data" :loading="loading" :error="loadFailed" embedded />
   </AppLayout>
 
   <!-- 独立形态:自带导航条(logo/站名 + 登录/回后台) -->
-  <div v-else class="mito-plaza-page min-h-screen bg-gray-50 dark:bg-dark-950">
+  <div v-else class="min-h-screen bg-gray-50 dark:bg-dark-950">
     <PlazaNavBar />
     <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-      <ModelPlazaContent :response="data" :loading="loading" :error="loadFailed" @refresh="refresh" />
+      <ModelPlazaContent :response="data" :loading="loading" :error="loadFailed" />
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import PlazaNavBar from '@/components/modelPlaza/PlazaNavBar.vue'
-import MitoPlazaHomeLink from '@/themes/mito/PlazaHomeLink.vue'
-import { isMitoTheme } from '@/themes/mito'
 import ModelPlazaContent from '@/components/modelPlaza/ModelPlazaContent.vue'
-import { usePlazaData } from '@/themes/mito/usePlazaData'
+import { getModelPlaza, type ModelPlazaResponse } from '@/api/modelPlaza'
 import { useAppStore } from '@/stores/app'
 import { useAuthStore } from '@/stores/auth'
 
@@ -35,7 +30,19 @@ const authStore = useAuthStore()
 // embedded=1 但未登录(如转发的链接)自动降级为独立形态。
 const isEmbedded = computed(() => route.query.embedded === '1' && authStore.isAuthenticated)
 
-const { data, loading, loadFailed, refresh } = usePlazaData(() => authStore.isAuthenticated, isMitoTheme)
+const data = ref<ModelPlazaResponse | null>(null)
+const loading = ref(true)
+const loadFailed = ref(false)
 
-onMounted(() => { void appStore.fetchPublicSettings() })
+onMounted(async () => {
+  // 独立形态导航条需要站点名/Logo;有 __APP_CONFIG__ 注入时同步命中缓存。
+  void appStore.fetchPublicSettings()
+  try {
+    data.value = await getModelPlaza()
+  } catch {
+    loadFailed.value = true
+  } finally {
+    loading.value = false
+  }
+})
 </script>

@@ -224,8 +224,6 @@
     <div class="mt-auto border-t border-gray-100/90 p-3 dark:border-dark-800/80">
       <!-- Theme Toggle -->
       <button
-        type="button"
-        :aria-label="isDark ? t('nav.lightMode') : t('nav.darkMode')"
         @click="toggleTheme"
         class="sidebar-link mb-1.5 w-full text-xs"
         :class="{ 'sidebar-link-collapsed': sidebarCollapsed }"
@@ -240,9 +238,6 @@
 
       <!-- Collapse Button -->
       <button
-        type="button"
-        :aria-label="sidebarCollapsed ? t('nav.expand') : t('nav.collapse')"
-        :aria-expanded="!sidebarCollapsed"
         @click="toggleSidebar"
         class="sidebar-link w-full text-xs"
         :class="{ 'sidebar-link-collapsed': sidebarCollapsed }"
@@ -266,8 +261,6 @@
 </template>
 
 <script setup lang="ts">
-import { isMitoTheme } from '@/themes/mito'
-import { useThemeSync } from '@/themes/mito/useThemeSync'
 import { applyMitoSidebarSections, applyMitoUserSidebarSections, groupMitoSidebarSections } from '@/themes/mito/sidebarSections'
 import { attachCustomMenuItems } from '@/utils/sidebarCustomMenus'
 import { computed, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
@@ -338,7 +331,6 @@ const mobileOpen = computed(() => appStore.mobileOpen)
 const isAdmin = computed(() => authStore.isAdmin)
 const sidebarNavRef = ref<HTMLElement | null>(null)
 const isDark = ref(document.documentElement.classList.contains('dark'))
-if (isMitoTheme) useThemeSync(isDark) // mito-theme: shared preference
 
 const homePath = computed(() => (
   isAdmin.value ? '/admin/dashboard' : authStore.isObserver ? '/admin/accounts' : '/dashboard'
@@ -851,12 +843,9 @@ function buildSelfNavItems(withDashboard: boolean): NavItem[] {
   items.push(
     { path: '/keys', label: t('nav.apiKeys'), icon: KeyIcon },
     { path: '/batch-image', label: t('nav.batchImage'), icon: BatchImageIcon, hideInSimpleMode: true, featureFlag: flagBatchImageAccess },
-    { path: '/usage', label: isMitoTheme && !authStore.isObserver ? t('usage.logsTitle') : t('nav.usage'), icon: ChartIcon, hideInSimpleMode: !authStore.isObserver },
-    ...(isMitoTheme && !authStore.isObserver ? [{ path: '/usage-stats', label: t('usage.statsTitle'), icon: ChartIcon, hideInSimpleMode: true }] : []),
+    { path: '/usage', label: t('nav.usage'), icon: ChartIcon, hideInSimpleMode: !authStore.isObserver },
     { path: '/available-channels', label: t('nav.availableChannels'), icon: ChannelIcon, hideInSimpleMode: true, featureFlag: flagAvailableChannels },
-    ...(isMitoTheme
-      ? [{ path: '/model-plaza', label: t('modelPlaza.title'), icon: SignalIcon, featureFlag: () => !!appStore.cachedPublicSettings?.model_plaza_enabled }]
-      : [{ path: '/monitor', label: t('nav.channelStatus'), icon: SignalIcon, featureFlag: flagChannelMonitor }]),
+    { path: '/monitor', label: t('nav.channelStatus'), icon: SignalIcon, featureFlag: flagChannelMonitor },
     { path: '/pelican-showcase', label: t('nav.pelicanShowcase'), icon: GalleryIcon, featureFlag: flagPelicanShowcase },
     { path: '/subscriptions', label: t('nav.mySubscriptions'), icon: CreditCardIcon, hideInSimpleMode: true, featureFlag: flagSubscription },
     { path: '/purchase', label: purchaseNavLabel.value, icon: RechargeSubscriptionIcon, hideInSimpleMode: true, featureFlag: flagPayment },

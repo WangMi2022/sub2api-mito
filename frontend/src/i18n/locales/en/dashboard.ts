@@ -370,9 +370,6 @@ export default {
 
   // Usage
   usage: {
-    logsTitle: 'Request Logs',
-    statsTitle: 'Usage Stats',
-    statsDescription: 'Usage, costs and distributions for the selected period',
     title: 'Usage Records',
     description: 'View and analyze your API usage history',
     costDetails: 'Cost Breakdown',
@@ -761,111 +758,6 @@ export default {
 
   // Model Plaza (public group/model pricing showcase)
   modelPlaza: {
-    market: {
-      "total": "Currently enabled on this site: {count} models",
-      "subtitle": "Explore AI models. Compare prices and live status to find the right fit for your work.",
-      "search": "Search models, providers, endpoints or tags…",
-      "filters": "Filters",
-      "filterHint": "Refine models by provider, group, pricing and tags.",
-      "reset": "Reset",
-      "expand": "Expand",
-      "collapse": "Collapse",
-      "facets": {
-        "group": "Groups",
-        "vendor": "Providers",
-        "tag": "Model tags",
-        "billing": "Pricing type",
-        "endpoint": "Endpoint type"
-      },
-      "all": {
-        "group": "All groups",
-        "vendor": "All providers",
-        "tag": "All tags",
-        "billing": "All models",
-        "endpoint": "All types"
-      },
-      "billing": {
-        "token": "Token-based",
-        "per_request": "Per request",
-        "image": "Per image",
-        "video": "Video pricing"
-      },
-      "unknownVendor": "Unspecified provider",
-      "noDescription": "No description yet.",
-      "models": "models",
-      "group": "Group",
-      "endpoint": "Endpoint",
-      "copy": "Copy model name {model}",
-      "priceDisplay": "Price basis",
-      "unit": "Token price unit",
-      "prices": {
-        "standard": "Base",
-        "effective": "Effective"
-      },
-      "priceHint": {
-        "standard": "Base channel prices in USD, before group or personal multipliers.",
-        "effective": "Effective prices in USD during standard hours. See details for tiers, cache and time-based rules."
-      },
-      "offerHint": "Same-name models in different groups are separate offers with independent prices and monitoring.",
-      "starting": "first tier",
-      "sortAscending": "Name ascending; switch to descending",
-      "sortDescending": "Name descending; switch to ascending",
-      "name": "Name",
-      "view": "Display mode",
-      "cards": "Card view",
-      "list": "List view",
-      "status": "Status",
-      "latency": "Latency",
-      "throughput": "Tokens/s",
-      "noSamples": "No data",
-      "states": {
-        "operational": "Operational",
-        "degraded": "Degraded",
-        "down": "Unavailable",
-        "unknown": "No qualifying samples"
-      },
-      "ttftHint": "Time to first token (P50) in the latest sampled window.",
-      "probeHint": "Latest probe response latency, not time to first token.",
-      "throughputHint": "Generation speed: successful output tokens divided by response time. It reflects how fast one reply is generated and does not grow with concurrency.",
-      "throughputMissing": "This monitor has no output-token or response-duration samples yet.",
-      "availabilityHint": "Availability over {range}: {value}",
-      "updated": "Latest sample: {time}",
-      "loginHint": "Sign in for personal prices and exclusive groups. Public group status needs no account.",
-      "monitorUnavailable": "Monitoring is temporarily unavailable. Old status is hidden; this page will retry automatically.",
-      "retry": "Reload"
-    },
-    catalog: {
-      categories: {
-        language: 'Language Models (LLM)',
-        embedding: 'Embedding Models',
-        rerank: 'Rerank Models',
-        image: 'Image Models',
-        video: 'Video Models',
-        audio: 'Audio Models',
-        other: 'Other Models'
-      },
-      tags: {
-        language: 'Language',
-        embedding: 'Embedding',
-        rerank: 'Rerank',
-        image: 'Image',
-        video: 'Video',
-        audio: 'Audio',
-        other: 'API'
-      },
-      standardPrice: 'Standard-period price',
-      tiered: 'Tiered pricing',
-      cacheRead: 'Cache read',
-      cacheWrite: 'Cache write',
-      timePricing: 'Time-based pricing',
-      priceHint: 'Prices include the effective group rate and are in USD. Offers for the same model in different groups are shown separately.',
-      priceDescription: 'Prices use the effective rate for this group. Open details for official reference prices and full billing rules.',
-      groupDescription: 'Group notes: {description}',
-      specialPricing: 'Time or reasoning-effort pricing rules also apply. See details.',
-      details: 'Price details',
-      detailsFor: 'View pricing for {model} in {group}',
-      offerCount: '{count} model offers'
-    },
     title: 'Model Plaza',
     description: 'Browse available models and pricing by group',
     loading: 'Loading...',
@@ -923,8 +815,7 @@ export default {
     },
     nav: {
       login: 'Sign In',
-      backToDashboard: 'Back to Console',
-      home: 'Back to Home'
+      backToDashboard: 'Back to Console'
     }
   },
 
