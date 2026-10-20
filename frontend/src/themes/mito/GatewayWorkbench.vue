@@ -7,10 +7,6 @@
           <h2 class="hero-heading">{{ t('home.mito.workbench.title') }}</h2>
           <p>{{ t('home.mito.workbench.subtitle') }}</p>
         </div>
-        <router-link :to="entryPath" class="yuyu-workbench-entry">
-          <Icon name="arrowRight" size="md" />
-          {{ t('home.mito.workbench.enter') }}
-        </router-link>
       </div>
 
       <div class="yuyu-console-workbench-frame">
@@ -265,13 +261,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Icon from '@/components/icons/Icon.vue'
 
-const props = defineProps<{
-  isAuthenticated: boolean
-  dashboardPath: string
-}>()
-
 const { t } = useI18n()
-const entryPath = computed(() => (props.isAuthenticated ? '/keys' : '/login'))
 
 interface Policy {
   id: string

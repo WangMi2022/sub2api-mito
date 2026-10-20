@@ -222,7 +222,7 @@
         </div>
 
         <!-- Core Features -->
-        <CoreFeatures :is-authenticated="isAuthenticated" :dashboard-path="dashboardPath" />
+        <CoreFeatures />
 
         <!-- Three steps -->
         <div class="mb-16">
@@ -262,10 +262,7 @@
         </div>
 
         <!-- Gateway Workbench -->
-        <GatewayWorkbench
-          :is-authenticated="isAuthenticated"
-          :dashboard-path="dashboardPath"
-        />
+        <GatewayWorkbench />
 
         <!-- Supported Providers -->
         <div class="mb-7 text-center">

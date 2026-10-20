@@ -6,13 +6,6 @@
         <h2 id="mito-core-title" class="mito-core-title">{{ t('home.mito.core.title') }}</h2>
         <p class="mito-core-subtitle">{{ t('home.mito.core.subtitle') }}</p>
       </div>
-      <router-link
-        :to="isAuthenticated ? dashboardPath : '/login'"
-        class="mito-core-entry"
-      >
-        {{ isAuthenticated ? t('home.goToDashboard') : t('home.getStarted') }}
-        <Icon name="arrowRight" size="sm" />
-      </router-link>
     </header>
 
     <div class="mito-core-grid">
@@ -44,7 +37,6 @@
 import { useI18n } from 'vue-i18n'
 import Icon from '@/components/icons/Icon.vue'
 
-defineProps<{ isAuthenticated: boolean; dashboardPath: string }>()
 
 const { t } = useI18n()
 
