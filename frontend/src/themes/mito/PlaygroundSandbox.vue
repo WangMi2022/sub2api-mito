@@ -23,6 +23,7 @@
                 class="mito-select-trigger"
                 :aria-expanded="openSelect === 'endpoint'"
                 aria-haspopup="listbox"
+                :disabled="running"
                 @click="toggle('endpoint')"
                 @keydown.esc="openSelect = null"
               >
@@ -55,6 +56,7 @@
                 class="mito-select-trigger is-model"
                 :aria-expanded="openSelect === 'model'"
                 aria-haspopup="listbox"
+                :disabled="running"
                 @click="toggle('model')"
                 @keydown.esc="openSelect = null"
               >
@@ -124,8 +126,8 @@
             <span class="mito-console-dots" aria-hidden="true"><i></i><i></i><i></i></span>
             <span class="mito-console-path">gateway · console</span>
           </div>
-          <div class="mito-console-body" aria-live="polite">
-            <pre v-if="output" class="mito-console-json" v-html="highlighted"></pre>
+          <div class="mito-console-body" aria-live="polite" :aria-busy="running">
+            <pre v-if="displayedOutput" class="mito-console-json" v-html="highlighted"></pre>
             <p v-else class="mito-console-placeholder">{{ t('home.mito.playground.placeholder') }}</p>
             <span v-if="typing" class="mito-console-caret" aria-hidden="true"></span>
           </div>
@@ -140,7 +142,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ModelIcon from '@/components/common/ModelIcon.vue'
 import Icon from '@/components/icons/Icon.vue'
@@ -176,7 +178,7 @@ const outputTokens = ref(800)
 const running = ref(false)
 const typing = ref(false)
 const output = ref('')
-const status = ref<'idle' | 'busy' | 'ok'>('idle')
+const status = ref<'preview' | 'busy' | 'ok'>('preview')
 
 const endpoints = [
   { value: '/v1/chat/completions', method: 'POST' },
@@ -279,10 +281,10 @@ const estimate = computed(() => {
 const statusLabel = computed(() => {
   if (status.value === 'ok') return t('home.mito.playground.stateOk')
   if (status.value === 'busy') return t('home.mito.playground.stateBusy')
-  return t('home.mito.playground.stateIdle')
+  return t('home.mito.playground.statePreview')
 })
 
-const highlighted = computed(() => output.value
+const highlighted = computed(() => displayedOutput.value
   .replace(/&/g, '&amp;')
   .replace(/</g, '&lt;')
   .replace(/>/g, '&gt;')
@@ -302,36 +304,60 @@ function clearTimers() {
   }
 }
 
-function run() {
+function createResponse(model: SandboxModel, preview: boolean) {
+  const jitter = (base: number) => Math.max(40, base - Math.round(Math.random() * 60))
+  return {
+    id: preview ? 'chatcmpl-preview' : `chatcmpl-${Math.random().toString(36).slice(2, 15)}`,
+    status: preview ? 'preview' : 'ok',
+    endpoint: endpoint.value,
+    model: model.name,
+    route: `ADAPTIVE / ${model.group} / ${model.name}`,
+    tokens: `${inputTokens.value} in / ${outputTokens.value} out`,
+    ttft_ms: preview ? model.ttftMs : jitter(model.ttftMs),
+    latency_ms: preview ? model.latencyMs : jitter(model.latencyMs),
+    cost: estimate.value,
+    rate: model.rateLabel
+  }
+}
+
+// A complete, deterministic example is visible before the first simulated run.
+const preview = computed(() => {
+  const model = activeModel.value
+  return model ? JSON.stringify(createResponse(model, true), null, 2) : ''
+})
+const displayedOutput = computed(() => output.value || preview.value)
+
+watch([endpoint, activeKey, inputTokens, outputTokens], () => {
   if (running.value) return
+  output.value = ''
+  status.value = 'preview'
+})
+
+function finish(text: string) {
+  output.value = text
+  typing.value = false
+  running.value = false
+  status.value = 'ok'
+}
+
+function run() {
+  const model = activeModel.value
+  if (running.value || !model) return
   clearTimers()
+  openSelect.value = null
   running.value = true
   typing.value = false
   output.value = ''
   status.value = 'busy'
 
-  const model = activeModel.value
-  const jitter = (base: number) => Math.max(40, base - Math.round(Math.random() * 60))
-  const ttft = jitter(model.ttftMs)
-  const latency = jitter(model.latencyMs)
-  const cost = (inputTokens.value * (model.inputPrice ?? 0) + outputTokens.value * (model.outputPrice ?? 0)).toFixed(4)
-
-  const payload = {
-    id: `chatcmpl-${Math.random().toString(36).slice(2, 15)}`,
-    status: 'ok',
-    endpoint: endpoint.value,
-    model: model.name,
-    route: `ADAPTIVE / ${model.group} / ${model.name}`,
-    tokens: `${inputTokens.value} in / ${outputTokens.value} out`,
-    ttft_ms: ttft,
-    latency_ms: latency,
-    cost: `$${cost}`,
-    rate: model.rateLabel
+  const text = JSON.stringify(createResponse(model, false), null, 2)
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+    finish(text)
+    return
   }
 
   timers.push(setTimeout(() => {
     typing.value = true
-    const text = JSON.stringify(payload, null, 2)
     let index = 0
     // 8 characters per 8ms, the reference cadence.
     reveal = setInterval(() => {
@@ -340,9 +366,7 @@ function run() {
       if (index >= text.length) {
         if (reveal) clearInterval(reveal)
         reveal = undefined
-        typing.value = false
-        running.value = false
-        status.value = 'ok'
+        finish(text)
       }
     }, 8)
   }, 320))

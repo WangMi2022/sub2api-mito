@@ -1972,9 +1972,16 @@ html[data-ui-theme='mito'] .mito-playground {
   --pg-faint: #55647c;
   --pg-accent: #1d4ed8;
   --pg-accent-contrast: #ffffff;
-  --pg-console-bg: #0b1220;
-  --pg-console-text: #e2e8f0;
-  --pg-console-border: #1e2b3f;
+  --pg-console-bg: #ffffff;
+  --pg-console-text: #334155;
+  --pg-console-border: #e2e8f0;
+  --pg-console-bar: #f8fafc;
+  --pg-console-muted: #64748b;
+  --pg-console-key: #0369a1;
+  --pg-console-string: #047857;
+  --pg-console-number: #b45309;
+  --pg-console-ok: #047857;
+  --pg-console-busy: #b45309;
   --pg-shadow: 0 30px 70px -50px rgb(15 23 42 / 45%);
   margin-bottom: 4.5rem;
   scroll-margin-top: 5rem;
@@ -1989,9 +1996,16 @@ html[data-ui-theme='mito'].dark .mito-playground {
   --pg-faint: #9dabc0;
   --pg-accent: #3b82f6;
   --pg-accent-contrast: #ffffff;
-  --pg-console-bg: #050a12;
+  --pg-console-bg: #0d1627;
   --pg-console-text: #dbe4f2;
-  --pg-console-border: #16233a;
+  --pg-console-border: #1e2b3f;
+  --pg-console-bar: #101c30;
+  --pg-console-muted: #9dabc0;
+  --pg-console-key: #7dd3fc;
+  --pg-console-string: #6ee7b7;
+  --pg-console-number: #fbbf24;
+  --pg-console-ok: #34d399;
+  --pg-console-busy: #fbbf24;
   --pg-shadow: 0 30px 70px -40px rgb(0 0 0 / 75%);
 }
 
@@ -2100,7 +2114,12 @@ html[data-ui-theme='mito'] .mito-select-trigger {
   transition: border-color 160ms ease, background-color 160ms ease;
 }
 
-html[data-ui-theme='mito'] .mito-select-trigger:hover,
+html[data-ui-theme='mito'] .mito-select-trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+html[data-ui-theme='mito'] .mito-select-trigger:hover:not(:disabled),
 html[data-ui-theme='mito'] .mito-select.is-open .mito-select-trigger {
   border-color: color-mix(in srgb, var(--pg-accent) 45%, var(--pg-border));
 }
@@ -2287,7 +2306,7 @@ html[data-ui-theme='mito'] .mito-estimate dd {
   font-weight: 600;
 }
 
-/* Console stays dark in both themes: it reads as a terminal, not a surface. */
+/* Console surfaces and syntax colors follow the active page theme. */
 html[data-ui-theme='mito'] .mito-console {
   display: flex;
   min-height: 24rem;
@@ -2295,9 +2314,8 @@ html[data-ui-theme='mito'] .mito-console {
   overflow: hidden;
   border: 1px solid var(--pg-console-border);
   border-radius: 20px;
-  background:
-    radial-gradient(70% 60% at 12% 0%, rgb(16 185 129 / 6%), transparent 58%),
-    var(--pg-console-bg);
+  background: var(--pg-console-bg);
+  color: var(--pg-console-text);
   box-shadow: var(--pg-shadow);
 }
 
@@ -2307,6 +2325,7 @@ html[data-ui-theme='mito'] .mito-console-head {
   justify-content: space-between;
   border-bottom: 1px solid var(--pg-console-border);
   padding: 0.8rem 1rem;
+  background: var(--pg-console-bar);
 }
 
 html[data-ui-theme='mito'] .mito-console-dots {
@@ -2326,7 +2345,7 @@ html[data-ui-theme='mito'] .mito-console-dots i:nth-child(2) { background: #f59e
 html[data-ui-theme='mito'] .mito-console-dots i:nth-child(3) { background: #10b981; }
 
 html[data-ui-theme='mito'] .mito-console-path {
-  color: #7c8ba3;
+  color: var(--pg-console-muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.66rem;
 }
@@ -2348,9 +2367,9 @@ html[data-ui-theme='mito'] .mito-console-json {
   word-break: break-word;
 }
 
-html[data-ui-theme='mito'] .mito-console-json .json-key { color: #7dd3fc; }
-html[data-ui-theme='mito'] .mito-console-json .json-string { color: #6ee7b7; }
-html[data-ui-theme='mito'] .mito-console-json .json-number { color: #fbbf24; }
+html[data-ui-theme='mito'] .mito-console-json .json-key { color: var(--pg-console-key); }
+html[data-ui-theme='mito'] .mito-console-json .json-string { color: var(--pg-console-string); }
+html[data-ui-theme='mito'] .mito-console-json .json-number { color: var(--pg-console-number); }
 
 html[data-ui-theme='mito'] .mito-console-placeholder {
   display: flex;
@@ -2358,7 +2377,7 @@ html[data-ui-theme='mito'] .mito-console-placeholder {
   min-height: 16rem;
   align-items: center;
   justify-content: center;
-  color: #6b7a91;
+  color: var(--pg-console-muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.75rem;
   text-align: center;
@@ -2369,7 +2388,7 @@ html[data-ui-theme='mito'] .mito-console-caret {
   width: 7px;
   height: 0.95rem;
   margin-left: 2px;
-  background: #34d399;
+  background: var(--pg-console-ok);
   vertical-align: text-bottom;
   animation: mito-pg-blink 1s steps(2, start) infinite;
 }
@@ -2384,15 +2403,16 @@ html[data-ui-theme='mito'] .mito-console-foot {
   justify-content: space-between;
   border-top: 1px solid var(--pg-console-border);
   padding: 0.7rem 1rem;
-  color: #7c8ba3;
+  background: var(--pg-console-bar);
+  color: var(--pg-console-muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.64rem;
   letter-spacing: 0.06em;
 }
 
-html[data-ui-theme='mito'] .mito-console-foot b[data-state='ok'] { color: #34d399; }
-html[data-ui-theme='mito'] .mito-console-foot b[data-state='busy'] { color: #fbbf24; }
-html[data-ui-theme='mito'] .mito-console-foot b[data-state='idle'] { color: #94a3b8; }
+html[data-ui-theme='mito'] .mito-console-foot b[data-state='ok'] { color: var(--pg-console-ok); }
+html[data-ui-theme='mito'] .mito-console-foot b[data-state='busy'] { color: var(--pg-console-busy); }
+html[data-ui-theme='mito'] .mito-console-foot b[data-state='preview'] { color: var(--pg-console-muted); }
 
 @media (max-width: 900px) {
   html[data-ui-theme='mito'] .mito-playground-grid {
