@@ -5,6 +5,136 @@ export default {
   },
   // Home Page
   home: {
+    mito: {
+      heroSubtitle: 'One Key, Leading Chinese AI Models',
+      heroDescription: 'Access Kimi, GLM, DeepSeek and MiniMax in one place, with simpler model calls, key management and usage tracking.',
+      heroBadge: 'Chinese LLMs · One Gateway',
+      terminalLabel: 'Example API call',
+      stats: {
+        models: 'Model Families',
+        key: 'Unified Key',
+        failover: 'Smart Routing',
+        billing: 'Cost Tracking',
+        routingValue: 'Auto',
+        billingValue: 'Usage'
+      },
+      steps: {
+        title: 'Three Steps to Your First Call',
+        subtitle: 'Create a key, connect a model and track usage in one dashboard',
+        connect: {
+          title: 'Create a Key',
+          desc: 'Sign in and generate an API key, then choose a group with the models and quota you need.'
+        },
+        call: {
+          title: 'Configure Your Client',
+          desc: 'Set the gateway API address and key in a compatible SDK, then choose a model to get started.'
+        },
+        monitor: {
+          title: 'Track Usage',
+          desc: 'Review request logs, tokens and itemized costs, and manage your quota as needed.'
+        }
+      },
+      providers: {
+        kimi: 'Kimi',
+        glm: 'GLM',
+        deepseek: 'DeepSeek',
+        minimax: 'MiniMax'
+      },
+      core: {
+        eyebrow: 'Core Capabilities',
+        title: 'Core Features',
+        subtitle: 'One key, three layers: access, routing and billing share a single path with no extra hop in between.',
+        items: {
+          gateway: {
+            title: 'Unified access',
+            desc: 'One OpenAI-compatible endpoint covers every listed model. Keep your existing SDKs and clients instead of maintaining a key and a code path per vendor.',
+            tags: { compatible: 'OpenAI-compatible', key: 'Single key', endpoint: 'One endpoint' }
+          },
+          routing: {
+            title: 'Multi-route dispatch',
+            desc: 'Each model sits behind several upstream accounts and is routed by live health. A failing account is swapped out automatically while the conversation stays on one path.',
+            tags: { pool: 'Account pool', failover: 'Auto failover', isolation: 'Group isolation' }
+          },
+          billing: {
+            title: 'Usage and billing',
+            desc: 'Billed on actual tokens, with multipliers, tiers, cache and time-based rules visible before you call. Daily, weekly and monthly limits can be set independently.',
+            tags: { usage: 'Pay per token', quota: 'Quota caps', detail: 'Itemized logs' }
+          }
+        },
+        facts: {
+          key: { label: 'Access', value: 'One API key' },
+          sdk: { label: 'Protocol', value: 'OpenAI-compatible' },
+          route: { label: 'On failure', value: 'Automatic failover' },
+          billing: { label: 'Billing basis', value: 'Actual tokens' }
+        }
+      },
+      playground: {
+        eyebrow: 'Interactive API Sandbox',
+        title: 'Interactive API Sandbox',
+        subtitle: 'Simulate a standard OpenAI SDK call and see routing, latency and token cost. Nothing is sent upstream and no quota is consumed.',
+        endpointLabel: 'Request endpoint',
+        modelLabel: 'Target model',
+        tokensInput: 'Input tokens',
+        tokensOutput: 'Output tokens',
+        run: 'Run simulated request',
+        running: 'Routing request...',
+        placeholder: 'Run a request to see the highlighted JSON stream',
+        status: 'STATUS',
+        stateIdle: 'IDLE',
+        stateBusy: 'ROUTING',
+        stateOk: '200 OK',
+        estimate: 'Estimate',
+        rate: 'Effective rate',
+        rateSuffix: 'x',
+        empty: 'The model price list is unavailable right now. It will retry automatically.'
+      },
+      workbench: {
+        title: 'Gateway Workbench',
+        subtitle: 'Polymorphic policy routing, live cost modeling and a high-availability dispatch sandbox in one control plane.',
+        enter: 'Open Workbench',
+        consoleTitle: 'YUYU GATEWAY CONSOLE · CONTROL PLANE',
+        ready: 'GATEWAY ON',
+        standby: 'STANDBY POOLS: {count}',
+        activeModel: 'ACTIVE MODEL',
+        packetDelay: 'PACKET DELAY',
+        topology: 'LIVE GATEWAY TOPOLOGY',
+        policyTitle: 'ADVANCED ROUTING POLICIES',
+        channelTitle: 'ACTIVE DISPATCH CHANNELS',
+        policies: {
+          auto: 'Adaptive',
+          lowTtft: 'Low TTFT',
+          failover: 'Failover'
+        },
+        policyDesc: {
+          auto: 'Adaptive routing: orchestrates traffic dynamically based on node telemetry, TTFT and warm pool availability.',
+          lowTtft: 'Low TTFT acceleration: prioritizes immediate edge nodes to minimize first-byte response time.',
+          failover: 'Active-active failover: maintains multi-pool hot standbys and reroutes transparently within 20ms.'
+        },
+        volume: 'MONTHLY VOLUME PROJECTION',
+        official: 'OFFICIAL',
+        officialPrice: 'Vendor list price',
+        ourPrice: 'Charged here',
+        monthlySaved: 'PROJECTED MONTHLY SAVINGS',
+        monthUnit: 'mo',
+        prompt: 'SIMULATION PROMPT',
+        promptPlaceholder: 'Enter a prompt to simulate',
+        temperature: 'TEMPERATURE',
+        endpoint: 'ENDPOINT',
+        runDispatch: 'RUN ROUTE DISPATCH',
+        dispatching: 'DISPATCHING PACKETS...',
+        outputPlaceholder: 'Run a simulation to inspect the highlighted JSON stream',
+        trace: 'ROUTE TRACE LOG',
+        live: 'LIVE',
+        traceReady: 'Gateway smart control plane is live and active',
+        tracePools: 'Physical routing backup pools synchronized (3 warm pools)',
+        traceEdge: 'Uplink edge channel connected · HKG-01 Edge active',
+        traceTopology: 'Handshake path established -> Client Edge -> YUYU-Router -> {route}',
+        traceUpstream: 'Connecting upstream {model} · {id} (Ping: {ping}ms)',
+        traceSuccess: 'Channel dispatched · cost ratio {saved}',
+        savedRatio: 'COST RATIO',
+        parity: 'AT PARITY',
+        parityNote: 'Billed at the vendor reference price, no markup'
+      },
       cta: {
         title: 'Connect Your Next Idea',
         description: 'Manage keys, models and usage in one place. Keep your focus on creating.',
