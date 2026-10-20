@@ -813,6 +813,7 @@ html[data-ui-theme='mito'] .yuyu-console-workbench-frame {
   --wb-node-active-stroke: #059669;
   --wb-track: #e2e8f0;
   --wb-terminal-bg: #f8fafc;
+  --wb-terminal-grid: rgb(15 23 42 / 3.5%);
   position: relative;
   border: 1px solid var(--wb-frame-border);
   border-radius: 26px;
@@ -852,6 +853,7 @@ html[data-ui-theme='mito'].dark .yuyu-console-workbench-frame {
   --wb-node-active-stroke: #10b981;
   --wb-track: #16202f;
   --wb-terminal-bg: rgb(7 13 23 / 88%);
+  --wb-terminal-grid: rgb(148 163 184 / 5%);
 }
 
 html[data-ui-theme='mito'] .yuyu-console-workbench {
@@ -955,8 +957,24 @@ html[data-ui-theme='mito'] .yuyu-console-left-panel {
 }
 
 html[data-ui-theme='mito'] .yuyu-console-right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
   border-left: 1px solid var(--wb-border-soft);
   padding: 1.1rem 1.25rem 1.25rem;
+}
+
+/* The terminal shell takes the remaining height and its output area grows
+   with it, so both columns end on the same line. */
+html[data-ui-theme='mito'] .yuyu-console-terminal-shell {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;
+}
+
+html[data-ui-theme='mito'] .yuyu-console-terminal-output {
+  flex: 1 1 auto;
 }
 
 html[data-ui-theme='mito'] .yuyu-console-sec-title {
@@ -971,8 +989,13 @@ html[data-ui-theme='mito'] .yuyu-console-topology {
   border: 1px solid var(--wb-border);
   border-radius: 16px;
   background:
-    radial-gradient(60% 90% at 50% 50%, var(--wb-accent-soft), transparent 70%),
-    var(--wb-surface);
+    radial-gradient(58% 78% at 50% 50%, var(--wb-accent-soft), transparent 72%),
+    linear-gradient(180deg, var(--wb-surface-raised), var(--wb-surface));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 55%);
+}
+
+html[data-ui-theme='mito'].dark .yuyu-console-topology {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
 }
 
 html[data-ui-theme='mito'] .yuyu-console-topology svg {
@@ -983,13 +1006,13 @@ html[data-ui-theme='mito'] .yuyu-console-topology svg {
 
 html[data-ui-theme='mito'] .topo-orbit {
   fill: none;
-  stroke: rgb(100 116 139 / 26%);
+  stroke: rgb(100 116 139 / 34%);
   stroke-width: 1;
-  stroke-dasharray: 2 7;
+  stroke-dasharray: 3 6;
 }
 
 html[data-ui-theme='mito'].dark .topo-orbit {
-  stroke: rgb(148 163 184 / 14%);
+  stroke: rgb(148 163 184 / 22%);
 }
 
 html[data-ui-theme='mito'] .topo-orbit.is-inner {
@@ -1015,13 +1038,16 @@ html[data-ui-theme='mito'] .topo-line.is-dashed {
 html[data-ui-theme='mito'] .topo-node {
   fill: var(--wb-node);
   stroke: var(--wb-node-stroke);
-  stroke-width: 1.4;
+  stroke-width: 1.6;
+  filter: drop-shadow(0 6px 12px rgb(15 23 42 / 10%));
   transition: stroke 220ms ease, fill 220ms ease;
 }
 
 html[data-ui-theme='mito'] .topo-node.is-active {
   fill: var(--wb-node-active);
   stroke: var(--wb-node-active-stroke);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 10px var(--wb-accent-line));
 }
 
 html[data-ui-theme='mito'] .topo-pulse {
@@ -1037,9 +1063,10 @@ html[data-ui-theme='mito'] .topo-pulse {
 
 html[data-ui-theme='mito'] .topo-node-label {
   fill: var(--wb-muted);
-  font-size: 9px;
+  font-size: 10px;
+  font-weight: 500;
   text-anchor: middle;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 html[data-ui-theme='mito'] .yuyu-console-policy-group {
@@ -1086,7 +1113,13 @@ html[data-ui-theme='mito'] .yuyu-console-policy-pill.is-active {
   border-color: var(--wb-accent-line);
   background: linear-gradient(180deg, var(--wb-accent-soft), transparent);
   color: var(--wb-text-strong);
-  box-shadow: inset 0 0 24px var(--wb-accent-soft);
+  box-shadow:
+    inset 0 0 24px var(--wb-accent-soft),
+    0 8px 20px -16px var(--wb-accent-line);
+}
+
+html[data-ui-theme='mito'] .yuyu-console-policy-pill.is-active strong {
+  color: var(--wb-accent);
 }
 
 html[data-ui-theme='mito'] .yuyu-console-policy-pill.is-active small {
@@ -1128,8 +1161,11 @@ html[data-ui-theme='mito'] .yuyu-console-channel-btn:hover {
 
 html[data-ui-theme='mito'] .yuyu-console-channel-btn.is-active {
   border-color: var(--wb-accent-line);
-  background: var(--wb-accent-soft);
+  background: linear-gradient(180deg, var(--wb-accent-soft), transparent);
   color: var(--wb-text-strong);
+  box-shadow:
+    inset 0 0 20px var(--wb-accent-soft),
+    0 8px 20px -16px var(--wb-accent-line);
 }
 
 html[data-ui-theme='mito'] .yuyu-channel-logo {
@@ -1422,12 +1458,16 @@ html[data-ui-theme='mito'] .yuyu-console-spinner {
 }
 
 html[data-ui-theme='mito'] .yuyu-console-terminal-output {
+  position: relative;
   min-height: 180px;
-  max-height: 230px;
   overflow: auto;
   border-top: 1px solid var(--wb-border-soft);
-  padding: 0.85rem 0.95rem 1rem;
-  background: var(--wb-terminal-bg);
+  padding: 0.9rem 1rem 1rem;
+  background:
+    linear-gradient(var(--wb-terminal-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--wb-terminal-grid) 1px, transparent 1px),
+    var(--wb-terminal-bg);
+  background-size: 26px 26px, 26px 26px, auto;
   scrollbar-width: thin;
 }
 
@@ -1446,8 +1486,8 @@ html[data-ui-theme='mito'] .yuyu-console-json {
   margin: 0;
   color: var(--wb-text);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.68rem;
-  line-height: 1.65;
+  font-size: 0.72rem;
+  line-height: 1.72;
   white-space: pre-wrap;
   word-break: break-word;
 }
