@@ -8,7 +8,10 @@
 html[data-ui-theme='mito'] .mito-landing {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  /* Only the horizontal axis is clipped. `overflow: hidden` would turn this
+     element into the sticky nav's scroll container, so the header would
+     never stick to the viewport. */
+  overflow-x: clip;
   background:
     radial-gradient(1100px 620px at 12% -8%, rgb(37 99 235 / 10%), transparent 62%),
     radial-gradient(900px 520px at 92% 6%, rgb(14 165 233 / 9%), transparent 60%),
@@ -150,7 +153,9 @@ html[data-ui-theme='mito'] .mito-landing .mito-landing-header[data-scrolled='tru
   max-width: 60rem;
   padding: 0.32rem 0.6rem;
   border-radius: 999px;
-  background: rgb(255 255 255 / 88%);
+  /* Nearly opaque: page content must not read through the floating pill. */
+  background: rgb(255 255 255 / 97%);
+  backdrop-filter: blur(20px) saturate(180%);
   box-shadow:
     0 1px 2px rgb(15 23 42 / 6%),
     0 18px 40px -26px rgb(15 23 42 / 32%);
@@ -164,7 +169,7 @@ html[data-ui-theme='mito'] .mito-landing .mito-landing-header[data-scrolled='tru
 }
 
 html[data-ui-theme='mito'].dark .mito-landing .mito-landing-header[data-scrolled='true'] .mito-landing-nav-pill {
-  background: rgb(15 23 42 / 88%);
+  background: rgb(11 18 32 / 97%);
   border-color: rgb(51 65 85 / 70%);
   box-shadow:
     0 1px 2px rgb(0 0 0 / 30%),
