@@ -7,13 +7,13 @@
     <LandingParticles />
 
     <!-- Header -->
-    <header class="mito-landing-header px-4 py-4 sm:px-6">
+    <header class="mito-landing-header" :data-scrolled="scrolled ? 'true' : 'false'">
       <nav
-        class="mito-landing-nav-pill mx-auto flex max-w-6xl items-center justify-between gap-3 rounded-2xl px-3 py-2 sm:px-4"
+        class="mito-landing-nav-pill mx-auto flex items-center justify-between gap-3"
       >
         <!-- Logo -->
         <div class="flex min-w-0 items-center gap-3">
-          <div class="h-10 w-10 shrink-0 overflow-hidden rounded-xl shadow-md">
+          <div class="mito-landing-nav-logo shrink-0 overflow-hidden rounded-xl shadow-md">
             <img :src="siteLogo || '/logo.svg'" alt="Logo" class="h-full w-full object-contain" />
           </div>
           <span class="hidden truncate text-sm font-semibold text-gray-800 sm:block dark:text-dark-100">
@@ -371,6 +371,7 @@
 </template>
 
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LocaleSwitcher from '@/components/common/LocaleSwitcher.vue'
 import Icon from '@/components/icons/Icon.vue'
@@ -378,6 +379,33 @@ import LandingParticles from './LandingParticles.vue'
 import GatewayWorkbench from './GatewayWorkbench.vue'
 import CoreFeatures from './CoreFeatures.vue'
 import PlaygroundSandbox from './PlaygroundSandbox.vue'
+
+const scrolled = ref(false)
+let scrollFrame = 0
+
+function readScroll() {
+  scrollFrame = 0
+  // Hysteresis: expand only after returning fully to the top, so the bar
+  // does not flicker when the page settles a few pixels below the fold.
+  const y = window.scrollY || document.documentElement.scrollTop || 0
+  if (y > 24) scrolled.value = true
+  else if (y < 6) scrolled.value = false
+}
+
+function onScroll() {
+  if (scrollFrame) return
+  scrollFrame = window.requestAnimationFrame(readScroll)
+}
+
+onMounted(() => {
+  readScroll()
+  window.addEventListener('scroll', onScroll, { passive: true })
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', onScroll)
+  if (scrollFrame) window.cancelAnimationFrame(scrollFrame)
+})
 
 defineProps<{
   siteName: string
