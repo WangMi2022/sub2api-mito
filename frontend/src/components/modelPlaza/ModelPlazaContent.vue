@@ -1,14 +1,5 @@
 <template>
-  <MitoModelCatalog
-    v-if="isMitoTheme"
-    :groups="response?.groups ?? []"
-    :loading="loading"
-    :error="error"
-    :anonymous="!isAuthenticated"
-    :monitoring-unavailable="response?.monitoring_unavailable"
-    @refresh="$emit('refresh')"
-  />
-  <div v-else class="space-y-5">
+  <div class="space-y-5">
     <!-- 页头(独立形态下展示标题;后台形态 AppHeader 已有页面标题) -->
     <div v-if="!embedded">
       <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">{{ t('modelPlaza.title') }}</h1>
@@ -79,8 +70,6 @@ import DOMPurify from 'dompurify'
 import Icon from '@/components/icons/Icon.vue'
 import PlazaFilterBar from './PlazaFilterBar.vue'
 import PlazaGroupSection from './PlazaGroupSection.vue'
-import MitoModelCatalog from '@/themes/mito/ModelCatalog.vue'
-import { isMitoTheme } from '@/themes/mito'
 import type { ModelPlazaGroup, ModelPlazaResponse } from '@/api/modelPlaza'
 import { useAuthStore } from '@/stores/auth'
 
@@ -91,8 +80,6 @@ const props = defineProps<{
   /** 后台内嵌形态(AppLayout 内):隐藏页头。 */
   embedded?: boolean
 }>()
-
-defineEmits<{ (event: 'refresh'): void }>()
 
 const { t } = useI18n()
 const authStore = useAuthStore()
