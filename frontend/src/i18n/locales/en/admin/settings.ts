@@ -781,6 +781,12 @@ export default {
         homeBackgroundHint:
           'Background image for the home hero. Leave empty to use the theme gradient. PNG / JPEG / WebP / GIF / AVIF, up to 8MB.',
         homeBackgroundStorage: 'Storage',
+        homeBackgroundDescription: "Set the home page background image. Leave it empty to use the theme gradient.",
+        homeBackgroundLocalHint: "Store the image in this server’s data directory.",
+        homeBackgroundS3Hint: "Use the image storage configured under Data Backup. Async image tasks can stay off.",
+        homeBackgroundFile: "Upload a background image",
+        homeBackgroundFileHint: "PNG, JPEG, WebP, GIF or AVIF, up to 8 MB.",
+        homeBackgroundPreview: "Current background preview",
         homeBackgroundStorageLocal: 'Local disk',
         homeBackgroundStorageS3: 'S3 bucket',
         homeBackgroundUploaded: 'Background uploaded and applied',

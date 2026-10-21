@@ -6835,6 +6835,44 @@
                 />
               </div>
 
+              <HomeBackgroundPanel
+                v-if="isMitoTheme"
+                v-model:storage="homeBackgroundStorage"
+                :options="homeBackgroundStorageOptions"
+                :image-url="form.home_background_image"
+                :uploading="homeBackgroundUploading"
+                :error="homeBackgroundError"
+              >
+                <input
+                  ref="homeBackgroundInput"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+                  class="hidden"
+                  @change="onHomeBackgroundSelected"
+                />
+                <div class="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    :disabled="homeBackgroundUploading"
+                    @click="homeBackgroundInput?.click()"
+                  >
+                    <Icon v-if="!homeBackgroundUploading" name="upload" size="sm" />
+                    <span v-else class="mr-1 inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+                    {{ t("admin.settings.site.uploadImage") }}
+                  </button>
+                  <button
+                    v-if="form.home_background_image"
+                    type="button"
+                    class="btn btn-secondary"
+                    :disabled="homeBackgroundUploading"
+                    @click="removeHomeBackground"
+                  >
+                    {{ t("admin.settings.site.remove") }}
+                  </button>
+                </div>
+              </HomeBackgroundPanel>
+              <template v-else>
               <!-- Home Background Image -->
               <div>
                 <label
@@ -6910,6 +6948,8 @@
                   />
                 </div>
               </div>
+
+              </template>
 
               <!-- Home Content -->
               <div>
@@ -9569,6 +9609,8 @@ import Toggle from "@/components/common/Toggle.vue";
 import ProxySelector from "@/components/common/ProxySelector.vue";
 import ImageUpload from "@/components/common/ImageUpload.vue";
 import BackupSettings from "@/views/admin/BackupView.vue";
+import HomeBackgroundPanel from "@/themes/mito/settings/HomeBackgroundPanel.vue";
+import { isMitoTheme } from "@/themes/mito";
 import ServerlessSettings from "@/components/settings/ServerlessSettings.vue";
 import IPRiskSettings from "@/features/ip-risk/IPRiskSettings.vue";
 import EmailTemplateEditor from "@/views/admin/settings/EmailTemplateEditor.vue";

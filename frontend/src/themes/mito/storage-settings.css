@@ -1,0 +1,62 @@
+html[data-ui-theme='mito'] .mito-storage-settings { display: grid; gap: 28px; min-width: 0; }
+html[data-ui-theme='mito'] .mito-storage-panel {
+  min-width: 0;
+  padding: 28px;
+  border: 1px solid var(--mito-border);
+  border-radius: 16px;
+  background: var(--mito-surface);
+  color: var(--mito-text);
+}
+html[data-ui-theme='mito'] .mito-storage-heading { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 28px; }
+html[data-ui-theme='mito'] .mito-storage-heading h3 { margin: 0; font-size: 17px; font-weight: 650; line-height: 1.5; }
+html[data-ui-theme='mito'] .mito-storage-heading p,
+html[data-ui-theme='mito'] .mito-storage-panel p { max-width: 68ch; margin: 6px 0 0; color: var(--mito-muted); font-size: 13px; line-height: 1.75; }
+html[data-ui-theme='mito'] .mito-storage-icon { display: grid; flex-shrink: 0; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: var(--mito-blue-soft); color: var(--mito-blue); }
+html[data-ui-theme='mito'] .mito-storage-group { min-width: 0; margin: 0; padding: 0; border: 0; }
+html[data-ui-theme='mito'] .mito-storage-group + .mito-storage-group { margin-top: 26px; padding-top: 24px; border-top: 1px solid var(--mito-border); }
+html[data-ui-theme='mito'] .mito-storage-group legend { float: left; width: 100%; margin-bottom: 16px; font-size: 14px; font-weight: 600; }
+html[data-ui-theme='mito'] .mito-storage-group legend + * { clear: both; }
+html[data-ui-theme='mito'] .mito-storage-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 24px; }
+html[data-ui-theme='mito'] .mito-storage-field { display: grid; min-width: 0; gap: 8px; color: var(--mito-muted); font-size: 13px; }
+html[data-ui-theme='mito'] .mito-storage-field .input { width: 100%; min-width: 0; min-height: 44px; color: var(--mito-text); }
+html[data-ui-theme='mito'] .mito-storage-checkbox { display: flex; align-items: center; gap: 10px; min-height: 44px; margin-top: 12px; cursor: pointer; font-size: 13px; }
+html[data-ui-theme='mito'] .mito-storage-checkbox input,
+html[data-ui-theme='mito'] .mito-storage-choice input { flex-shrink: 0; width: 17px; height: 17px; accent-color: var(--mito-blue); }
+html[data-ui-theme='mito'] .mito-storage-source { align-items: flex-start; margin: 0 0 20px; padding: 16px; border: 1px solid var(--mito-border); border-radius: 10px; background: var(--mito-subtle); }
+html[data-ui-theme='mito'] .mito-storage-source input { margin-top: 3px; }
+html[data-ui-theme='mito'] .mito-storage-source strong,
+html[data-ui-theme='mito'] .mito-storage-choice strong { display: block; color: var(--mito-text); font-size: 13px; font-weight: 600; }
+html[data-ui-theme='mito'] .mito-storage-source span span,
+html[data-ui-theme='mito'] .mito-storage-choice span span { display: block; margin-top: 5px; color: var(--mito-muted); font-size: 12px; line-height: 1.7; }
+html[data-ui-theme='mito'] .mito-storage-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--mito-border); }
+html[data-ui-theme='mito'] .mito-storage-actions > div,
+html[data-ui-theme='mito'] .mito-storage-upload-actions > div { display: flex; flex-wrap: wrap; gap: 12px; }
+html[data-ui-theme='mito'] .mito-storage-actions .btn,
+html[data-ui-theme='mito'] .mito-storage-upload-actions .btn { min-height: 44px; }
+html[data-ui-theme='mito'] .mito-storage-actions p { margin: 0; font-size: 12px; }
+html[data-ui-theme='mito'] .mito-storage-guide { min-height: 44px; color: var(--mito-blue); font-size: 13px; text-align: start; text-decoration: underline; text-underline-offset: 3px; }
+html[data-ui-theme='mito'] .mito-storage-feature { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: 28px; padding: 20px; border: 1px solid var(--mito-border); border-radius: 12px; background: var(--mito-subtle); }
+html[data-ui-theme='mito'] .mito-storage-feature label { display: inline-flex; align-items: center; min-height: 32px; font-size: 14px; font-weight: 600; cursor: pointer; }
+html[data-ui-theme='mito'] .mito-storage-feature input { flex-shrink: 0; width: 22px; height: 22px; margin: 11px; accent-color: var(--mito-blue); cursor: pointer; }
+html[data-ui-theme='mito'] .mito-home-background { margin-block: 28px; }
+html[data-ui-theme='mito'] .mito-storage-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+html[data-ui-theme='mito'] .mito-storage-choice { display: flex; align-items: flex-start; gap: 12px; min-width: 0; padding: 18px; border: 1px solid var(--mito-border); border-radius: 12px; background: var(--mito-surface); cursor: pointer; }
+html[data-ui-theme='mito'] .mito-storage-choice input { margin-top: 3px; }
+html[data-ui-theme='mito'] .mito-storage-choice.is-selected { border-color: var(--mito-blue); background: var(--mito-blue-soft); }
+html[data-ui-theme='mito'] .mito-background-upload { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; margin-top: 24px; padding: 20px; border: 1px dashed var(--mito-border); border-radius: 12px; background: var(--mito-subtle); }
+html[data-ui-theme='mito'] .mito-background-upload-copy strong { font-size: 14px; font-weight: 600; }
+html[data-ui-theme='mito'] .mito-storage-panel .mito-storage-error { max-width: none; margin-top: 16px; color: #dc2626; overflow-wrap: anywhere; }
+html[data-ui-theme='mito'].dark .mito-storage-panel .mito-storage-error { color: #fca5a5; }
+html[data-ui-theme='mito'] .mito-background-preview { margin-top: 20px; overflow: hidden; border: 1px solid var(--mito-border); border-radius: 12px; }
+html[data-ui-theme='mito'] .mito-background-preview img { display: block; width: 100%; height: 180px; object-fit: cover; }
+html[data-ui-theme='mito'] .mito-background-preview figcaption { padding: 10px 14px; background: var(--mito-subtle); color: var(--mito-muted); font-size: 12px; }
+@media (max-width: 640px) {
+  html[data-ui-theme='mito'] .mito-storage-panel { padding: 20px 16px; }
+  html[data-ui-theme='mito'] .mito-storage-grid,
+  html[data-ui-theme='mito'] .mito-storage-choices { grid-template-columns: minmax(0, 1fr); }
+  html[data-ui-theme='mito'] .mito-storage-heading { gap: 12px; margin-bottom: 24px; }
+  html[data-ui-theme='mito'] .mito-storage-feature { gap: 12px; padding: 16px; }
+  html[data-ui-theme='mito'] .mito-storage-actions > div { width: 100%; }
+  html[data-ui-theme='mito'] .mito-storage-actions .btn { flex: 1; }
+  html[data-ui-theme='mito'] .mito-background-upload { padding: 16px; }
+}

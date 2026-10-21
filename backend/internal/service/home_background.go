@@ -140,12 +140,15 @@ func (s *HomeBackgroundService) saveToS3(ctx context.Context, name, ext, content
 	if s.imageStorage == nil {
 		return "", ErrHomeBackgroundS3Unavailable
 	}
-	uploader, ok := s.imageStorage.resolve()
-	if !ok || uploader == nil {
+	storage, err := s.imageStorage.storageForUpload(ctx)
+	if errors.Is(err, ErrImageStorageIncomplete) {
 		return "", ErrHomeBackgroundS3Unavailable
 	}
+	if err != nil {
+		return "", fmt.Errorf("resolve background image storage: %w", err)
+	}
 	key := "home-background/" + sanitizeUploadBaseName(name) + ext
-	return uploader.storage.Save(ctx, key, contentType, data)
+	return storage.Save(ctx, key, contentType, data)
 }
 
 // sanitizeUploadBaseName keeps an upload name filesystem- and S3-safe.

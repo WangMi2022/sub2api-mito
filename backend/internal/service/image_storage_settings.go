@@ -22,7 +22,7 @@ var ErrImageStorageIncomplete = errors.New("image storage is enabled but bucket/
 // 与 BackupObjectStoreFactory 同样的注入方式，避免 service 反向依赖 repository。
 type ImageStorageFactory func(ctx context.Context, cfg *config.ImageStorageConfig) (ImageStorage, error)
 
-// ImageStorageSettings 是后台可编辑的异步生图对象存储配置。
+// ImageStorageSettings 是后台可编辑的图片对象存储配置，Enabled 仅控制异步生图。
 //
 // ReuseBackupS3 为真时不保存自己的凭证，直接借用数据库备份已配置的 S3 端点与密钥，
 // 只用自己的 Bucket/Prefix 区分对象；这样"数据走 backups/、图片走 images/"无需重复配置。
@@ -125,6 +125,37 @@ func (s *ImageStorageSettingService) resolve() (*ImageResultUploader, bool) {
 	return s.uploader, true
 }
 
+// storageForUpload resolves the current object storage without enabling async
+// image tasks. Admin uploads must not depend on the async resolver's cached switch.
+func (s *ImageStorageSettingService) storageForUpload(ctx context.Context) (ImageStorage, error) {
+	settings, err := s.load(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var cfg *config.ImageStorageConfig
+	if settings == nil && s.fallback.IsConfigured() {
+		fallback := s.fallback
+		cfg = &fallback
+	} else {
+		if settings == nil {
+			// A deployment that only configured backup S3 can upload backgrounds
+			// without first saving the async image settings.
+			if s.backup == nil {
+				return nil, ErrImageStorageIncomplete
+			}
+			settings = s.defaultSettings()
+		}
+		cfg, err = s.toImageStorageConfig(ctx, settings)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if !cfg.IsConfigured() {
+		return nil, ErrImageStorageIncomplete
+	}
+	return s.factory(ctx, cfg)
+}
+
 // Invalidate 丢弃缓存，使下一次请求按最新设置重新解析。
 func (s *ImageStorageSettingService) Invalidate() {
 	if s == nil {
@@ -137,14 +168,15 @@ func (s *ImageStorageSettingService) Invalidate() {
 	s.mu.Unlock()
 }
 
-// Get 返回后台设置（SecretAccessKey 已脱敏）。从未保存过时返回 config.yaml 的等价值。
+// Get 返回后台设置（SecretAccessKey 已脱敏）。未保存时优先沿用 config.yaml，
+// 没有完整图片配置时默认复用备份 S3，与普通图片上传的解析方式一致。
 func (s *ImageStorageSettingService) Get(ctx context.Context) (*ImageStorageSettings, error) {
 	settings, err := s.load(ctx)
 	if err != nil {
 		return nil, err
 	}
 	if settings == nil {
-		settings = settingsFromConfig(s.fallback)
+		settings = s.defaultSettings()
 	}
 	settings.SecretAccessKey = ""
 	return settings, nil
@@ -153,8 +185,11 @@ func (s *ImageStorageSettingService) Get(ctx context.Context) (*ImageStorageSett
 // SecretConfigured 供前端展示"已配置"占位符。
 func (s *ImageStorageSettingService) SecretConfigured(ctx context.Context) bool {
 	settings, err := s.load(ctx)
-	if err != nil || settings == nil {
+	if err != nil {
 		return s.fallback.SecretAccessKey != ""
+	}
+	if settings == nil {
+		settings = s.defaultSettings()
 	}
 	if settings.ReuseBackupS3 {
 		cfg, err := s.backupCredentials(ctx)
@@ -258,7 +293,7 @@ func (s *ImageStorageSettingService) toImageStorageConfig(ctx context.Context, i
 			return nil, err
 		}
 		if backupCfg == nil {
-			return nil, errors.New("image storage is set to reuse the backup S3 configuration, but no backup S3 configuration exists")
+			return nil, fmt.Errorf("%w: no backup S3 configuration exists", ErrImageStorageIncomplete)
 		}
 		cfg.Endpoint = backupCfg.Endpoint
 		cfg.Region = backupCfg.Region
@@ -302,6 +337,12 @@ func (s *ImageStorageSettingService) load(ctx context.Context) (*ImageStorageSet
 		return nil, fmt.Errorf("parse image storage settings: %w", err)
 	}
 	return &settings, nil
+}
+
+func (s *ImageStorageSettingService) defaultSettings() *ImageStorageSettings {
+	settings := settingsFromConfig(s.fallback)
+	settings.ReuseBackupS3 = !s.fallback.IsConfigured()
+	return settings
 }
 
 func settingsFromConfig(cfg config.ImageStorageConfig) *ImageStorageSettings {

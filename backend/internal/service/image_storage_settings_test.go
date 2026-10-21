@@ -252,3 +252,20 @@ func TestImageStorageSettingsFallBackToConfigFile(t *testing.T) {
 	require.Equal(t, "yaml-bucket", fetched.Bucket)
 	require.Empty(t, fetched.SecretAccessKey)
 }
+
+func TestImageStorageSettingsDefaultUploadSourceIsVisible(t *testing.T) {
+	svc, repo, _ := newImageStorageFixture(t, config.ImageStorageConfig{})
+	seedBackupS3(t, repo, BackupS3Config{
+		Bucket: "backup-bucket", AccessKeyID: "backup-key", SecretAccessKey: "backup-secret",
+	})
+	ctx := context.Background()
+	fetched, err := svc.Get(ctx)
+	require.NoError(t, err)
+	require.True(t, fetched.ReuseBackupS3, "the settings page must show the source used by background uploads")
+	require.False(t, fetched.Enabled, "defaulting the storage source must not enable async image tasks")
+	require.Empty(t, fetched.SecretAccessKey)
+	require.True(t, svc.SecretConfigured(ctx))
+	raw, err := repo.GetValue(ctx, settingKeyImageStorageConfig)
+	require.NoError(t, err)
+	require.Empty(t, raw, "reading defaults must not persist settings")
+}

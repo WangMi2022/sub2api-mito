@@ -773,6 +773,12 @@ export default {
         homeBackgroundHint:
           '首页 Hero 区域的背景图片，留空则使用主题默认渐变。支持 PNG / JPEG / WebP / GIF / AVIF，最大 8MB。',
         homeBackgroundStorage: '存储位置',
+        homeBackgroundDescription: "设置首页展示区域的背景图片，留空使用主题默认渐变。",
+        homeBackgroundLocalHint: "保存到当前服务器的数据目录。",
+        homeBackgroundS3Hint: "使用「数据备份」中的图片存储配置，无需开启异步生图。",
+        homeBackgroundFile: "上传背景图片",
+        homeBackgroundFileHint: "支持 PNG、JPEG、WebP、GIF、AVIF，最大 8 MB。",
+        homeBackgroundPreview: "当前背景图预览",
         homeBackgroundStorageLocal: '本地服务器',
         homeBackgroundStorageS3: 'S3 对象存储',
         homeBackgroundUploaded: '背景图已上传并生效',
