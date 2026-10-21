@@ -37,7 +37,7 @@ func (h *HomeBackgroundHandler) Upload(c *gin.Context) {
 
 	file, header, err := c.Request.FormFile("file")
 	if err != nil {
-		response.BadRequest(c, "select an image file")
+		response.BadRequest(c, "请选择有效的图片文件（multipart 字段名 file）")
 		return
 	}
 	defer func() { _ = file.Close() }()

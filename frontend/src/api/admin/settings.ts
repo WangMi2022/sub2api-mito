@@ -1206,6 +1206,9 @@ export async function uploadHomeBackground(
   const { data } = await apiClient.post<{ url: string; storage: "local" | "s3" }>(
     "/admin/settings/home-background/upload",
     form,
+    // The axios instance defaults to application/json; without this override
+    // the multipart boundary is lost and the backend sees no file.
+    { headers: { "Content-Type": "multipart/form-data" }, timeout: 120000 },
   );
   return data;
 }
