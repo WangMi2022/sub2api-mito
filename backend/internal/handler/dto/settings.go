@@ -166,6 +166,8 @@ type SystemSettings struct {
 	SiteLogo                    string           `json:"site_logo"`
 	SiteSubtitle                string           `json:"site_subtitle"`
 	HomeBackgroundImage         string           `json:"home_background_image"`
+	HomeBackgroundBlur          int              `json:"home_background_blur"`
+	HomeBackgroundOverlay       int              `json:"home_background_overlay"`
 	APIBaseURL                  string           `json:"api_base_url"`
 	ContactInfo                 string           `json:"contact_info"`
 	DocURL                      string           `json:"doc_url"`
@@ -447,6 +449,8 @@ type PublicSettings struct {
 	SiteLogo                            string                   `json:"site_logo"`
 	SiteSubtitle                        string                   `json:"site_subtitle"`
 	HomeBackgroundImage                 string                   `json:"home_background_image"`
+	HomeBackgroundBlur                  int                      `json:"home_background_blur"`
+	HomeBackgroundOverlay               int                      `json:"home_background_overlay"`
 	APIBaseURL                          string                   `json:"api_base_url"`
 	ContactInfo                         string                   `json:"contact_info"`
 	DocURL                              string                   `json:"doc_url"`

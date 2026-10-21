@@ -1,0 +1,120 @@
+/* Shared visual language; each sandbox keeps its own simulation and layout. */
+html[data-ui-theme='mito'] .mito-sandbox {
+  --sandbox-border: #dfe6f0;
+  --sandbox-border-soft: #e9eff7;
+  --sandbox-surface: #ffffff;
+  --sandbox-soft: #f8fafc;
+  --sandbox-text: #0f172a;
+  --sandbox-muted: #475569;
+  --sandbox-accent: #1d4ed8;
+  --sandbox-accent-hover: #1e40af;
+  --sandbox-accent-soft: rgb(37 99 235 / 9%);
+  --sandbox-accent-line: rgb(37 99 235 / 35%);
+  --sandbox-contrast: #ffffff;
+  --sandbox-shadow: 0 24px 64px -40px rgb(15 23 42 / 25%);
+}
+html[data-ui-theme='mito'].dark .mito-sandbox {
+  --sandbox-border: #27364c;
+  --sandbox-border-soft: #1e2c40;
+  --sandbox-surface: #0b1422;
+  --sandbox-soft: #101c2e;
+  --sandbox-text: #f1f5f9;
+  --sandbox-muted: #b6c2d4;
+  --sandbox-accent: #60a5fa;
+  --sandbox-accent-hover: #93c5fd;
+  --sandbox-accent-soft: rgb(96 165 250 / 12%);
+  --sandbox-accent-line: rgb(96 165 250 / 38%);
+  --sandbox-contrast: #071426;
+  --sandbox-shadow: 0 24px 64px -40px rgb(0 0 0 / 65%);
+}
+html[data-ui-theme='mito'] .mito-sandbox .mito-sandbox-heading { margin-bottom: 28px; }
+html[data-ui-theme='mito'] .mito-sandbox .mito-sandbox-heading > span {
+  display: block; margin-bottom: 9px; color: var(--sandbox-accent);
+  font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+}
+html[data-ui-theme='mito'] .mito-sandbox .mito-sandbox-heading h2 {
+  margin: 0; color: var(--sandbox-text); font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 700; line-height: 1.15; letter-spacing: -0.03em;
+}
+html[data-ui-theme='mito'] .mito-sandbox .mito-sandbox-heading p {
+  max-width: 46rem; margin-top: 12px; color: var(--sandbox-muted); font-size: 14px; line-height: 1.75;
+}
+html[data-ui-theme='mito'] .mito-sandbox .mito-sandbox-frame {
+  min-width: 0; border: 1px solid var(--sandbox-border); border-radius: 24px;
+  padding: 6px; background: var(--sandbox-soft); box-shadow: var(--sandbox-shadow);
+}
+html[data-ui-theme='mito'] .mito-sandbox .mito-sandbox-surface {
+  min-width: 0; border: 1px solid var(--sandbox-border); border-radius: 18px;
+  background: var(--sandbox-surface); color: var(--sandbox-text);
+}
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-workbench::before { display: none; }
+html[data-ui-theme='mito'] .mito-sandbox .mito-sandbox-header {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px;
+  min-height: 60px; padding: 16px 24px; border-bottom: 1px solid var(--sandbox-border);
+  border-radius: 18px 18px 0 0; background: var(--sandbox-soft);
+  color: var(--sandbox-muted); font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+}
+html[data-ui-theme='mito'] .mito-sandbox-status { color: var(--sandbox-accent); }
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-body { padding: 0; }
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-left-panel,
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-right-panel { min-width: 0; padding: 24px; }
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-right-panel { border-color: var(--sandbox-border); }
+html[data-ui-theme='mito'] .mito-sandbox .mito-playground-grid { gap: 24px; padding: 24px; }
+html[data-ui-theme='mito'] .mito-sandbox .mito-playground-panel {
+  border: 0; border-radius: 0; padding: 0; background: transparent; box-shadow: none; gap: 24px;
+}
+html[data-ui-theme='mito'] .mito-sandbox .mito-console,
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-terminal-shell {
+  min-width: 0; border: 1px solid var(--sandbox-border); border-radius: 14px;
+  background: var(--sandbox-soft); box-shadow: none;
+}
+html[data-ui-theme='mito'] .mito-sandbox .mito-console-head,
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-terminal-head {
+  min-height: 44px; border-bottom: 1px solid var(--sandbox-border); padding: 12px 16px;
+  background: var(--sandbox-soft); color: var(--sandbox-muted);
+}
+html[data-ui-theme='mito'] .mito-sandbox .mito-console-json,
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-json { font-size: 12px; line-height: 1.75; }
+html[data-ui-theme='mito'] .mito-sandbox .mito-console-path,
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-terminal-head { font-size: 11px; }
+html[data-ui-theme='mito'] .mito-sandbox .mito-field-label,
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-field > span,
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-dial > span { font-size: 11px; line-height: 1.5; }
+html[data-ui-theme='mito'] .mito-sandbox .mito-run,
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-dispatch-btn {
+  min-height: 44px; border-radius: 10px; background: var(--sandbox-accent);
+  color: var(--sandbox-contrast); font-size: 13px; font-weight: 600;
+}
+html[data-ui-theme='mito'] .mito-sandbox .mito-run:hover:not(:disabled),
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-dispatch-btn:hover:not(:disabled) {
+  background: var(--sandbox-accent-hover); filter: none; transform: none;
+}
+html[data-ui-theme='mito'] .mito-sandbox .mito-select-trigger,
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-select-wrap,
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-field textarea { min-height: 44px; border-radius: 10px; }
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-policy-pill,
+html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-channel-btn { min-height: 44px; }
+html[data-ui-theme='mito'] .mito-sandbox input[type='range'] { height: 44px; min-height: 44px; background: transparent; appearance: none; }
+html[data-ui-theme='mito'] .mito-sandbox input[type='range']::-webkit-slider-runnable-track { height: 4px; border-radius: 999px; background: var(--sandbox-border); }
+html[data-ui-theme='mito'] .mito-sandbox input[type='range']::-moz-range-track { height: 4px; border-radius: 999px; background: var(--sandbox-border); }
+html[data-ui-theme='mito'] .mito-sandbox input[type='range']::-webkit-slider-thumb { width: 16px; height: 16px; margin-top: -6px; border: 2px solid var(--sandbox-surface); border-radius: 999px; background: var(--sandbox-accent); appearance: none; }
+html[data-ui-theme='mito'] .mito-sandbox input[type='range']::-moz-range-thumb { width: 12px; height: 12px; border: 2px solid var(--sandbox-surface); border-radius: 999px; background: var(--sandbox-accent); }
+html[data-ui-theme='mito'] .mito-sandbox button:focus-visible,
+html[data-ui-theme='mito'] .mito-sandbox input:focus-visible,
+html[data-ui-theme='mito'] .mito-sandbox textarea:focus-visible,
+html[data-ui-theme='mito'] .mito-sandbox select:focus-visible {
+  outline: 2px solid var(--sandbox-accent); outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  html[data-ui-theme='mito'] .mito-sandbox .mito-sandbox-frame { padding: 4px; border-radius: 20px; }
+  html[data-ui-theme='mito'] .mito-sandbox .mito-sandbox-header,
+  html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-left-panel,
+  html[data-ui-theme='mito'] .mito-sandbox .yuyu-console-right-panel,
+  html[data-ui-theme='mito'] .mito-sandbox .mito-playground-grid { padding: 16px; }
+  html[data-ui-theme='mito'] .mito-sandbox .mito-playground-grid { gap: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-sandbox *,
+  html[data-ui-theme='mito'] .mito-sandbox *::before,
+  html[data-ui-theme='mito'] .mito-sandbox *::after { animation: none !important; transition: none !important; }
+}

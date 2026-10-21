@@ -1,17 +1,17 @@
 <template>
-  <section id="gateway-workbench" ref="root" class="yuyu-projects-section yuyu-reveal">
+  <section id="gateway-workbench" ref="root" class="yuyu-projects-section mito-sandbox yuyu-reveal">
     <div class="mx-auto max-w-6xl px-4 sm:px-6">
       <div class="yuyu-workbench-heading">
-        <div class="yuyu-section-heading yuyu-section-heading-standard">
+        <div class="yuyu-section-heading yuyu-section-heading-standard mito-sandbox-heading">
           <span>Unified Orchestration Workspace</span>
           <h2 class="hero-heading">{{ t('home.mito.workbench.title') }}</h2>
           <p>{{ t('home.mito.workbench.subtitle') }}</p>
         </div>
       </div>
 
-      <div class="yuyu-console-workbench-frame">
-        <div class="yuyu-console-workbench">
-          <header class="yuyu-console-header">
+      <div class="yuyu-console-workbench-frame mito-sandbox-frame">
+        <div class="yuyu-console-workbench mito-sandbox-surface">
+          <header class="yuyu-console-header mito-sandbox-header">
             <div class="yuyu-console-header-left">
               <span class="yuyu-console-title">{{ t('home.mito.workbench.consoleTitle') }}</span>
               <div class="yuyu-console-badge-list">

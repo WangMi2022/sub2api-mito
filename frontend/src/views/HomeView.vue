@@ -96,6 +96,8 @@
     :site-name="siteName"
     :site-logo="siteLogo"
     :home-background-image="homeBackgroundImage"
+    :home-background-blur="appStore.cachedPublicSettings?.home_background_blur"
+    :home-background-overlay="appStore.cachedPublicSettings?.home_background_overlay"
     :doc-url="docUrl"
     :github-url="githubUrl"
     :is-dark="isDark"

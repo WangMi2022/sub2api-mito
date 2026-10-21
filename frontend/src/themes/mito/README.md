@@ -221,3 +221,9 @@ Mito 主题将个人使用记录拆成两个页面：
 `settings/StorageSettingsPanel.vue` 将 S3 连接与备份位置、图片存储来源与访问方式分组展示，并把异步生图开关放在独立区域。`settings/HomeBackgroundPanel.vue` 将背景图的存储选择、上传操作和预览分开。两者沿用父页面的 API 和状态，通过 `adaptations.mjs` 接入，支持 `remove/apply/check`；窄屏单列，深浅色使用既有主题变量，减少动画设置沿用主题全局规则。
 
 背景图上传读取当前图片存储配置，异步生图关闭时仍可使用。未保存图片配置且配置文件不完整时默认复用备份 S3；显式保存独立图片配置后不自动换用备份桶。异步生图的缓存解析和功能开关保持独立。
+
+### 首页背景清晰度与沙盒外观
+
+- 首页背景支持 0–20 px 模糊和 0–100% 遮罩强度，默认 0 px / 100% 保留旧版效果；减少遮罩可让原图更鲜明。设置面板实时预览，保存后经公开设置和首屏注入生效。
+- `homeBackgroundAppearance.ts`、`home-background.css` 由设置预览和首页共用。`home_background_blur` / `home_background_overlay` 使用现有 settings KV，无数据库迁移；旧客户端省略字段时保留已保存值。
+- 两处沙盒保留原有模拟交互，`sandbox.css` 提供统一配色、标题、外壳、终端、按钮及移动端规范，原有 `--wb-*` / `--pg-*` 引用共享 `--sandbox-*`。

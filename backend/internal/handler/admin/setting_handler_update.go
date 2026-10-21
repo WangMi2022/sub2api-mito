@@ -168,6 +168,8 @@ type UpdateSettingsRequest struct {
 	SiteName                    string                `json:"site_name"`
 	SiteLogo                    string                `json:"site_logo"`
 	HomeBackgroundImage         string                `json:"home_background_image"`
+	HomeBackgroundBlur          int                   `json:"home_background_blur"`
+	HomeBackgroundOverlay       int                   `json:"home_background_overlay"`
 	SiteSubtitle                string                `json:"site_subtitle"`
 	APIBaseURL                  string                `json:"api_base_url"`
 	ContactInfo                 string                `json:"contact_info"`
@@ -1784,6 +1786,8 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		SiteName:                               req.SiteName,
 		SiteLogo:                               req.SiteLogo,
 		HomeBackgroundImage:                    req.HomeBackgroundImage,
+		HomeBackgroundBlur:                     req.HomeBackgroundBlur,
+		HomeBackgroundOverlay:                  req.HomeBackgroundOverlay,
 		SiteSubtitle:                           req.SiteSubtitle,
 		APIBaseURL:                             req.APIBaseURL,
 		ContactInfo:                            req.ContactInfo,
@@ -2697,6 +2701,8 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		SiteName:                                               updatedSettings.SiteName,
 		SiteLogo:                                               updatedSettings.SiteLogo,
 		HomeBackgroundImage:                                    updatedSettings.HomeBackgroundImage,
+		HomeBackgroundBlur:                                     updatedSettings.HomeBackgroundBlur,
+		HomeBackgroundOverlay:                                  updatedSettings.HomeBackgroundOverlay,
 		SiteSubtitle:                                           updatedSettings.SiteSubtitle,
 		APIBaseURL:                                             updatedSettings.APIBaseURL,
 		ContactInfo:                                            updatedSettings.ContactInfo,

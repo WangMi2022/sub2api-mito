@@ -1,7 +1,7 @@
 <template>
-  <section id="playground" ref="root" class="mito-playground yuyu-reveal">
+  <section id="playground" ref="root" class="mito-playground mito-sandbox yuyu-reveal">
     <div class="mx-auto max-w-6xl px-4 sm:px-6">
-      <header class="mito-playground-heading">
+      <header class="mito-playground-heading mito-sandbox-heading">
         <span class="mito-playground-eyebrow">{{ t('home.mito.playground.eyebrow') }}</span>
         <h2 class="mito-playground-title">{{ t('home.mito.playground.title') }}</h2>
         <p class="mito-playground-subtitle">{{ t('home.mito.playground.subtitle') }}</p>
@@ -12,128 +12,136 @@
         {{ t('home.mito.playground.empty') }}
       </div>
 
-      <div v-else class="mito-playground-grid">
-        <!-- Control panel -->
-        <div class="mito-playground-panel">
-          <label class="mito-field">
-            <span class="mito-field-label">{{ t('home.mito.playground.endpointLabel') }}</span>
-            <span class="mito-select" :class="{ 'is-open': openSelect === 'endpoint' }">
-              <button
-                type="button"
-                class="mito-select-trigger"
-                :aria-expanded="openSelect === 'endpoint'"
-                aria-haspopup="listbox"
-                :disabled="running"
-                @click="toggle('endpoint')"
-                @keydown.esc="openSelect = null"
-              >
-                <span class="mito-select-verb">{{ activeEndpoint.method }}</span>
-                <span class="mito-select-value">{{ activeEndpoint.value }}</span>
-                <Icon name="chevronDown" size="sm" />
-              </button>
-              <ul v-if="openSelect === 'endpoint'" class="mito-select-menu" role="listbox">
-                <li v-for="item in endpoints" :key="item.value">
+      <div v-else class="mito-sandbox-frame">
+        <div class="mito-sandbox-surface">
+          <header class="mito-sandbox-header">
+            <span>{{ t('home.mito.playground.eyebrow') }}</span>
+            <span class="mito-sandbox-status">{{ statusLabel }}</span>
+          </header>
+          <div class="mito-playground-grid">
+            <!-- Control panel -->
+            <div class="mito-playground-panel">
+              <label class="mito-field">
+                <span class="mito-field-label">{{ t('home.mito.playground.endpointLabel') }}</span>
+                <span class="mito-select" :class="{ 'is-open': openSelect === 'endpoint' }">
                   <button
                     type="button"
-                    class="mito-select-option"
-                    role="option"
-                    :aria-selected="item.value === endpoint"
-                    @click="chooseEndpoint(item.value)"
+                    class="mito-select-trigger"
+                    :aria-expanded="openSelect === 'endpoint'"
+                    aria-haspopup="listbox"
+                    :disabled="running"
+                    @click="toggle('endpoint')"
+                    @keydown.esc="openSelect = null"
                   >
-                    <span class="mito-select-verb">{{ item.method }}</span>
-                    <span class="mito-select-value">{{ item.value }}</span>
+                    <span class="mito-select-verb">{{ activeEndpoint.method }}</span>
+                    <span class="mito-select-value">{{ activeEndpoint.value }}</span>
+                    <Icon name="chevronDown" size="sm" />
                   </button>
-                </li>
-              </ul>
-            </span>
-          </label>
-
-          <label class="mito-field">
-            <span class="mito-field-label">{{ t('home.mito.playground.modelLabel') }}</span>
-            <span class="mito-select" :class="{ 'is-open': openSelect === 'model' }">
-              <button
-                type="button"
-                class="mito-select-trigger is-model"
-                :aria-expanded="openSelect === 'model'"
-                aria-haspopup="listbox"
-                :disabled="running"
-                @click="toggle('model')"
-                @keydown.esc="openSelect = null"
-              >
-                <ModelIcon :model="activeModel.icon" size="26px" />
-                <span class="mito-select-copy">
-                  <strong>{{ activeModel.name }}</strong>
-                  <small>{{ activeModel.provider }} · {{ activeModel.rateLabel }}</small>
+                  <ul v-if="openSelect === 'endpoint'" class="mito-select-menu" role="listbox">
+                    <li v-for="item in endpoints" :key="item.value">
+                      <button
+                        type="button"
+                        class="mito-select-option"
+                        role="option"
+                        :aria-selected="item.value === endpoint"
+                        @click="chooseEndpoint(item.value)"
+                      >
+                        <span class="mito-select-verb">{{ item.method }}</span>
+                        <span class="mito-select-value">{{ item.value }}</span>
+                      </button>
+                    </li>
+                  </ul>
                 </span>
-                <Icon name="chevronDown" size="sm" />
-              </button>
-              <ul v-if="openSelect === 'model'" class="mito-select-menu is-wide" role="listbox">
-                <li v-for="item in models" :key="item.key">
+              </label>
+
+              <label class="mito-field">
+                <span class="mito-field-label">{{ t('home.mito.playground.modelLabel') }}</span>
+                <span class="mito-select" :class="{ 'is-open': openSelect === 'model' }">
                   <button
                     type="button"
-                    class="mito-select-option is-model"
-                    role="option"
-                    :aria-selected="item.key === activeModel.key"
-                    @click="chooseModel(item.key)"
+                    class="mito-select-trigger is-model"
+                    :aria-expanded="openSelect === 'model'"
+                    aria-haspopup="listbox"
+                    :disabled="running"
+                    @click="toggle('model')"
+                    @keydown.esc="openSelect = null"
                   >
-                    <ModelIcon :model="item.icon" size="24px" />
+                    <ModelIcon :model="activeModel.icon" size="26px" />
                     <span class="mito-select-copy">
-                      <strong>{{ item.name }}</strong>
-                      <small>{{ item.provider }} · {{ item.rateLabel }}</small>
+                      <strong>{{ activeModel.name }}</strong>
+                      <small>{{ activeModel.provider }} · {{ activeModel.rateLabel }}</small>
                     </span>
+                    <Icon name="chevronDown" size="sm" />
                   </button>
-                </li>
-              </ul>
-            </span>
-          </label>
+                  <ul v-if="openSelect === 'model'" class="mito-select-menu is-wide" role="listbox">
+                    <li v-for="item in models" :key="item.key">
+                      <button
+                        type="button"
+                        class="mito-select-option is-model"
+                        role="option"
+                        :aria-selected="item.key === activeModel.key"
+                        @click="chooseModel(item.key)"
+                      >
+                        <ModelIcon :model="item.icon" size="24px" />
+                        <span class="mito-select-copy">
+                          <strong>{{ item.name }}</strong>
+                          <small>{{ item.provider }} · {{ item.rateLabel }}</small>
+                        </span>
+                      </button>
+                    </li>
+                  </ul>
+                </span>
+              </label>
 
-          <label class="mito-slider-field">
-            <span class="mito-field-label">
-              {{ t('home.mito.playground.tokensInput') }}
-              <b>{{ inputTokens.toLocaleString() }}</b>
-            </span>
-            <input v-model.number="inputTokens" type="range" min="100" max="8000" step="100" :disabled="running" />
-          </label>
+              <label class="mito-slider-field">
+                <span class="mito-field-label">
+                  {{ t('home.mito.playground.tokensInput') }}
+                  <b>{{ inputTokens.toLocaleString() }}</b>
+                </span>
+                <input v-model.number="inputTokens" type="range" min="100" max="8000" step="100" :disabled="running" />
+              </label>
 
-          <label class="mito-slider-field">
-            <span class="mito-field-label">
-              {{ t('home.mito.playground.tokensOutput') }}
-              <b>{{ outputTokens.toLocaleString() }}</b>
-            </span>
-            <input v-model.number="outputTokens" type="range" min="100" max="8000" step="100" :disabled="running" />
-          </label>
+              <label class="mito-slider-field">
+                <span class="mito-field-label">
+                  {{ t('home.mito.playground.tokensOutput') }}
+                  <b>{{ outputTokens.toLocaleString() }}</b>
+                </span>
+                <input v-model.number="outputTokens" type="range" min="100" max="8000" step="100" :disabled="running" />
+              </label>
 
-          <button type="button" class="mito-run" :disabled="running" @click="run">
-            <span v-if="running" class="mito-run-spinner" aria-hidden="true"></span>
-            {{ running ? t('home.mito.playground.running') : t('home.mito.playground.run') }}
-          </button>
+              <button type="button" class="mito-run" :disabled="running" @click="run">
+                <span v-if="running" class="mito-run-spinner" aria-hidden="true"></span>
+                {{ running ? t('home.mito.playground.running') : t('home.mito.playground.run') }}
+              </button>
 
-          <dl class="mito-estimate">
-            <div>
-              <dt>{{ t('home.mito.playground.estimate') }}</dt>
-              <dd>{{ estimate }}</dd>
+              <dl class="mito-estimate">
+                <div>
+                  <dt>{{ t('home.mito.playground.estimate') }}</dt>
+                  <dd>{{ estimate }}</dd>
+                </div>
+                <div>
+                  <dt>{{ t('home.mito.playground.rate') }}</dt>
+                  <dd>{{ activeModel.rateLabel }}</dd>
+                </div>
+              </dl>
             </div>
-            <div>
-              <dt>{{ t('home.mito.playground.rate') }}</dt>
-              <dd>{{ activeModel.rateLabel }}</dd>
-            </div>
-          </dl>
-        </div>
 
-        <!-- Console -->
-        <div class="mito-console">
-          <div class="mito-console-head">
-            <span class="mito-console-dots" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span class="mito-console-path">gateway · console</span>
-          </div>
-          <div class="mito-console-body" aria-live="polite" :aria-busy="running">
-            <pre v-if="displayedOutput" class="mito-console-json" v-html="highlighted"></pre>
-            <p v-else class="mito-console-placeholder">{{ t('home.mito.playground.placeholder') }}</p>
-            <span v-if="typing" class="mito-console-caret" aria-hidden="true"></span>
-          </div>
-          <div class="mito-console-foot">
-            <span>{{ t('home.mito.playground.status') }}</span>
-            <b :data-state="status">{{ statusLabel }}</b>
+            <!-- Console -->
+            <div class="mito-console">
+              <div class="mito-console-head">
+                <span class="mito-console-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="mito-console-path">gateway · console</span>
+              </div>
+              <div class="mito-console-body" aria-live="polite" :aria-busy="running">
+                <pre v-if="displayedOutput" class="mito-console-json" v-html="highlighted"></pre>
+                <p v-else class="mito-console-placeholder">{{ t('home.mito.playground.placeholder') }}</p>
+                <span v-if="typing" class="mito-console-caret" aria-hidden="true"></span>
+              </div>
+              <div class="mito-console-foot">
+                <span>{{ t('home.mito.playground.status') }}</span>
+                <b :data-state="status">{{ statusLabel }}</b>
+              </div>
+            </div>
           </div>
         </div>
       </div>

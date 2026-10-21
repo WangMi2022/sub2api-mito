@@ -6838,6 +6838,8 @@
               <HomeBackgroundPanel
                 v-if="isMitoTheme"
                 v-model:storage="homeBackgroundStorage"
+                v-model:blur="form.home_background_blur"
+                v-model:overlay="form.home_background_overlay"
                 :options="homeBackgroundStorageOptions"
                 :image-url="form.home_background_image"
                 :uploading="homeBackgroundUploading"
@@ -10393,6 +10395,8 @@ const form = reactive<SettingsForm>({
   site_logo: "",
   site_subtitle: "Subscription to API Conversion Platform",
   home_background_image: "",
+  home_background_blur: 0,
+  home_background_overlay: 100,
   api_base_url: "",
   contact_info: "",
   doc_url: "",
@@ -12232,6 +12236,8 @@ async function saveSettings() {
       site_name: form.site_name,
       site_logo: form.site_logo,
       home_background_image: form.home_background_image,
+      home_background_blur: form.home_background_blur,
+      home_background_overlay: form.home_background_overlay,
       site_subtitle: form.site_subtitle,
       api_base_url: form.api_base_url,
       contact_info: form.contact_info,

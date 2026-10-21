@@ -159,6 +159,8 @@ type SystemSettings struct {
 	SiteLogo                    string
 	SiteSubtitle                string
 	HomeBackgroundImage         string
+	HomeBackgroundBlur          int
+	HomeBackgroundOverlay       int
 	APIBaseURL                  string
 	ContactInfo                 string
 	DocURL                      string
@@ -407,6 +409,8 @@ type PublicSettings struct {
 	SiteLogo                            string
 	SiteSubtitle                        string
 	HomeBackgroundImage                 string
+	HomeBackgroundBlur                  int
+	HomeBackgroundOverlay               int
 	APIBaseURL                          string
 	ContactInfo                         string
 	DocURL                              string

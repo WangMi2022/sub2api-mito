@@ -133,6 +133,9 @@ func (s *SettingService) refreshCachedSettingsAfterWrite(ctx context.Context, se
 }
 
 func (s *SettingService) buildSystemSettingsUpdates(ctx context.Context, settings *SystemSettings) (map[string]string, error) {
+	if err := validateHomeBackgroundAppearance(settings.HomeBackgroundBlur, settings.HomeBackgroundOverlay); err != nil {
+		return nil, err
+	}
 	captureConfig := settings.requestCaptureConfig()
 	if err := captureConfig.Validate(); err != nil {
 		return nil, infraerrors.BadRequest("INVALID_REQUEST_CAPTURE_SETTINGS", err.Error())
@@ -428,6 +431,8 @@ func (s *SettingService) buildSystemSettingsUpdates(ctx context.Context, setting
 	updates[SettingKeySiteName] = settings.SiteName
 	updates[SettingKeySiteLogo] = settings.SiteLogo
 	updates[SettingKeyHomeBackgroundImage] = settings.HomeBackgroundImage
+	updates[SettingKeyHomeBackgroundBlur] = strconv.Itoa(settings.HomeBackgroundBlur)
+	updates[SettingKeyHomeBackgroundOverlay] = strconv.Itoa(settings.HomeBackgroundOverlay)
 	updates[SettingKeySiteSubtitle] = settings.SiteSubtitle
 	updates[SettingKeyAPIBaseURL] = settings.APIBaseURL
 	updates[SettingKeyContactInfo] = settings.ContactInfo

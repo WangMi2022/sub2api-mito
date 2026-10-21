@@ -7,10 +7,12 @@
          layers so the particles still read on top of a photo. -->
     <div
       v-if="homeBackgroundImage"
-      class="mito-landing-photo"
-      :style="{ backgroundImage: `url(${homeBackgroundImage})` }"
+      class="mito-landing-photo mito-home-background-visual"
+      :style="homeBackgroundStyle(homeBackgroundBlur, homeBackgroundOverlay)"
       aria-hidden="true"
-    ></div>
+    >
+      <div class="mito-home-background-image" :style="{ backgroundImage: `url(${homeBackgroundImage})` }"></div>
+    </div>
 
     <!-- Ambient background: aurora washes + drifting particle glows (no grid, no connector lines) -->
     <LandingParticles />
@@ -382,6 +384,7 @@ import { useI18n } from 'vue-i18n'
 import LocaleSwitcher from '@/components/common/LocaleSwitcher.vue'
 import Icon from '@/components/icons/Icon.vue'
 import LandingParticles from './LandingParticles.vue'
+import { homeBackgroundStyle } from './homeBackgroundAppearance'
 import GatewayWorkbench from './GatewayWorkbench.vue'
 import CoreFeatures from './CoreFeatures.vue'
 import PlaygroundSandbox from './PlaygroundSandbox.vue'
@@ -417,6 +420,8 @@ defineProps<{
   siteName: string
   siteLogo: string
   homeBackgroundImage?: string
+  homeBackgroundBlur?: number
+  homeBackgroundOverlay?: number
   docUrl: string
   githubUrl: string
   isDark: boolean

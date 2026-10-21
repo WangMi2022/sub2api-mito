@@ -184,6 +184,8 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		SettingKeySiteLogo,
 		SettingKeySiteSubtitle,
 		SettingKeyHomeBackgroundImage,
+		SettingKeyHomeBackgroundBlur,
+		SettingKeyHomeBackgroundOverlay,
 		SettingKeyAPIBaseURL,
 		SettingKeyContactInfo,
 		SettingKeyDocURL,
@@ -337,6 +339,8 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		SiteLogo:                            settings[SettingKeySiteLogo],
 		SiteSubtitle:                        s.getStringOrDefault(settings, SettingKeySiteSubtitle, "Subscription to API Conversion Platform"),
 		HomeBackgroundImage:                 settings[SettingKeyHomeBackgroundImage],
+		HomeBackgroundBlur:                  parseHomeBackgroundValue(settings[SettingKeyHomeBackgroundBlur], DefaultHomeBackgroundBlur, MaxHomeBackgroundBlur),
+		HomeBackgroundOverlay:               parseHomeBackgroundValue(settings[SettingKeyHomeBackgroundOverlay], DefaultHomeBackgroundOverlay, 100),
 		APIBaseURL:                          settings[SettingKeyAPIBaseURL],
 		ContactInfo:                         settings[SettingKeyContactInfo],
 		DocURL:                              settings[SettingKeyDocURL],
@@ -654,6 +658,8 @@ type PublicSettingsInjectionPayload struct {
 	SiteLogo                            string                   `json:"site_logo"`
 	SiteSubtitle                        string                   `json:"site_subtitle"`
 	HomeBackgroundImage                 string                   `json:"home_background_image"`
+	HomeBackgroundBlur                  int                      `json:"home_background_blur"`
+	HomeBackgroundOverlay               int                      `json:"home_background_overlay"`
 	APIBaseURL                          string                   `json:"api_base_url"`
 	ContactInfo                         string                   `json:"contact_info"`
 	DocURL                              string                   `json:"doc_url"`
@@ -757,6 +763,8 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		SiteLogo:                            settings.SiteLogo,
 		SiteSubtitle:                        settings.SiteSubtitle,
 		HomeBackgroundImage:                 settings.HomeBackgroundImage,
+		HomeBackgroundBlur:                  settings.HomeBackgroundBlur,
+		HomeBackgroundOverlay:               settings.HomeBackgroundOverlay,
 		APIBaseURL:                          settings.APIBaseURL,
 		ContactInfo:                         settings.ContactInfo,
 		DocURL:                              settings.DocURL,

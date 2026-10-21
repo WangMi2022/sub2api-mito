@@ -385,6 +385,8 @@ const (
 	SettingKeyHomeContent                 = "home_content"                  // 首页内容（支持 Markdown/HTML，或 URL 作为 iframe src）
 	SettingKeyCompactHomeEnabled          = "compact_home_enabled"          // 是否启用内置简洁首页
 	SettingKeyHomeBackgroundImage         = "home_background_image"         // Home 页背景图（URL / data URI / 本地路径）
+	SettingKeyHomeBackgroundBlur          = "home_background_blur"          // Background blur radius (px)
+	SettingKeyHomeBackgroundOverlay       = "home_background_overlay"       // Background scrim strength (%)
 	SettingKeyHomeBackgroundStorage       = "home_background_storage"       // 背景图存储方式 JSON 配置（local/s3）
 	SettingKeyHideCcsImportButton         = "hide_ccs_import_button"        // 是否隐藏 API Keys 页面的导入 CCS 按钮
 	SettingKeyPurchaseSubscriptionEnabled = "purchase_subscription_enabled" // 是否展示"购买订阅"页面入口
