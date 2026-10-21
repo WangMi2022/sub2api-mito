@@ -6,9 +6,12 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
+	"github.com/Wei-Shaw/sub2api/internal/handler/dto"
 	"github.com/Wei-Shaw/sub2api/internal/service"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )
 
@@ -34,6 +37,10 @@ func TestHomeBackgroundAppearanceRoundTrip(t *testing.T) {
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &body))
 	require.Equal(t, 6, body.Data.Blur)
 	require.Equal(t, 45, body.Data.Overlay)
+	reloaded := readHomeBackgroundSettings(t, h)
+	require.Equal(t, "/public/home-background/example.png", reloaded.HomeBackgroundImage)
+	require.Equal(t, 6, reloaded.HomeBackgroundBlur)
+	require.Equal(t, 45, reloaded.HomeBackgroundOverlay)
 
 	// An older client saving another setting must preserve the appearance.
 	rec = doUpdateSettings(t, h, map[string]any{"site_subtitle": "Example gateway"}, nil)
@@ -72,5 +79,54 @@ func TestHomeBackgroundAppearanceRejectsInvalidValues(t *testing.T) {
 		require.Equal(t, http.StatusBadRequest, rec.Code, "payload=%v", payload)
 		require.Equal(t, "4", repo.values[service.SettingKeyHomeBackgroundBlur])
 		require.Equal(t, "60", repo.values[service.SettingKeyHomeBackgroundOverlay])
+	}
+}
+
+// Exercise the HTTP read path as well as the update response: reloading settings
+// must retain the same background as the public homepage.
+func readHomeBackgroundSettings(t *testing.T, h *SettingHandler) dto.SystemSettings {
+	t.Helper()
+	rec := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(rec)
+	c.Request = httptest.NewRequest(http.MethodGet, "/api/v1/admin/settings", nil)
+	h.GetSettings(c)
+	require.Equal(t, http.StatusOK, rec.Code)
+	var body struct {
+		Data dto.SystemSettings `json:"data"`
+	}
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &body))
+	return body.Data
+}
+
+func TestHomeBackgroundSettingsGetMatchesPublic(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		stored  map[string]string
+		image   string
+		blur    int
+		overlay int
+	}{
+		{name: "defaults", stored: map[string]string{}, overlay: 100},
+		{name: "saved", stored: map[string]string{
+			service.SettingKeyHomeBackgroundImage: "/public/home-background/example.png",
+			service.SettingKeyHomeBackgroundBlur:  "6", service.SettingKeyHomeBackgroundOverlay: "45",
+		}, image: "/public/home-background/example.png", blur: 6, overlay: 45},
+		{name: "zero", stored: map[string]string{
+			service.SettingKeyHomeBackgroundImage: "/public/home-background/example.png",
+			service.SettingKeyHomeBackgroundBlur:  "0", service.SettingKeyHomeBackgroundOverlay: "0",
+		}, image: "/public/home-background/example.png"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			h, _ := newStepUpSwitchTestHandler(t, tc.stored)
+			settings := readHomeBackgroundSettings(t, h)
+			require.Equal(t, tc.image, settings.HomeBackgroundImage)
+			require.Equal(t, tc.blur, settings.HomeBackgroundBlur)
+			require.Equal(t, tc.overlay, settings.HomeBackgroundOverlay)
+			public, err := h.settingService.GetPublicSettings(context.Background())
+			require.NoError(t, err)
+			require.Equal(t, public.HomeBackgroundImage, settings.HomeBackgroundImage)
+			require.Equal(t, public.HomeBackgroundBlur, settings.HomeBackgroundBlur)
+			require.Equal(t, public.HomeBackgroundOverlay, settings.HomeBackgroundOverlay)
+		})
 	}
 }
