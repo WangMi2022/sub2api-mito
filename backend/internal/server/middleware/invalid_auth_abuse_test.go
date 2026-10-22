@@ -32,7 +32,7 @@ func TestAnonymousGuardValidCredentialSurvivesSameIPBan(t *testing.T) {
 			cfg := invalidAuthAbuseTestConfig(2)
 			repo := &stubApiKeyRepo{getByKey: func(_ context.Context, key string) (*service.APIKey, error) {
 				if key == "valid-key" {
-					return &service.APIKey{ID: 1, Status: service.StatusActive, User: &service.User{ID: 1, Status: service.StatusActive, Role: service.RoleUser, Balance: 1}}, nil
+					return &service.APIKey{ID: 1, Status: service.StatusActive, User: &service.User{ID: 1, UserGroupID: userGroupIDPtr(1), Status: service.StatusActive, Role: service.RoleUser, Balance: 1}}, nil
 				}
 				return nil, service.ErrAPIKeyNotFound
 			}}

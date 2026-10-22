@@ -57,7 +57,7 @@ func TestOptionalJWTAuth_ValidTokenSetsSubject(t *testing.T) {
 		Concurrency:  5,
 		TokenVersion: 1,
 	}
-	router, authSvc := newOptionalJWTTestEnv(map[int64]*service.User{UserGroupID: userGroupIDPtr(1), 7: user})
+	router, authSvc := newOptionalJWTTestEnv(map[int64]*service.User{7: user})
 
 	token, err := authSvc.GenerateToken(context.Background(), user)
 	require.NoError(t, err)

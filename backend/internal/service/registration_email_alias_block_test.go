@@ -127,7 +127,8 @@ func TestRegistrationEmailAliasBlockDoesNotBlockExistingLogins(t *testing.T) {
 	svc := newAuthService(repo, map[string]string{SettingKeyRegistrationEnabled: "true"}, nil, nil)
 	hash, err := svc.HashPassword("password")
 	require.NoError(t, err)
-	repo.user = &User{ID: 11, Email: "sa.m.ple@gmail.com", PasswordHash: hash, Status: StatusActive}
+	userGroupID := int64(1)
+	repo.user = &User{ID: 11, UserGroupID: &userGroupID, Email: "sa.m.ple@gmail.com", PasswordHash: hash, Status: StatusActive}
 	_, user, err := svc.Login(ctx, repo.user.Email, "password")
 	require.NoError(t, err)
 	require.Equal(t, repo.user, user)

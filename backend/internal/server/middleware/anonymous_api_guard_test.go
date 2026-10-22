@@ -48,12 +48,15 @@ func TestAnonymousGuardClassificationAndNATIsolation(t *testing.T) {
 				case "overload":
 					return nil, service.ErrAPIKeyAuthOverloaded
 				}
-				key := &service.APIKey{ID: 1, Status: service.StatusActive, User: &service.User{ID: 1, Status: service.StatusActive, Role: service.RoleUser, Balance: 1}}
+				key := &service.APIKey{ID: 1, Status: service.StatusActive, User: &service.User{ID: 1, UserGroupID: userGroupIDPtr(1), Status: service.StatusActive, Role: service.RoleUser, Balance: 1}}
 				if k == "disabled" {
 					key.Status = service.StatusAPIKeyDisabled
 				}
 				if k == "inactive-user" {
 					key.User.Status = "disabled"
+				}
+				if k == "ungrouped-user" {
+					key.User.UserGroupID = nil
 				}
 				if k == "expired" {
 					key.Status = service.StatusAPIKeyExpired
@@ -114,6 +117,9 @@ func TestAnonymousGuardClassificationAndNATIsolation(t *testing.T) {
 			require.Equal(t, 401, request("unknown", ""))
 			require.Equal(t, 429, request("disabled", ""))
 			require.Equal(t, 200, request("valid", ""), "anonymous ban must never block a recognized valid key")
+			if !google {
+				require.Equal(t, 403, request("ungrouped-user", ""), "recognized credentials must not bypass user-group policy")
+			}
 			require.Equal(t, 401, request("inactive-user", ""), "business rejection must retain original semantics during ban")
 			require.Equal(t, 429, request("", ""))
 			require.NoError(t, guard.UnbanAnonymous(context.Background(), "8.8.8.8"))
@@ -181,7 +187,7 @@ func TestAnonymousGuardWhitelistOverridesLegacyAndSuccessClears(t *testing.T) {
 		if key != "valid" {
 			return nil, service.ErrAPIKeyNotFound
 		}
-		return &service.APIKey{ID: 1, Status: service.StatusActive, User: &service.User{ID: 1, Status: service.StatusActive, Role: service.RoleUser, Balance: 1}}, nil
+		return &service.APIKey{ID: 1, Status: service.StatusActive, User: &service.User{ID: 1, UserGroupID: userGroupIDPtr(1), Status: service.StatusActive, Role: service.RoleUser, Balance: 1}}, nil
 	}}
 	svc := service.NewAPIKeyService(repo, nil, nil, nil, nil, nil, cfg)
 	router := gin.New()
