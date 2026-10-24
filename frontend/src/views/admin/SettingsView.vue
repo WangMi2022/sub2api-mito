@@ -6873,6 +6873,46 @@
                 />
               </div>
 
+              <HomeBackgroundPanel
+                v-if="isMitoTheme"
+                v-model:storage="homeBackgroundStorage"
+                v-model:blur="form.home_background_blur"
+                v-model:overlay="form.home_background_overlay"
+                :options="homeBackgroundStorageOptions"
+                :image-url="form.home_background_image"
+                :uploading="homeBackgroundUploading"
+                :error="homeBackgroundError"
+              >
+                <input
+                  ref="homeBackgroundInput"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+                  class="hidden"
+                  @change="onHomeBackgroundSelected"
+                />
+                <div class="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    :disabled="homeBackgroundUploading"
+                    @click="homeBackgroundInput?.click()"
+                  >
+                    <Icon v-if="!homeBackgroundUploading" name="upload" size="sm" />
+                    <span v-else class="mr-1 inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+                    {{ t("admin.settings.site.uploadImage") }}
+                  </button>
+                  <button
+                    v-if="form.home_background_image"
+                    type="button"
+                    class="btn btn-secondary"
+                    :disabled="homeBackgroundUploading"
+                    @click="removeHomeBackground"
+                  >
+                    {{ t("admin.settings.site.remove") }}
+                  </button>
+                </div>
+              </HomeBackgroundPanel>
+              <template v-else>
               <!-- Home Background Image -->
               <div>
                 <label
@@ -6948,6 +6988,8 @@
                   />
                 </div>
               </div>
+
+              </template>
 
               <!-- Home Content -->
               <div>
@@ -9607,6 +9649,8 @@ import Toggle from "@/components/common/Toggle.vue";
 import ProxySelector from "@/components/common/ProxySelector.vue";
 import ImageUpload from "@/components/common/ImageUpload.vue";
 import BackupSettings from "@/views/admin/BackupView.vue";
+import HomeBackgroundPanel from "@/themes/mito/settings/HomeBackgroundPanel.vue";
+import { isMitoTheme } from "@/themes/mito";
 import ServerlessSettings from "@/components/settings/ServerlessSettings.vue";
 import EmailTemplateEditor from "@/views/admin/settings/EmailTemplateEditor.vue";
 import RechargeBonusTierEditor from "@/components/admin/settings/RechargeBonusTierEditor.vue";
@@ -10390,6 +10434,8 @@ const form = reactive<SettingsForm>({
   site_logo: "",
   site_subtitle: "Subscription to API Conversion Platform",
   home_background_image: "",
+  home_background_blur: 0,
+  home_background_overlay: 100,
   api_base_url: "",
   contact_info: "",
   doc_url: "",
@@ -12231,6 +12277,8 @@ async function saveSettings() {
       site_name: form.site_name,
       site_logo: form.site_logo,
       home_background_image: form.home_background_image,
+      home_background_blur: form.home_background_blur,
+      home_background_overlay: form.home_background_overlay,
       site_subtitle: form.site_subtitle,
       api_base_url: form.api_base_url,
       contact_info: form.contact_info,
