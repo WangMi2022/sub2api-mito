@@ -183,6 +183,7 @@ func TestAuthServiceLoginDefersLastLoginTouchUntilRecordSuccessfulLogin(t *testi
 		SetPasswordHash(passwordHash).
 		SetRole(service.RoleUser).
 		SetStatus(service.StatusActive).
+		SetUserGroupID(1).
 		SetBalance(1).
 		SetConcurrency(1).
 		Save(ctx)
@@ -280,6 +281,7 @@ func TestAuthServiceLogin_DoesNotApplyEmailFirstBindDefaultsWhenBackfillingLegac
 		SetConcurrency(2).
 		SetRole(service.RoleUser).
 		SetStatus(service.StatusActive).
+		SetUserGroupID(1).
 		Save(ctx)
 	require.NoError(t, err)
 
@@ -341,6 +343,7 @@ func TestAuthServiceLogin_DoesNotApplyMergedEmailFirstBindDefaultsWhenBackfillin
 		SetConcurrency(2).
 		SetRole(service.RoleUser).
 		SetStatus(service.StatusActive).
+		SetUserGroupID(1).
 		Save(ctx)
 	require.NoError(t, err)
 
@@ -379,6 +382,7 @@ func TestAuthServiceLogin_DoesNotApplyEmailFirstBindDefaultsWhenIdentityAlreadyE
 		SetConcurrency(3).
 		SetRole(service.RoleUser).
 		SetStatus(service.StatusActive).
+		SetUserGroupID(1).
 		Save(ctx)
 	require.NoError(t, err)
 	_, err = client.AuthIdentity.Create().
@@ -426,6 +430,7 @@ func TestAuthServiceLogin_DoesNotRetryEmailFirstBindDefaultsForBackfilledEmailId
 		SetConcurrency(2).
 		SetRole(service.RoleUser).
 		SetStatus(service.StatusActive).
+		SetUserGroupID(1).
 		Save(ctx)
 	require.NoError(t, err)
 

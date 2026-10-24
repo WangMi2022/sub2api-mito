@@ -142,7 +142,8 @@ func TestModerationRecoveryHitFencingAndNotificationDedup(t *testing.T) {
 // This invokes the actual login service after a source-scoped restore. Password
 // and TOTP fields are retained, and a wrong password still fails authentication.
 func TestModerationRecoveryRestorePreservesLoginSecurity(t *testing.T) {
-	user := &User{ID: 306, Email: "synthetic@example.test", Status: StatusDisabled, TotpEnabled: true, TokenVersion: 7}
+	userGroupID := int64(1)
+	user := &User{ID: 306, UserGroupID: &userGroupID, Email: "synthetic@example.test", Status: StatusDisabled, TotpEnabled: true, TokenVersion: 7}
 	require.NoError(t, user.SetPassword("synthetic-passphrase"))
 	repo := &moderationRecoveryRepo{contentModerationTestRepo: &contentModerationTestRepo{}, state: ModerationUserState{Status: StatusDisabled, OwnedDisable: true}, user: user}
 	userRepo := &recoveryLoginUserRepo{contentModerationTestUserRepo: contentModerationTestUserRepo{user: user}}
