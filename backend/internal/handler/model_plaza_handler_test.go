@@ -391,7 +391,7 @@ func TestModelPlazaMonitoringDisabledNeverReadsTelemetry(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	repo := &plazaMonitorRepo{}
 	settings := service.NewSettingService(plazaMonitorSettings{enabled: "false"}, &config.Config{})
-	h := NewModelPlazaHandler(service.NewModelPlazaService(plazaVaryChannelRepo{}, plazaVaryGroupRepo{}, nil, nil, nil), nil, settings, service.NewChannelMonitorService(repo, nil), nil, nil)
+	h := NewModelPlazaHandler(service.NewModelPlazaService(plazaVaryChannelRepo{}, plazaVaryGroupRepo{}, nil, nil, nil, nil), nil, settings, service.NewChannelMonitorService(repo, nil), nil, nil)
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request = httptest.NewRequest(http.MethodGet, "/api/v1/model-plaza", nil)

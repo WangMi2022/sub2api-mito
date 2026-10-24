@@ -43,7 +43,7 @@ func TestBalanceRejectionNotificationAcrossAuthProtocols(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				cfg := &config.Config{RunMode: config.RunModeStandard}
 				svc := service.NewAPIKeyService(&stubApiKeyRepo{getByKey: func(context.Context, string) (*service.APIKey, error) {
-					return &service.APIKey{ID: 81, UserID: 71, Status: tc.status, User: &service.User{ID: 71, Status: service.StatusActive, Balance: tc.balance}}, nil
+					return &service.APIKey{ID: 81, UserID: 71, Status: tc.status, User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 71, Status: service.StatusActive, Balance: tc.balance}}, nil
 				}}, nil, nil, nil, nil, nil, cfg)
 				recorder := &authBalanceRecorder{}
 				svc.SetBalanceRejectionNotifier(recorder)
