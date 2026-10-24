@@ -3121,7 +3121,7 @@ func runOpenAIResponsesWebSocketUsageLogCase(t *testing.T, tc openAIResponsesWSU
 		Key:     "synthetic-ws-auth-key",
 		Status:  service.StatusActive,
 		GroupID: &groupID,
-		User:    &service.User{ID: 1701, Status: service.StatusActive},
+		User:    &service.User{ID: 1701, Status: service.StatusActive, UserGroupID: userGroupIDPtr(1)},
 	}
 	if tc.apiKeyService != nil {
 		h.apiKeyService = tc.apiKeyService
