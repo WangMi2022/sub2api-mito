@@ -230,7 +230,7 @@ node frontend/scripts/mito-theme.mjs remove   # 仅撤销接入点，保留主�
 
 ## 7. 上游合并更新（ranxi2001/sub2api）
 
-原点 `origin = https://github.com/ranxi2001/sub2api`，本地长期分支 `production`（当前基线已合并上游 `v2.11.0`）。**禁止 force push、禁止 rebase 已发布提交。**
+原点 `origin = https://github.com/ranxi2001/sub2api`，本地长期分支 `production`（当前基线已合并上游 `v2.17.2`）。**禁止 force push、禁止 rebase 已发布提交。**
 
 **版本升级必须按顺序更新双实例**：先执行 `docker compose pull sub2api`，让 8080 使用 `ghcr.io/ranxi2001/sub2api:<目标版本>` 官方镜像，并用 `docker compose up -d --no-deps --force-recreate sub2api` 更新；确认 8080 `/health=200`、容器 `healthy`、实际版本为目标版本且 `restarts=0` 后，再在已有定制分支上合并同一官方发布 tag，保留定制功能与界面，构建并发布 8081。8080 更新和核验期间保持旧版 8081 可用；8080 门禁失败时不得触碰 8081，8081 发布失败时保留 8080 官方实例并只回滚 8081。每次只重建一个应用服务并带 `--no-deps`，禁止重建共享 PostgreSQL/Redis。不得用官方镜像覆盖 8081，也不得只升级 8081 就宣告升级完成。
 
