@@ -4,15 +4,15 @@
 
 ## 0. 一句话目标
 
-本目录是 Sub2API 的**双实例灰度部署**：8080 跑上游官方镜像（稳定基线），8081 跑 `sub2api-mito` 定制主题镜像（迭代目标）。
-两个实例**共用同一套 PostgreSQL / Redis 与同一业务库**。任何改动都必须保证 8080 全程可用；定制改动构建完**直接部署发布到 8081**；**推送到 GitHub 前必须先征得用户同意**。
+本目录是 Sub2API 的**双实例灰度部署**：8080 跑上游官方镜像（稳定基线），8081 跑 `sub2api-mito` 定制镜像（迭代目标）。版本升级时，先直接拉取并更新 8080 官方目标版本，完成健康与版本核验后，再更新合并同一官方版本的 8081 定制镜像；8081 保留已有 Mito 定制功能与界面。
+两个实例**共用同一套 PostgreSQL / Redis 与同一业务库**。日常定制必须保证 8080 全程可用，定制改动构建完**直接部署发布到 8081**；版本升级按第 7 节逐个更新双实例；**推送到 GitHub 前必须先征得用户同意**。
 
 ## 1. 运行拓扑（改动前先核对，勿凭记忆）
 
 | 服务 | 容器名 | 镜像 | 端口 | 数据目录 | 角色 |
 | --- | --- | --- | --- | --- | --- |
-| `sub2api` | `sub2api` | `ghcr.io/ranxi2001/sub2api:2.11.0` | `0.0.0.0:8080→8080` | `./data` | 上游基线，**只读，禁止改动/重启** |
-| `sub2api-mito` | `sub2api-mito` | `sub2api-mito:<版本>-ui-<UTC时间戳>-<slug>` | `0.0.0.0:8081→8080` | `./data-mito` | 定制主题，**唯一迭代对象** |
+| `sub2api` | `sub2api` | `ghcr.io/ranxi2001/sub2api:<目标版本>` | `0.0.0.0:8080→8080` | `./data` | 官方基线，**仅版本升级时更新** |
+| `sub2api-mito` | `sub2api-mito` | `sub2api-mito:<版本>-ui-<UTC时间戳>-<slug>` | `0.0.0.0:8081→8080` | `./data-mito` | 同一官方版本基线上的定制版，**日常唯一迭代对象** |
 | `postgres` | `sub2api-postgres` | `hub.1panel.dev/library/postgres:18-alpine` | 仅内部网络 | `./postgres_data` | 双方共用业务库 `sub2api` |
 | `redis` | `sub2api-redis` | `hub.1panel.dev/library/redis:8-alpine` | 仅内部网络 | `./redis_data` | 双方共用 |
 
@@ -28,9 +28,9 @@ docker inspect -f '{{.Name}} restarts={{.RestartCount}} health={{.State.Health.S
 
 ## 2. 硬性约束（违反即视为事故）
 
-1. **8080 不可中断**：禁止 `stop`/`restart`/`rm`/`recreate` `sub2api` 容器，禁止改它在 compose 里的 `image` 行和 `./data` 挂载。改动前后 `sub2api` 的 `RestartCount` 必须保持 `0`、健康状态 `healthy`。
+1. **日常定制不得影响 8080**：非版本升级时，禁止 `stop`/`restart`/`rm`/`recreate` `sub2api` 容器或修改其 `image`，前后 `RestartCount` 必须保持 `0`、健康状态 `healthy`、`StartedAt` 未变。**版本升级是明确例外，必须按第 7 节同时升级官方 8080 与合并定制版 8081**，逐个重建应用容器；任何任务都不得改动双方的数据挂载或重建共享 PostgreSQL / Redis。
 2. **共用数据库，只允许追加式、向前兼容的迁移**：8080 与 8081 读写同一库，旧镜像对新对象完全无感知。禁止 `DROP`/`TRUNCATE`/改列类型/破坏性回填/手工改生产数据。新增迁移只增不删。
-3. **只在容器里构建**：宿主机 node 是 v16、go 是 1.20，均低于项目要求（前端构建需 Node 18+/pnpm 9，`backend/go.mod` 要求 go 1.27.2）。一律用 `node:24-alpine` 与 `golang:1.27.2-alpine`。
+3. **只在容器里构建**：宿主机 node 是 v16、go 是 1.20，均低于项目要求（前端构建需 Node 18+/pnpm 9，`backend/go.mod` 要求 go 1.27.3）。一律用 `node:24-bookworm-slim` 与 `golang:1.27.3-alpine`。
 4. **禁止破坏性 Docker 操作**：不得 `docker compose down`/`down -v`、不得删除或 `prune` `postgres_data`/`redis_data`/`data`/`data-mito` 及 `sub2api-mito-*` 构建缓存卷。
 5. **推送必须询问用户**：见第 8 节。任何自动流程都不得 push。
 6. **密钥不进仓库、不进日志**：`.env`（`0600`）是唯一配置源，不要把值打印到输出、写进任务目录或提交。
@@ -67,6 +67,8 @@ docker inspect -f '{{.Name}} restarts={{.RestartCount}} health={{.State.Health.S
 不要把 `node_modules`、二进制、`dist` 留在仓库里；`sub2api` 检出内不要出现本次构建产物。
 
 ## 5. 标准迭代流程
+
+本节用于日常定制，仅发布 8081；版本升级还必须执行第 7 节的官方 8080 升级与双实例验收。
 
 ### Step 0 摸底与冻结
 确认没有其他会话正在改同一批文件（`git status -s` 干净），记录当前镜像标签与源码 commit：
@@ -144,7 +146,7 @@ docker run --rm \
   -v /data/sub2api-deploy/sub2api:/src \
   -v sub2api-mito-go-modules:/go/pkg/mod \
   -v $TASK/build:/out \
-  -w /src/backend golang:1.27.2-alpine sh -c '
+  -w /src/backend golang:1.27.3-alpine sh -c '
     apk add --no-cache git ca-certificates tzdata >/dev/null 2>&1 || true
     CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOPROXY=https://goproxy.cn,direct GOSUMDB=sum.golang.google.cn \
     go build -tags embed \
@@ -199,7 +201,7 @@ docker inspect -f '8080 restarts={{.RestartCount}} health={{.State.Health.Status
 docker inspect -f '8081 restarts={{.RestartCount}} health={{.State.Health.Status}} image={{.Config.Image}}' sub2api-mito
 ```
 
-通过标准：8081 返回 200 且容器 `healthy`，运行镜像 ID 与本次构建一致；**8080 返回 200 且 `restarts=0`、`StartedAt` 未变**。
+通过标准：8081 返回 200 且容器 `healthy`，运行镜像 ID 与本次构建一致；**日常定制时 8080 返回 200 且 `restarts=0`、`StartedAt` 未变**。版本升级允许 8080 因受控重建而改变 `StartedAt`，还须按第 7 节核对双实例的实际运行版本。
 
 版本探测的正确方式（`/version` 不是接口，只会被 SPA 兜底路由返回 index.html）：
 `docker exec <容器> /app/sub2api --version`，或管理员接口 `GET /api/v1/admin/system/version`。
@@ -230,7 +232,9 @@ node frontend/scripts/mito-theme.mjs remove   # 仅撤销接入点，保留主�
 
 原点 `origin = https://github.com/ranxi2001/sub2api`，本地长期分支 `production`（当前基线已合并上游 `v2.11.0`）。**禁止 force push、禁止 rebase 已发布提交。**
 
-1. 备份：打 `pre-<上游版本>-merge` tag / `backup/pre-<上游版本>-merge` 分支，并记录当前 8081 镜像与 dist。
+**版本升级必须按顺序更新双实例**：先执行 `docker compose pull sub2api`，让 8080 使用 `ghcr.io/ranxi2001/sub2api:<目标版本>` 官方镜像，并用 `docker compose up -d --no-deps --force-recreate sub2api` 更新；确认 8080 `/health=200`、容器 `healthy`、实际版本为目标版本且 `restarts=0` 后，再在已有定制分支上合并同一官方发布 tag，保留定制功能与界面，构建并发布 8081。8080 更新和核验期间保持旧版 8081 可用；8080 门禁失败时不得触碰 8081，8081 发布失败时保留 8080 官方实例并只回滚 8081。每次只重建一个应用服务并带 `--no-deps`，禁止重建共享 PostgreSQL/Redis。不得用官方镜像覆盖 8081，也不得只升级 8081 就宣告升级完成。
+
+1. 备份：打 `pre-<上游版本>-merge` tag / `backup/pre-<上游版本>-merge` 分支；备份 compose 与数据库，记录两个实例的镜像标签、镜像 ID、`StartedAt` 及 8081 的 dist。
 2. 用独立 worktree 合并，避免污染生产检出：
    ```bash
    cd /data/sub2api-deploy/sub2api
@@ -241,8 +245,8 @@ node frontend/scripts/mito-theme.mjs remove   # 仅撤销接入点，保留主�
    锚点或契约报错时，**先读新版布局再逐条更新 `adaptations.mjs`**，禁止无条件覆盖新版文件。
 4. 编译 + 单测通过后把改动落回生产检出（确保主题目录与主题脚本未被上游覆盖）。
 5. 核对迁移：新迁移只增不删；记录 `schema_migrations` 最新版本与新增对象。
-6. 按第 5 节重新构建镜像并部署 8081，完成 Step 5 验证。
-7. 更新 `ROLLBACK.md`（见第 9 节）。
+6. 先更新 8080：执行 `docker compose pull sub2api` 拉取官方目标镜像，只修改 compose 中 `sub2api` 的官方 `image`，执行 `docker compose up -d --no-deps --force-recreate sub2api`；确认 8080 `/health=200`、容器 `healthy`、实际版本为目标版本且 `restarts=0` 后，才继续。随后按第 5 节重新构建并部署 8081，仍只更新 `sub2api-mito` 的 image 并带服务名与 `--no-deps`。8080 门禁失败时停止并恢复 8080；8081 失败时保留已验证的 8080，并只回滚 8081。两个应用之外的共享组件不得重建。
+7. 两端 `/health` 均为 200、容器均为 `healthy` 且 `restarts=0`；分别执行 `/app/sub2api --version`，核对 8080 为官方目标版本、8081 为同一官方版本基线且 commit 为本次合并提交，并验收 8081 定制功能与界面。更新 `ROLLBACK.md`，记录双实例升级前后镜像与各自回滚步骤（见第 9 节）。
 
 主题适配基线 commit 为 `a519cfeb66c253dd39d7728d20d55b7cf9f79897`（见 `themes/mito/README.md`），任何版本都不保证免适配。
 
@@ -266,11 +270,11 @@ node frontend/scripts/mito-theme.mjs remove   # 仅撤销接入点，保留主�
 
 - 本次发布：容器、镜像标签、源码 commit、compose 行号、上游版本
 - 当前与上一版（含更早稳定版）镜像标签，作为首选回滚点
-- 8080 全程未改动的说明
+- 日常定制记录 8080 全程未改动；版本升级记录双实例升级前后镜像、版本与各自回滚步骤
 - 数据库：已应用迁移清单、迁移前 `pg_dump` 备份路径、向前兼容说明
 - 备份文件清单
 
-回滚操作：
+以下为日常定制的 8081 回滚操作；版本升级须按任务记录逐个恢复受影响应用的旧镜像（8080 为旧官方镜像），每次带服务名与 `--no-deps`，并验证双实例健康，不回滚共享数据库：
 
 ```bash
 cd /data/sub2api-deploy
