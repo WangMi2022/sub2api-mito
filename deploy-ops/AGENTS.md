@@ -232,7 +232,7 @@ node frontend/scripts/mito-theme.mjs remove   # 仅撤销接入点，保留主�
 
 原点 `origin = https://github.com/ranxi2001/sub2api`，本地长期分支 `production`（当前基线已合并上游 `v2.17.2`）。**禁止 force push、禁止 rebase 已发布提交。**
 
-**版本升级必须按顺序更新双实例**：先执行 `docker compose pull sub2api`，让 8080 使用 `ghcr.io/ranxi2001/sub2api:<目标版本>` 官方镜像，并用 `docker compose up -d --no-deps --force-recreate sub2api` 更新；确认 8080 `/health=200`、容器 `healthy`、实际版本为目标版本且 `restarts=0` 后，再在已有定制分支上合并同一官方发布 tag，保留定制功能与界面，构建并发布 8081。8080 更新和核验期间保持旧版 8081 可用；8080 门禁失败时不得触碰 8081，8081 发布失败时保留 8080 官方实例并只回滚 8081。每次只重建一个应用服务并带 `--no-deps`，禁止重建共享 PostgreSQL/Redis。不得用官方镜像覆盖 8081，也不得只升级 8081 就宣告升级完成。
+**版本升级必须按顺序更新双实例**：先执行 `docker compose pull sub2api`，让 8080 使用 `ghcr.io/ranxi2001/sub2api:<目标版本>` 官方镜像；再执行 `docker compose up -d --no-deps --force-recreate sub2api`，确认 8080 `/health=200`、容器 `healthy`、实际版本为目标版本且 `restarts=0` 后，才在已有定制分支上合并同一官方发布 tag，保留定制功能与界面，构建并发布 8081。8080 更新与核验期间保持旧版 8081 可用；8080 门禁失败时不得触碰 8081，8081 发布失败时保留 8080 官方实例并按任务回滚材料恢复 8081。不得用官方镜像覆盖 8081，也不得只升级 8081 就宣告升级完成。每次只重建一个应用服务并带 `--no-deps`，禁止重建共享 PostgreSQL/Redis。
 
 1. 备份：打 `pre-<上游版本>-merge` tag / `backup/pre-<上游版本>-merge` 分支；备份 compose 与数据库，记录两个实例的镜像标签、镜像 ID、`StartedAt` 及 8081 的 dist。
 2. 用独立 worktree 合并，避免污染生产检出：
@@ -245,8 +245,8 @@ node frontend/scripts/mito-theme.mjs remove   # 仅撤销接入点，保留主�
    锚点或契约报错时，**先读新版布局再逐条更新 `adaptations.mjs`**，禁止无条件覆盖新版文件。
 4. 编译 + 单测通过后把改动落回生产检出（确保主题目录与主题脚本未被上游覆盖）。
 5. 核对迁移：新迁移只增不删；记录 `schema_migrations` 最新版本与新增对象。
-6. 先更新 8080：执行 `docker compose pull sub2api` 拉取官方目标镜像，只修改 compose 中 `sub2api` 的官方 `image`，执行 `docker compose up -d --no-deps --force-recreate sub2api`；确认 8080 `/health=200`、容器 `healthy`、实际版本为目标版本且 `restarts=0` 后，才继续。随后按第 5 节重新构建并部署 8081，仍只更新 `sub2api-mito` 的 image 并带服务名与 `--no-deps`。8080 门禁失败时停止并恢复 8080；8081 失败时保留已验证的 8080，并只回滚 8081。两个应用之外的共享组件不得重建。
-7. 两端 `/health` 均为 200、容器均为 `healthy` 且 `restarts=0`；分别执行 `/app/sub2api --version`，核对 8080 为官方目标版本、8081 为同一官方版本基线且 commit 为本次合并提交，并验收 8081 定制功能与界面。更新 `ROLLBACK.md`，记录双实例升级前后镜像与各自回滚步骤（见第 9 节）。
+6. 先更新 8080：执行 `docker compose pull sub2api` 拉取官方目标镜像，只修改 compose 中 `sub2api` 的官方 `image`，执行 `docker compose up -d --no-deps --force-recreate sub2api`；确认 8080 `/health=200`、容器 `healthy`、实际版本为目标版本且 `restarts=0` 后，才继续下一步。随后按第 5 节重新构建并部署 8081，仍只更新 `sub2api-mito` 的 image 并带服务名与 `--no-deps`。8080 门禁失败时停止并恢复 8080；8081 失败时保留已验证的 8080，并只回滚 8081。两个应用之外的共享组件不得重建。
+7. 两端 `/health` 均为 200、容器均为 `healthy` 且 `restarts=0`；分别执行 `/app/sub2api --version`，核对 8080 为官方目标版本、8081 为同一官方版本基线且 commit 为本次合并提交，并验收 8081 定制功能与界面。更新 `ROLLBACK.md`，记录 8080 先行、8081 后续的双实例升级前后镜像与各自回退步骤（见第 9 节）。
 
 主题适配基线 commit 为 `a519cfeb66c253dd39d7728d20d55b7cf9f79897`（见 `themes/mito/README.md`），任何版本都不保证免适配。
 
