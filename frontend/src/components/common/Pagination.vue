@@ -1,9 +1,6 @@
 <template>
   <div
-    :class="[
-      'flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 dark:border-dark-700 dark:bg-dark-800 sm:px-6',
-      variant === 'request-log' && 'mito-request-log-pagination'
-    ]"
+    class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 dark:border-dark-700 dark:bg-dark-800 sm:px-6"
   >
     <div class="flex flex-1 items-center justify-between sm:hidden">
       <!-- Mobile pagination -->
@@ -137,7 +134,6 @@ interface Props {
   pageSizeOptions?: number[]
   showPageSizeSelector?: boolean
   showJump?: boolean
-  variant?: 'default' | 'request-log'
 }
 
 interface Emits {
@@ -148,8 +144,7 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   pageSizeOptions: () => getConfiguredTablePageSizeOptions(),
   showPageSizeSelector: true,
-  showJump: false,
-  variant: 'default'
+  showJump: false
 })
 
 const emit = defineEmits<Emits>()

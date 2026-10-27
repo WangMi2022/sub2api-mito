@@ -1,22 +1,5 @@
 <template>
     <div class="space-y-6">
-      <StorageSettingsPanel
-        v-if="isMitoTheme"
-        v-model:s3="s3Form"
-        v-model:images="imageStorageForm"
-        :s3-secret-configured="s3SecretConfigured"
-        :image-secret-configured="imageStorageSecretConfigured"
-        :saving-s3="savingS3"
-        :testing-s3="testingS3"
-        :saving-images="savingImageStorage"
-        :testing-images="testingImageStorage"
-        @show-guide="showR2Guide = true"
-        @save-s3="saveS3Config"
-        @test-s3="testS3"
-        @save-images="saveImageStorageConfig"
-        @test-images="testImageStorage"
-      />
-      <template v-else>
       <!-- S3 Storage Config -->
       <div class="card p-6">
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -145,8 +128,6 @@
           </button>
         </div>
       </div>
-
-      </template>
 
       <!-- Schedule Config -->
       <div class="card p-6" data-testid="backup-schedule">
@@ -433,8 +414,6 @@
 </template>
 
 <script setup lang="ts">
-import StorageSettingsPanel from '@/themes/mito/settings/StorageSettingsPanel.vue'
-import { isMitoTheme } from '@/themes/mito'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { adminAPI } from '@/api'

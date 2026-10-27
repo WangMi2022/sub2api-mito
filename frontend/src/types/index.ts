@@ -257,8 +257,6 @@ export interface PublicSettings {
   site_logo: string
   site_subtitle: string
   home_background_image?: string
-  home_background_blur?: number
-  home_background_overlay?: number
   api_base_url: string
   contact_info: string
   doc_url: string

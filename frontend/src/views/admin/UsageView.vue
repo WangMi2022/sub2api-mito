@@ -1,10 +1,10 @@
 <template>
   <AppLayout>
-    <div class="mito-admin-usage space-y-6">
-      <UsageStatsCards v-if="activeTab !== 'traffic'" class="mito-admin-usage-stats" :stats="usageStats" />
+    <div class="space-y-6">
+      <UsageStatsCards v-if="activeTab !== 'traffic'" :stats="usageStats" />
       <!-- Charts Section -->
-      <div v-if="activeTab !== 'traffic'" class="mito-admin-usage-charts space-y-4">
-        <div class="mito-admin-usage-date card p-4">
+      <div v-if="activeTab !== 'traffic'" class="space-y-4">
+        <div class="card p-4">
           <div class="flex flex-wrap items-center gap-4">
             <div class="flex items-center gap-2">
               <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('admin.dashboard.timeRange') }}:</span>
@@ -68,14 +68,13 @@
         </div>
       </div>
       <!-- 明细区：tab 栏 + 筛选 + 内容收进同一张卡片，消除割裂感 -->
-      <div class="mito-admin-usage-panel card">
-        <div class="mito-admin-usage-tabs flex flex-wrap items-center border-b border-gray-200 px-2 dark:border-dark-700 sm:px-4">
+      <div class="card">
+        <div class="flex flex-wrap items-center border-b border-gray-200 px-2 dark:border-dark-700 sm:px-4">
           <button
             v-for="tab in detailTabs"
             :key="tab.key"
             type="button"
             data-testid="usage-detail-tab"
-            :aria-pressed="activeTab === tab.key"
             class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-3 text-sm font-medium transition-colors sm:px-4"
             :class="activeTab === tab.key
               ? 'border-primary-500 text-primary-600 dark:text-primary-400'
@@ -87,7 +86,7 @@
           </button>
         </div>
 
-        <UsageFilters v-if="activeTab !== 'traffic'" v-model="filters" ref="usageFiltersRef" flat :mode="activeTab" class="mito-admin-usage-filters border-b border-gray-100 dark:border-dark-700/50" :start-date="startDate" :end-date="endDate" :exporting="exporting" :model-options="modelNameOptions" @change="applyFilters" @refresh="refreshData" @reset="resetFilters" @cleanup="openCleanupDialog" @export="exportToExcel">
+        <UsageFilters v-if="activeTab !== 'traffic'" v-model="filters" ref="usageFiltersRef" flat :mode="activeTab" class="border-b border-gray-100 dark:border-dark-700/50" :start-date="startDate" :end-date="endDate" :exporting="exporting" :model-options="modelNameOptions" @change="applyFilters" @refresh="refreshData" @reset="resetFilters" @cleanup="openCleanupDialog" @export="exportToExcel">
           <template #after-reset>
             <div v-if="activeTab === 'usage' || activeTab === 'errors'" class="relative" ref="columnDropdownRef">
               <button
@@ -126,7 +125,7 @@
           </template>
         </UsageFilters>
 
-        <div v-show="activeTab === 'usage'" class="mito-admin-usage-records overflow-hidden rounded-b-2xl">
+        <div v-show="activeTab === 'usage'" class="overflow-hidden rounded-b-2xl">
           <UsageTable
             enable-timing-details
             flat
@@ -141,7 +140,7 @@
             @userClick="handleUserClick"
             @ipGeoBatchFailed="handleIpGeoBatchFailed"
           />
-          <Pagination class="mito-admin-usage-pagination" v-if="pagination.total > 0" :page="pagination.page" :total="pagination.total" :page-size="pagination.page_size" @update:page="handlePageChange" @update:pageSize="handlePageSizeChange" />
+          <Pagination v-if="pagination.total > 0" :page="pagination.page" :total="pagination.total" :page-size="pagination.page_size" @update:page="handlePageChange" @update:pageSize="handlePageSizeChange" />
         </div>
         <div v-show="activeTab === 'errors'" class="overflow-hidden rounded-b-2xl">
           <OpsErrorLogTable
@@ -211,10 +210,7 @@ import { formatUsageCacheRate, showUsageCacheRate } from '@/utils/usageCacheRate
 import { resolveUsageRequestType, requestTypeToLegacyStream } from '@/utils/usageRequestType'
 import AppLayout from '@/components/layout/AppLayout.vue'; import Pagination from '@/components/common/Pagination.vue'; import Select from '@/components/common/Select.vue'; import DateRangePicker from '@/components/common/DateRangePicker.vue'
 import UsageStatsCards from '@/components/admin/usage/UsageStatsCards.vue'; import UsageFilters from '@/components/admin/usage/UsageFilters.vue'
-// mito-theme: the admin usage list reuses the request-log presentation.
-import UsageTable from '@/themes/mito/AdminRequestLogTable.vue'
-import { useAdminUsageColumns, ADMIN_USAGE_DEFAULT_HIDDEN_COLUMNS } from '@/themes/mito/adminRequestLogColumns'
-import UsageExportProgress from '@/components/admin/usage/UsageExportProgress.vue'
+import UsageTable from '@/components/admin/usage/UsageTable.vue'; import UsageExportProgress from '@/components/admin/usage/UsageExportProgress.vue'
 import UsageConnections from '@/components/admin/usage/UsageConnections.vue'
 import TrafficPanel from '@/components/usage/TrafficPanel.vue'
 import UserTokenRanking from '@/components/admin/usage/UserTokenRanking.vue'
@@ -660,14 +656,32 @@ const exportToExcel = async () => {
 
 // Column visibility
 const ALWAYS_VISIBLE = ['user', 'created_at']
-const DEFAULT_HIDDEN_COLUMNS = [...ADMIN_USAGE_DEFAULT_HIDDEN_COLUMNS]
+const DEFAULT_HIDDEN_COLUMNS = ['request_id', 'upstream_request_id', 'user_agent']
 const HIDDEN_COLUMNS_KEY = 'usage-hidden-columns'
 const HIDDEN_COLUMNS_VERSION_KEY = 'usage-hidden-columns-version'
 // 隐藏列版本链：每级只把当级新增列加入隐藏集，不重置用户已显式打开的列。
 const HIDDEN_COLUMNS_PREV_VERSION = 'request-id-hidden-by-default'
-const HIDDEN_COLUMNS_CURRENT_VERSION = 'admin-request-log-columns-v2'
+const HIDDEN_COLUMNS_CURRENT_VERSION = 'upstream-request-id-hidden-by-default'
 
-const allColumns = useAdminUsageColumns()
+const allColumns = computed(() => [
+  { key: 'user', label: t('admin.usage.user'), sortable: false },
+  { key: 'api_key', label: t('usage.apiKeyFilter'), sortable: false },
+  { key: 'account', label: t('admin.usage.account'), sortable: false },
+  { key: 'model', label: t('usage.model'), sortable: true },
+  { key: 'reasoning_effort', label: t('usage.reasoningEffort'), sortable: false },
+  { key: 'endpoint', label: t('usage.endpoint'), sortable: false },
+  { key: 'group', label: t('admin.usage.group'), sortable: false },
+  { key: 'stream', label: t('usage.type'), sortable: false },
+  { key: 'billing_mode', label: t('admin.usage.billingMode'), sortable: false },
+  { key: 'tokens', label: t('usage.tokens'), sortable: false },
+  { key: 'cost', label: t('usage.cost'), sortable: false },
+  { key: 'latency', label: t('usage.latency'), sortable: false },
+  { key: 'created_at', label: t('usage.time'), sortable: true },
+  { key: 'request_id', label: t('admin.usage.requestId'), sortable: false },
+  { key: 'upstream_request_id', label: t('admin.usage.upstreamRequestId'), sortable: false },
+  { key: 'user_agent', label: t('usage.userAgent'), sortable: false },
+  { key: 'ip_address', label: t('admin.usage.ipAddress'), sortable: false }
+])
 
 // Upstream v2.11.0 adds usage_show_cache_rate_to_users (default: admin-only).
 // The request-log theme renders cache rate as its own column, so the same switch
@@ -789,7 +803,6 @@ const loadSavedColumns = () => {
           hiddenColumns.add('request_id')
         }
         hiddenColumns.add('upstream_request_id')
-        DEFAULT_HIDDEN_COLUMNS.forEach((key) => hiddenColumns.add(key))
         localStorage.setItem(HIDDEN_COLUMNS_KEY, JSON.stringify([...hiddenColumns]))
         localStorage.setItem(HIDDEN_COLUMNS_VERSION_KEY, HIDDEN_COLUMNS_CURRENT_VERSION)
       }

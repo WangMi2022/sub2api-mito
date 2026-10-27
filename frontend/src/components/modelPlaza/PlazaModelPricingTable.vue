@@ -1,11 +1,5 @@
 <template>
-  <div
-    class="mito-plaza-prices plaza-pricing-table overflow-x-auto"
-    :style="accentStyle"
-    tabindex="0"
-    role="region"
-    :aria-label="t('modelPlaza.title')"
-  >
+  <div class="plaza-pricing-table overflow-x-auto" :style="accentStyle">
     <table class="w-full min-w-[1000px] table-auto border-collapse text-sm tabular-nums">
       <colgroup>
         <col class="w-[25%]" />
@@ -23,12 +17,11 @@
         >
           <th
             rowspan="2"
-            scope="col"
-            class="mito-plaza-model-col border-r border-gray-100 py-2.5 pl-5 pr-4 text-left align-middle dark:border-dark-700/60"
+            class="border-r border-gray-100 py-2.5 pl-5 pr-4 text-left align-middle dark:border-dark-700/60"
           >
             {{ t('modelPlaza.table.model') }}
           </th>
-          <th colspan="3" scope="colgroup" class="mito-plaza-paid-heading pz-bg pt-2 text-center">
+          <th colspan="3" class="pz-bg pt-2 text-center">
             <div class="pz-title border-b pb-2 font-semibold">
               {{ t('modelPlaza.table.paidPrice') }}
               <span class="pz-unit ml-1 normal-case font-normal">{{ t('modelPlaza.table.unitPerMillion') }}</span>
@@ -36,8 +29,7 @@
           </th>
           <th
             colspan="3"
-            scope="colgroup"
-            class="mito-plaza-official-heading border-l border-gray-100 pt-2 text-center dark:border-dark-700/60"
+            class="border-l border-gray-100 pt-2 text-center dark:border-dark-700/60"
           >
             <div class="border-b border-gray-200 pb-2 text-gray-400 dark:border-dark-600 dark:text-dark-500">
               {{ t('modelPlaza.table.officialPrice') }}
@@ -46,8 +38,7 @@
           </th>
           <th
             rowspan="2"
-            scope="col"
-            class="mito-plaza-rate-col border-l border-gray-100 py-2.5 pl-3 pr-5 text-right align-middle dark:border-dark-700/60"
+            class="border-l border-gray-100 py-2.5 pl-3 pr-5 text-right align-middle dark:border-dark-700/60"
           >
             {{ t('modelPlaza.table.rate') }}
           </th>
@@ -55,14 +46,14 @@
         <tr
           class="border-b border-gray-200 text-left text-[11px] font-medium uppercase leading-4 tracking-wide text-gray-400 dark:border-dark-700 dark:text-dark-500"
         >
-          <th scope="col" class="pz-bg px-3 py-2 font-medium">{{ t('modelPlaza.table.input') }}</th>
-          <th scope="col" class="pz-bg px-3 py-2 font-medium">{{ t('modelPlaza.table.output') }}</th>
-          <th scope="col" class="pz-bg px-3 py-2 font-medium">{{ t('modelPlaza.table.cache') }}</th>
-          <th scope="col" class="mito-plaza-official-col border-l border-gray-100 px-3 py-2 font-medium dark:border-dark-700/60">
+          <th class="pz-bg px-3 py-2 font-medium">{{ t('modelPlaza.table.input') }}</th>
+          <th class="pz-bg px-3 py-2 font-medium">{{ t('modelPlaza.table.output') }}</th>
+          <th class="pz-bg px-3 py-2 font-medium">{{ t('modelPlaza.table.cache') }}</th>
+          <th class="border-l border-gray-100 px-3 py-2 font-medium dark:border-dark-700/60">
             {{ t('modelPlaza.table.input') }}
           </th>
-          <th scope="col" class="mito-plaza-official-col px-3 py-2 font-medium">{{ t('modelPlaza.table.output') }}</th>
-          <th scope="col" class="mito-plaza-official-col px-3 py-2 font-medium">{{ t('modelPlaza.table.cache') }}</th>
+          <th class="px-3 py-2 font-medium">{{ t('modelPlaza.table.output') }}</th>
+          <th class="px-3 py-2 font-medium">{{ t('modelPlaza.table.cache') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -72,9 +63,9 @@
           class="border-b border-gray-100 transition-colors last:border-b-0 hover:bg-gray-50/70 dark:border-dark-800 dark:hover:bg-dark-800/50"
         >
           <!-- 模型名 + 非 token 计费模式徽章;分时时段行额外标注时段 -->
-          <td class="mito-plaza-model-col border-r border-gray-100 py-2.5 pl-5 pr-4 align-middle dark:border-dark-700/60">
+          <td class="border-r border-gray-100 py-2.5 pl-5 pr-4 align-middle dark:border-dark-700/60">
             <div class="flex flex-wrap items-center gap-1.5">
-              <span class="mito-plaza-model-name font-medium text-gray-900 dark:text-white">{{ m.name }}</span>
+              <span class="font-medium text-gray-900 dark:text-white">{{ m.name }}</span>
               <!-- 时段徽章紧跟模型名,其余徽章排在后面,空间不足时先换行的是它们 -->
               <span
                 v-if="period"
@@ -219,7 +210,7 @@
 
           <!-- 官方价格(参考价,不乘倍率;官方有阶梯时每档一行) -->
           <td
-            class="mito-plaza-official-col border-l border-gray-100 px-3 py-2.5 align-middle font-mono text-xs text-gray-500 dark:border-dark-700/60 dark:text-dark-400"
+            class="border-l border-gray-100 px-3 py-2.5 align-middle font-mono text-xs text-gray-500 dark:border-dark-700/60 dark:text-dark-400"
           >
             <template v-if="officialIntervals(m).length">
               <div
@@ -233,7 +224,7 @@
             </template>
             <template v-else>{{ official(m.official_pricing?.input_price) }}</template>
           </td>
-          <td class="mito-plaza-official-col px-3 py-2.5 align-middle font-mono text-xs text-gray-500 dark:text-dark-400">
+          <td class="px-3 py-2.5 align-middle font-mono text-xs text-gray-500 dark:text-dark-400">
             <template v-if="officialIntervals(m).length">
               <div
                 v-for="(iv, idx) in officialIntervals(m)"
@@ -246,7 +237,7 @@
             </template>
             <template v-else>{{ official(m.official_pricing?.output_price) }}</template>
           </td>
-          <td class="mito-plaza-official-col px-3 py-2.5 align-middle">
+          <td class="px-3 py-2.5 align-middle">
             <template v-if="hasTierCachePricing(officialIntervals(m))">
               <div
                 v-for="(iv, idx) in officialIntervals(m)"
@@ -289,7 +280,7 @@
 
           <!-- 折扣倍率(分时时段行展示 生效倍率×时段倍率;生图独立倍率行展示独立倍率;专属倍率划线展示原倍率) -->
           <td
-            class="mito-plaza-rate-col border-l border-gray-100 py-2.5 pl-3 pr-5 text-right align-middle font-mono text-xs dark:border-dark-700/60"
+            class="border-l border-gray-100 py-2.5 pl-3 pr-5 text-right align-middle font-mono text-xs dark:border-dark-700/60"
           >
             <span
               v-if="period"
