@@ -1,13 +1,12 @@
 <template>
-  <div class="mito-locale-switcher relative" ref="dropdownRef">
+  <div class="relative" ref="dropdownRef">
     <button
       @click="toggleDropdown"
       :disabled="switching"
       class="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-dark-700"
       :title="currentLocale?.name"
     >
-      <svg v-if="isMitoTheme" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a17 17 0 0 1 0 18 17 17 0 0 1 0-18Z" /></svg>
-      <span class="mito-locale-flag text-base">{{ currentLocale?.flag }}</span>
+      <span class="text-base">{{ currentLocale?.flag }}</span>
       <span class="hidden sm:inline">{{ currentLocale?.code.toUpperCase() }}</span>
       <Icon
         name="chevronDown"
@@ -47,7 +46,6 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Icon from '@/components/icons/Icon.vue'
 import { setLocale, availableLocales } from '@/i18n'
-import { isMitoTheme } from '@/themes/mito'
 
 const { locale } = useI18n()
 
