@@ -275,6 +275,7 @@ import { sanitizeUrl } from '@/utils/url'
 import { FeatureFlags, makeSidebarFlag } from '@/utils/featureFlags'
 import { resolveSiteBillingMode } from '@/utils/siteBillingMode'
 import { useBatchImageAccess } from '@/composables/useBatchImageAccess'
+import { getCustomMenuLabel } from '@/utils/customMenu'
 
 interface NavItem {
   path: string
@@ -316,7 +317,7 @@ function applyFeatureFlags(items: NavItem[]): NavItem[] {
   return out
 }
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
@@ -858,7 +859,7 @@ function buildSelfNavItems(withDashboard: boolean): NavItem[] {
   )
   attachCustomMenuItems(items, customMenuItemsForUser.value, (menu): NavItem => ({
     path: `/custom/${menu.id}`,
-    label: menu.label,
+    label: getCustomMenuLabel(menu, locale.value),
     icon: null,
     iconSvg: menu.icon_svg,
   }))
@@ -987,14 +988,14 @@ const adminNavItems = computed((): NavItem[] => {
     filtered.push({ path: '/keys', label: t('nav.apiKeys'), icon: KeyIcon })
     filtered.push({ path: '/admin/settings', label: t('nav.settings'), icon: CogIcon })
     attachCustomMenuItems(filtered, customMenuItemsForAdmin.value, (menu): NavItem => ({
-      path: `/custom/${menu.id}`, label: menu.label, icon: null, iconSvg: menu.icon_svg
+      path: `/custom/${menu.id}`, label: getCustomMenuLabel(menu, locale.value), icon: null, iconSvg: menu.icon_svg
     }))
     return applyMitoSidebarSections(filtered, t)
   }
 
   visible.push({ path: '/admin/settings', label: t('nav.settings'), icon: CogIcon })
   attachCustomMenuItems(visible, customMenuItemsForAdmin.value, (menu): NavItem => ({
-    path: `/custom/${menu.id}`, label: menu.label, icon: null, iconSvg: menu.icon_svg
+    path: `/custom/${menu.id}`, label: getCustomMenuLabel(menu, locale.value), icon: null, iconSvg: menu.icon_svg
   }))
   return applyMitoSidebarSections(visible, t)
 })
