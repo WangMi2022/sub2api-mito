@@ -31,13 +31,6 @@ export function isKnownSidebarParent(value: string | null | undefined): boolean 
   return Boolean(value) && SIDEBAR_PARENT_OPTIONS.some((option) => option.value === value)
 }
 
-interface CustomMenuLike {
-  id: string
-  label: string
-  icon_svg: string
-  parent_id?: string | null
-}
-
 interface NavItemLike {
   path: string
   children?: unknown[]
@@ -70,3 +63,5 @@ export function attachCustomMenuItems<T extends NavItemLike>(
   }
   return items
 }
+import type { CustomMenuLike } from '@/utils/customMenu'
+

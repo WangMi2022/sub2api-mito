@@ -247,9 +247,9 @@ export const adaptations = [
   {
     path: 'frontend/src/views/user/UsageView.vue',
     edits: [
-      { before: "    <div class=\"space-y-6\">", after: "    <div class=\"mito-usage-view space-y-6\">" },
-      { before: "      <div class=\"card p-6\">", after: "      <div class=\"mito-request-log-filters card p-6\">" },
-      { before: "<div v-if=\"errorViewEnabled\" class=\"flex gap-2", after: "<div v-if=\"errorViewEnabled\" class=\"mito-request-log-tabs flex gap-2" },
+      { before: "  <AppLayout>\n    <div class=\"space-y-6\">", after: "  <AppLayout>\n    <div class=\"mito-usage-view space-y-6\">" },
+      { before: "      <div v-if=\"activeTab !== 'traffic'\" class=\"card p-6\">", after: "      <div v-if=\"activeTab !== 'traffic'\" class=\"mito-request-log-filters card p-6\">" },
+      { before: "<button v-if=\"errorViewEnabled\" class=\"tab\"", after: "<button v-if=\"errorViewEnabled\" class=\"mito-request-log-tabs tab\"" },
       { before: "      <template v-if=\"activeTab === 'usage'\">\n        <UsageTable\n          :data=\"usageLogs\"\n          :loading=\"loading\"\n          :columns=\"visibleColumns\"\n          :server-side-sort=\"true\"\n          :show-account-billing=\"false\"\n          :show-upstream-endpoint=\"false\"\n          cache-rate-audience=\"user\"\n          default-sort-key=\"created_at\"\n          default-sort-order=\"desc\"\n          @sort=\"handleSort\"\n          @ipGeoBatchFailed=\"handleIpGeoBatchFailed\"\n        />\n\n        <Pagination\n          v-if=\"pagination.total > 0\"\n          :page=\"pagination.page\"\n          :total=\"pagination.total\"\n          :page-size=\"pagination.page_size\"\n          @update:page=\"handlePageChange\"\n          @update:pageSize=\"handlePageSizeChange\"\n        />\n      </template>\n", after: "      <template v-if=\"activeTab === 'usage'\">\n        <div class=\"mito-request-log-section space-y-6\">\n          <UsageTable\n            variant=\"request-log\"\n            :data=\"usageLogs\"\n            :loading=\"loading\"\n            :columns=\"visibleColumns\"\n            :server-side-sort=\"true\"\n            :show-account-billing=\"false\"\n            :show-upstream-endpoint=\"false\"\n            cache-rate-audience=\"user\"\n            default-sort-key=\"created_at\"\n            default-sort-order=\"desc\"\n            @sort=\"handleSort\"\n            @ipGeoBatchFailed=\"handleIpGeoBatchFailed\"\n          />\n\n          <Pagination\n            v-if=\"pagination.total > 0\"\n            variant=\"request-log\"\n            :page=\"pagination.page\"\n            :total=\"pagination.total\"\n            :page-size=\"pagination.page_size\"\n            @update:page=\"handlePageChange\"\n            @update:pageSize=\"handlePageSizeChange\"\n          />\n        </div>\n      </template>\n" }
     ]
   },
@@ -506,9 +506,9 @@ export const adaptations = [
   {
     path: 'frontend/src/views/admin/UsageView.vue',
     edits: [
-      {"before":"<div class=\"space-y-6\">","after":"<div class=\"mito-admin-usage space-y-6\">"},
-      {"before":"<UsageStatsCards :stats=\"usageStats\" />","after":"<UsageStatsCards class=\"mito-admin-usage-stats\" :stats=\"usageStats\" />"},
-      {"before":"<div class=\"space-y-4\">","after":"<div class=\"mito-admin-usage-charts space-y-4\">"},
+      {"before":"  <AppLayout>\n    <div class=\"space-y-6\">","after":"  <AppLayout>\n    <div class=\"mito-admin-usage space-y-6\">"},
+      {"before":"<UsageStatsCards v-if=\"activeTab !== 'traffic'\" :stats=\"usageStats\" />","after":"<UsageStatsCards v-if=\"activeTab !== 'traffic'\" class=\"mito-admin-usage-stats\" :stats=\"usageStats\" />"},
+      {"before":"      <!-- Charts Section -->\n      <div v-if=\"activeTab !== 'traffic'\" class=\"space-y-4\">","after":"      <!-- Charts Section -->\n      <div v-if=\"activeTab !== 'traffic'\" class=\"mito-admin-usage-charts space-y-4\">"},
       {"before":"<div class=\"card p-4\">","after":"<div class=\"mito-admin-usage-date card p-4\">"},
       {"before":"<div class=\"card\">","after":"<div class=\"mito-admin-usage-panel card\">"},
       {"before":"<div class=\"flex flex-wrap items-center border-b border-gray-200 px-2 dark:border-dark-700 sm:px-4\">","after":"<div class=\"mito-admin-usage-tabs flex flex-wrap items-center border-b border-gray-200 px-2 dark:border-dark-700 sm:px-4\">"},
@@ -527,20 +527,20 @@ export const adaptations = [
     "path": "frontend/src/components/admin/usage/UsageFilters.vue",
     "edits": [
       {
-        "before": "class=\"flex flex-wrap items-end justify-between gap-4\"",
-        "after": "class=\"mito-filter-layout mito-usage-filter-layout flex flex-wrap items-end justify-between gap-4\""
+        "before": "<!-- Toolbar: left filters (multi-line) + right actions -->\n    <div class=\"flex flex-wrap items-end justify-between gap-4\">",
+        "after": "<!-- Toolbar: left filters (multi-line) + right actions -->\n    <div class=\"mito-filter-layout mito-usage-filter-layout flex flex-wrap items-end justify-between gap-4\">"
       },
       {
-        "before": "class=\"flex flex-1 flex-wrap items-end gap-4\"",
-        "after": "v-show=\"expanded\" :id=\"panelId\" class=\"mito-filter-fields mito-usage-filter-fields flex flex-1 flex-wrap items-end gap-4\""
+        "before": "<!-- Left: filters (allowed to wrap to multiple rows) -->\n      <div class=\"flex flex-1 flex-wrap items-end gap-4\">",
+        "after": "<!-- Left: filters (allowed to wrap to multiple rows) -->\n      <div v-show=\"expanded\" :id=\"panelId\" class=\"mito-filter-fields mito-usage-filter-fields flex flex-1 flex-wrap items-end gap-4\">"
       },
       {
-        "before": "class=\"flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto\"",
-        "after": "class=\"mito-filter-actions mito-usage-filter-actions flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto\""
+        "before": "<!-- Right: actions -->\n      <div v-if=\"showActions\" class=\"flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto\">",
+        "after": "<!-- Right: actions -->\n      <div v-if=\"showActions\" class=\"mito-filter-actions mito-usage-filter-actions flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto\">"
       },
       {
-        "before": "<div :class=\"flat ? 'p-4 sm:p-6' : 'card p-6'\">",
-        "after": "<MitoFilterSection v-slot=\"{ expanded, panelId }\" :selected-count=\"activeFilterCount\" :class=\"flat ? 'p-4 sm:p-6' : 'card p-6'\">"
+        "before": "<div :class=\"identityOnly ? 'w-full lg:w-auto' : flat ? 'p-4 sm:p-6' : 'card p-6'\">",
+        "after": "<MitoFilterSection v-slot=\"{ expanded, panelId }\" :selected-count=\"activeFilterCount\" :class=\"identityOnly ? 'w-full lg:w-auto' : flat ? 'p-4 sm:p-6' : 'card p-6'\">"
       },
       {
         "before": "    </div>\n  </div>\n</template>",
