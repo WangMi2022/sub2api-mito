@@ -317,10 +317,10 @@ func TestCanonicalOpenAIAccountSchedulingModelMatchesForwardSemantics(t *testing
 			want:  "public",
 		},
 		{
-			name:    "Grok OAuth uses Grok cross-client mapping",
+			name:    "Grok OAuth does not inherit OpenAI Codex aliases",
 			account: &Account{Platform: PlatformGrok, Type: AccountTypeOAuth},
 			model:   "gpt-5.6",
-			want:    "grok-4.6",
+			want:    "gpt-5.6",
 		},
 	}
 
