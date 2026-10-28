@@ -1,9 +1,5 @@
 <template>
-  <div
-    v-if="!isDesktopViewport"
-    class="mito-mobile-table space-y-3"
-    :class="{ 'mito-request-log-mobile': tableVariant === 'request-log' }"
-  >
+  <div v-if="!isDesktopViewport" class="space-y-3">
     <template v-if="loading">
       <div v-for="i in 5" :key="i" class="rounded-lg border border-gray-200 bg-white p-4 dark:border-dark-700 dark:bg-dark-900">
         <div class="space-y-3">
@@ -83,7 +79,7 @@
         class="rounded-lg border border-gray-200 bg-white p-4 dark:border-dark-700 dark:bg-dark-900"
         :class="{
           'cursor-pointer': clickableRows,
-          'mito-row-selected border-primary-300 bg-primary-50/40 dark:border-primary-700 dark:bg-primary-900/10': selectable && isRowSelected(row, index)
+          'border-primary-300 bg-primary-50/40 dark:border-primary-700 dark:bg-primary-900/10': selectable && isRowSelected(row, index)
         }"
         @click="clickableRows && emit('rowClick', row)"
       >
@@ -128,22 +124,10 @@
     class="table-wrapper"
     :class="{
       'actions-expanded': actionsExpanded,
-      'is-scrollable': isScrollable,
-      'mito-request-log-wrapper': tableVariant === 'request-log',
-      'mito-table-resizing': resizingKey !== null
+      'is-scrollable': isScrollable
     }"
-    :style="columnWrapperStyle"
   >
-    <div v-if="tableVariant === 'request-log' && loading" class="mito-request-log-progress" aria-hidden="true"></div>
-    <table
-      class="w-full min-w-max divide-y divide-gray-200 dark:divide-dark-700"
-      :class="{ 'mito-request-log-table': tableVariant === 'request-log', 'mito-resizable-table': resizableColumns }"
-      :style="columnTableStyle"
-    >
-      <colgroup v-if="resizableColumns">
-        <col v-if="selectable" style="width: 44px" />
-        <col v-for="column in columns" :key="column.key" :data-column-key="column.key" :style="{ width: getColumnWidth(column) + 'px' }" />
-      </colgroup>
+    <table class="w-full min-w-max divide-y divide-gray-200 dark:divide-dark-700">
       <thead class="table-header bg-gray-50 dark:bg-dark-800">
         <tr>
           <th
@@ -164,7 +148,6 @@
           <th
             v-for="(column, index) in columns"
             :key="column.key"
-            :data-column-key="column.key"
             scope="col"
             :aria-sort="column.sortable ? getColumnAriaSort(column.key) : undefined"
             :class="[
@@ -208,31 +191,10 @@
                 </svg>
               </span>
             </div>
-            <div
-              v-if="canResizeColumn(column)"
-              role="separator"
-              tabindex="0"
-              class="mito-column-resize-handle"
-              :class="{ 'mito-column-resize-handle--active': resizingKey === column.key }"
-              aria-orientation="vertical"
-              :aria-label="resizeLabel('resizeColumn', { column: column.label })"
-              :aria-valuemin="getColumnBounds(column).min"
-              :aria-valuemax="getColumnBounds(column).max"
-              :aria-valuenow="getColumnWidth(column)"
-              :aria-valuetext="resizeLabel('columnWidth', { width: getColumnWidth(column) })"
-              :title="resizeLabel('resizeColumnHint', { column: column.label })"
-              @pointerdown.stop="startColumnResize($event, column)"
-              @keydown.stop="handleColumnResizeKey($event, column)"
-              @click.stop
-              @dblclick.stop.prevent="resetColumnWidth(column)"
-            ></div>
           </th>
         </tr>
       </thead>
-      <tbody
-        class="table-body divide-y divide-gray-200 bg-white dark:divide-dark-700 dark:bg-dark-900"
-        :class="{ 'mito-request-log-loading': tableVariant === 'request-log' && loading }"
-      >
+      <tbody class="table-body divide-y divide-gray-200 bg-white dark:divide-dark-700 dark:bg-dark-900">
         <!-- Loading skeleton -->
         <tr v-if="loading" v-for="i in 5" :key="i">
           <td v-if="selectable" class="w-11 min-w-11 px-3 py-4">
@@ -282,7 +244,7 @@
             class="hover:bg-gray-50 dark:hover:bg-dark-800"
             :class="{
               'cursor-pointer': clickableRows,
-              'mito-row-selected bg-primary-50/40 dark:bg-primary-900/10': selectable && isRowSelected(item.row, item.index)
+              'bg-primary-50/40 dark:bg-primary-900/10': selectable && isRowSelected(item.row, item.index)
             }"
             @click="clickableRows && emit('rowClick', item.row)"
           >
@@ -300,7 +262,6 @@
             <td
               v-for="(column, colIndex) in columns"
               :key="column.key"
-              :data-column-key="column.key"
               :class="[
                 'whitespace-nowrap py-4 text-sm text-gray-900 dark:text-gray-100',
                 getAdaptivePaddingClass(),
@@ -335,8 +296,6 @@ import { useVirtualizer, observeElementRect as observeElementRectDefault } from 
 import { useI18n } from 'vue-i18n'
 import type { Column } from './types'
 import Icon from '@/components/icons/Icon.vue'
-import { useTableColumnResize } from '@/themes/mito/useTableColumnResize'
-import { useMitoLabels } from '@/themes/mito/labels'
 
 const { t } = useI18n()
 
@@ -536,12 +495,6 @@ interface Props {
   virtualizeThreshold?: number
   /** Enable controlled row selection. Stable row keys are strongly recommended. */
   selectable?: boolean
-  /** Optional visual variant; default preserves the shared table style. */
-  tableVariant?: 'default' | 'request-log'
-  /** Allow resizing desktop columns; disabled unless a page opts in. */
-  resizableColumns?: boolean
-  /** Persist column widths independently of visibility and sorting. */
-  columnWidthStorageKey?: string
   /** Selected row keys. Keys outside the current data page are preserved. */
   selectedKeys?: Array<string | number>
   /** Accessible label for a row selection checkbox. */
@@ -556,28 +509,8 @@ const props = withDefaults(defineProps<Props>(), {
   defaultSortOrder: 'asc',
   serverSideSort: false,
   selectable: false,
-  selectedKeys: () => [],
-  tableVariant: 'default',
-  resizableColumns: false
+  selectedKeys: () => []
 })
-
-const resizeLabel = useMitoLabels()
-const {
-  columnTableStyle, columnWrapperStyle, resizingKey, getColumnWidth, getColumnBounds,
-  canResizeColumn, startColumnResize, handleColumnResizeKey, resetColumnWidth
-} = useTableColumnResize({
-  wrapper: tableWrapperRef,
-  columns: () => props.columns,
-  enabled: () => props.resizableColumns && isDesktopViewport.value,
-  storageKey: () => props.columnWidthStorageKey,
-  selectable: () => props.selectable
-})
-
-watch(columnTableStyle, async () => {
-  await nextTick()
-  checkScrollable()
-  checkActionsColumnWidth()
-}, { flush: 'post' })
 
 const sortKey = ref<string>('')
 const sortOrder = ref<'asc' | 'desc'>('asc')
