@@ -13,13 +13,13 @@ func ProvideRedeemService(redeemRepo RedeemCodeRepository, userRepo UserReposito
 
 func ProvideAdminService(
 	cfg *config.Config, users UserRepository, groups AdminGroupRepository, accounts AdminAccountRepository,
-	proxies ProxyRepository, keys APIKeyRepository, codes RedeemCodeRepository, rates UserGroupRateRepository,
+	proxies ProxyRepository, keys APIKeyRepository, codes RedeemCodeRepository, rates UserGroupRateRepository, userGroups UserGroupRepository,
 	rpm UserRPMCache, billing *BillingCacheService, prober ProxyExitInfoProber, latency ProxyLatencyCache,
 	auth APIKeyAuthCacheInvalidator, client *dbent.Client, settings *SettingService, assigner DefaultSubscriptionAssigner,
 	subs UserSubscriptionRepository, privacy PrivacyClientFactory, blocker AccountRuntimeBlocker, affiliate *AffiliateService,
 	routes CompositeModelRouteRepository, resolver *CompositeRouteResolver, channels ChannelCacheInvalidator, lottery *LotteryService,
 ) AdminService {
-	s := NewAdminService(cfg, users, groups, accounts, proxies, keys, codes, rates, rpm, billing, prober, latency, auth, client, settings, assigner, subs, privacy, blocker, affiliate, routes, resolver, channels)
+	s := NewAdminService(cfg, users, groups, accounts, proxies, keys, codes, rates, userGroups, rpm, billing, prober, latency, auth, client, settings, assigner, subs, privacy, blocker, affiliate, routes, resolver, channels)
 	impl, ok := s.(*adminServiceImpl)
 	if !ok {
 		panic("unexpected AdminService implementation")
