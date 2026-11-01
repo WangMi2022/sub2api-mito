@@ -564,8 +564,8 @@ export const adaptations = [
         "after": "<div ref=\"accountTableRef\" class=\"mito-accounts-table flex min-h-0 flex-1 flex-col overflow-hidden\">"
       },
       {
-        "before": "<template #cell-name=\"{ row, value }\">\n            <div class=\"flex flex-col\">",
-        "after": "<template #cell-name=\"{ row, value }\">\n            <div class=\"mito-account-identity flex flex-col\">"
+        "before": "<template #cell-name=\"{ row, value }\">\n            <a v-if=\"row.upstream_channel_binding\" href=\"/admin/upstream-channels\" class=\"block text-xs text-primary-600\" data-testid=\"account-current-upstream\">{{ row.upstream_channel_binding.channel ? `${row.upstream_channel_binding.channel.name} · ${row.upstream_channel_binding.channel.code}` : t('upstreamEntities.unbound') }}</a>\n            <div class=\"flex flex-col\">",
+        "after": "<template #cell-name=\"{ row, value }\">\n            <a v-if=\"row.upstream_channel_binding\" href=\"/admin/upstream-channels\" class=\"block text-xs text-primary-600\" data-testid=\"account-current-upstream\">{{ row.upstream_channel_binding.channel ? `${row.upstream_channel_binding.channel.name} · ${row.upstream_channel_binding.channel.code}` : t('upstreamEntities.unbound') }}</a>\n            <div class=\"mito-account-identity flex flex-col\">"
       },
       {
         "before": "<template #cell-platform_type=\"{ row }\">\n            <div class=\"flex min-w-0 flex-col gap-1\">",
