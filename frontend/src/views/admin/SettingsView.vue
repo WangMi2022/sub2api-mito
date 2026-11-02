@@ -9882,7 +9882,7 @@ const openAIResponseHeaderTimeoutLoading = ref(true);
 const openAIResponseHeaderTimeoutLoadFailed = ref(false);
 const openAIResponseHeaderTimeoutSaving = ref(false);
 const openAIResponseHeaderTimeoutForm = reactive({
-  enabled: true,
+  enabled: false,
   seconds: 20,
 });
 
