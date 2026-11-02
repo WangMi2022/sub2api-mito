@@ -595,7 +595,7 @@ describe('admin UsageView request ID column visibility', () => {
     )
     expect(localStorage.setItem).toHaveBeenCalledWith(
       'usage-hidden-columns-version',
-      'upstream-request-id-hidden-by-default',
+      'admin-request-log-columns-v2',
     )
 
     const reasoningColumnToggle = wrapper.findAll('button').find((button) => button.text() === 'First reasoning event')
