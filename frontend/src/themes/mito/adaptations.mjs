@@ -988,6 +988,24 @@ for (const seam of [
         "after": "  modelPlaza: {\n    market: {\n      \"total\": \"Currently enabled on this site: {count} models\",\n      \"subtitle\": \"Explore AI models. Compare prices and live status to find the right fit for your work.\",\n      \"search\": \"Search models, providers, endpoints or tags…\",\n      \"filters\": \"Filters\",\n      \"filterHint\": \"Refine models by provider, group, pricing and tags.\",\n      \"reset\": \"Reset\",\n      \"expand\": \"Expand\",\n      \"collapse\": \"Collapse\",\n      \"facets\": {\n        \"group\": \"Groups\",\n        \"vendor\": \"Providers\",\n        \"tag\": \"Model tags\",\n        \"billing\": \"Pricing type\",\n        \"endpoint\": \"Endpoint type\"\n      },\n      \"all\": {\n        \"group\": \"All groups\",\n        \"vendor\": \"All providers\",\n        \"tag\": \"All tags\",\n        \"billing\": \"All models\",\n        \"endpoint\": \"All types\"\n      },\n      \"billing\": {\n        \"token\": \"Token-based\",\n        \"per_request\": \"Per request\",\n        \"image\": \"Per image\",\n        \"video\": \"Video pricing\"\n      },\n      \"unknownVendor\": \"Unspecified provider\",\n      \"noDescription\": \"No description yet.\",\n      \"models\": \"models\",\n      \"group\": \"Group\",\n      \"endpoint\": \"Endpoint\",\n      \"copy\": \"Copy model name {model}\",\n      \"priceDisplay\": \"Price basis\",\n      \"unit\": \"Token price unit\",\n      \"prices\": {\n        \"standard\": \"Base\",\n        \"effective\": \"Effective\"\n      },\n      \"priceHint\": {\n        \"standard\": \"Base channel prices in USD, before group or personal multipliers.\",\n        \"effective\": \"Effective prices in USD during standard hours. See details for tiers, cache and time-based rules.\"\n      },\n      \"offerHint\": \"Same-name models in different groups are separate offers with independent prices and monitoring.\",\n      \"starting\": \"first tier\",\n      \"sortAscending\": \"Name ascending; switch to descending\",\n      \"sortDescending\": \"Name descending; switch to ascending\",\n      \"name\": \"Name\",\n      \"view\": \"Display mode\",\n      \"cards\": \"Card view\",\n      \"list\": \"List view\",\n      \"status\": \"Status\",\n      \"latency\": \"Latency\",\n      \"throughput\": \"Tokens/s\",\n      \"noSamples\": \"No data\",\n      \"states\": {\n        \"operational\": \"Operational\",\n        \"degraded\": \"Degraded\",\n        \"down\": \"Unavailable\",\n        \"unknown\": \"No qualifying samples\"\n      },\n      \"ttftHint\": \"Time to first token (P50) in the latest sampled window.\",\n      \"probeHint\": \"Latest probe response latency, not time to first token.\",\n      \"throughputHint\": \"Generation speed: successful output tokens divided by response time. It reflects how fast one reply is generated and does not grow with concurrency.\",\n      \"throughputMissing\": \"This monitor has no output-token or response-duration samples yet.\",\n      \"availabilityHint\": \"Availability over {range}: {value}\",\n      \"updated\": \"Latest sample: {time}\",\n      \"loginHint\": \"Sign in for personal prices and exclusive groups. Public group status needs no account.\",\n      \"monitorUnavailable\": \"Monitoring is temporarily unavailable. Old status is hidden; this page will retry automatically.\",\n      \"retry\": \"Reload\"\n    },\n"
       }
     ]
+  },
+  {
+    "path": "frontend/src/i18n/locales/zh/dashboard.ts",
+    "edits": [
+      {
+        "before": "      \"monitorUnavailable\": \"监控数据暂不可用，已隐藏旧状态；页面会自动重试。\",\n      \"retry\": \"重新加载\"",
+        "after": "      \"monitorUnavailable\": \"监控数据暂不可用，已隐藏旧状态；页面会自动重试。\",\n      \"monitorNotConfigured\": \"未配置监控\",\n      \"retry\": \"重新加载\""
+      }
+    ]
+  },
+  {
+    "path": "frontend/src/i18n/locales/en/dashboard.ts",
+    "edits": [
+      {
+        "before": "      \"monitorUnavailable\": \"Monitoring is temporarily unavailable. Old status is hidden; this page will retry automatically.\",\n      \"retry\": \"Reload\"",
+        "after": "      \"monitorUnavailable\": \"Monitoring is temporarily unavailable. Old status is hidden; this page will retry automatically.\",\n      \"monitorNotConfigured\": \"Monitoring not configured\",\n      \"retry\": \"Reload\""
+      }
+    ]
   }
 ]) {
   const existing = adaptations.find(item => item.path === seam.path)
