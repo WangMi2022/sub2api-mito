@@ -179,7 +179,7 @@ func apiKeyAuthWithSubscription(apiKeyService *service.APIKeyService, subscripti
 		// 未归属用户组的用户不允许调用网关：所有专属倍率 / RPM / 模型限制
 		// 都挂在用户组上，未分组用户不受任何策略约束。
 		if apiKey.User.UserGroupID == nil || *apiKey.User.UserGroupID <= 0 {
-			MarkIngressRejected(c, IngressRejectUserInactive)
+			MarkIngressRejected(c, IngressRejectUserGroupRequired)
 			AbortWithError(c, http.StatusForbidden, "USER_GROUP_REQUIRED", "User is not assigned to any user group")
 			return
 		}

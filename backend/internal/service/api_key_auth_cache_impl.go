@@ -134,6 +134,13 @@ func (s *APIKeyService) StartAuthCacheInvalidationSubscriber(ctx context.Context
 			for {
 				err := s.cache.SubscribeAuthCacheInvalidation(subscriberCtx, func(cacheKey string) {
 					s.invalidateLocalAuthCache(cacheKey)
+					// Each instance may namespace its L2 snapshots differently
+					// (e.g. the Mito fork running beside the upstream image).
+					// The publisher only deleted its own namespace, so every
+					// subscriber must drop its own L2 copy as well.
+					ctx, cancel := context.WithTimeout(subscriberCtx, 2*time.Second)
+					_ = s.cache.DeleteAuthCache(ctx, cacheKey)
+					cancel()
 				})
 				wasConnected := s.authInvalidationConnected.Swap(false)
 				if subscriberCtx.Err() != nil {

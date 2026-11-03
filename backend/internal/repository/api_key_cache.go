@@ -6,8 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
+	"github.com/Wei-Shaw/sub2api/internal/config"
 	"github.com/Wei-Shaw/sub2api/internal/service"
 	"github.com/redis/go-redis/v9"
 )
@@ -16,6 +18,9 @@ const (
 	apiKeyRateLimitKeyPrefix   = "apikey:ratelimit:"
 	apiKeyRateLimitDuration    = 24 * time.Hour
 	apiKeyCreateCountKeyPrefix = "apikey:create_count:"
+	// apiKeyAuthCachePrefix is the upstream-compatible default. Production uses
+	// ProvideAPIKeyCache so the fork can namespace its snapshots away from the
+	// upstream image when both instances share Redis.
 	apiKeyAuthCachePrefix      = "apikey:auth:"
 	authCacheInvalidateChannel = "auth:cache:invalidate"
 )
@@ -30,16 +35,35 @@ func apiKeyCreateCountKey(userID int64) string {
 	return fmt.Sprintf("%s%d", apiKeyCreateCountKeyPrefix, userID)
 }
 
-func apiKeyAuthCacheKey(key string) string {
-	return fmt.Sprintf("%s%s", apiKeyAuthCachePrefix, key)
+func apiKeyAuthCacheKey(prefix, key string) string {
+	return prefix + key
 }
 
 type apiKeyCache struct {
-	rdb *redis.Client
+	rdb       *redis.Client
+	keyPrefix string
 }
 
 func NewAPIKeyCache(rdb *redis.Client) service.APIKeyCache {
-	return &apiKeyCache{rdb: rdb}
+	return newAPIKeyCache(rdb, apiKeyAuthCachePrefix)
+}
+
+// ProvideAPIKeyCache wires the auth snapshot namespace from configuration.
+func ProvideAPIKeyCache(rdb *redis.Client, cfg *config.Config) service.APIKeyCache {
+	prefix := apiKeyAuthCachePrefix
+	if cfg != nil {
+		if configured := strings.TrimSpace(cfg.APIKeyAuth.KeyPrefix); configured != "" {
+			prefix = configured
+		}
+	}
+	return newAPIKeyCache(rdb, prefix)
+}
+
+func newAPIKeyCache(rdb *redis.Client, prefix string) service.APIKeyCache {
+	if prefix == "" {
+		prefix = apiKeyAuthCachePrefix
+	}
+	return &apiKeyCache{rdb: rdb, keyPrefix: prefix}
 }
 
 func (c *apiKeyCache) GetCreateAttemptCount(ctx context.Context, userID int64) (int, error) {
@@ -88,7 +112,7 @@ func (c *apiKeyCache) SetDailyUsageExpiry(ctx context.Context, apiKey string, tt
 }
 
 func (c *apiKeyCache) GetAuthCache(ctx context.Context, key string) (*service.APIKeyAuthCacheEntry, error) {
-	val, err := c.rdb.Get(ctx, apiKeyAuthCacheKey(key)).Bytes()
+	val, err := c.rdb.Get(ctx, apiKeyAuthCacheKey(c.keyPrefix, key)).Bytes()
 	if err != nil {
 		return nil, err
 	}
@@ -107,11 +131,11 @@ func (c *apiKeyCache) SetAuthCache(ctx context.Context, key string, entry *servi
 	if err != nil {
 		return err
 	}
-	return c.rdb.Set(ctx, apiKeyAuthCacheKey(key), payload, ttl).Err()
+	return c.rdb.Set(ctx, apiKeyAuthCacheKey(c.keyPrefix, key), payload, ttl).Err()
 }
 
 func (c *apiKeyCache) DeleteAuthCache(ctx context.Context, key string) error {
-	return c.rdb.Del(ctx, apiKeyAuthCacheKey(key)).Err()
+	return c.rdb.Del(ctx, apiKeyAuthCacheKey(c.keyPrefix, key)).Err()
 }
 
 // PublishAuthCacheInvalidation publishes a cache invalidation message to all instances

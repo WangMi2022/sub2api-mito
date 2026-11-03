@@ -209,23 +209,27 @@ func (r *userGroupRepository) SyncMembers(ctx context.Context, id int64, userIDs
 	if _, err := r.GetByID(ctx, id); err != nil {
 		return 0, err
 	}
+	def, err := r.GetByCode(ctx, service.UserGroupCodeDefault)
+	if err != nil {
+		return 0, fmt.Errorf("load default user group: %w", err)
+	}
 	unique := uniquePositiveIDs(userIDs)
-	if len(unique) == 0 {
-		res, err := r.sql.ExecContext(ctx, `
-			UPDATE users SET user_group_id = NULL, updated_at = NOW()
-			WHERE user_group_id = $1 AND deleted_at IS NULL
-		`, id)
-		if err != nil {
+	// 用户组是网关准入的前提，被移出的成员必须回落到默认组，不能留下未分组状态。
+	// 默认组自身重同步时无需搬移，避免无意义的 updated_at 抖动。
+	if id != def.ID {
+		if len(unique) == 0 {
+			if _, err := r.sql.ExecContext(ctx, `
+				UPDATE users SET user_group_id = $2, updated_at = NOW()
+				WHERE user_group_id = $1 AND deleted_at IS NULL
+			`, id, def.ID); err != nil {
+				return 0, err
+			}
+		} else if _, err := r.sql.ExecContext(ctx, `
+			UPDATE users SET user_group_id = $3, updated_at = NOW()
+			WHERE user_group_id = $1 AND deleted_at IS NULL AND id <> ALL($2)
+		`, id, pq.Array(unique), def.ID); err != nil {
 			return 0, err
 		}
-		n, _ := res.RowsAffected()
-		return int(n), nil
-	}
-	if _, err := r.sql.ExecContext(ctx, `
-		UPDATE users SET user_group_id = NULL, updated_at = NOW()
-		WHERE user_group_id = $1 AND deleted_at IS NULL AND id <> ALL($2)
-	`, id, pq.Array(unique)); err != nil {
-		return 0, err
 	}
 	res, err := r.sql.ExecContext(ctx, `
 		UPDATE users SET user_group_id = $1, updated_at = NOW()

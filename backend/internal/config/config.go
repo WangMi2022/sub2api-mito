@@ -1957,6 +1957,10 @@ type APIKeyAuthCacheConfig struct {
 	Singleflight       bool                   `mapstructure:"singleflight"`
 	LookupConcurrency  int                    `mapstructure:"lookup_concurrency"`
 	InvalidAbuse       InvalidAuthAbuseConfig `mapstructure:"invalid_abuse"`
+	// KeyPrefix isolates the Redis auth snapshot namespace. The Mito fork
+	// defaults to its own prefix because it shares Redis with the upstream
+	// image, whose snapshot does not contain fork-only fields.
+	KeyPrefix string `mapstructure:"key_prefix"`
 }
 
 // APIKeyCreateConfig 用户创建 API Key 的防滥用限制（0 表示不限制）
@@ -2636,6 +2640,7 @@ func setDefaults() {
 	viper.SetDefault("api_key_auth_cache.jitter_percent", 10)
 	viper.SetDefault("api_key_auth_cache.singleflight", true)
 	viper.SetDefault("api_key_auth_cache.lookup_concurrency", 64)
+	viper.SetDefault("api_key_auth_cache.key_prefix", "apikey:auth:mito:")
 	viper.SetDefault("api_key_auth_cache.invalid_abuse.enabled", true)
 	viper.SetDefault("api_key_auth_cache.invalid_abuse.threshold", 120)
 	viper.SetDefault("api_key_auth_cache.invalid_abuse.window_seconds", 60)

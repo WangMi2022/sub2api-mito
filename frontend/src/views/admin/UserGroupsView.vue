@@ -381,6 +381,7 @@ const membersSaving = ref(false)
 const memberSearch = ref('')
 const allUsers = ref<AdminUser[]>([])
 const selectedMemberIds = ref<number[]>([])
+const originalMemberIds = ref<number[]>([])
 
 const filteredUsers = computed(() => {
   const keyword = memberSearch.value.trim().toLowerCase()
@@ -396,12 +397,14 @@ const openMembers = async (group: UserGroup) => {
   membersLoading.value = true
   memberSearch.value = ''
   selectedMemberIds.value = []
+  originalMemberIds.value = []
   try {
     const [members, usersPage] = await Promise.all([
       adminAPI.userGroups.listMembers(group.id),
       adminAPI.users.list(1, 200)
     ])
     selectedMemberIds.value = [...members]
+    originalMemberIds.value = [...members]
     allUsers.value = usersPage.items
   } catch (error) {
     appStore.showError(extractApiErrorMessage(error, t('admin.userGroups.failedToLoad')))
@@ -416,6 +419,7 @@ const closeMembers = () => {
   membersGroup.value = null
   allUsers.value = []
   selectedMemberIds.value = []
+  originalMemberIds.value = []
 }
 
 const toggleMember = (userId: number) => {
@@ -439,6 +443,13 @@ const clearSelection = () => {
 
 const saveMembers = async () => {
   if (!membersGroup.value) return
+  const removedCount = originalMemberIds.value.filter(userId => !selectedMemberIds.value.includes(userId)).length
+  if (
+    removedCount > 0 &&
+    !window.confirm(t('admin.userGroups.removeMembersConfirm', { name: membersGroup.value.name, count: removedCount }))
+  ) {
+    return
+  }
   membersSaving.value = true
   try {
     await adminAPI.userGroups.syncMembers(membersGroup.value.id, [...selectedMemberIds.value])

@@ -84,6 +84,8 @@ func RequestTiming(recorders ...ConnectionTraceRecorder) gin.HandlerFunc {
 					switch reason {
 					case IngressRejectUserInactive:
 						rejection = "USER_INACTIVE"
+					case IngressRejectUserGroupRequired:
+						rejection = "USER_GROUP_REQUIRED"
 					case IngressRejectAPIKeyDisabled:
 						rejection = "API_KEY_DISABLED"
 					case IngressRejectAPIKeyRequired:

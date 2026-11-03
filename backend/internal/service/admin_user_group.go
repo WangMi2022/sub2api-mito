@@ -74,8 +74,8 @@ func (s *adminServiceImpl) ListUserGroupMembers(ctx context.Context, id int64) (
 	return members, nil
 }
 
-// SyncUserGroupMembers 整组覆盖成员；被移出的用户回到「未分组」状态。
-// 变更会失效相关用户的 API Key 认证缓存，让未分组拦截立即生效。
+// SyncUserGroupMembers 整组覆盖成员；被移出的用户回落到默认用户组。
+// 变更会失效相关用户的 API Key 认证缓存，让新的组成员关系立即生效。
 func (s *adminServiceImpl) SyncUserGroupMembers(ctx context.Context, id int64, userIDs []int64) (int, error) {
 	if s.userGroupRepo == nil {
 		return 0, ErrUserGroupNotFound

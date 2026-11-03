@@ -111,7 +111,7 @@ type UserGroupRepository interface {
 	Delete(ctx context.Context, id int64) error
 	// ListMembers 返回组内用户 id。
 	ListMembers(ctx context.Context, id int64) ([]int64, error)
-	// SyncMembers 整组覆盖组内用户；未列出的用户被移出该组（置为未分组）。
+	// SyncMembers 整组覆盖组内用户；未列出的用户回落到默认用户组。
 	SyncMembers(ctx context.Context, id int64, userIDs []int64) (int, error)
 	// AssignUsersToDefault 把指定用户加入默认用户组（仅当用户当前未分组）。
 	AssignUsersToDefault(ctx context.Context, userIDs []int64) (int, error)
