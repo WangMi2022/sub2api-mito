@@ -6,20 +6,18 @@
       aria-atomic="true"
     >
       <TransitionGroup
-        v-bind="isMitoTheme ? { name: 'mito-toast' } : {
-          enterActiveClass: 'transition ease-out duration-300',
-          enterFromClass: 'opacity-0 translate-x-full',
-          enterToClass: 'opacity-100 translate-x-0',
-          leaveActiveClass: 'transition ease-in duration-200',
-          leaveFromClass: 'opacity-100 translate-x-0',
-          leaveToClass: 'opacity-0 translate-x-full'
-        }"
+        enter-active-class="transition ease-out duration-300"
+        enter-from-class="opacity-0 translate-x-full"
+        enter-to-class="opacity-100 translate-x-0"
+        leave-active-class="transition ease-in duration-200"
+        leave-from-class="opacity-100 translate-x-0"
+        leave-to-class="opacity-0 translate-x-full"
       >
         <div
           v-for="toast in toasts"
           :key="toast.id"
           :class="[
-            'mito-toast-card pointer-events-auto min-w-[320px] max-w-md overflow-hidden rounded-lg shadow-lg',
+            'pointer-events-auto min-w-[320px] max-w-md overflow-hidden rounded-lg shadow-lg',
             'bg-white dark:bg-dark-800',
             'border-l-4',
             getBorderColor(toast.type)
@@ -82,7 +80,6 @@
 import { computed } from 'vue'
 import Icon from '@/components/icons/Icon.vue'
 import { useAppStore } from '@/stores/app'
-import { isMitoTheme } from '@/themes/mito'
 
 const appStore = useAppStore()
 
