@@ -7881,6 +7881,29 @@
             </p>
           </div>
           <div class="space-y-5 p-6">
+            <div class="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
+              <Icon
+                name="exclamationTriangle"
+                size="md"
+                class="mt-0.5 flex-shrink-0 text-amber-500"
+              />
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-amber-800 dark:text-amber-200">
+                  {{ t('admin.settings.features.modelPlaza.manageTitle') }}
+                </p>
+                <p class="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                  {{ t('admin.settings.features.modelPlaza.manageHint') }}
+                </p>
+                <router-link
+                  to="/admin/groups"
+                  class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary-600 hover:underline dark:text-primary-400"
+                >
+                  {{ t('admin.settings.features.modelPlaza.manageLink') }}
+                  <span aria-hidden="true">→</span>
+                </router-link>
+              </div>
+            </div>
+
             <div class="flex items-center justify-between">
               <div>
                 <label class="text-sm font-medium text-gray-700 dark:text-gray-300">

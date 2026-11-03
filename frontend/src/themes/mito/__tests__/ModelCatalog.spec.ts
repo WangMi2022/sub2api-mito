@@ -195,6 +195,14 @@ describe('Model catalog visibility and details', () => {
     expect(catalogCategory({ ...model(), name })).toBe(expected)
   })
 
+  it('shows the not-configured monitor hint only for the admin view', () => {
+    const adminCard = mount(ModelCatalogCard, { props: { model: model(), group: group(), showMonitorMissingHint: true } })
+    expect(adminCard.get('.mito-model-tags .is-warning').text()).toBe('modelPlaza.market.monitorNotConfigured')
+    const userCard = mount(ModelCatalogCard, { props: { model: model(), group: group() } })
+    expect(userCard.find('.mito-model-tags .is-warning').exists()).toBe(false)
+    adminCard.unmount(); userCard.unmount()
+  })
+
   it('passes the complete selected group/model into the existing details and closes a filtered-out offer', async () => {
     const g = group({ peak_rate_enabled: true, peak_start: '10:00', peak_end: '12:00', peak_rate_multiplier: 2 })
     const wrapper = mount(ModelCatalog, { props: { groups: [g, group({ id: 2, models: [] })] }, global: {

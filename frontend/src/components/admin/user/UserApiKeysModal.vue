@@ -161,7 +161,7 @@ const load = async () => {
   loading.value = true
   groupButtonRefs.value.clear()
   try {
-    const res = await adminAPI.users.getUserApiKeys(props.user.id)
+    const res = await adminAPI.users.getUserApiKeys(props.user.id, 1000)
     if (version === requestVersion) apiKeys.value = res.items || []
   } catch (error) {
     if (version !== requestVersion) return

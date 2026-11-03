@@ -126,6 +126,9 @@ func isOpenAITransientProcessingError(upstreamStatusCode int, upstreamMsg string
 	if isOpenAIRequestScopedCapacityShed(upstreamMsg, upstreamBody) {
 		return true
 	}
+	if isOpenAIProviderRoutingTransientError(upstreamStatusCode, upstreamMsg, upstreamBody) {
+		return true
+	}
 	if upstreamStatusCode != http.StatusBadRequest && upstreamStatusCode != http.StatusServiceUnavailable {
 		return false
 	}
@@ -163,6 +166,25 @@ func isOpenAITransientProcessingError(upstreamStatusCode int, upstreamMsg string
 	// error fields are authoritative; scan the whole body only for non-JSON
 	// providers that return a plain-text error response.
 	return !gjson.ValidBytes(upstreamBody) && match(string(upstreamBody))
+}
+
+// isOpenAIProviderRoutingTransientError recognizes an intermittent 400 from an
+// upstream aggregator that failed to select a provider for the request. The
+// same request succeeds immediately afterwards, so it is a request-scoped
+// transient failure rather than a malformed client request.
+func isOpenAIProviderRoutingTransientError(upstreamStatusCode int, upstreamMsg string, upstreamBody []byte) bool {
+	if upstreamStatusCode != http.StatusBadRequest {
+		return false
+	}
+	for _, text := range []string{upstreamMsg, extractUpstreamErrorMessage(upstreamBody)} {
+		compact := strings.ToLower(strings.ReplaceAll(strings.TrimSpace(text), " ", ""))
+		if strings.Contains(compact, `"provider_name":null`) &&
+			strings.Contains(compact, "modelcallfailed") &&
+			strings.Contains(compact, "invalidrequest") {
+			return true
+		}
+	}
+	return false
 }
 
 func isOpenAICapacityShedMessage(text string) bool {
@@ -392,12 +414,14 @@ func newOpenAIUpstreamFailoverError(
 	retryableOnSameAccount bool,
 ) *UpstreamFailoverError {
 	requestScopedCapacity := isOpenAIRequestScopedCapacityResponse(statusCode, responseHeaders, responseBody, upstreamMsg)
+	requestScopedProviderRouting := isOpenAIProviderRoutingTransientError(statusCode, upstreamMsg, responseBody)
+	requestScopedTransient := requestScopedCapacity || requestScopedProviderRouting
 	failoverErr := &UpstreamFailoverError{
 		StatusCode:             statusCode,
 		ResponseBody:           responseBody,
 		ResponseHeaders:        responseHeaders.Clone(),
-		RetryableOnSameAccount: retryableOnSameAccount || requestScopedCapacity,
-		RequestScopedTransient: requestScopedCapacity,
+		RetryableOnSameAccount: retryableOnSameAccount || requestScopedTransient,
+		RequestScopedTransient: requestScopedTransient,
 	}
 	if requestScopedCapacity {
 		failoverErr.SameAccountRetryDelay = openAIRequestScopedRetryDelay(responseHeaders, responseBody)

@@ -106,6 +106,10 @@
             <div>
               <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('channelMonitorV3.admin.components') }}</h3>
               <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ t('channelMonitorV3.admin.componentsHint') }}</p>
+              <p v-if="disabledComponentCount" class="mt-2 flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400" data-testid="monitor-v3-disabled-hint" role="status">
+                <Icon name="exclamationTriangle" size="xs" class="mt-0.5 flex-shrink-0" />
+                <span>{{ t('channelMonitorV3.admin.disabledComponentsHint', { count: disabledComponentCount }) }}</span>
+              </p>
             </div>
             <div class="flex gap-2">
               <button type="button" class="btn btn-secondary btn-sm" data-testid="monitor-v3-add-category" @click="openCategory(null)">
@@ -155,6 +159,7 @@
                       <span class="truncate">{{ component.name }}</span>
                       <span v-if="component.show_multiplier" class="rounded-md bg-gray-100 px-1.5 font-mono text-[10px] text-gray-500 dark:bg-dark-700 dark:text-gray-400">{{ formatMonitorV3Multiplier(component.group_rate_multiplier) }}</span>
                       <span v-if="settings.config.featured_component_id === component.id" class="rounded-md bg-primary-50 px-1.5 text-[10px] text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">{{ t('channelMonitorV3.admin.featuredBadge') }}</span>
+                      <span v-if="!component.enabled" class="rounded-md bg-amber-50 px-1.5 text-[10px] text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" data-testid="monitor-v3-hidden-badge">{{ t('channelMonitorV3.admin.hiddenBadge') }}</span>
                       <span v-if="component.group_deleted || (component.group_status && component.group_status !== 'active')" class="rounded-md bg-red-50 px-1.5 text-[10px] text-red-600 dark:bg-red-900/30 dark:text-red-300">{{ t('channelMonitorV3.admin.groupUnavailable') }}</span>
                     </p>
                     <p class="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-gray-500 dark:text-gray-400">
@@ -356,6 +361,7 @@ const sections = computed<Section[]>(() => {
   if (loose.length) list.push({ key: 'loose', category: null, components: loose })
   return list
 })
+const disabledComponentCount = computed(() => (settings.value?.components || []).filter((component) => !component.enabled).length)
 
 function toggleIgnored(category: string) {
   if (!draft.value) return

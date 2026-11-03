@@ -430,3 +430,101 @@ func TestModelPlazaAnonymousSeesStatusForVisibleOffers(t *testing.T) {
 	require.NoError(t, err)
 	require.NotContains(t, string(raw), `"requests"`)
 }
+
+type plazaModelChannelRepo struct {
+	service.ChannelRepository
+	channels []service.Channel
+}
+
+func (r plazaModelChannelRepo) ListAll(context.Context) ([]service.Channel, error) {
+	return r.channels, nil
+}
+
+type plazaListGroupsRepo struct {
+	service.GroupRepository
+	groups []service.Group
+}
+
+func (r plazaListGroupsRepo) ListActive(context.Context) ([]service.Group, error) {
+	return r.groups, nil
+}
+
+type plazaVisibilityStub struct {
+	allowed  map[int64]struct{}
+	restrict bool
+	calls    int
+}
+
+func (s *plazaVisibilityStub) GetUserGroupVisibility(context.Context, int64) (map[int64]struct{}, bool, error) {
+	s.calls++
+	return s.allowed, s.restrict, nil
+}
+
+func (s *plazaVisibilityStub) GetUserGroupRates(context.Context, int64) (map[int64]float64, error) {
+	return nil, nil
+}
+
+func (s *plazaVisibilityStub) GetUserGroupDeniedModels(context.Context, int64) (map[int64][]string, error) {
+	return nil, nil
+}
+
+func (s *plazaVisibilityStub) GetAvailableGroups(context.Context, int64) ([]service.Group, error) {
+	return nil, nil
+}
+
+func newAdminPlazaHandler(access *plazaVisibilityStub) *ModelPlazaHandler {
+	groups := []service.Group{
+		{ID: 1, Name: "public", Platform: "openai", Status: service.StatusActive},
+		{ID: 2, Name: "subscription", Platform: "openai", SubscriptionType: "subscription", IsExclusive: true, Status: service.StatusActive},
+	}
+	channels := []service.Channel{{
+		ID: 1, Name: "models", Status: service.StatusActive, GroupIDs: []int64{1, 2},
+		ModelPricing: []service.ChannelModelPricing{{Platform: "openai", Models: []string{"gpt-4o"}}},
+	}}
+	settings := service.NewSettingService(plazaVarySettingRepo{}, &config.Config{})
+	h := NewModelPlazaHandler(
+		service.NewModelPlazaService(plazaModelChannelRepo{channels: channels}, plazaListGroupsRepo{groups: groups}, nil, nil, nil, nil),
+		nil,
+		settings,
+		nil, nil, nil,
+	)
+	h.apiKeyService = access
+	return h
+}
+
+func plazaGroupIDs(t *testing.T, body []byte) []int64 {
+	t.Helper()
+	var envelope struct {
+		Code int `json:"code"`
+		Data struct {
+			Groups []modelPlazaGroup `json:"groups"`
+		} `json:"data"`
+	}
+	require.NoError(t, json.Unmarshal(body, &envelope))
+	require.Zero(t, envelope.Code, string(body))
+	ids := make([]int64, 0, len(envelope.Data.Groups))
+	for _, group := range envelope.Data.Groups {
+		ids = append(ids, group.ID)
+	}
+	return ids
+}
+
+func TestModelPlazaAdminSeesAllGroupsWithoutPersonalVisibilityLookup(t *testing.T) {
+	access := &plazaVisibilityStub{}
+	h := newAdminPlazaHandler(access)
+	c, recorder := monitorV3Request("/api/v1/model-plaza", service.RoleAdmin, "")
+	h.Get(c)
+	require.Equal(t, http.StatusOK, recorder.Code, recorder.Body.String())
+	require.Zero(t, access.calls, "管理员不应再按个人分组授权裁剪广场")
+	require.ElementsMatch(t, []int64{1, 2}, plazaGroupIDs(t, recorder.Body.Bytes()))
+}
+
+func TestModelPlazaOrdinaryUserStillUsesPersonalVisibility(t *testing.T) {
+	access := &plazaVisibilityStub{allowed: map[int64]struct{}{}}
+	h := newAdminPlazaHandler(access)
+	c, recorder := monitorV3Request("/api/v1/model-plaza", service.RoleUser, "")
+	h.Get(c)
+	require.Equal(t, http.StatusOK, recorder.Code, recorder.Body.String())
+	require.Equal(t, 1, access.calls)
+	require.ElementsMatch(t, []int64{1}, plazaGroupIDs(t, recorder.Body.Bytes()), "普通用户仍看不到未授权的订阅/专属分组")
+}

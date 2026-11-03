@@ -340,7 +340,7 @@ export const adaptations = [
       },
       {
         "before": "<div class=\"space-y-5\">",
-        "after": "<MitoModelCatalog\n    v-if=\"isMitoTheme\"\n    :groups=\"response?.groups ?? []\"\n    :loading=\"loading\"\n    :error=\"error\"\n    :anonymous=\"!isAuthenticated\"\n    :monitoring-unavailable=\"response?.monitoring_unavailable\"\n    @refresh=\"$emit('refresh')\"\n  />\n  <div v-else class=\"space-y-5\">"
+        "after": "<MitoModelCatalog\n    v-if=\"isMitoTheme\"\n    :groups=\"response?.groups ?? []\"\n    :loading=\"loading\"\n    :error=\"error\"\n    :anonymous=\"!isAuthenticated\"\n    :monitoring-unavailable=\"response?.monitoring_unavailable\"\n    :admin-view=\"authStore.isAdmin\"\n    @refresh=\"$emit('refresh')\"\n  />\n  <div v-else class=\"space-y-5\">"
       },
       {
         "before": "const { t } = useI18n()",
@@ -1209,3 +1209,44 @@ contracts.push(...[
   { path: 'frontend/src/themes/mito/PlaygroundSandbox.vue', anchors: ['mito-sandbox', 'mito-sandbox-frame'] },
   { path: 'frontend/src/themes/mito/index.ts', anchors: ["import './home-background.css'", "import './sandbox.css'"] }
 ])
+
+// Make the model plaza's group-based configuration discoverable from the feature settings.
+const modelPlazaManageSeams = [
+  {
+    path: 'frontend/src/views/admin/SettingsView.vue',
+    edits: [
+      {
+        before: "          <div class=\"space-y-5 p-6\">\n            <div class=\"flex items-center justify-between\">\n              <div>\n                <label class=\"text-sm font-medium text-gray-700 dark:text-gray-300\">\n                  {{ t('admin.settings.features.modelPlaza.enabled') }}",
+        after: "          <div class=\"space-y-5 p-6\">\n            <div class=\"flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20\">\n              <Icon\n                name=\"exclamationTriangle\"\n                size=\"md\"\n                class=\"mt-0.5 flex-shrink-0 text-amber-500\"\n              />\n              <div class=\"min-w-0\">\n                <p class=\"text-sm font-medium text-amber-800 dark:text-amber-200\">\n                  {{ t('admin.settings.features.modelPlaza.manageTitle') }}\n                </p>\n                <p class=\"mt-1 text-xs text-amber-700 dark:text-amber-300\">\n                  {{ t('admin.settings.features.modelPlaza.manageHint') }}\n                </p>\n                <router-link\n                  to=\"/admin/groups\"\n                  class=\"mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary-600 hover:underline dark:text-primary-400\"\n                >\n                  {{ t('admin.settings.features.modelPlaza.manageLink') }}\n                  <span aria-hidden=\"true\">→</span>\n                </router-link>\n              </div>\n            </div>\n\n            <div class=\"flex items-center justify-between\">\n              <div>\n                <label class=\"text-sm font-medium text-gray-700 dark:text-gray-300\">\n                  {{ t('admin.settings.features.modelPlaza.enabled') }}"
+      }
+    ]
+  },
+  {
+    path: 'frontend/src/i18n/locales/zh/admin/settings.ts',
+    edits: [
+      {
+        before: "          description: '以分组为单位向访客展示可用模型与价格的公开页面。默认关闭。',\n          enabled: '启用模型广场',",
+        after: "          description: '以分组为单位向访客展示可用模型与价格的公开页面。默认关闭。',\n          manageTitle: '模型清单由「分组管理」维护',\n          manageHint: '模型广场会自动聚合启用分组中的模型。要增加或减少展示模型，请编辑对应分组的「模型白名单」；该白名单同时限制实际可调用的模型。',\n          manageLink: '前往分组管理',\n          enabled: '启用模型广场',"
+      }
+    ]
+  },
+  {
+    path: 'frontend/src/i18n/locales/en/admin/settings.ts',
+    edits: [
+      {
+        before: "          description: 'A public page showcasing available models and pricing by group. Disabled by default.',\n          enabled: 'Enable Model Plaza',",
+        after: "          description: 'A public page showcasing available models and pricing by group. Disabled by default.',\n          manageTitle: 'Models are managed in Groups',\n          manageHint: 'The plaza automatically aggregates models from active groups. To add or remove models, edit the Model allowlist of the relevant group. That allowlist also restricts which models can actually be called.',\n          manageLink: 'Go to Groups',\n          enabled: 'Enable Model Plaza',"
+      }
+    ]
+  }
+]
+for (const seam of modelPlazaManageSeams) {
+  const existing = adaptations.find(item => item.path === seam.path)
+  if (existing) existing.edits.push(...seam.edits)
+  else adaptations.push(seam)
+}
+
+contracts.push({
+  path: 'frontend/src/views/admin/SettingsView.vue',
+  anchors: ['settings-section-features-model-plaza', 'admin.settings.features.modelPlaza.enabled']
+})

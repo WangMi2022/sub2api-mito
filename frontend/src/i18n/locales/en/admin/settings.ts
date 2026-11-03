@@ -112,6 +112,9 @@ export default {
         modelPlaza: {
           title: 'Model Plaza',
           description: 'A public page showcasing available models and pricing by group. Disabled by default.',
+          manageTitle: 'Models are managed in Groups',
+          manageHint: 'The plaza automatically aggregates models from active groups. To add or remove models, edit the Model allowlist of the relevant group. That allowlist also restricts which models can actually be called.',
+          manageLink: 'Go to Groups',
           enabled: 'Enable Model Plaza',
           enabledHint: 'When enabled, an entry appears in the header and the page is reachable at /model-plaza.',
           requireAuth: 'Require sign-in to access',

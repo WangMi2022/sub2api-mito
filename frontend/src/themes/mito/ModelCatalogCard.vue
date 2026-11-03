@@ -40,6 +40,7 @@
         <span>{{ t(`modelPlaza.catalog.tags.${category}`) }}</span>
         <span v-if="group.is_exclusive">{{ t('modelPlaza.badges.exclusive') }}</span>
         <span v-if="group.subscription_type === 'subscription'">{{ t('modelPlaza.badges.subscription') }}</span>
+        <span v-if="showMonitorMissingHint && !model.monitoring" class="is-warning">{{ t('modelPlaza.market.monitorNotConfigured') }}</span>
       </div>
       <button type="button" class="mito-model-details-button" :aria-label="t('modelPlaza.catalog.detailsFor', { model: model.name, group: group.name })" @click="$emit('details')">
         {{ t('modelPlaza.catalog.details') }}<Icon name="chevronRight" size="xs" />
@@ -60,7 +61,7 @@ import { hasPeakRate } from '@/utils/peak-rate'
 import ModelMonitorStrip from './ModelMonitorStrip.vue'
 import { catalogBillingMode, catalogCategory, catalogPrice, catalogPriceRows, catalogRate, catalogVendor, type CatalogPriceDisplay } from './modelCatalog'
 
-const props = withDefaults(defineProps<{ model: PlazaModel; group: ModelPlazaGroup; unit?: number; priceDisplay?: CatalogPriceDisplay }>(), { unit: 1_000_000, priceDisplay: 'effective' })
+const props = withDefaults(defineProps<{ model: PlazaModel; group: ModelPlazaGroup; unit?: number; priceDisplay?: CatalogPriceDisplay; showMonitorMissingHint?: boolean }>(), { unit: 1_000_000, priceDisplay: 'effective', showMonitorMissingHint: false })
 defineEmits<{ (event: 'details'): void }>()
 const { t } = useI18n()
 const { copied, copyToClipboard } = useClipboard()

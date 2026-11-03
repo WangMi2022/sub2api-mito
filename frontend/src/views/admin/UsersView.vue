@@ -636,6 +636,17 @@
 
           <template #cell-actions="{ row }">
             <div class="flex items-center gap-1">
+              <!-- API Keys Button: 管理员可直接查看任意用户的全部密钥 -->
+              <button
+                @click="handleViewApiKeys(row)"
+                class="flex flex-col items-center gap-0.5 rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-primary-600 dark:hover:bg-dark-700 dark:hover:text-primary-400"
+                :title="t('admin.users.apiKeys')"
+                data-test="view-user-api-keys"
+              >
+                <Icon name="key" size="sm" />
+                <span class="text-xs">{{ t('admin.users.apiKeys') }}</span>
+              </button>
+
               <!-- Edit Button -->
               <button
                 @click="handleEdit(row)"

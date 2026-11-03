@@ -134,7 +134,7 @@ export default {
       showMultiplier: '显示倍率',
       showMultiplierHint: '用户看到的是自己在这个分组的倍率。',
       enabled: '显示',
-      enabledHint: '关闭后不在页面上显示，不影响统计。',
+      enabledHint: '关闭后不在用户状态页和模型广场显示监控状态，不影响统计。',
       saveFailed: '保存失败',
     },
     admin: {
@@ -189,6 +189,8 @@ export default {
       loadFailed: '加载 V3 配置失败',
       components: '分类与组件',
       componentsHint: '分类对应页面上的「GPT」「Claude」这样的小标题，组件就是下面的每一行，一个组件对应一个分组。',
+      disabledComponentsHint: '有 {count} 个组件已关闭「显示」，不会出现在用户状态页和模型广场；对应模型卡片会缺少监控状态。打开右侧开关即可恢复。',
+      hiddenBadge: '前台隐藏',
       addCategory: '新建分类',
       editCategory: '编辑分类',
       addComponent: '新建组件',

@@ -6,6 +6,7 @@
     :error="error"
     :anonymous="!isAuthenticated"
     :monitoring-unavailable="response?.monitoring_unavailable"
+    :admin-view="authStore.isAdmin"
     @refresh="$emit('refresh')"
   />
   <div v-else class="space-y-5">

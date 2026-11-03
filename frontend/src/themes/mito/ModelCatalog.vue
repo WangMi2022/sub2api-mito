@@ -51,7 +51,7 @@
           </div>
         </div>
         <div v-if="filtered.length" class="mito-model-grid" :class="{ 'is-list': list }">
-          <ModelCatalogCard v-for="entry in filtered" :key="entry.key" :model="entry.model" :group="entry.group" :unit="unit" :price-display="priceDisplay" @details="selectedKey = entry.key" />
+          <ModelCatalogCard v-for="entry in filtered" :key="entry.key" :model="entry.model" :group="entry.group" :unit="unit" :price-display="priceDisplay" :show-monitor-missing-hint="adminView && !monitoringUnavailable" @details="selectedKey = entry.key" />
         </div>
         <div v-else class="mito-market-message">
           <Icon name="search" size="lg" /><p>{{ entries.length ? t('modelPlaza.noSearchResult') : t('modelPlaza.empty') }}</p>
@@ -63,6 +63,7 @@
     </div>
     <BaseDialog :show="!!selected" :title="selected?.model.name ?? ''" width="extra-wide" body-class="mito-catalog-detail" @close="selectedKey = null">
       <ModelMonitorStrip v-if="selected?.model.monitoring" :monitor="selected.model.monitoring" />
+      <p v-else-if="adminView && !monitoringUnavailable" class="mito-market-notice is-warning" role="status">{{ t('modelPlaza.market.monitorNotConfigured') }}</p>
       <PlazaGroupSection v-if="selected" :group="{ ...selected.group, models: [selected.model] }" />
     </BaseDialog>
   </div>
@@ -80,7 +81,7 @@ import ModelCatalogCard from './ModelCatalogCard.vue'
 import ModelMonitorStrip from './ModelMonitorStrip.vue'
 import { catalogBillingMode, catalogCategory, catalogSections, catalogVendor, type CatalogEntry, type CatalogPriceDisplay } from './modelCatalog'
 
-const props = defineProps<{ groups: ModelPlazaGroup[]; loading?: boolean; error?: boolean; anonymous?: boolean; monitoringUnavailable?: boolean }>()
+const props = defineProps<{ groups: ModelPlazaGroup[]; loading?: boolean; error?: boolean; anonymous?: boolean; monitoringUnavailable?: boolean; adminView?: boolean }>()
 defineEmits<{ (event: 'refresh'): void }>()
 const { t } = useI18n()
 const entries = computed(() => catalogSections(props.groups).flatMap(section => section.entries))

@@ -112,6 +112,9 @@ export default {
         modelPlaza: {
           title: '模型广场',
           description: '以分组为单位向访客展示可用模型与价格的公开页面。默认关闭。',
+          manageTitle: '模型清单由「分组管理」维护',
+          manageHint: '模型广场会自动聚合启用分组中的模型。要增加或减少展示模型，请编辑对应分组的「模型白名单」；该白名单同时限制实际可调用的模型。',
+          manageLink: '前往分组管理',
           enabled: '启用模型广场',
           enabledHint: '开启后顶栏显示入口，页面可通过 /model-plaza 独立访问。',
           requireAuth: '需要登录才可访问',

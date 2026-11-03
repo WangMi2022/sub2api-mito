@@ -73,7 +73,7 @@ describe('user API key loading', () => {
     getKeys.mockResolvedValueOnce(keys(1, 'first-user-key')).mockResolvedValueOnce(keys(2, 'second-user-key'))
     const wrapper = await open(); await flushPromises()
     await wrapper.setProps({ user: user(2) }); await flushPromises()
-    expect(getKeys).toHaveBeenLastCalledWith(2)
+    expect(getKeys).toHaveBeenLastCalledWith(2, 1000)
     expect(wrapper.text()).toContain('second-user-key')
     expect(wrapper.text()).not.toContain('first-user-key')
   })

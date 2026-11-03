@@ -840,6 +840,7 @@ export default {
       "updated": "Latest sample: {time}",
       "loginHint": "Sign in for personal prices and exclusive groups. Public group status needs no account.",
       "monitorUnavailable": "Monitoring is temporarily unavailable. Old status is hidden; this page will retry automatically.",
+      "monitorNotConfigured": "Monitoring not configured",
       "retry": "Reload"
     },
     catalog: {

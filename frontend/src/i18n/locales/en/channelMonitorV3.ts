@@ -134,7 +134,7 @@ export default {
       showMultiplier: 'Show multiplier',
       showMultiplierHint: 'Users see their own multiplier for this group.',
       enabled: 'Shown',
-      enabledHint: 'When off, the component is hidden; statistics are not affected.',
+      enabledHint: 'When off, the component status is hidden from the user page and the model plaza; statistics are not affected.',
       saveFailed: 'Failed to save',
     },
     admin: {
@@ -189,6 +189,8 @@ export default {
       loadFailed: 'Failed to load V3 settings',
       components: 'Categories and components',
       componentsHint: 'Categories are headings such as "GPT" or "Claude"; each component is a row and maps to one group.',
+      disabledComponentsHint: '{count} component(s) are hidden: they do not appear on the user page or the model plaza, so the matching model cards have no status. Turn on the switch to restore them.',
+      hiddenBadge: 'Hidden',
       addCategory: 'New category',
       editCategory: 'Edit category',
       addComponent: 'New component',

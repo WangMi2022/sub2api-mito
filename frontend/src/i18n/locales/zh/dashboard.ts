@@ -845,6 +845,7 @@ export default {
       "updated": "最近采样：{time}",
       "loginHint": "登录后查看用户专属报价与专属分组的状态。公开分组的状态无需登录。",
       "monitorUnavailable": "监控数据暂不可用，已隐藏旧状态；页面会自动重试。",
+      "monitorNotConfigured": "未配置监控",
       "retry": "重新加载"
     },
     catalog: {

@@ -84,6 +84,8 @@ describe('V3 settings panel', () => {
     expect(sections[0].text()).toContain('channelMonitorV3.admin.allModels')
     expect(sections[2].text()).toContain('channelMonitorV3.admin.uncategorized')
     expect(sections[2].text()).toContain('channelMonitorV3.admin.featuredBadge')
+    expect(wrapper.get('[data-testid="monitor-v3-disabled-hint"]').text()).toContain('channelMonitorV3.admin.disabledComponentsHint:{"count":1}')
+    expect(wrapper.findAll('[data-testid="monitor-v3-hidden-badge"]')).toHaveLength(1)
     expect(wrapper.get('[data-testid="monitor-v3-mode-banner"]').text()).toContain('channelMonitorV3.admin.modeBannerV2')
     expect(wrapper.get('[data-testid="monitor-v3-freshness"]').text()).toContain('channelMonitorV3.page.dataThrough')
     expect(mocks.getStatus).toHaveBeenCalledWith(null, true)

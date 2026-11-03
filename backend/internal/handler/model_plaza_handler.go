@@ -149,12 +149,17 @@ func (h *ModelPlazaHandler) Get(c *gin.Context) {
 		return
 	}
 
+	// 管理员是运营视角：分组可见性不做个人授权裁剪，订阅/专属分组及其
+	// 监控状态都要能看到，否则管理员无法核对套餐橱窗配置。
+	role, roleAuthed := middleware.GetUserRoleFromContext(c)
+	isAdmin := authed && roleAuthed && role == service.RoleAdmin
+
 	// allowedGroups == nil 表示匿名；登录用户恒为非 nil（可能为空集合）。
 	var allowedGroups map[int64]struct{}
 	var restrictPublicGroups bool
 	var userRates map[int64]float64
 	var deniedModels map[int64][]string
-	if authed {
+	if authed && !isAdmin {
 		allowedGroups, restrictPublicGroups, err = h.apiKeyService.GetUserGroupVisibility(c.Request.Context(), subject.UserID)
 		if err != nil {
 			// 可见性数据拿不到时不能静默降级成匿名视图（会错漏专属分组），直接报错。
@@ -175,7 +180,10 @@ func (h *ModelPlazaHandler) Get(c *gin.Context) {
 		}
 	}
 
-	visible := filterPlazaVisibleGroups(groups, allowedGroups, restrictPublicGroups)
+	visible := groups
+	if !isAdmin {
+		visible = filterPlazaVisibleGroups(groups, allowedGroups, restrictPublicGroups)
+	}
 
 	// 追加语言缓存维度，保留 CORS 的 Vary: Origin 和用户模型限制。
 	c.Writer.Header().Add("Vary", "Accept-Language")
