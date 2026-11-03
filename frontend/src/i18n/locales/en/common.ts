@@ -182,6 +182,7 @@ export default {
       commerce: 'Commerce',
       insights: 'Usage & Audit',
       system: 'System',
+      governance: 'System & Audit',
       other: 'Other',
       workspace: 'Workspace',
       usage: 'Usage & Records',

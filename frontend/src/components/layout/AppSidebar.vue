@@ -58,11 +58,16 @@
             :key="section.path"
             class="mito-sidebar-section"
           >
-            <!-- Level 1: section (mito-theme) -->
-            <div
-              class="sidebar-section-title mito-sidebar-section-title"
+            <!-- Level 1: collapsible section (mito-theme) -->
+            <button
+              type="button"
+              class="sidebar-section-title mito-sidebar-section-title mito-sidebar-section-toggle"
               :class="{ 'sidebar-section-title-collapsed': sidebarCollapsed }"
               :aria-hidden="sidebarCollapsed ? 'true' : 'false'"
+              :aria-expanded="!sidebarCollapsed && isAdminSectionExpanded(section)"
+              :aria-controls="`admin-nav-section-${section.id}`"
+              :disabled="sidebarCollapsed"
+              @click="toggleAdminSection(section)"
             >
               <span
                 class="sidebar-section-title-text"
@@ -70,10 +75,24 @@
               >
                 {{ section.label }}
               </span>
-            </div>
+              <span
+                v-if="!sidebarCollapsed && sectionBadgeCount(section) > 0"
+                class="sidebar-section-badge"
+                data-testid="sidebar-section-badge"
+              >
+                {{ sectionBadgeText(section) }}
+              </span>
+              <ChevronDownIcon
+                v-if="!sidebarCollapsed"
+                class="mito-sidebar-section-chevron h-3.5 w-3.5 flex-shrink-0 transition-transform duration-200"
+                :class="{ 'rotate-180': isAdminSectionExpanded(section) }"
+              />
+            </button>
 
             <!-- Level 2: entries indented under the section -->
             <div
+              v-show="isAdminSectionExpanded(section)"
+              :id="`admin-nav-section-${section.id}`"
               class="mito-sidebar-section-children"
               :class="{ 'mito-sidebar-section-children-collapsed': sidebarCollapsed }"
             >
@@ -310,6 +329,8 @@ interface NavItem {
   children?: NavItem[]
   /** mito-theme: rendered as a non-clickable section heading; `path` is only a stable key. */
   sectionTitle?: string
+  /** mito-theme: stable key for a section's expand/collapse state. */
+  sectionId?: string
   /**
    * When true, the parent item only toggles the expand/collapse state and
    * does NOT navigate to its `path`. The `path` is purely a stable key.
@@ -1037,6 +1058,77 @@ const adminNavItems = computed((): NavItem[] => {
 // into real groups so the template can render a two-level hierarchy.
 const adminNavSections = computed(() => groupMitoSidebarSections<NavItem>(adminNavItems.value))
 
+// Admin section accordion. Sections stay collapsed unless they contain the
+// active route; an explicit click is remembered so the menu stays compact
+// across reloads instead of expanding back to the full list on every visit.
+const ADMIN_SECTION_STATE_KEY = 'mito_admin_nav_sections_v1'
+
+function readAdminSectionOverrides(): Record<string, boolean> {
+  try {
+    const raw = localStorage.getItem(ADMIN_SECTION_STATE_KEY)
+    if (!raw) return {}
+    const parsed: unknown = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {}
+    const out: Record<string, boolean> = {}
+    for (const [key, value] of Object.entries(parsed as Record<string, unknown>)) {
+      if (typeof value === 'boolean') out[key] = value
+    }
+    return out
+  } catch {
+    return {}
+  }
+}
+
+const adminSectionOverrides = ref<Record<string, boolean>>(readAdminSectionOverrides())
+
+function persistAdminSectionOverrides(): void {
+  try {
+    localStorage.setItem(ADMIN_SECTION_STATE_KEY, JSON.stringify(adminSectionOverrides.value))
+  } catch {
+    // Private-mode storage failures must not break navigation.
+  }
+}
+
+function sectionContainsPath(section: { items: NavItem[] }, path: string): boolean {
+  return section.items.some((item) => {
+    if (item.path === path || (item.path !== '/' && path.startsWith(item.path + '/'))) return true
+    return item.children?.some((child) => child.path === path) ?? false
+  })
+}
+
+function isAdminSectionExpanded(section: { id: string; items: NavItem[] }): boolean {
+  if (sidebarCollapsed.value) return true
+  const override = adminSectionOverrides.value[section.id]
+  if (typeof override === 'boolean') return override
+  return sectionContainsPath(section, route.path)
+}
+
+function toggleAdminSection(section: { id: string; items: NavItem[] }): void {
+  const next = !isAdminSectionExpanded(section)
+  adminSectionOverrides.value = { ...adminSectionOverrides.value, [section.id]: next }
+  persistAdminSectionOverrides()
+}
+
+function sectionBadgeCount(section: { items: NavItem[] }): number {
+  return section.items.reduce((sum, item) => sum + (item.badge?.() ?? 0), 0)
+}
+
+function sectionBadgeText(section: { items: NavItem[] }): string {
+  const count = sectionBadgeCount(section)
+  return count > 99 ? '99+' : String(count)
+}
+
+// A deep link or programmatic navigation into a collapsed section should reveal
+// the destination; a manual collapse afterwards is left untouched.
+watch(() => route.path, (path) => {
+  if (!isMitoTheme) return
+  const active = adminNavSections.value.find((section) => sectionContainsPath(section, path))
+  if (active && adminSectionOverrides.value[active.id] === false) {
+    adminSectionOverrides.value = { ...adminSectionOverrides.value, [active.id]: true }
+    persistAdminSectionOverrides()
+  }
+})
+
 const searchNavItems = computed(() => [
   ...adminNavItems.value.filter(item => !item.sectionTitle),
   ...(authStore.isSimpleMode ? [] : personalNavItems.value)
@@ -1233,6 +1325,47 @@ onBeforeUnmount(() => {
 
 .mito-sidebar-section:first-child .mito-sidebar-section-title {
   margin-top: 0.25rem;
+}
+
+.mito-sidebar-section-toggle {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mito-sidebar-section-toggle:disabled {
+  cursor: default;
+}
+
+.mito-sidebar-section-toggle:hover .sidebar-section-title-text {
+  color: rgb(100 116 139);
+}
+
+.dark .mito-sidebar-section-toggle:hover .sidebar-section-title-text {
+  color: rgb(148 163 184);
+}
+
+.mito-sidebar-section-chevron {
+  margin-left: auto;
+  color: rgb(148 163 184);
+}
+
+.sidebar-section-badge {
+  margin-left: auto;
+  border-radius: 9999px;
+  background: rgb(239 68 68);
+  padding: 0 0.375rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1.125rem;
+  color: #fff;
+}
+
+.mito-sidebar-section-chevron + .sidebar-section-badge,
+.sidebar-section-badge + .mito-sidebar-section-chevron {
+  margin-left: 0.375rem;
 }
 
 .mito-sidebar-section + .mito-sidebar-section {

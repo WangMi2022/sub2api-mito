@@ -54,9 +54,28 @@ describe('applyMitoSidebarSections', () => {
       'nav.sections.identity',
       'nav.sections.runtime',
       'nav.sections.commerce',
-      'nav.sections.insights',
-      'nav.sections.system'
+      'nav.sections.governance'
     ])
+  })
+
+  it('keeps the admin menu to five top-level sections and files usage under overview', () => {
+    const items = [
+      item('/admin/dashboard'),
+      item('/admin/usage'),
+      item('/admin/audit-logs'),
+      item('/admin/settings')
+    ]
+
+    const out = applyMitoSidebarSections(items, t)
+    const headings = out.filter((entry) => 'sectionTitle' in entry)
+
+    expect(headings.map((entry) => entry.sectionTitle)).toEqual([
+      'nav.sections.overview',
+      'nav.sections.governance'
+    ])
+    const overviewIndex = out.findIndex((entry) => entry.sectionTitle === 'nav.sections.overview')
+    expect(out[overviewIndex + 1].path).toBe('/admin/dashboard')
+    expect(out[overviewIndex + 2].path).toBe('/admin/usage')
   })
 
   it('never drops an item, including ones no section claims', () => {
@@ -147,6 +166,14 @@ describe('groupMitoSidebarSections', () => {
     const keys = grouped.map((section) => section.path)
 
     expect(new Set(keys).size).toBe(keys.length)
+  })
+
+  it('carries the stable section id through to the rendered group', () => {
+    const withId = (key: string) => ({ ...heading(key), sectionId: key })
+    const grouped = groupMitoSidebarSections([item('/orphan'), withId('overview'), item('/1')])
+
+    expect(grouped[0].id).toBe('implicit')
+    expect(grouped[1].id).toBe('overview')
   })
 })
 

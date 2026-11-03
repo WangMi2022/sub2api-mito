@@ -31,7 +31,7 @@ export const SIDEBAR_SECTIONS: SectionSpec[] = [
   {
     id: 'overview',
     labelKey: 'nav.sections.overview',
-    paths: ['/admin/dashboard', '/admin/ops']
+    paths: ['/admin/dashboard', '/admin/ops', '/admin/usage']
   },
   {
     id: 'identity',
@@ -49,14 +49,9 @@ export const SIDEBAR_SECTIONS: SectionSpec[] = [
     paths: ['/admin/orders', '/admin/subscriptions', '/admin/affiliates', '/admin/redeem', '/admin/promo-codes']
   },
   {
-    id: 'insights',
-    labelKey: 'nav.sections.insights',
-    paths: ['/admin/usage', '/admin/audit-logs', '/admin/security-audit']
-  },
-  {
-    id: 'system',
-    labelKey: 'nav.sections.system',
-    paths: ['/admin/announcements', '/admin/support-tickets', '/admin/plugins', '/admin/settings']
+    id: 'governance',
+    labelKey: 'nav.sections.governance',
+    paths: ['/admin/audit-logs', '/admin/security-audit', '/admin/announcements', '/admin/support-tickets', '/admin/plugins', '/admin/settings']
   }
 ]
 
@@ -112,12 +107,14 @@ function applySections<T extends { path: string }>(
   const consumed = new Set<string>()
   const out: T[] = []
 
-  const pushSection = (labelKey: string, sectionItems: T[]): void => {
+  const pushSection = (id: string, labelKey: string, sectionItems: T[]): void => {
     if (sectionItems.length === 0) return
+    const label = t(labelKey)
     out.push({
-      path: `__section__${labelKey}`,
-      label: t(labelKey),
-      sectionTitle: t(labelKey)
+      path: `__section__${id}`,
+      label,
+      sectionTitle: label,
+      sectionId: id
     } as unknown as T)
     out.push(...sectionItems)
   }
@@ -130,10 +127,10 @@ function applySections<T extends { path: string }>(
       consumed.add(item.path)
       matched.push(item)
     }
-    pushSection(section.labelKey, matched)
+    pushSection(section.id, section.labelKey, matched)
   }
 
-  pushSection(FALLBACK_LABEL_KEY, items.filter((item) => !consumed.has(item.path)))
+  pushSection('other', FALLBACK_LABEL_KEY, items.filter((item) => !consumed.has(item.path)))
   return out
 }
 
@@ -154,6 +151,8 @@ export function applyMitoUserSidebarSections<T extends { path: string }>(
 }
 
 export interface NavSection<T> {
+  /** Stable identifier used for expand/collapse state. */
+  id: string
   /** Stable key for the section wrapper. */
   path: string
   /** Already-translated section label. */
@@ -169,7 +168,7 @@ export interface NavSection<T> {
  * An item that is not preceded by a heading is placed in an implicit fallback
  * group, which keeps the function total — no entry can be dropped.
  */
-export function groupMitoSidebarSections<T extends { path: string; sectionTitle?: string }>(
+export function groupMitoSidebarSections<T extends { path: string; sectionTitle?: string; sectionId?: string }>(
   items: T[]
 ): NavSection<T>[] {
   const sections: NavSection<T>[] = []
@@ -177,12 +176,12 @@ export function groupMitoSidebarSections<T extends { path: string; sectionTitle?
 
   for (const item of items) {
     if (item.sectionTitle) {
-      current = { path: item.path, label: item.sectionTitle, items: [] }
+      current = { id: item.sectionId ?? item.path, path: item.path, label: item.sectionTitle, items: [] }
       sections.push(current)
       continue
     }
     if (!current) {
-      current = { path: '__section__implicit', label: '', items: [] }
+      current = { id: 'implicit', path: '__section__implicit', label: '', items: [] }
       sections.push(current)
     }
     current.items.push(item)

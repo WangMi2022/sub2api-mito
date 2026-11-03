@@ -182,6 +182,7 @@ export default {
       commerce: '商业化',
       insights: '数据与审计',
       system: '系统',
+      governance: '系统与审计',
       other: '其他',
       workspace: '工作台',
       usage: '用量与记录',
