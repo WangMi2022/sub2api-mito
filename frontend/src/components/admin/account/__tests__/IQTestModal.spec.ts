@@ -17,6 +17,17 @@ beforeEach(() => {
   getModelReasoning.mockReset().mockResolvedValue({ supported_reasoning_levels: ['low', 'medium', 'high'], default_reasoning_level: 'medium' })
 })
 
+  it('always offers the fixed five reasoning efforts', async () => {
+    getModelReasoning.mockResolvedValue({ supported_reasoning_levels: ['none', 'minimal', 'ultra'], default_reasoning_level: 'ultra' })
+    const wrapper = mountModal()
+    await flushPromises()
+    expect((wrapper.vm as any).reasoningOptions.map((option: { value: string }) => option.value)).toEqual([
+      'low', 'medium', 'high', 'xhigh', 'max'
+    ])
+    expect((wrapper.vm as any).reasoningEffort).toBe('medium')
+    wrapper.unmount()
+  })
+
 vi.mock('vue-i18n', async () => {
   const actual = await vi.importActual<typeof import('vue-i18n')>('vue-i18n')
   return {

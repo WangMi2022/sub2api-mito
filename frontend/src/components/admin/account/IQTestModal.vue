@@ -350,7 +350,7 @@ const prompt = ref(questionPrompt('candy'))
 const defaultModel = computed(() => props.account?.platform === 'anthropic' ? 'claude-opus-5-5' : 'gpt-6-astra')
 const modelId = ref(defaultModel.value)
 const reasoningEffort = ref('medium')
-const reasoningLevels = ref<string[]>(['low', 'medium', 'high'])
+const reasoningLevels = ['low', 'medium', 'high', 'xhigh', 'max']
 const availableModels = ref<Array<{ id: string; display_name?: string }>>([])
 const modelOptions = computed(() => {
   const models = new Map(availableModels.value.map((model) => [model.id, model.display_name?.trim()]))
@@ -385,7 +385,7 @@ function selectQuestion(value: string | number | boolean | null) {
   questionKind.value = value
   prompt.value = questionPrompt(value)
 }
-const reasoningOptions = computed(() => reasoningLevels.value.map((value) => ({
+const reasoningOptions = computed(() => reasoningLevels.map((value) => ({
   value,
   label: ({ low: t('admin.accounts.pelicanTest.reasoningLow'), medium: t('admin.accounts.pelicanTest.reasoningMedium'), high: t('admin.accounts.pelicanTest.reasoningHigh'), none: t('admin.accounts.pelicanTest.reasoningNone'), minimal: t('admin.accounts.pelicanTest.reasoningMinimal'), xhigh: t('admin.accounts.pelicanTest.reasoningXHigh'), max: t('admin.accounts.pelicanTest.reasoningMax'), ultra: t('admin.accounts.pelicanTest.reasoningUltra') } as Record<string, string>)[value] || value
 })))
@@ -419,11 +419,11 @@ async function loadReasoning() {
   try {
     const result = await getModelReasoning(props.account.id, modelId.value.trim())
     if (token !== reasoningLoadToken) return
-    reasoningLevels.value = result.supported_reasoning_levels.length > 0 ? result.supported_reasoning_levels : ['none']
-    reasoningEffort.value = reasoningLevels.value.includes(result.default_reasoning_level) ? result.default_reasoning_level : reasoningLevels.value[0]
+    reasoningEffort.value = reasoningLevels.includes(result.default_reasoning_level as typeof reasoningLevels[number])
+      ? result.default_reasoning_level
+      : 'medium'
   } catch {
-    reasoningLevels.value = ['low', 'medium', 'high']
-    if (!reasoningLevels.value.includes(reasoningEffort.value)) reasoningEffort.value = 'medium'
+    if (!reasoningLevels.includes(reasoningEffort.value as typeof reasoningLevels[number])) reasoningEffort.value = 'medium'
   }
 }
 
@@ -510,7 +510,7 @@ function editSchedule(config: PelicanTestConfig, model: string) {
   questionKind.value = config.question_kind || 'pelican'
   prompt.value = config.prompt
   modelId.value = model
-  reasoningEffort.value = config.reasoning_effort
+  reasoningEffort.value = reasoningLevels.includes(config.reasoning_effort as typeof reasoningLevels[number]) ? config.reasoning_effort : 'medium'
   parallelCount.value = config.parallel_count
 }
 
@@ -539,7 +539,7 @@ function loadRecord(record: TestRecord) {
   questionKind.value = record.questionKind || 'pelican'
   prompt.value = record.prompt
   modelId.value = record.modelId
-  reasoningEffort.value = record.reasoningEffort || 'medium'
+  reasoningEffort.value = reasoningLevels.includes(record.reasoningEffort as typeof reasoningLevels[number]) ? record.reasoningEffort : 'medium'
   runs.value = record.runs.map((run) => ({ ...run, questionKind: run.questionKind || record.questionKind || 'pelican', modelId: run.modelId || record.modelId, reasoningEffort: run.reasoningEffort || record.reasoningEffort }))
   viewingScheduled.value = false
   activeTab.value = 'results'
