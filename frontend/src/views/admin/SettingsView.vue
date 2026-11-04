@@ -23,11 +23,12 @@
                 :key="tab.key"
                 role="presentation"
                 class="settings-tab-wrapper relative flex min-w-0 flex-1 basis-0"
-                :class="
+                :class="[
+                  tab.key === 'features' && 'settings-tab-wrapper-features',
                   tab.key === 'features' &&
-                  showProtocolFeatureNotice &&
-                  'settings-tab-wrapper-new-feature'
-                "
+                    showProtocolFeatureNotice &&
+                    'settings-tab-wrapper-new-feature',
+                ]"
               >
                 <button
                   :id="`settings-tab-${tab.key}`"
@@ -14321,7 +14322,13 @@ h2[id^="settings-section-"]:target {
   @apply relative isolate flex h-10 min-w-[6.75rem] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-transparent px-3 text-sm font-medium text-gray-600 outline-none transition-colors duration-200 ease-out dark:text-gray-300;
 }
 
+.settings-tabs .settings-tab-wrapper-features {
+  flex: 1.35 1 8.75rem;
+  min-width: 8.75rem;
+}
+
 .settings-tabs .settings-tab-wrapper-new-feature {
+  flex: 1.8 1 10.5rem;
   min-width: 10.5rem;
 }
 
