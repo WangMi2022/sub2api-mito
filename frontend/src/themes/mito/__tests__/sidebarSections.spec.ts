@@ -10,7 +10,8 @@ vi.mock('../index', () => ({
 import {
   applyMitoSidebarSections,
   applyMitoUserSidebarSections,
-  groupMitoSidebarSections
+  groupMitoSidebarSections,
+  normalizeAdminRoutePath
 } from '../sidebarSections'
 
 const t = (key: string) => key
@@ -210,5 +211,16 @@ describe('applyMitoUserSidebarSections', () => {
   it('does not leak user section ids into the admin menu', () => {
     const out = applyMitoSidebarSections([item('/admin/dashboard'), item('/keys')], t)
     expect(out.map((entry) => entry.sectionTitle).filter(Boolean)).toEqual(['nav.sections.overview', 'nav.sections.other'])
+  })
+})
+
+describe('normalizeAdminRoutePath', () => {
+  it('maps the admin landing route onto its sidebar entry path', () => {
+    expect(normalizeAdminRoutePath('/dashboard')).toBe('/admin/dashboard')
+  })
+
+  it('leaves ordinary admin routes untouched', () => {
+    expect(normalizeAdminRoutePath('/admin/usage')).toBe('/admin/usage')
+    expect(normalizeAdminRoutePath('/admin/settings')).toBe('/admin/settings')
   })
 })

@@ -302,7 +302,7 @@
 <script setup lang="ts">
 import { isMitoTheme } from '@/themes/mito'
 import { useThemeSync } from '@/themes/mito/useThemeSync'
-import { applyMitoSidebarSections, applyMitoUserSidebarSections, groupMitoSidebarSections } from '@/themes/mito/sidebarSections'
+import { applyMitoSidebarSections, applyMitoUserSidebarSections, groupMitoSidebarSections, normalizeAdminRoutePath } from '@/themes/mito/sidebarSections'
 import { attachCustomMenuItems } from '@/utils/sidebarCustomMenus'
 import { computed, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -1089,7 +1089,8 @@ function persistAdminSectionOverrides(): void {
   }
 }
 
-function sectionContainsPath(section: { items: NavItem[] }, path: string): boolean {
+function sectionContainsPath(section: { items: NavItem[] }, rawPath: string): boolean {
+  const path = normalizeAdminRoutePath(rawPath)
   return section.items.some((item) => {
     if (item.path === path || (item.path !== '/' && path.startsWith(item.path + '/'))) return true
     return item.children?.some((child) => child.path === path) ?? false

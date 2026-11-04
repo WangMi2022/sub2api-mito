@@ -161,6 +161,19 @@ export interface NavSection<T> {
 }
 
 /**
+ * Admin routes that render an admin page under a different top-level path.
+ * Admins land on `/dashboard` after login, but the dashboard entry links to
+ * `/admin/dashboard`; without this alias the overview section never auto-expands.
+ */
+export const ADMIN_ROUTE_ALIASES: Record<string, string> = {
+  '/dashboard': '/admin/dashboard'
+}
+
+export function normalizeAdminRoutePath(path: string): string {
+  return ADMIN_ROUTE_ALIASES[path] ?? path
+}
+
+/**
  * Turn the flat, heading-annotated list into real groups so the template can
  * render a two-level hierarchy: section heading on top, its entries indented
  * beneath it.
