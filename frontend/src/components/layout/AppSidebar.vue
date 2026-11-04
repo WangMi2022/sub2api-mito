@@ -155,11 +155,6 @@
                             ? 'sidebar-wallet'
                             : undefined
                     "
-                    :style="
-                      item.path === '/admin/settings' && !sidebarCollapsed && showProtocolFeatureNotice
-                        ? { paddingRight: '4.5rem' }
-                        : undefined
-                    "
                     @click="handleMenuItemClick(item.path)"
                   >
                     <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>

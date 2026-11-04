@@ -23,11 +23,10 @@
                 :key="tab.key"
                 role="presentation"
                 class="settings-tab-wrapper relative flex min-w-0 flex-1 basis-0"
-                :class="tab.key === 'features' && 'settings-tab-wrapper-new-feature'"
-                :style="
-                  tab.key === 'features' && showProtocolFeatureNotice
-                    ? { flex: '2.2 1 0%', minWidth: '11rem' }
-                    : undefined
+                :class="
+                  tab.key === 'features' &&
+                  showProtocolFeatureNotice &&
+                  'settings-tab-wrapper-new-feature'
                 "
               >
                 <button
@@ -42,7 +41,7 @@
                   ]"
                   :style="
                     tab.key === 'features' && showProtocolFeatureNotice
-                      ? { paddingRight: '5rem' }
+                      ? { paddingRight: '3.5rem' }
                       : undefined
                   "
                   @click="selectSettingsTab(tab.key)"
@@ -14322,9 +14321,23 @@ h2[id^="settings-section-"]:target {
   @apply relative isolate flex h-10 min-w-[6.75rem] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-transparent px-3 text-sm font-medium text-gray-600 outline-none transition-colors duration-200 ease-out dark:text-gray-300;
 }
 
+.settings-tabs .settings-tab-wrapper-new-feature {
+  min-width: 10.5rem;
+}
+
 @media (min-width: 768px) {
   .settings-tabs {
-    @apply min-w-full;
+    @apply min-w-full flex-wrap;
+  }
+
+  .settings-tabs .settings-tab-wrapper {
+    flex: 1 1 7rem;
+    min-width: 7rem;
+  }
+
+  .settings-tabs .settings-tab-wrapper-new-feature {
+    flex: 1.8 1 14rem;
+    min-width: 14rem;
   }
 
   .settings-tab {
