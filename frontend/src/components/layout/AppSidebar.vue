@@ -1122,13 +1122,18 @@ function sectionBadgeText(section: { items: NavItem[] }): string {
 // A deep link or programmatic navigation into a collapsed section should reveal
 // the destination. Section groups are built asynchronously (locale/flags), so the
 // first run may have no sections yet; re-check when the groups materialise.
-watch([() => route.path, adminNavSections], ([path], previous) => {
+// Track the resolved path instead of comparing previous watch values: when the
+// route stays the same but the groups arrive later, the previous path already
+// equals the current one and an early return would leave the section collapsed.
+const resolvedAdminSectionPath = ref<string | null>(null)
+
+watch([() => route.path, adminNavSections], ([path]) => {
   if (!isMitoTheme || adminNavSections.value.length === 0) return
-  const previousPath = previous?.[0]
-  const isFirstResolution = previousPath === undefined
-  if (!isFirstResolution && previousPath === path) return
+  if (resolvedAdminSectionPath.value === path) return
   const active = adminNavSections.value.find((section) => sectionContainsPath(section, path))
   if (!active) return
+  const isFirstResolution = resolvedAdminSectionPath.value === null
+  resolvedAdminSectionPath.value = path
   if (isFirstResolution || adminSectionOverrides.value[active.id] === false) {
     adminSectionOverrides.value = { ...adminSectionOverrides.value, [active.id]: true }
     persistAdminSectionOverrides()
