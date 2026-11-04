@@ -24,7 +24,11 @@
                 role="presentation"
                 class="settings-tab-wrapper relative flex min-w-0 flex-1 basis-0"
                 :class="tab.key === 'features' && 'settings-tab-wrapper-new-feature'"
-                :style="tab.key === 'features' ? { flex: '2.2 1 0%', minWidth: '11rem' } : undefined"
+                :style="
+                  tab.key === 'features' && showProtocolFeatureNotice
+                    ? { flex: '2.2 1 0%', minWidth: '11rem' }
+                    : undefined
+                "
               >
                 <button
                   :id="`settings-tab-${tab.key}`"
@@ -36,7 +40,11 @@
                     'settings-tab',
                     activeTab === tab.key && 'settings-tab-active',
                   ]"
-                  :style="tab.key === 'features' ? { paddingRight: '7rem' } : undefined"
+                  :style="
+                    tab.key === 'features' && showProtocolFeatureNotice
+                      ? { paddingRight: '5rem' }
+                      : undefined
+                  "
                   @click="selectSettingsTab(tab.key)"
                   @keydown="handleSettingsTabKeydown($event, tab.key)"
                 >
@@ -48,7 +56,7 @@
                   }}</span>
                 </button>
                 <NewFeatureBadge
-                  v-if="tab.key === 'features'"
+                  v-if="tab.key === 'features' && showProtocolFeatureNotice"
                   :notice-id="NEW_FEATURE_NOTICES.protocolFeatureSwitches"
                   :user-id="authStore.user?.id"
                   class="absolute right-2 top-1/2 z-10 -translate-y-1/2"
@@ -9772,6 +9780,7 @@ import { useAppStore, useAuthStore } from "@/stores";
 import { useAdminSettingsStore } from "@/stores/adminSettings";
 import NewFeatureBadge from "@/components/common/NewFeatureBadge.vue";
 import { NEW_FEATURE_NOTICES } from "@/constants/newFeatureNotices";
+import { useNewFeatureNoticeStore } from "@/stores/newFeatureNotices";
 import { normalizeVisibleMethod } from "@/components/payment/paymentFlow";
 import {
   isRegistrationEmailSuffixDomainValid,
@@ -9789,6 +9798,17 @@ import {
 const { t, locale } = useI18n();
 const appStore = useAppStore();
 const authStore = useAuthStore();
+const newFeatureNotices = useNewFeatureNoticeStore();
+watch(
+  () => authStore.user?.id,
+  (userId) => newFeatureNotices.loadUser(userId),
+  { immediate: true }
+);
+const showProtocolFeatureNotice = computed(
+  () =>
+    authStore.user?.id != null &&
+    !newFeatureNotices.isDismissed(authStore.user.id, NEW_FEATURE_NOTICES.protocolFeatureSwitches)
+);
 // 关闭 step-up 开关是敏感操作：后端返回 STEP_UP_REQUIRED 时弹 TOTP 码重试
 const settingsStepUp = useStepUp();
 const adminSettingsStore = useAdminSettingsStore();

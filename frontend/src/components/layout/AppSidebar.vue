@@ -155,7 +155,11 @@
                             ? 'sidebar-wallet'
                             : undefined
                     "
-                    :style="item.path === '/admin/settings' && !sidebarCollapsed ? { paddingRight: '6.5rem' } : undefined"
+                    :style="
+                      item.path === '/admin/settings' && !sidebarCollapsed && showProtocolFeatureNotice
+                        ? { paddingRight: '4.5rem' }
+                        : undefined
+                    "
                     @click="handleMenuItemClick(item.path)"
                   >
                     <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
@@ -164,13 +168,13 @@
                     <span v-if="navBadge(item)" class="sidebar-nav-badge" :class="{ 'sidebar-nav-badge-collapsed': sidebarCollapsed }" data-testid="sidebar-nav-badge">{{ sidebarCollapsed ? '' : navBadgeText(item) }}</span>
                   </router-link>
                   <NewFeatureBadge
-                    v-if="item.path === '/admin/settings' && !sidebarCollapsed"
+                    v-if="item.path === '/admin/settings' && !sidebarCollapsed && showProtocolFeatureNotice"
                     :notice-id="NEW_FEATURE_NOTICES.protocolFeatureSwitches"
                     :user-id="authStore.user?.id"
                     class="absolute right-2 top-1/2 z-10 -translate-y-1/2"
                   />
                   <NewFeatureBadge
-                    v-else-if="item.path === '/admin/settings'"
+                    v-else-if="item.path === '/admin/settings' && showProtocolFeatureNotice"
                     :notice-id="NEW_FEATURE_NOTICES.protocolFeatureSwitches"
                     :user-id="authStore.user?.id"
                     compact
@@ -319,6 +323,7 @@ import { resolveSiteBillingMode } from '@/utils/siteBillingMode'
 import { useBatchImageAccess } from '@/composables/useBatchImageAccess'
 import { getCustomMenuLabel } from '@/utils/customMenu'
 import { NEW_FEATURE_NOTICES } from '@/constants/newFeatureNotices'
+import { useNewFeatureNoticeStore } from '@/stores/newFeatureNotices'
 
 interface NavItem {
   path: string
@@ -368,6 +373,17 @@ const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
 const authStore = useAuthStore()
+const newFeatureNotices = useNewFeatureNoticeStore()
+watch(
+  () => authStore.user?.id,
+  (userId) => newFeatureNotices.loadUser(userId),
+  { immediate: true }
+)
+const showProtocolFeatureNotice = computed(
+  () =>
+    authStore.user?.id != null &&
+    !newFeatureNotices.isDismissed(authStore.user.id, NEW_FEATURE_NOTICES.protocolFeatureSwitches)
+)
 const onboardingStore = useOnboardingStore()
 const adminSettingsStore = useAdminSettingsStore()
 const { canUseBatchImage, refreshBatchImageAccess } = useBatchImageAccess()
