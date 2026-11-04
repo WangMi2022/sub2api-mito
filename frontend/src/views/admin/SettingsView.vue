@@ -23,12 +23,6 @@
                 :key="tab.key"
                 role="presentation"
                 class="settings-tab-wrapper relative flex min-w-0 flex-1 basis-0"
-                :class="[
-                  tab.key === 'features' && 'settings-tab-wrapper-features',
-                  tab.key === 'features' &&
-                    showProtocolFeatureNotice &&
-                    'settings-tab-wrapper-new-feature',
-                ]"
               >
                 <button
                   :id="`settings-tab-${tab.key}`"
@@ -14324,26 +14318,16 @@ h2[id^="settings-section-"]:target {
 
 @media (min-width: 768px) {
   .settings-tabs {
-    @apply min-w-full flex-wrap;
+    @apply min-w-max;
   }
 
   .settings-tabs .settings-tab-wrapper {
-    flex: 1 1 7rem;
-    min-width: 7rem;
-  }
-
-  .settings-tabs .settings-tab-wrapper-features {
-    flex: 1.35 1 10rem;
-    min-width: 10rem;
-  }
-
-  .settings-tabs .settings-tab-wrapper-new-feature {
-    flex: 1.8 1 13rem;
-    min-width: 13rem;
+    flex: 0 0 auto;
+    min-width: 0;
   }
 
   .settings-tab {
-    @apply min-w-0 flex-1 basis-0 overflow-hidden px-2 text-[13px];
+    @apply min-w-[6.75rem] flex-none px-3 text-[13px];
   }
 
   .settings-tab-icon {
