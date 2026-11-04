@@ -14322,16 +14322,6 @@ h2[id^="settings-section-"]:target {
   @apply relative isolate flex h-10 min-w-[6.75rem] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-transparent px-3 text-sm font-medium text-gray-600 outline-none transition-colors duration-200 ease-out dark:text-gray-300;
 }
 
-.settings-tabs .settings-tab-wrapper-features {
-  flex: 1.35 1 8.75rem;
-  min-width: 8.75rem;
-}
-
-.settings-tabs .settings-tab-wrapper-new-feature {
-  flex: 1.8 1 10.5rem;
-  min-width: 10.5rem;
-}
-
 @media (min-width: 768px) {
   .settings-tabs {
     @apply min-w-full flex-wrap;
@@ -14342,9 +14332,14 @@ h2[id^="settings-section-"]:target {
     min-width: 7rem;
   }
 
+  .settings-tabs .settings-tab-wrapper-features {
+    flex: 1.35 1 10rem;
+    min-width: 10rem;
+  }
+
   .settings-tabs .settings-tab-wrapper-new-feature {
-    flex: 1.8 1 14rem;
-    min-width: 14rem;
+    flex: 1.8 1 13rem;
+    min-width: 13rem;
   }
 
   .settings-tab {
