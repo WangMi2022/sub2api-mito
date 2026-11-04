@@ -253,7 +253,7 @@
             <div v-if="run.html" class="aspect-[4/3] bg-white dark:bg-white">
               <iframe :srcdoc="run.html" class="h-full w-full border-0" sandbox="allow-scripts" referrerpolicy="no-referrer" :title="`${t('admin.accounts.pelicanTest.output')} ${index + 1}`"></iframe>
             </div>
-            <pre class="max-h-48 overflow-auto whitespace-pre-wrap break-words border-t border-gray-200 bg-gray-950 p-3 text-xs leading-relaxed text-gray-200 dark:border-dark-600">{{ run.output || run.error || t('admin.accounts.pelicanTest.waiting') }}</pre>
+            <pre class="max-h-48 overflow-auto whitespace-pre-wrap break-words border-t border-gray-200 bg-gray-950 p-3 text-xs leading-relaxed text-gray-200 dark:border-dark-600">{{ run.reasoning || run.output || run.error || t('admin.accounts.pelicanTest.waiting') }}</pre>
           </article>
         </div>
       </div>
@@ -321,6 +321,7 @@ interface TestRun {
   verdict?: StateProbeVerdict
   id: string
   status: RunStatus
+  reasoning: string
   output: string
   html: string
   error: string
@@ -526,7 +527,7 @@ function previewScheduled(result: ScheduledTestResult) {
   const config = result.pelican_config
   if (config) editSchedule(config, config.model_id || modelId.value)
   const html = isTextAnswerKind(config?.question_kind) ? '' : extractHtml(result.response_text)
-  runs.value = [{ id: `scheduled-${result.id}`, questionKind: config?.question_kind || 'pelican', verdict: stateProbeVerdict(result) ?? undefined, status: result.status === 'success' ? 'success' : 'error', output: result.response_text, html, error: result.error_message,
+  runs.value = [{ id: `scheduled-${result.id}`, questionKind: config?.question_kind || 'pelican', verdict: stateProbeVerdict(result) ?? undefined, status: result.status === 'success' ? 'success' : 'error', reasoning: '', output: result.response_text, html, error: result.error_message,
     source: 'scheduled', startedAt: result.started_at, finishedAt: result.finished_at,
     durationMs: result.latency_ms, modelId: config?.model_id, reasoningEffort: config?.reasoning_effort
   }]
@@ -540,7 +541,7 @@ function loadRecord(record: TestRecord) {
   prompt.value = record.prompt
   modelId.value = record.modelId
   reasoningEffort.value = reasoningLevels.includes(record.reasoningEffort as typeof reasoningLevels[number]) ? record.reasoningEffort : 'medium'
-  runs.value = record.runs.map((run) => ({ ...run, questionKind: run.questionKind || record.questionKind || 'pelican', modelId: run.modelId || record.modelId, reasoningEffort: run.reasoningEffort || record.reasoningEffort }))
+  runs.value = record.runs.map((run) => ({ ...run, questionKind: run.questionKind || record.questionKind || 'pelican', modelId: run.modelId || record.modelId, reasoning: run.reasoning || '', reasoningEffort: run.reasoningEffort || record.reasoningEffort }))
   viewingScheduled.value = false
   activeTab.value = 'results'
 }
@@ -585,6 +586,7 @@ async function consumeRun(run: TestRun, signal: AbortSignal) {
       return
     }
     if (event.type === 'content' && event.text) run.output += event.text
+    if (event.type === 'reasoning' && event.text) run.reasoning += event.text
     if (event.type === 'test_complete') {
       completed = true
       if (!event.success) throw new Error(event.error || t('admin.accounts.pelicanTest.failed'))
@@ -633,6 +635,7 @@ async function startTest() {
     id: `${Date.now()}-${index}`,
     questionKind: questionKind.value,
     status: 'running',
+    reasoning: '',
     output: '',
     html: '',
     error: '',

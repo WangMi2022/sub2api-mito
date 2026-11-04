@@ -700,6 +700,24 @@ func TestSyncUpstreamModelCatalogPrefersDirectUpstreamMetadata(t *testing.T) {
 	require.Equal(t, int64(256_000), metadata.ContextWindow)
 }
 
+func TestSyncUpstreamModelCatalogReadsReasoningSupportedEfforts(t *testing.T) {
+	_, metadata, err := extractUpstreamModelCatalog([]byte(`{"data":[{
+		"id":"cn:glm-5.3-flash",
+		"reasoning_default_effort":"high",
+		"reasoning_supported_efforts":["low","high","max"],
+		"supports_reasoning":true,
+		"supports_images":true,
+		"context_window":1000000
+	}]}`), false)
+	require.NoError(t, err)
+	entry := metadata["cn:glm-5.3-flash"]
+	require.Equal(t, []string{"low", "high", "max"}, entry.SupportedReasoningLevels)
+	require.Equal(t, "high", entry.DefaultReasoningLevel)
+	require.NotNil(t, entry.Reasoning)
+	require.True(t, *entry.Reasoning)
+	require.Equal(t, int64(1_000_000), entry.ContextWindow)
+}
+
 // Scenario: 上游 /models 增删型号后，正式同步用最新清单替换能力快照。
 func TestSyncUpstreamModelCatalogReplacesSnapshotWhenUpstreamModelsChange(t *testing.T) {
 	upstream := &httpUpstreamRecorder{responses: []*http.Response{

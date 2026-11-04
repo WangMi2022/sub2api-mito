@@ -17,6 +17,21 @@ beforeEach(() => {
   getModelReasoning.mockReset().mockResolvedValue({ supported_reasoning_levels: ['low', 'medium', 'high'], default_reasoning_level: 'medium' })
 })
 
+it('shows reasoning deltas while waiting for model content', async () => {
+  global.fetch = vi.fn(() => Promise.resolve(streamResponse([
+    { type: 'test_start', model: 'glm-5.3-flash' },
+    { type: 'reasoning', text: 'thinking' },
+    { type: 'content', text: '<!doctype html><html><body>done</body></html>' },
+    { type: 'test_complete', success: true }
+  ]))) as any
+  const wrapper = mountModal()
+  ;(wrapper.vm as any).selectQuestion('pelican')
+  await (wrapper.vm as any).startTest()
+  expect((wrapper.vm as any).runs[0]).toMatchObject({ status: 'success', reasoning: 'thinking' })
+  expect(wrapper.text()).toContain('thinking')
+  wrapper.unmount()
+})
+
   it('always offers the fixed five reasoning efforts', async () => {
     getModelReasoning.mockResolvedValue({ supported_reasoning_levels: ['none', 'minimal', 'ultra'], default_reasoning_level: 'ultra' })
     const wrapper = mountModal()

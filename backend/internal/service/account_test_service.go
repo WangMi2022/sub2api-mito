@@ -3308,6 +3308,9 @@ func (s *AccountTestService) processOpenAIChatCompletionsStream(c *gin.Context, 
 				continue
 			}
 			if delta, ok := choice["delta"].(map[string]any); ok {
+				if reasoning, ok := delta["reasoning_content"].(string); ok && reasoning != "" {
+					s.sendEvent(c, TestEvent{Type: "reasoning", Text: reasoning})
+				}
 				if text, ok := delta["content"].(string); ok && text != "" {
 					accountTestContent(c, text)
 					s.sendEvent(c, TestEvent{Type: "content", Text: text})

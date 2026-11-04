@@ -644,6 +644,48 @@ func TestAccountTestService_OpenAIAPIKeyResponsesUnsupportedUsesChatCompletionsP
 	require.NotContains(t, body, "当前测试接口仅支持 Responses API 路径")
 }
 
+func TestAccountTestService_OpenAIChatCompletionsForwardsReasoningContent(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	ctx, recorder := newTestContext()
+
+	upstreamBody := strings.Join([]string{
+		`data: {"choices":[{"delta":{"reasoning_content":"thinking"}}]}`,
+		"",
+		`data: {"choices":[{"delta":{"content":"pong"},"finish_reason":null}]}`,
+		"",
+		`data: {"choices":[{"delta":{},"finish_reason":"stop"}]}`,
+		"",
+		"data: [DONE]",
+		"",
+	}, "\n")
+	upstream := &httpUpstreamRecorder{resp: &http.Response{
+		StatusCode: http.StatusOK,
+		Header:     http.Header{"Content-Type": []string{"text/event-stream"}},
+		Body:       io.NopCloser(strings.NewReader(upstreamBody)),
+	}}
+	svc := &AccountTestService{
+		httpUpstream: upstream,
+		cfg:          &config.Config{Security: config.SecurityConfig{URLAllowlist: config.URLAllowlistConfig{Enabled: false}}},
+	}
+	account := &Account{
+		ID:          95,
+		Platform:    PlatformOpenAI,
+		Type:        AccountTypeAPIKey,
+		Concurrency: 1,
+		Credentials: map[string]any{
+			"api_key":  "sk-test",
+			"base_url": "https://compat-upstream.example/v1",
+		},
+		Extra: map[string]any{openai_compat.ExtraKeyResponsesSupported: false},
+	}
+
+	err := svc.testOpenAIAccountConnection(ctx, account, "glm-5.3-flash", "hello", "")
+	require.NoError(t, err)
+	require.Contains(t, recorder.Body.String(), `{"type":"reasoning","text":"thinking"}`)
+	require.Contains(t, recorder.Body.String(), `{"type":"content","text":"pong"}`)
+	require.Contains(t, recorder.Body.String(), `"success":true`)
+}
+
 func TestAccountTestService_OpenAIChatCompletionsPathReturns4xx(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	ctx, recorder := newTestContext()

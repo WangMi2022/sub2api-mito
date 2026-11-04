@@ -1496,24 +1496,26 @@ type upstreamModelEntryMetadata struct {
 
 type upstreamModelCapabilityEntry struct {
 	upstreamModelEntry
-	DisplayName              string                     `json:"display_name"`
-	Description              string                     `json:"description"`
-	Reasoning                *bool                      `json:"reasoning"`
-	DefaultReasoningLevel    string                     `json:"default_reasoning_level"`
-	SupportedReasoningLevels []json.RawMessage          `json:"supported_reasoning_levels"`
-	ReasoningOptions         []modelsDevReasoningOption `json:"reasoning_options"`
-	InputModalities          []string                   `json:"input_modalities"`
-	Modalities               modelsDevModalities        `json:"modalities"`
-	ContextWindow            int64                      `json:"context_window"`
-	MaxContextWindow         int64                      `json:"max_context_window"`
-	MaxOutputTokens          int64                      `json:"max_output_tokens"`
-	Limit                    modelsDevLimit             `json:"limit"`
-	DisplayNameCamel         string                     `json:"displayName"`
-	SupportsImages           *bool                      `json:"supportsImages"`
-	SupportsThinking         *bool                      `json:"supportsThinking"`
-	ThinkingBudget           *int64                     `json:"thinkingBudget"`
-	MaxTokens                int64                      `json:"maxTokens"`
-	MaxOutputTokensCamel     int64                      `json:"maxOutputTokens"`
+	DisplayName               string                     `json:"display_name"`
+	Description               string                     `json:"description"`
+	Reasoning                 *bool                      `json:"reasoning"`
+	DefaultReasoningLevel     string                     `json:"default_reasoning_level"`
+	ReasoningDefaultEffort    string                     `json:"reasoning_default_effort"`
+	SupportedReasoningLevels  []json.RawMessage          `json:"supported_reasoning_levels"`
+	ReasoningSupportedEfforts []json.RawMessage          `json:"reasoning_supported_efforts"`
+	ReasoningOptions          []modelsDevReasoningOption `json:"reasoning_options"`
+	InputModalities           []string                   `json:"input_modalities"`
+	Modalities                modelsDevModalities        `json:"modalities"`
+	ContextWindow             int64                      `json:"context_window"`
+	MaxContextWindow          int64                      `json:"max_context_window"`
+	MaxOutputTokens           int64                      `json:"max_output_tokens"`
+	Limit                     modelsDevLimit             `json:"limit"`
+	DisplayNameCamel          string                     `json:"displayName"`
+	SupportsImages            *bool                      `json:"supportsImages"`
+	SupportsThinking          *bool                      `json:"supportsThinking"`
+	ThinkingBudget            *int64                     `json:"thinkingBudget"`
+	MaxTokens                 int64                      `json:"maxTokens"`
+	MaxOutputTokensCamel      int64                      `json:"maxOutputTokens"`
 }
 
 func extractUpstreamModelIDs(body []byte) ([]string, error) {
@@ -1601,6 +1603,9 @@ func extractUpstreamModelRawEntries(body []byte) ([]json.RawMessage, error) {
 func upstreamMetadataFromCapabilityEntry(modelID string, entry upstreamModelCapabilityEntry) UpstreamModelMetadata {
 	levels := reasoningLevelsFromRawEntries(entry.SupportedReasoningLevels)
 	if len(levels) == 0 {
+		levels = reasoningLevelsFromRawEntries(entry.ReasoningSupportedEfforts)
+	}
+	if len(levels) == 0 {
 		levels = reasoningLevelsFromModelsDevOptions(entry.ReasoningOptions)
 	}
 	reasoning := entry.Reasoning
@@ -1665,6 +1670,9 @@ func upstreamMetadataFromCapabilityEntry(modelID string, entry upstreamModelCapa
 		maxOutputTokens = entry.MaxOutputTokensCamel
 	}
 	defaultReasoningLevel := normalizeReasoningLevel(entry.DefaultReasoningLevel)
+	if defaultReasoningLevel == "" {
+		defaultReasoningLevel = normalizeReasoningLevel(entry.ReasoningDefaultEffort)
+	}
 	if defaultReasoningLevel == "" && len(levels) > 0 {
 		defaultReasoningLevel = levels[0]
 	}
