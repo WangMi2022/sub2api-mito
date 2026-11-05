@@ -205,7 +205,7 @@ export const adaptations = [
       {"before":"<template #cell-user=\"{ row }\">\n          <div class=\"text-sm\">","after":"<template #cell-user=\"{ row }\">\n          <div class=\"mito-usage-user text-sm\">"},
       {"before":"class=\"font-medium text-primary-600 underline decoration-dashed underline-offset-2","after":"class=\"mito-usage-user-link font-medium text-primary-600 underline decoration-dashed underline-offset-2"},
       {"before":"<span class=\"ml-1 text-gray-500 dark:text-gray-400\">#{{ row.user_id }}</span>","after":"<span class=\"mito-usage-user-id ml-1 text-gray-500 dark:text-gray-400\">#{{ row.user_id }}</span>"},
-      {"before":"<template #cell-api_key=\"{ row }\">\n          <span class=\"text-sm","after":"<template #cell-api_key=\"{ row }\">\n          <span class=\"mito-usage-key text-sm"},
+      {"before":"<template #cell-api_key=\"{ row }\">\n          <UsageApiKeyName :name=\"row.api_key?.name\" />","after":"<template #cell-api_key=\"{ row }\">\n          <UsageApiKeyName class=\"mito-usage-key\" :name=\"row.api_key?.name\" />"},
       {"before":"<template #cell-account=\"{ row }\">\n          <span class=\"text-sm","after":"<template #cell-account=\"{ row }\">\n          <span class=\"mito-usage-account text-sm"},
       {"before":"<template #cell-model=\"{ row }\">\n          <div class=\"space-y-0.5 text-xs\">","after":"<template #cell-model=\"{ row }\">\n          <div class=\"mito-usage-model space-y-0.5 text-xs\">"},
       {"before":":class=\"i === 0 ? 'font-medium","after":":class=\"i === 0 ? 'mito-usage-model-primary font-medium"},
