@@ -1,8 +1,8 @@
 <template>
-  <header class="glass sticky top-0 z-30 border-b border-gray-200/50 dark:border-dark-700/50">
-    <div class="flex h-16 items-center justify-between gap-2 px-2 sm:px-4 md:px-6">
+  <header class="mito-header glass sticky top-0 z-30 border-b border-gray-200/50 dark:border-dark-700/50">
+    <div class="mito-header-inner flex h-16 items-center justify-between gap-2 px-2 sm:px-4 md:px-6">
       <!-- Left: Mobile Menu Toggle + Page Title -->
-      <div class="flex min-w-0 items-center gap-2 sm:gap-4">
+      <div class="mito-header-left flex min-w-0 items-center gap-2 sm:gap-4">
         <button
           @click="toggleMobileSidebar"
           class="btn-ghost btn-icon lg:hidden"
@@ -11,7 +11,7 @@
           <Icon name="menu" size="md" />
         </button>
 
-        <div class="hidden min-w-0 lg:block">
+        <div class="mito-header-title hidden min-w-0 lg:block">
           <h1 class="truncate text-lg font-semibold text-gray-900 dark:text-white">
             {{ pageTitle }}
           </h1>
@@ -22,7 +22,7 @@
       </div>
 
       <!-- Right: Announcements + Docs + Language + Subscriptions + Balance + User Dropdown -->
-      <div class="flex shrink-0 items-center gap-1 sm:gap-3">
+      <div class="mito-header-controls flex shrink-0 items-center gap-1 sm:gap-3">
         <!-- Announcement Bell -->
         <AnnouncementBell v-if="user" />
 
@@ -32,7 +32,7 @@
           :href="docUrl"
           target="_blank"
           rel="noopener noreferrer"
-          class="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-dark-400 dark:hover:bg-dark-800 dark:hover:text-white sm:flex"
+          class="mito-header-control hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-dark-400 dark:hover:bg-dark-800 dark:hover:text-white sm:flex"
         >
           <Icon name="book" size="sm" />
           <span class="hidden sm:inline">{{ t('nav.docs') }}</span>
@@ -44,7 +44,7 @@
           :to="{ path: '/model-plaza', query: { embedded: '1' } }"
           :title="t('nav.modelPlaza')"
           :aria-label="t('nav.modelPlaza')"
-          class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-dark-400 dark:hover:bg-dark-800 dark:hover:text-white"
+          class="mito-header-control flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-dark-400 dark:hover:bg-dark-800 dark:hover:text-white"
         >
           <Icon name="grid" size="sm" />
           <span class="hidden sm:inline">{{ t('nav.modelPlaza') }}</span>
@@ -52,6 +52,7 @@
 
         <!-- Language Switcher -->
         <LocaleSwitcher />
+        <MitoThemeToggle v-if="isMitoTheme" />
 
         <!-- Subscription Progress (for users with active subscriptions; not mounted at all when the feature is off) -->
         <SubscriptionProgressMini v-if="user && subscriptionFeatureEnabled" />
@@ -59,7 +60,7 @@
         <!-- Balance Display -->
         <div
           v-if="user"
-          class="group relative hidden items-center gap-2 rounded-xl bg-primary-50 px-3 py-1.5 dark:bg-primary-900/20 sm:flex"
+          class="mito-header-balance group relative hidden items-center gap-2 rounded-xl bg-primary-50 px-3 py-1.5 dark:bg-primary-900/20 sm:flex"
         >
           <svg
             class="h-4 w-4 text-primary-600 dark:text-primary-400"
@@ -110,7 +111,7 @@
             class="flex items-center gap-2 rounded-xl p-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-dark-800"
             :aria-label="t('common.userMenu')"
           >
-            <div class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 text-sm font-medium text-white shadow-sm">
+            <div class="mito-header-avatar flex h-8 w-8 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 text-sm font-medium text-white shadow-sm">
               <img
                 v-if="avatarUrl"
                 :src="avatarUrl"
@@ -123,7 +124,7 @@
               <div class="text-sm font-medium text-gray-900 dark:text-white">
                 {{ displayName }}
               </div>
-              <div class="text-xs text-gray-500 dark:text-dark-400">
+              <div class="mito-header-role text-xs text-gray-500 dark:text-dark-400">
                 {{ t('admin.users.roles.' + user.role) }}
               </div>
             </div>
@@ -265,6 +266,8 @@ import { sanitizeUrl } from '@/utils/url'
 import { FeatureFlags, isFeatureFlagEnabled } from '@/utils/featureFlags'
 import { resolveRouteMetaKeys } from '@/router/title'
 import { resolveSiteBillingMode } from '@/utils/siteBillingMode'
+import MitoThemeToggle from '@/themes/mito/ThemeToggle.vue'
+import { isMitoTheme } from '@/themes/mito'
 import { getCustomMenuLabel } from '@/utils/customMenu'
 
 const router = useRouter()
