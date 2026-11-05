@@ -1,7 +1,7 @@
 <template>
-  <div class="mito-app-layout min-h-screen bg-gray-50 dark:bg-dark-950">
+  <div class="min-h-screen bg-gray-50 dark:bg-dark-950">
     <!-- Background Decoration -->
-    <div class="mito-app-decoration pointer-events-none fixed inset-0 bg-mesh-gradient"></div>
+    <div class="pointer-events-none fixed inset-0 bg-mesh-gradient"></div>
 
     <!-- Sidebar -->
     <AppSidebar />
@@ -15,8 +15,7 @@
       <AppHeader />
 
       <!-- Main Content -->
-      <main class="mito-main p-4 md:p-6 lg:p-8">
-        <MitoPageHeading v-if="isMitoTheme"><slot name="heading-actions" /></MitoPageHeading>
+      <main class="p-4 md:p-6 lg:p-8">
         <slot />
       </main>
     </div>
@@ -32,8 +31,6 @@ import { useOnboardingTour } from '@/composables/useOnboardingTour'
 import { useOnboardingStore } from '@/stores/onboarding'
 import AppSidebar from './AppSidebar.vue'
 import AppHeader from './AppHeader.vue'
-import MitoPageHeading from '@/themes/mito/PageHeading.vue'
-import { isMitoTheme } from '@/themes/mito'
 
 const appStore = useAppStore()
 const authStore = useAuthStore()
