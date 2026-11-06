@@ -1,6 +1,4 @@
 <template>
-  <MitoDashboardStats v-if="isMitoTheme" :stats="stats" :balance="balance" :is-simple="isSimple" />
-  <template v-else>
   <!-- Row 1: Core Stats -->
   <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
     <!-- Balance -->
@@ -134,7 +132,6 @@
     </div>
   </div>
 
-  </template>
   <!-- Row 3: Per-platform breakdown -->
   <div v-if="!isSimple && platformCards.length > 0" class="card p-4">
     <div class="mb-3 flex items-center justify-between">
@@ -150,7 +147,7 @@
         data-testid="platform-card"
         :data-platform="item.platform"
         :class="[
-          'mito-platform-card rounded-lg border p-3',
+          'rounded-lg border p-3',
           item.isOther
             ? 'border-dashed border-gray-300 bg-gray-50 dark:border-dark-500 dark:bg-dark-700/30'
             : 'border-gray-200 dark:border-dark-600'
@@ -233,8 +230,6 @@ import { useI18n } from 'vue-i18n'
 import Icon from '@/components/icons/Icon.vue'
 import type { PlatformDashboardStats, UserDashboardStats as UserStatsType } from '@/api/usage'
 import type { PlatformQuotaItem } from '@/types'
-import MitoDashboardStats from '@/themes/mito/DashboardStats.vue'
-import { isMitoTheme } from '@/themes/mito'
 
 interface FusedPlatformCard {
   platform: string
