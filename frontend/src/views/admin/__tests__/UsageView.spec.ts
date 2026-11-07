@@ -591,7 +591,7 @@ describe('admin UsageView request ID column visibility', () => {
     )
     expect(localStorage.setItem).toHaveBeenCalledWith(
       'usage-hidden-columns-version',
-      'admin-request-log-columns-v2',
+      'upstream-request-id-hidden-by-default',
     )
 
     expect(wrapper.findAll('button').some(button =>
