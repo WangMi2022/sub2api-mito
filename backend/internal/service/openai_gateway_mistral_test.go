@@ -245,8 +245,9 @@ func TestMistralAccountTestParsesArrays(t *testing.T) {
 		err := (&AccountTestService{}).processOpenAIChatCompletionsStream(c, strings.NewReader(stream), account)
 		if valid {
 			require.NoError(t, err)
-			require.Contains(t, w.Body.String(), "Hello world")
-			require.NotContains(t, w.Body.String(), "reason two")
+			// Mito displays reasoning separately from the visible response content.
+			require.Contains(t, w.Body.String(), `{"type":"content","text":"Hello world"}`)
+			require.Contains(t, w.Body.String(), `{"type":"reasoning","text":"reason two"}`)
 			require.Contains(t, w.Body.String(), `"success":true`)
 		} else {
 			require.Error(t, err)

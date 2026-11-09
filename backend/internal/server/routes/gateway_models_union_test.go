@@ -159,7 +159,7 @@ func newUnionFixture() *unionFixture {
 		return service.Account{ID: id, Platform: service.PlatformOpenAI, Type: service.AccountTypeAPIKey, Status: service.StatusActive, Schedulable: true, Credentials: map[string]any{"model_mapping": mapping}}
 	}
 	return &unionFixture{
-		key:    &service.APIKey{ID: 10, UserID: 7, Status: service.StatusActive, GroupID: &groups.groups[1].ID, GroupIDs: []int64{1, 2}, Group: groups.groups[1], User: &service.User{ID: 7, Status: service.StatusActive, Balance: 10}},
+		key:    &service.APIKey{ID: 10, UserID: 7, Status: service.StatusActive, GroupID: &groups.groups[1].ID, GroupIDs: []int64{1, 2}, Group: groups.groups[1], User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 7, Status: service.StatusActive, Balance: 10}},
 		groups: groups, accounts: &unionAccounts{groups: map[int64][]service.Account{1: {account(101, "text-model", "shared-model")}, 2: {account(102, "image-model", "shared-model")}}},
 		rates: &unionRates{denied: map[int64][]string{}}, subs: &unionSubscriptions{}, probe: &unionProbe{},
 	}
