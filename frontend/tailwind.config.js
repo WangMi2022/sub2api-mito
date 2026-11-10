@@ -1,5 +1,7 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+import { withMitoTheme } from './src/themes/mito/tailwind.mjs'
+
+export default withMitoTheme({
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   darkMode: 'class',
   theme: {
@@ -131,4 +133,4 @@ export default {
     }
   },
   plugins: []
-}
+}) // mito-theme: utilities
