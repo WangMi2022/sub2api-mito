@@ -154,6 +154,11 @@ html[data-ui-theme='mito'] .mito-admin-dashboard > .grid > .card > .flex {
   height: 100%;
 }
 
+/* The performance tile has a second metric row; let both rows size to content. */
+html[data-ui-theme='mito'] .mito-admin-dashboard > .grid > .card:has([data-testid='account-concurrency']) > .flex {
+  height: auto;
+}
+
 /* Quick actions: the arrow slides out and the tile washes with its own colour. */
 html[data-ui-theme='mito'] .mito-admin-dashboard > .card .grid > button {
   position: relative;
