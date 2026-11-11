@@ -507,7 +507,7 @@ export const adaptations = [
     path: 'frontend/src/views/admin/UsageView.vue',
     edits: [
       {"before":"  <AppLayout>\n    <div class=\"space-y-6\">","after":"  <AppLayout>\n    <div class=\"mito-admin-usage space-y-6\">"},
-      {"before":"<UsageStatsCards v-if=\"activeTab !== 'traffic'\" :stats=\"usageStats\" />","after":"<UsageStatsCards v-if=\"activeTab !== 'traffic'\" class=\"mito-admin-usage-stats\" :stats=\"usageStats\" />"},
+      {"before":"<UsageStatsCards\n        v-if=\"activeTab !== 'traffic'\"\n        :stats=\"usageStats\"","after":"<UsageStatsCards\n        v-if=\"activeTab !== 'traffic'\"\n        class=\"mito-admin-usage-stats\"\n        :stats=\"usageStats\""},
       {"before":"      <!-- Charts Section -->\n      <div v-if=\"activeTab !== 'traffic'\" class=\"space-y-4\">","after":"      <!-- Charts Section -->\n      <div v-if=\"activeTab !== 'traffic'\" class=\"mito-admin-usage-charts space-y-4\">"},
       {"before":"<div class=\"card p-4\">","after":"<div class=\"mito-admin-usage-date card p-4\">"},
       {"before":"<div class=\"card\">","after":"<div class=\"mito-admin-usage-panel card\">"},
@@ -825,7 +825,8 @@ export const contracts = [
   {"path":"frontend/src/themes/mito/admin-usage.css","anchors":["html[data-ui-theme='mito']",".mito-admin-usage-records",".mito-admin-usage-filters",".mito-usage-latency","prefers-reduced-motion"]},
   {"path":"frontend/src/themes/mito/index.ts","anchors":["import './admin-usage.css'"]},
   {"path":"frontend/src/components/common/DataTable.vue","anchors":["column.class",":data-field=\"column.key\"","data-test=\"mobile-sort-controls\"","virtualPaddingTop"]},
-  {"path":"frontend/src/components/admin/usage/UsageStatsCards.vue","anchors":["class=\"card p-4 flex items-center gap-3\"","class=\"text-xl font-bold","showAccountCost && totalAccountCost != null"]},
+  {"path":"frontend/src/components/admin/usage/UsageStatsCards.vue","anchors":["class=\"card p-4 flex items-center gap-3\"","class=\"text-xl font-bold","showAccountCost && totalAccountCost != null","data-testid=\"usage-rate-card\"","data-testid=\"usage-rpm\"","data-testid=\"usage-tpm\"","usagePerMinute(props.stats.total_requests, props.rateWindow)","usagePerMinute(props.stats.total_tokens, props.rateWindow)"]},
+  {"path":"frontend/src/views/admin/UsageView.vue","anchors":["show-rate",":rate-window=\"usageStatsWindow\"",":notice-user-id=\"props.observerMode ? undefined : authStore.user?.id\""]},
   {"path":"frontend/src/themes/mito/model-plaza.css","anchors":["html[data-ui-theme='mito']",".mito-plaza-filters",".mito-plaza-prices","@container mito-plaza","mito-plaza-page-in","mito-plaza-card-in","mito-plaza-row-in","mito-plaza-sweep","prefers-reduced-motion"]},
   {"path":"frontend/src/themes/mito/index.ts","anchors":["import './model-plaza.css'"]},
   {"path":"frontend/src/themes/mito/dashboard.css","anchors":["html[data-ui-theme='mito']",".mito-admin-dashboard","mito-dash-card-in","mito-dash-sweep","prefers-reduced-motion",".card:has(.date-picker-trigger)",".card:has([data-testid='account-concurrency']) > .flex {\n  height: auto;"]},
