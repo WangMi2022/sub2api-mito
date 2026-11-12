@@ -104,13 +104,22 @@
         data-testid="showcase-empty"
       />
 
-      <!-- One section per showcased group -->
-      <section
-        v-for="group in shownGroups"
-        :key="group.id"
-        class="space-y-4"
-        :data-testid="`showcase-group-${group.id}`"
-      >
+      <!-- One card per showcased group. The Mito theme folds it; the header row is the disclosure control. -->
+      <template v-for="group in shownGroups" :key="group.id">
+        <MitoPelicanShowcaseGroup
+          v-if="isMitoTheme"
+          :group="group"
+          :bodies="bodies"
+          :expanded="expandedGroups.includes(group.id)"
+          @toggle="toggleGroup(group.id)"
+          @visible="requestBody"
+          @open="openPreview"
+        />
+        <section
+          v-else
+          class="space-y-4"
+          :data-testid="`showcase-group-${group.id}`"
+        >
         <header class="flex min-w-0 items-center gap-3">
           <span
             class="grid h-9 w-9 flex-shrink-0 place-items-center rounded-xl ring-1 ring-black/5 dark:ring-white/10"
@@ -149,7 +158,8 @@
             @open="openPreview(group, item)"
           />
         </PelicanShowcaseRow>
-      </section>
+        </section>
+      </template>
     </div>
 
     <PelicanShowcaseApiDialog
@@ -252,6 +262,8 @@ import PelicanArtworkPreview from '@/components/user/pelican/PelicanArtworkPrevi
 import PelicanShowcaseApiDialog from '@/components/user/pelican/PelicanShowcaseApiDialog.vue'
 import PelicanShowcaseCard from '@/components/user/pelican/PelicanShowcaseCard.vue'
 import PelicanShowcaseRow from '@/components/user/pelican/PelicanShowcaseRow.vue'
+import MitoPelicanShowcaseGroup from '@/themes/mito/PelicanShowcaseGroup.vue'
+import { isMitoTheme } from '@/themes/mito'
 import {
   pelicanDurationLabel,
   pelicanEffortLabel,
@@ -287,6 +299,8 @@ const isAdmin = computed(() => authStore.isAdmin)
 const view = ref<PelicanShowcaseView | null>(null)
 const loading = ref(false)
 const activeGroup = ref<TabKey>('all')
+// Every group starts folded: a gallery with many groups opens on the headers alone.
+const expandedGroups = ref<number[]>([])
 const bodies = reactive<Record<number, PelicanBody>>({})
 const preview = ref<{ group: PelicanShowcaseGroup; item: PelicanShowcaseItem } | null>(null)
 const previewMode = ref<'fit' | 'actual'>('fit')
@@ -319,7 +333,14 @@ const previewEffort = computed(() => (preview.value ? pelicanEffortLabel(t, prev
 // A removed group must not leave the filter pointing at nothing.
 watch(groups, (list) => {
   if (activeGroup.value !== 'all' && !list.some((group) => group.id === activeGroup.value)) activeGroup.value = 'all'
+  expandedGroups.value = expandedGroups.value.filter((id) => list.some((group) => group.id === id))
 })
+
+function toggleGroup(id: number) {
+  expandedGroups.value = expandedGroups.value.includes(id)
+    ? expandedGroups.value.filter((value) => value !== id)
+    : [...expandedGroups.value, id]
+}
 
 function requestBody(id: number) {
   if (bodies[id]) return

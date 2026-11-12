@@ -560,8 +560,8 @@ export const adaptations = [
     "path": "frontend/src/views/admin/AccountsView.vue",
     "edits": [
       {
-        "before": "<div ref=\"accountTableRef\" class=\"flex min-h-0 flex-1 flex-col overflow-hidden\">",
-        "after": "<div ref=\"accountTableRef\" class=\"mito-accounts-table flex min-h-0 flex-1 flex-col overflow-hidden\">"
+        "before": "<div ref=\"accountTableRef\" class=\"flex min-h-0 flex-1 flex-col overflow-hidden\" :aria-busy=\"loading\" :inert=\"loading && accounts.length > 0\">",
+        "after": "<div ref=\"accountTableRef\" class=\"mito-accounts-table flex min-h-0 flex-1 flex-col overflow-hidden\" :aria-busy=\"loading\" :inert=\"loading && accounts.length > 0\">"
       },
       {
         "before": "<template #cell-name=\"{ row, value }\">\n            <a v-if=\"row.upstream_channel_binding\" href=\"/admin/upstream-channels\" class=\"block text-xs text-primary-600\" data-testid=\"account-current-upstream\">{{ row.upstream_channel_binding.channel ? `${row.upstream_channel_binding.channel.name} · ${row.upstream_channel_binding.channel.code}` : t('upstreamEntities.unbound') }}</a>\n            <div class=\"flex flex-col\">",
@@ -788,6 +788,13 @@ export const contracts = [
       ".mito-accounts-table",
       "tr[data-row-id]",
       ".mito-account-usage-progress"
+    ]
+  },
+  {
+    "path": "frontend/src/views/admin/AccountsView.vue",
+    "anchors": [
+      ":aria-busy=\"loading\"",
+      ":inert=\"loading && accounts.length > 0\""
     ]
   },
   {

@@ -1,12 +1,12 @@
 <template>
   <AppLayout>
-    <TablePageLayout>
+    <TablePageLayout class="mito-audit-log">
       <!-- Filters -->
       <template #filters>
-        <div class="card p-4 sm:p-6">
-          <div class="flex flex-wrap items-end justify-between gap-4">
+        <MitoFilterSection v-slot="{ expanded, panelId }" :selected-count="activeFilterCount" class="mito-audit-filters card p-4 sm:p-6">
+          <div class="mito-filter-layout flex flex-wrap items-end justify-between gap-4">
             <!-- Left: filter fields -->
-            <div class="flex flex-1 flex-wrap items-end gap-4">
+            <div v-show="expanded" :id="panelId" class="mito-filter-fields mito-filter-fields--audit flex flex-1 flex-wrap items-end gap-4">
               <div class="w-full sm:w-auto sm:min-w-[240px]">
                 <label class="input-label">{{ t('admin.audit.filters.q') }}</label>
                 <div class="relative">
@@ -66,7 +66,7 @@
             </div>
 
             <!-- Right: actions -->
-            <div class="flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto">
+            <div class="mito-filter-actions flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto">
               <button type="button" class="btn btn-primary" :disabled="loading" @click="search">
                 {{ t('common.search') }}
               </button>
@@ -79,18 +79,18 @@
               </button>
             </div>
           </div>
-        </div>
+        </MitoFilterSection>
       </template>
 
       <!-- Table -->
       <template #table>
         <DataTable :columns="columns" :data="logs" :loading="loading" row-key="id">
           <template #cell-created_at="{ value }">
-            <span class="whitespace-nowrap text-gray-600 dark:text-gray-300">{{ formatTime(value) }}</span>
+            <span class="mito-audit-time whitespace-nowrap text-gray-600 dark:text-gray-300">{{ formatTime(value) }}</span>
           </template>
 
           <template #cell-actor="{ row }">
-            <div class="min-w-0 max-w-[220px]">
+            <div class="mito-audit-actor min-w-0 max-w-[220px]">
               <div class="truncate font-medium text-gray-900 dark:text-white" :title="row.actor_email">
                 {{ row.actor_email || '—' }}
               </div>
@@ -101,7 +101,7 @@
           </template>
 
           <template #cell-action="{ row }">
-            <div class="min-w-0 max-w-xs">
+            <div class="mito-audit-action min-w-0 max-w-xs">
               <div class="truncate font-mono text-sm text-gray-800 dark:text-gray-200" :title="row.action">
                 {{ row.action }}
               </div>
@@ -119,17 +119,17 @@
           </template>
 
           <template #cell-latency_ms="{ value }">
-            <span class="whitespace-nowrap text-gray-500 dark:text-gray-400">{{ value }} ms</span>
+            <span class="mito-audit-latency whitespace-nowrap text-gray-500 dark:text-gray-400">{{ value }} ms</span>
           </template>
 
           <template #cell-client_ip="{ value }">
-            <span class="whitespace-nowrap font-mono text-gray-600 dark:text-gray-300">{{ value || '—' }}</span>
+            <span class="mito-audit-ip whitespace-nowrap font-mono text-gray-600 dark:text-gray-300">{{ value || '—' }}</span>
           </template>
 
           <template #cell-actions="{ row }">
             <button
               type="button"
-              class="inline-flex items-center gap-1 font-medium text-primary-600 transition-colors hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+              class="mito-audit-detail-button inline-flex items-center gap-1 font-medium text-primary-600 transition-colors hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
               @click="openDetail(row.id)"
             >
               <Icon name="eye" size="sm" />
@@ -138,7 +138,7 @@
           </template>
 
           <template #empty>
-            <div class="flex flex-col items-center py-8">
+            <div class="mito-audit-empty flex flex-col items-center py-8">
               <Icon name="shield" size="xl" class="mb-4 h-12 w-12 text-gray-300 dark:text-dark-600" />
               <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('admin.audit.empty') }}</p>
             </div>
@@ -174,9 +174,9 @@
         </div>
       </div>
 
-      <div v-else-if="detail" class="space-y-5 py-2">
+      <div v-else-if="detail" class="mito-audit-detail space-y-5 py-2">
         <!-- Hero: action + result at a glance -->
-        <div class="rounded-2xl border border-gray-200 bg-gray-50/60 p-5 dark:border-dark-700 dark:bg-dark-900/60">
+        <div class="mito-audit-detail-hero rounded-2xl border border-gray-200 bg-gray-50/60 p-5 dark:border-dark-700 dark:bg-dark-900/60">
           <div class="flex flex-wrap items-center gap-3">
             <span :class="statusBadgeClass(detail.status_code)">
               <span class="h-1.5 w-1.5 rounded-full" :class="statusDotClass(detail.status_code)"></span>
@@ -366,6 +366,7 @@ import BaseDialog from '@/components/common/BaseDialog.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import Icon from '@/components/icons/Icon.vue'
 import { useAppStore } from '@/stores'
+import MitoFilterSection from '@/themes/mito/FilterSection.vue'
 
 const { t } = useI18n()
 const appStore = useAppStore()
@@ -388,6 +389,9 @@ const filters = reactive({
 
 // 时间范围：预设窗口（同 /admin/ops 时间下拉）+ 自定义起止（datetime-local，支持时分）
 const timeRange = ref('')
+const activeFilterCount = computed(() =>
+  Object.values(filters).filter(Boolean).length + Number(Boolean(timeRange.value))
+)
 const customStartTime = ref('')
 const customEndTime = ref('')
 const showCustomTimeRangeDialog = ref(false)
@@ -464,13 +468,13 @@ function handleCustomTimeRangeCancel() {
 }
 
 const columns = computed<Column[]>(() => [
-  { key: 'created_at', label: t('admin.audit.columns.time') },
-  { key: 'actor', label: t('admin.audit.columns.actor') },
-  { key: 'action', label: t('admin.audit.columns.action') },
-  { key: 'status_code', label: t('admin.audit.columns.result') },
-  { key: 'latency_ms', label: t('admin.audit.detail.latency') },
-  { key: 'client_ip', label: t('admin.audit.columns.clientIp') },
-  { key: 'actions', label: t('common.actions') }
+  { key: 'created_at', label: t('admin.audit.columns.time'), class: 'mito-audit-col-created_at' },
+  { key: 'actor', label: t('admin.audit.columns.actor'), class: 'mito-audit-col-actor' },
+  { key: 'action', label: t('admin.audit.columns.action'), class: 'mito-audit-col-action' },
+  { key: 'status_code', label: t('admin.audit.columns.result'), class: 'mito-audit-col-status_code' },
+  { key: 'latency_ms', label: t('admin.audit.detail.latency'), class: 'mito-audit-col-latency_ms' },
+  { key: 'client_ip', label: t('admin.audit.columns.clientIp'), class: 'mito-audit-col-client_ip' },
+  { key: 'actions', label: t('common.actions'), class: 'mito-audit-col-actions' }
 ])
 
 const methodOptions = computed(() => [
