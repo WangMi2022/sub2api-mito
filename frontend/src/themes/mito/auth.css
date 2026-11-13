@@ -35,7 +35,7 @@ html[data-ui-theme='mito'] .mito-auth-header {
   position: relative;
   z-index: 20;
   width: 100%;
-  max-width: 1180px;
+  max-width: 1760px;
   min-height: 76px;
   margin: 0 auto;
   padding: 14px 0;
@@ -144,7 +144,7 @@ html[data-ui-theme='mito'] .mito-auth-entry {
   grid-template-columns: minmax(0, 1fr) minmax(400px, 460px);
   grid-template-rows: auto 1fr;
   column-gap: clamp(52px, 8vw, 112px);
-  max-width: 1180px;
+  max-width: 1760px;
   min-height: 100svh;
   margin: 0 auto;
 }
