@@ -132,19 +132,146 @@ export const adaptations = [
       { before: "import { setLocale, availableLocales } from '@/i18n'", after: "import { setLocale, availableLocales } from '@/i18n'\nimport { isMitoTheme } from '@/themes/mito'" }
     ]
   },
-  {
-    path: 'frontend/src/components/layout/AuthLayout.vue',
-    edits: [
-      { before: 'class="relative flex min-h-screen items-center justify-center overflow-hidden p-4"', after: 'class="mito-auth-layout relative flex min-h-screen items-center justify-center overflow-hidden p-4"' },
-      { before: '<!-- Background -->', after: '<MitoAuthHeader v-if="isMitoTheme && settingsLoaded" :name="siteName" :logo="siteLogo" />\n    <!-- Background -->' },
-      { before: 'class="absolute inset-0 bg-gradient-to-br', after: 'class="mito-auth-background absolute inset-0 bg-gradient-to-br' },
-      { before: 'class="pointer-events-none absolute inset-0 overflow-hidden"', after: 'class="mito-auth-decoration pointer-events-none absolute inset-0 overflow-hidden"' },
-      { before: 'class="relative z-10 w-full max-w-md"', after: 'class="mito-auth-content relative z-10 w-full max-w-md"' },
-      { before: 'class="mb-8 text-center"', after: 'class="mito-auth-brand mb-8 text-center"' },
-      { before: 'class="card-glass rounded-2xl p-8 shadow-glass"', after: 'class="mito-auth-card card-glass rounded-2xl p-8 shadow-glass"' },
-      { before: "import { sanitizeUrl } from '@/utils/url'", after: "import { sanitizeUrl } from '@/utils/url'\nimport MitoAuthHeader from '@/themes/mito/AuthHeader.vue'\nimport { isMitoTheme } from '@/themes/mito'" }
-    ]
-  },
+{
+  "path": "frontend/src/components/layout/AuthLayout.vue",
+  "edits": [
+    {
+      "before": "class=\"relative flex min-h-screen items-center justify-center overflow-hidden p-4\"",
+      "after": "class=\"mito-auth-layout relative flex min-h-screen items-center justify-center overflow-hidden p-4\"\n    :class=\"{ 'mito-auth-entry': isMitoTheme && isAccountEntry }\""
+    },
+    {
+      "before": "<!-- Background -->",
+      "after": "<MitoAuthHeader v-if=\"isMitoTheme && settingsLoaded\" :name=\"siteName\" :logo=\"siteLogo\" :registration-enabled=\"registrationEnabled\" />\n    <MitoAuthAside v-if=\"isMitoTheme && settingsLoaded && isAccountEntry\" />\n    <!-- Background -->"
+    },
+    {
+      "before": "class=\"absolute inset-0 bg-gradient-to-br",
+      "after": "class=\"mito-auth-background absolute inset-0 bg-gradient-to-br"
+    },
+    {
+      "before": "class=\"pointer-events-none absolute inset-0 overflow-hidden\"",
+      "after": "class=\"mito-auth-decoration pointer-events-none absolute inset-0 overflow-hidden\""
+    },
+    {
+      "before": "class=\"relative z-10 w-full max-w-md\"",
+      "after": "class=\"mito-auth-content relative z-10 w-full max-w-md\""
+    },
+    {
+      "before": "class=\"mb-8 text-center\"",
+      "after": "class=\"mito-auth-brand mb-8 text-center\""
+    },
+    {
+      "before": "class=\"card-glass rounded-2xl p-8 shadow-glass\"",
+      "after": "class=\"mito-auth-card card-glass rounded-2xl p-8 shadow-glass\""
+    },
+    {
+      "before": "import { sanitizeUrl } from '@/utils/url'",
+      "after": "import { useRoute } from 'vue-router'\nimport { sanitizeUrl } from '@/utils/url'\nimport MitoAuthAside from '@/themes/mito/MitoAuthAside.vue'\nimport MitoAuthHeader from '@/themes/mito/AuthHeader.vue'\nimport { isMitoTheme } from '@/themes/mito'"
+    },
+    {
+      "before": "const appStore = useAppStore()",
+      "after": "const appStore = useAppStore()\nconst route = useRoute()\nconst isAccountEntry = computed(() => route.path === '/login' || route.path === '/register')"
+    },
+    {
+      "before": "const settingsLoaded = computed(() => appStore.publicSettingsLoaded)",
+      "after": "const settingsLoaded = computed(() => appStore.publicSettingsLoaded)\nconst registrationEnabled = computed(() => appStore.cachedPublicSettings?.registration_enabled === true)"
+    }
+  ]
+},
+{
+  "path": "frontend/src/views/auth/LoginView.vue",
+  "edits": [
+    {
+      "before": "    <div class=\"space-y-6\">",
+      "after": "    <div class=\"mito-auth-form-flow space-y-6\">"
+    },
+    {
+      "before": "      <!-- Title -->\n      <div class=\"text-center\">\n        <h2 class=\"text-2xl font-bold text-gray-900 dark:text-white\">\n          {{ t('auth.welcomeBack') }}\n        </h2>\n        <p class=\"mt-2 text-sm text-gray-500 dark:text-dark-400\">\n          {{ t('auth.signInToAccount') }}\n        </p>\n      </div>",
+      "after": "      <!-- Title -->\n      <div class=\"mito-auth-form-heading text-center\">\n        <h2 class=\"text-2xl font-bold text-gray-900 dark:text-white\">\n          {{ authText('loginTitle') }}\n        </h2>\n        <p class=\"mt-2 text-sm text-gray-500 dark:text-dark-400\">\n          {{ authText('loginSubtitle') }}\n        </p>\n      </div>\n\n      <div v-if=\"publicSettingsLoaded && registrationEnabled\" class=\"mito-auth-create-prompt\">\n        <div>\n          <strong>{{ authText('createPromptTitle') }}</strong>\n          <span>{{ authText('createPromptDescription') }}</span>\n        </div>\n        <router-link to=\"/register\">{{ authText('registerNow') }}</router-link>\n      </div>"
+    },
+    {
+      "before": "      <form @submit.prevent=\"handleLogin\" class=\"space-y-5\">",
+      "after": "      <form @submit.prevent=\"handleLogin\" class=\"mito-auth-primary-form space-y-5\">"
+    },
+    {
+      "before": "              @click=\"showPassword = !showPassword\"",
+      "after": "              :aria-label=\"showPassword ? authText('hidePassword') : authText('showPassword')\"\n              class=\"mito-password-toggle absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-dark-300\"\n              @click=\"showPassword = !showPassword\""
+    },
+    {
+      "before": "        <div v-if=\"showPasskeyLogin || showOAuthLogin\" class=\"space-y-3 pt-1\">",
+      "after": "        <div v-if=\"showPasskeyLogin || showOAuthLogin\" class=\"mito-auth-alternatives space-y-3 pt-1\">"
+    },
+    {
+      "before": "      <p class=\"text-gray-500 dark:text-dark-400\">",
+      "after": "      <p class=\"mito-auth-account-switch text-gray-500 dark:text-dark-400\">"
+    },
+    {
+      "before": "const { t } = useI18n()",
+      "after": "const { t } = useI18n()\nconst authText = useMitoLabels()"
+    },
+    {
+      "before": "import { AuthLayout } from '@/components/layout'",
+      "after": "import { AuthLayout } from '@/components/layout'\nimport { useMitoLabels } from '@/themes/mito/labels'"
+    }
+  ]
+},
+{
+  "path": "frontend/src/views/auth/RegisterView.vue",
+  "edits": [
+    {
+      "before": "    <div class=\"space-y-6\">",
+      "after": "    <div class=\"mito-auth-form-flow space-y-6\">"
+    },
+    {
+      "before": "      <!-- Title -->\n      <div class=\"text-center\">\n        <h2 class=\"text-2xl font-bold text-gray-900 dark:text-white\">\n          {{ t('auth.createAccount') }}\n        </h2>\n        <p class=\"mt-2 text-sm text-gray-500 dark:text-dark-400\">\n          {{ t('auth.signUpToStart', { siteName }) }}\n        </p>\n      </div>",
+      "after": "      <!-- Title -->\n      <div class=\"mito-auth-form-heading text-center\">\n        <h2 class=\"text-2xl font-bold text-gray-900 dark:text-white\">\n          {{ authText('registerTitle') }}\n        </h2>\n        <p class=\"mt-2 text-sm text-gray-500 dark:text-dark-400\">\n          {{ authText('registerSubtitle') }}\n        </p>\n      </div>\n\n      <div v-if=\"settingsLoaded\" class=\"mito-auth-register-note\">\n        <strong>{{ authText('registerNoteTitle') }}</strong>\n        <p>{{ authText('registerNoteDescription') }}</p>\n        <div class=\"mito-auth-register-flags\">\n          <span v-if=\"!invitationCodeEnabled\">{{ authText('noInvitationRequired') }}</span>\n          <span v-if=\"!emailVerifyEnabled\">{{ authText('directConsoleAccess') }}</span>\n        </div>\n      </div>"
+    },
+    {
+      "before": "      <form v-else @submit.prevent=\"handleRegister\" class=\"space-y-5\">",
+      "after": "      <form v-else @submit.prevent=\"handleRegister\" class=\"mito-auth-primary-form space-y-5\">"
+    },
+    {
+      "before": "              @click=\"showPassword = !showPassword\"",
+      "after": "              :aria-label=\"showPassword ? authText('hidePassword') : authText('showPassword')\"\n              class=\"mito-password-toggle absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-dark-300\"\n              @click=\"showPassword = !showPassword\""
+    },
+    {
+      "before": "              @click=\"showConfirmPassword = !showConfirmPassword\"",
+      "after": "              :aria-label=\"showConfirmPassword ? authText('hidePassword') : authText('showPassword')\"\n              class=\"mito-password-toggle absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-dark-300\"\n              @click=\"showConfirmPassword = !showConfirmPassword\""
+    },
+    {
+      "before": "      <div v-if=\"showOAuthLogin\" class=\"space-y-3 pt-1\">",
+      "after": "      <div v-if=\"showOAuthLogin\" class=\"mito-auth-alternatives space-y-3 pt-1\">"
+    },
+    {
+      "before": "      <p class=\"text-gray-500 dark:text-dark-400\">",
+      "after": "      <p class=\"mito-auth-account-switch text-gray-500 dark:text-dark-400\">"
+    },
+    {
+      "before": "const { t, locale } = useI18n()",
+      "after": "const { t, locale } = useI18n()\nconst authText = useMitoLabels()"
+    },
+    {
+      "before": "import { AuthLayout } from '@/components/layout'",
+      "after": "import { AuthLayout } from '@/components/layout'\nimport { useMitoLabels } from '@/themes/mito/labels'"
+    }
+  ]
+},
+{
+  "path": "frontend/src/components/auth/OidcOAuthSection.vue",
+  "edits": [
+    {
+      "before": "class=\"btn btn-secondary w-full\"",
+      "after": "class=\"mito-oidc-button btn btn-secondary w-full\""
+    },
+    {
+      "before": "{{ t('auth.oidc.signIn', { providerName: normalizedProviderName }) }}",
+      "after": "{{ isMitoTheme ? normalizedProviderName : t('auth.oidc.signIn', { providerName: normalizedProviderName }) }}"
+    },
+    {
+      "before": "import { useI18n } from 'vue-i18n'",
+      "after": "import { useI18n } from 'vue-i18n'\nimport { isMitoTheme } from '@/themes/mito'"
+    }
+  ]
+},
   {
     path: 'frontend/src/components/user/dashboard/UserDashboardStats.vue',
     edits: [
@@ -1277,3 +1404,36 @@ contracts.push({
   path: 'frontend/src/views/admin/SettingsView.vue',
   anchors: ['settings-section-features-model-plaza', 'admin.settings.features.modelPlaza.enabled']
 })
+
+// Mito is the primary account and service entry. Keep the auth shell and its
+// labels under the same contract as the upstream auth-flow seams above.
+contracts.push(...[
+  {
+    path: 'frontend/src/themes/mito/MitoAuthAside.vue',
+    anchors: ['mito-auth-story', 'loginStoryTitle', 'registerStoryTitle', 'accountFeatureTitle']
+  },
+  {
+    path: 'frontend/src/themes/mito/AuthHeader.vue',
+    anchors: ['mito-auth-header-primary', 'registrationEnabled', 'createAccount']
+  },
+  {
+    path: 'frontend/src/themes/mito/auth.css',
+    anchors: [
+      ".mito-auth-entry",
+      ".mito-auth-story",
+      ".mito-auth-create-prompt",
+      ".mito-auth-register-note",
+      ".mito-auth-alternatives",
+      '@media (max-width: 720px)',
+      '@media (prefers-reduced-motion: reduce)'
+    ]
+  },
+  {
+    path: 'frontend/src/themes/mito/labels.ts',
+    anchors: ['loginTitle', 'registerTitle', 'showPassword', 'noInvitationRequired']
+  },
+  {
+    path: 'frontend/src/themes/mito/index.ts',
+    anchors: ["import './auth.css'"]
+  }
+])
