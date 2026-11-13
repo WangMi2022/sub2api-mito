@@ -68,6 +68,10 @@ func jwtAuth(
 			return
 		}
 
+		if !enforceTokenIdentity(c, authService, claims) {
+			return
+		}
+
 		// 从数据库获取最新的用户信息
 		user, err := userService.GetByID(c.Request.Context(), claims.UserID)
 		if err != nil {

@@ -407,6 +407,17 @@ func (h *AuthHandler) Login2FA(c *gin.Context) {
 			response.ErrorFrom(c, err)
 			return
 		}
+		pair, err := h.authService.GenerateOAuthTokenPair(c.Request.Context(), user, pendingSession.ProviderType, pendingSession.ProviderKey, pendingSession.ProviderSubject)
+		if err != nil {
+			response.ErrorFrom(c, err)
+			return
+		}
+		_ = h.totpService.DeleteLoginSession(c.Request.Context(), req.TempToken)
+		response.Success(c, AuthResponse{
+			AccessToken: pair.AccessToken, RefreshToken: pair.RefreshToken, ExpiresIn: pair.ExpiresIn,
+			TokenType: "Bearer", User: dto.UserFromService(user),
+		})
+		return
 	}
 
 	// Delete the login session (only after all checks pass)

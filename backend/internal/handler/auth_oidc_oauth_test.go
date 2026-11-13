@@ -99,6 +99,37 @@ func TestOIDCParseAndValidateIDToken(t *testing.T) {
 
 	_, err = oidcParseAndValidateIDToken(context.Background(), cfg, signed, "bad-nonce")
 	require.Error(t, err)
+	for _, kind := range []string{"issuer", "audience", "expired", "no_expiry", "no_issued_at", "future_issued_at", "signature", "padded_subject"} {
+		t.Run(kind, func(t *testing.T) {
+			invalid := claims
+			key := priv
+			switch kind {
+			case "issuer":
+				invalid.Issuer = "https://other.example.com"
+			case "audience":
+				invalid.Audience = jwt.ClaimStrings{"other-client"}
+			case "expired":
+				invalid.ExpiresAt = jwt.NewNumericDate(now.Add(-time.Hour))
+			case "no_expiry":
+				invalid.ExpiresAt = nil
+			case "no_issued_at":
+				invalid.IssuedAt = nil
+			case "future_issued_at":
+				invalid.IssuedAt = jwt.NewNumericDate(now.Add(time.Hour))
+			case "padded_subject":
+				invalid.Subject = " subject-1 "
+			case "signature":
+				key, err = rsa.GenerateKey(rand.Reader, 2048)
+				require.NoError(t, err)
+			}
+			token := jwt.NewWithClaims(jwt.SigningMethodRS256, invalid)
+			token.Header["kid"] = kid
+			raw, err := token.SignedString(key)
+			require.NoError(t, err)
+			_, err = oidcParseAndValidateIDToken(context.Background(), cfg, raw, "nonce-ok")
+			require.Error(t, err)
+		})
+	}
 }
 
 func TestOIDCParseUserInfoIncludesSuggestedProfile(t *testing.T) {
@@ -268,6 +299,10 @@ func TestOIDCOAuthCallbackAllowsOptionalPKCEAndIDTokenValidation(t *testing.T) {
 	require.Equal(t, http.StatusFound, recorder.Code)
 	require.Equal(t, "/auth/oidc/callback", recorder.Header().Get("Location"))
 	require.NotNil(t, findCookie(recorder.Result().Cookies(), oauthPendingSessionCookieName))
+	session, err := client.PendingAuthSession.Query().Only(context.Background())
+	require.NoError(t, err)
+	_, exists := session.LocalFlowState[oauthOIDCVerificationKey]
+	require.False(t, exists, "userinfo-only callback must not create verified identity evidence")
 }
 
 func TestOIDCOAuthCallbackCreatesLoginPendingSessionForExistingIdentityUser(t *testing.T) {
@@ -339,6 +374,28 @@ func TestOIDCOAuthCallbackCreatesLoginPendingSessionForExistingIdentityUser(t *t
 	_, hasRefreshToken := completion["refresh_token"]
 	require.False(t, hasRefreshToken)
 	require.Nil(t, completion["error"])
+
+	// A real signed callback may verify an old identity only when binding
+	// commits. Rolling back the same transaction must not leave evidence.
+	stored, err := client.AuthIdentity.Query().Only(ctx)
+	require.NoError(t, err)
+	require.Nil(t, stored.VerifiedAt)
+	verification, err := pendingOIDCVerification(session)
+	require.NoError(t, err)
+	require.NotNil(t, verification)
+	tx, err := client.Tx(ctx)
+	require.NoError(t, err)
+	require.NoError(t, applyPendingOAuthBindingTx(ctx, tx, nil, nil, session, nil, &existingUser.ID, true, false))
+	require.NoError(t, tx.Rollback())
+	stored, err = client.AuthIdentity.Get(ctx, stored.ID)
+	require.NoError(t, err)
+	require.Nil(t, stored.VerifiedAt)
+	require.NoError(t, applyPendingOAuthBinding(ctx, client, nil, nil, session, nil, &existingUser.ID, true, false))
+	stored, err = client.AuthIdentity.Get(ctx, stored.ID)
+	require.NoError(t, err)
+	require.NotNil(t, stored.VerifiedAt)
+	require.WithinDuration(t, verification.VerifiedAt, *stored.VerifiedAt, time.Microsecond)
+	require.Equal(t, cfg.IssuerURL, *stored.Issuer)
 }
 
 func TestOIDCOAuthCallbackRejectsDisabledExistingIdentityUser(t *testing.T) {
@@ -952,6 +1009,7 @@ func TestTryOIDCVerifiedEmailFastPathCreatesUserAndIdentity(t *testing.T) {
 			"suggested_display_name": "Fast Path",
 			"suggested_avatar_url":   "",
 		},
+		nil,
 	)
 	require.True(t, completed)
 	require.Equal(t, http.StatusFound, recorder.Code)
@@ -976,6 +1034,7 @@ func TestTryOIDCVerifiedEmailFastPathCreatesUserAndIdentity(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "fastpath@example.com", identityRecord.Metadata["email"])
 	require.Equal(t, true, identityRecord.Metadata["email_verified"])
+	require.Nil(t, identityRecord.VerifiedAt, "verified email without validated ID token is not identity evidence")
 
 	pendingCount, err := client.PendingAuthSession.Query().Count(ctx)
 	require.NoError(t, err)
@@ -1037,6 +1096,9 @@ func TestOIDCOAuthCallbackVerifiedEmailFastPathIssuesTokenWithoutPendingSession(
 	require.Equal(t, true, identity.Metadata["email_verified"])
 	require.Equal(t, "OIDC Fast Callback", identity.Metadata["suggested_display_name"])
 	require.NotEqual(t, identity.Metadata["email"], identity.Metadata["synthetic_email"])
+	require.NotNil(t, identity.VerifiedAt)
+	require.WithinDuration(t, time.Now(), *identity.VerifiedAt, time.Minute)
+	require.Equal(t, cfg.IssuerURL, *identity.Issuer)
 
 	pendingCount, err := client.PendingAuthSession.Query().Count(ctx)
 	require.NoError(t, err)
@@ -1090,6 +1152,65 @@ func TestOIDCOAuthCallbackVerifiedEmailFastPathBackendModeBlocksBeforeUserCreati
 	require.Zero(t, pendingCount)
 }
 
+func TestOIDCOAuthCallbackRejectsUserinfoWithoutExactSignedSubject(t *testing.T) {
+	for _, subject := range []string{"other-subject", " signed-subject ", ""} {
+		t.Run("userinfo_"+subject, func(t *testing.T) {
+			cfg, cleanup := newOIDCTestProvider(t, oidcProviderFixture{Subject: "signed-subject", UserInfoSubject: &subject, Email: "userinfo@example.com", EmailVerified: true})
+			defer cleanup()
+			handler, client := newOIDCOAuthHandlerAndClient(t, false, cfg)
+			t.Cleanup(func() { _ = client.Close() })
+			recorder := httptest.NewRecorder()
+			c, _ := gin.CreateTestContext(recorder)
+			req := httptest.NewRequest(http.MethodGet, "/api/v1/auth/oauth/oidc/callback?code=oidc-code&state=userinfo-state", nil)
+			req.AddCookie(encodedCookie(oidcOAuthStateCookieName, "userinfo-state"))
+			req.AddCookie(encodedCookie(oidcOAuthVerifierCookie, "userinfo-verifier"))
+			req.AddCookie(encodedCookie(oidcOAuthNonceCookie, "nonce-signed-subject"))
+			req.AddCookie(encodedCookie(oauthPendingBrowserCookieName, "userinfo-browser"))
+			c.Request = req
+			handler.OIDCOAuthCallback(c)
+			location := recorder.Header().Get("Location")
+			if subject == "" {
+				require.Contains(t, location, "userinfo_failed")
+			} else {
+				require.Contains(t, location, "subject_mismatch")
+			}
+			require.NotContains(t, location, "access_token=")
+			count, err := client.AuthIdentity.Query().Count(context.Background())
+			require.NoError(t, err)
+			require.Zero(t, count)
+			count, err = client.PendingAuthSession.Query().Count(context.Background())
+			require.NoError(t, err)
+			require.Zero(t, count)
+		})
+	}
+}
+
+func TestOIDCOAuthCallbackUserinfoVerifiedEmailDoesNotVerifyIdentity(t *testing.T) {
+	cfg, cleanup := newOIDCTestProvider(t, oidcProviderFixture{Subject: "weak-token-subject", Email: "weak-token@example.com", EmailVerified: true})
+	defer cleanup()
+	cfg.ValidateIDToken = false
+	cfg.UsePKCE = false
+	handler, client := newOIDCOAuthHandlerAndClientWithSettings(t, false, cfg, nil)
+	t.Cleanup(func() { _ = client.Close() })
+	recorder := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(recorder)
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/auth/oauth/oidc/callback?code=oidc-code&state=weak-state", nil)
+	req.AddCookie(encodedCookie(oidcOAuthStateCookieName, "weak-state"))
+	req.AddCookie(encodedCookie(oidcOAuthIntentCookieName, oauthIntentLogin))
+	req.AddCookie(encodedCookie(oauthPendingBrowserCookieName, "weak-browser"))
+	c.Request = req
+	handler.OIDCOAuthCallback(c)
+	require.Contains(t, recorder.Header().Get("Location"), "access_token=")
+	identity, err := client.AuthIdentity.Query().Where(
+		authidentity.ProviderTypeEQ("oidc"),
+		authidentity.ProviderKeyEQ(cfg.IssuerURL),
+		authidentity.ProviderSubjectEQ("weak-token-subject"),
+	).Only(context.Background())
+	require.NoError(t, err)
+	require.Equal(t, true, identity.Metadata["email_verified"])
+	require.Nil(t, identity.VerifiedAt)
+}
+
 func TestTryOIDCVerifiedEmailFastPathSkippedWhenInvitationCodeRequired(t *testing.T) {
 	handler, client := newOAuthPendingFlowTestHandler(t, true)
 	t.Cleanup(func() { _ = client.Close() })
@@ -1111,6 +1232,7 @@ func TestTryOIDCVerifiedEmailFastPathSkippedWhenInvitationCodeRequired(t *testin
 		"invite-only@example.com",
 		"invite_only_user",
 		map[string]any{},
+		nil,
 	)
 	require.False(t, completed)
 	require.NotEqual(t, http.StatusFound, recorder.Code)
@@ -1145,6 +1267,7 @@ func TestTryOIDCVerifiedEmailFastPathSkippedWhenForceEmailEnabled(t *testing.T) 
 		"force-email@example.com",
 		"force_email_user",
 		map[string]any{},
+		nil,
 	)
 	require.False(t, completed)
 
@@ -1155,6 +1278,7 @@ func TestTryOIDCVerifiedEmailFastPathSkippedWhenForceEmailEnabled(t *testing.T) 
 
 type oidcProviderFixture struct {
 	Subject           string
+	UserInfoSubject   *string
 	PreferredUsername string
 	DisplayName       string
 	AvatarURL         string
@@ -1248,6 +1372,9 @@ func newOIDCTestProvider(t *testing.T, fixture oidcProviderFixture) (config.OIDC
 		"picture":            fixture.AvatarURL,
 		"email":              fixture.Email,
 		"email_verified":     fixture.EmailVerified,
+	}
+	if fixture.UserInfoSubject != nil {
+		userInfoPayload["sub"] = *fixture.UserInfoSubject
 	}
 
 	var issuer string

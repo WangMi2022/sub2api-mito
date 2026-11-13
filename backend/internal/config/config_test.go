@@ -942,10 +942,22 @@ func TestLoadDefaultOIDCSecurityDefaults(t *testing.T) {
 
 	cfg, err := Load()
 	require.NoError(t, err)
+	require.Equal(t, "database", cfg.OIDC.SettingsSource)
 	require.True(t, cfg.OIDC.UsePKCE)
 	require.True(t, cfg.OIDC.ValidateIDToken)
 	require.False(t, cfg.OIDC.UsePKCEExplicit)
 	require.False(t, cfg.OIDC.ValidateIDTokenExplicit)
+}
+
+func TestLoadOIDCInstanceSettingsSource(t *testing.T) {
+	resetViperWithJWTSecret(t)
+	t.Setenv("OIDC_CONNECT_SETTINGS_SOURCE", "instance")
+	cfg, err := Load()
+	require.NoError(t, err)
+	require.Equal(t, "instance", cfg.OIDC.SettingsSource)
+	t.Setenv("OIDC_CONNECT_SETTINGS_SOURCE", "unknown")
+	_, err = Load()
+	require.ErrorContains(t, err, "oidc_connect.settings_source")
 }
 
 func TestLoadExplicitOIDCSecurityDefaultsFromEnvMarksFlagsExplicit(t *testing.T) {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/mail"
 	"strings"
+	"time"
 
 	dbent "github.com/Wei-Shaw/sub2api/ent"
 	"github.com/Wei-Shaw/sub2api/ent/authidentity"
@@ -23,6 +24,7 @@ type EmailOAuthIdentityInput struct {
 	DisplayName      string
 	AvatarURL        string
 	UpstreamMetadata map[string]any
+	OIDCVerification *OIDCIdentityVerification
 }
 
 func (s *AuthService) LoginOrRegisterVerifiedEmailOAuth(ctx context.Context, input EmailOAuthIdentityInput) (*TokenPair, *User, error) {
@@ -70,6 +72,9 @@ func (s *AuthService) loginOrRegisterVerifiedEmailOAuth(
 	providerSubject := strings.TrimSpace(input.ProviderSubject)
 	if providerSubject == "" {
 		return nil, nil, infraerrors.BadRequest("OAUTH_SUBJECT_MISSING", "oauth subject is missing")
+	}
+	if err := input.OIDCVerification.ValidateFor(providerType, providerKey, providerSubject, time.Now()); err != nil {
+		return nil, nil, err
 	}
 	if !input.EmailVerified {
 		return nil, nil, infraerrors.Forbidden("OAUTH_EMAIL_NOT_VERIFIED", "oauth email is not verified")
@@ -128,6 +133,7 @@ func (s *AuthService) loginOrRegisterVerifiedEmailOAuth(
 		DisplayName:      input.DisplayName,
 		AvatarURL:        input.AvatarURL,
 		UpstreamMetadata: input.UpstreamMetadata,
+		OIDCVerification: input.OIDCVerification,
 	}); err != nil {
 		return nil, nil, err
 	}
@@ -147,7 +153,7 @@ func (s *AuthService) loginOrRegisterVerifiedEmailOAuth(
 	}
 	s.RecordSuccessfulLogin(ctx, user.ID)
 
-	tokenPair, err := s.GenerateTokenPair(ctx, user, "")
+	tokenPair, err := s.GenerateOAuthTokenPair(ctx, user, providerType, providerKey, providerSubject)
 	if err != nil {
 		return nil, nil, fmt.Errorf("generate token pair: %w", err)
 	}
@@ -265,6 +271,9 @@ func (s *AuthService) ensureEmailOAuthIdentity(ctx context.Context, userID int64
 	providerType := normalizeOAuthSignupSource(input.ProviderType)
 	providerKey := strings.TrimSpace(input.ProviderKey)
 	providerSubject := strings.TrimSpace(input.ProviderSubject)
+	if err := input.OIDCVerification.ValidateFor(providerType, providerKey, providerSubject, time.Now()); err != nil {
+		return err
+	}
 	identity, err := s.entClient.AuthIdentity.Query().
 		Where(
 			authidentity.ProviderTypeEQ(providerType),
@@ -279,17 +288,22 @@ func (s *AuthService) ensureEmailOAuthIdentity(ctx context.Context, userID int64
 		if identity.UserID != userID {
 			return infraerrors.Conflict("AUTH_IDENTITY_OWNERSHIP_CONFLICT", "auth identity already belongs to another user")
 		}
-		_, err = s.entClient.AuthIdentity.UpdateOneID(identity.ID).
-			SetMetadata(metadata).
-			Save(ctx)
+		update := s.entClient.AuthIdentity.UpdateOneID(identity.ID).SetMetadata(metadata)
+		if v := input.OIDCVerification; v != nil {
+			update.SetIssuer(v.Issuer).SetVerifiedAt(v.VerifiedAt)
+		}
+		_, err = update.Save(ctx)
 		return err
 	}
-	_, err = s.entClient.AuthIdentity.Create().
+	create := s.entClient.AuthIdentity.Create().
 		SetUserID(userID).
 		SetProviderType(providerType).
 		SetProviderKey(providerKey).
 		SetProviderSubject(providerSubject).
-		SetMetadata(metadata).
-		Save(ctx)
+		SetMetadata(metadata)
+	if v := input.OIDCVerification; v != nil {
+		create.SetIssuer(v.Issuer).SetVerifiedAt(v.VerifiedAt)
+	}
+	_, err = create.Save(ctx)
 	return err
 }

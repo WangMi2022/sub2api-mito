@@ -346,7 +346,7 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 	if emailVerified == nil && idClaims != nil {
 		emailVerified = idClaims.EmailVerified
 	}
-	if idClaims != nil && userInfoClaims.Subject != "" && idClaims.Subject != "" && strings.TrimSpace(userInfoClaims.Subject) != strings.TrimSpace(idClaims.Subject) {
+	if idClaims != nil && strings.TrimSpace(cfg.UserInfoURL) != "" && userInfoClaims.Subject != idClaims.Subject {
 		redirectOAuthError(c, frontendCallback, "subject_mismatch", "userinfo subject does not match id_token", "")
 		return
 	}
@@ -377,6 +377,12 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 		ProviderType:    "oidc",
 		ProviderKey:     issuer,
 		ProviderSubject: subject,
+	}
+	var verification *service.OIDCIdentityVerification
+	if idClaims != nil {
+		verification = &service.OIDCIdentityVerification{
+			Issuer: idClaims.Issuer, Subject: idClaims.Subject, VerifiedAt: time.Now().UTC().Truncate(time.Microsecond),
+		}
 	}
 	upstreamClaims := map[string]any{
 		"email":             email,
@@ -410,6 +416,7 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 			RedirectTo:             redirectTo,
 			BrowserSessionKey:      browserSessionKey,
 			UpstreamIdentityClaims: upstreamClaims,
+			OIDCVerification:       verification,
 			CompletionResponse: map[string]any{
 				"redirect": redirectTo,
 			},
@@ -435,6 +442,7 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 			RedirectTo:             redirectTo,
 			BrowserSessionKey:      browserSessionKey,
 			UpstreamIdentityClaims: upstreamClaims,
+			OIDCVerification:       verification,
 			CompletionResponse: map[string]any{
 				"redirect": redirectTo,
 			},
@@ -472,6 +480,7 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 			compatEmail,
 			username,
 			upstreamClaims,
+			verification,
 		); handled {
 			return
 		}
@@ -486,6 +495,7 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 			redirectTo,
 			browserSessionKey,
 			upstreamClaims,
+			verification,
 			compatEmail,
 			compatEmailUser,
 			true,
@@ -505,6 +515,7 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 		redirectTo,
 		browserSessionKey,
 		upstreamClaims,
+		verification,
 		compatEmail,
 		compatEmailUser,
 		h.isForceEmailOnThirdPartySignup(c.Request.Context()),
@@ -548,6 +559,7 @@ func (h *AuthHandler) createOIDCOAuthChoicePendingSession(
 	redirectTo string,
 	browserSessionKey string,
 	upstreamClaims map[string]any,
+	verification *service.OIDCIdentityVerification,
 	compatEmail string,
 	compatEmailUser *dbent.User,
 	forceEmailOnSignup bool,
@@ -600,6 +612,7 @@ func (h *AuthHandler) createOIDCOAuthChoicePendingSession(
 		RedirectTo:             redirectTo,
 		BrowserSessionKey:      browserSessionKey,
 		UpstreamIdentityClaims: upstreamClaims,
+		OIDCVerification:       verification,
 		CompletionResponse:     completionResponse,
 	})
 }
@@ -705,6 +718,12 @@ func (h *AuthHandler) CompleteOIDCOAuthRegistration(c *gin.Context) {
 	}
 	if err := applyPendingOAuthAdoptionAndConsumeSession(c.Request.Context(), client, h.authService, h.userService, session, decision, user.ID); err != nil {
 		respondPendingOAuthBindingApplyError(c, err)
+		return
+	}
+	_ = h.authService.RevokeRefreshToken(c.Request.Context(), tokenPair.RefreshToken)
+	tokenPair, err = h.authService.GenerateOAuthTokenPair(c.Request.Context(), user, session.ProviderType, session.ProviderKey, session.ProviderSubject)
+	if err != nil {
+		response.ErrorFrom(c, err)
 		return
 	}
 	h.authService.RecordSuccessfulLogin(c.Request.Context(), user.ID)
@@ -870,7 +889,18 @@ func oidcFetchUserInfo(
 		return nil, fmt.Errorf("userinfo status=%d", resp.StatusCode)
 	}
 
-	return oidcParseUserInfo(resp.String(), cfg), nil
+	claims := oidcParseUserInfo(resp.String(), cfg)
+	if cfg.ValidateIDToken {
+		// OIDC UserInfo must identify exactly the ID token's subject. Keep
+		// the original string; compatibility field aliases and whitespace
+		// normalization cannot supply evidence for a verified identity.
+		sub := gjson.Get(resp.String(), "sub")
+		if sub.Type != gjson.String || sub.Str == "" {
+			return nil, errors.New("userinfo missing sub")
+		}
+		claims.Subject = sub.Str
+	}
+	return claims, nil
 }
 
 func oidcParseUserInfo(body string, cfg config.OIDCConnectConfig) *oidcUserInfoClaims {
@@ -994,6 +1024,8 @@ func oidcParseAndValidateIDToken(ctx context.Context, cfg config.OIDCConnectConf
 		jwt.WithAudience(cfg.ClientID),
 		jwt.WithIssuer(cfg.IssuerURL),
 		jwt.WithLeeway(leeway),
+		jwt.WithExpirationRequired(),
+		jwt.WithIssuedAt(),
 	)
 	if err != nil {
 		return nil, err
@@ -1001,8 +1033,11 @@ func oidcParseAndValidateIDToken(ctx context.Context, cfg config.OIDCConnectConf
 	if !parsed.Valid {
 		return nil, errors.New("id_token invalid")
 	}
-	if strings.TrimSpace(claims.Subject) == "" {
-		return nil, errors.New("id_token missing sub")
+	if strings.TrimSpace(claims.Subject) == "" || claims.Subject != strings.TrimSpace(claims.Subject) {
+		return nil, errors.New("id_token missing or noncanonical sub")
+	}
+	if claims.IssuedAt == nil {
+		return nil, errors.New("id_token missing iat")
 	}
 	if expectedNonce != "" && strings.TrimSpace(claims.Nonce) != strings.TrimSpace(expectedNonce) {
 		return nil, errors.New("id_token nonce mismatch")
@@ -1232,6 +1267,7 @@ func (h *AuthHandler) tryOIDCVerifiedEmailFastPath(
 	compatEmail string,
 	username string,
 	upstreamClaims map[string]any,
+	verification *service.OIDCIdentityVerification,
 ) bool {
 	if h == nil || h.authService == nil || h.settingSvc == nil {
 		return false
@@ -1270,6 +1306,7 @@ func (h *AuthHandler) tryOIDCVerifiedEmailFastPath(
 		DisplayName:      pendingSessionStringValue(upstreamClaims, "suggested_display_name"),
 		AvatarURL:        pendingSessionStringValue(upstreamClaims, "suggested_avatar_url"),
 		UpstreamMetadata: upstreamMetadata,
+		OIDCVerification: verification,
 	}
 	tokenPair, _, err := h.authService.LoginOrRegisterVerifiedEmailOAuthWithSignupCodes(
 		ctx,

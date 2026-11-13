@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/Wei-Shaw/sub2api/ent"
@@ -69,7 +70,8 @@ func (r *settingRepository) CompareAndSetContentModerationConfig(ctx context.Con
 }
 
 type settingRepository struct {
-	client *ent.Client
+	client       *ent.Client
+	instanceOIDC map[string]string
 }
 
 func NewSettingRepository(client *ent.Client) service.SettingRepository {
@@ -77,6 +79,13 @@ func NewSettingRepository(client *ent.Client) service.SettingRepository {
 }
 
 func (r *settingRepository) Get(ctx context.Context, key string) (*service.Setting, error) {
+	if r.isInstanceOIDCKey(key) {
+		value, ok := r.instanceOIDC[key]
+		if !ok {
+			return nil, service.ErrSettingNotFound
+		}
+		return &service.Setting{Key: key, Value: value}, nil
+	}
 	m, err := r.client.Setting.Query().Where(setting.KeyEQ(key)).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -101,6 +110,9 @@ func (r *settingRepository) GetValue(ctx context.Context, key string) (string, e
 }
 
 func (r *settingRepository) Set(ctx context.Context, key, value string) error {
+	if r.isInstanceOIDCKey(key) {
+		return nil // This instance cannot mutate shared OIDC configuration.
+	}
 	if key == service.SettingKeyOAuthAutoConfig {
 		return r.saveAutoConfigWithEvent(ctx, value)
 	}
@@ -130,15 +142,25 @@ func (r *settingRepository) ReplaceExistingAdminAPIKey(ctx context.Context, valu
 }
 
 func (r *settingRepository) GetMultiple(ctx context.Context, keys []string) (map[string]string, error) {
-	if len(keys) == 0 {
-		return map[string]string{}, nil
+	result := make(map[string]string)
+	databaseKeys := make([]string, 0, len(keys))
+	for _, key := range keys {
+		if r.isInstanceOIDCKey(key) {
+			if value, ok := r.instanceOIDC[key]; ok {
+				result[key] = value
+			}
+		} else {
+			databaseKeys = append(databaseKeys, key)
+		}
 	}
-	settings, err := r.client.Setting.Query().Where(setting.KeyIn(keys...)).All(ctx)
+	if len(databaseKeys) == 0 {
+		return result, nil
+	}
+	settings, err := r.client.Setting.Query().Where(setting.KeyIn(databaseKeys...)).All(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make(map[string]string)
 	for _, s := range settings {
 		result[s.Key] = s.Value
 	}
@@ -153,7 +175,13 @@ func (r *settingRepository) SetMultiple(ctx context.Context, settings map[string
 	now := time.Now()
 	builders := make([]*ent.SettingCreate, 0, len(settings))
 	for key, value := range settings {
+		if r.isInstanceOIDCKey(key) {
+			continue
+		}
 		builders = append(builders, r.client.Setting.Create().SetKey(key).SetValue(value).SetUpdatedAt(now))
+	}
+	if len(builders) == 0 {
+		return nil
 	}
 	return r.client.Setting.
 		CreateBulk(builders...).
@@ -170,12 +198,25 @@ func (r *settingRepository) GetAll(ctx context.Context) (map[string]string, erro
 
 	result := make(map[string]string)
 	for _, s := range settings {
+		if r.isInstanceOIDCKey(s.Key) {
+			continue
+		}
 		result[s.Key] = s.Value
+	}
+	for key, value := range r.instanceOIDC {
+		result[key] = value
 	}
 	return result, nil
 }
 
 func (r *settingRepository) Delete(ctx context.Context, key string) error {
+	if r.isInstanceOIDCKey(key) {
+		return nil
+	}
 	_, err := r.client.Setting.Delete().Where(setting.KeyEQ(key)).Exec(ctx)
 	return err
+}
+
+func (r *settingRepository) isInstanceOIDCKey(key string) bool {
+	return r.instanceOIDC != nil && strings.HasPrefix(key, "oidc_connect_")
 }

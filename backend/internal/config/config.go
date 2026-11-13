@@ -345,6 +345,8 @@ type WeChatConnectConfig struct {
 }
 
 type OIDCConnectConfig struct {
+	// Instance settings isolate this process from OIDC rows in a shared database.
+	SettingsSource          string `mapstructure:"settings_source"`
 	Enabled                 bool   `mapstructure:"enabled"`
 	ProviderName            string `mapstructure:"provider_name"` // 显示名: "Keycloak" 等
 	ClientID                string `mapstructure:"client_id"`
@@ -2494,6 +2496,7 @@ func setDefaults() {
 	viper.SetDefault("wechat_connect.frontend_redirect_url", defaultWeChatConnectFrontendRedirect)
 
 	// Generic OIDC OAuth 登录
+	viper.SetDefault("oidc_connect.settings_source", "database")
 	viper.SetDefault("oidc_connect.enabled", false)
 	viper.SetDefault("oidc_connect.provider_name", "OIDC")
 	viper.SetDefault("oidc_connect.client_id", "")
@@ -3403,6 +3406,14 @@ func (c *Config) Validate() error {
 			return fmt.Errorf("wechat_connect.frontend_redirect_url invalid: %w", err)
 		}
 		warnIfInsecureURL("wechat_connect.frontend_redirect_url", weChat.FrontendRedirectURL)
+	}
+	c.OIDC.SettingsSource = strings.ToLower(strings.TrimSpace(c.OIDC.SettingsSource))
+	switch c.OIDC.SettingsSource {
+	case "":
+		c.OIDC.SettingsSource = "database"
+	case "database", "instance":
+	default:
+		return fmt.Errorf("oidc_connect.settings_source must be database or instance")
 	}
 	if c.OIDC.Enabled {
 		if strings.TrimSpace(c.OIDC.ClientID) == "" {

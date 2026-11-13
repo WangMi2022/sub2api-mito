@@ -69,6 +69,8 @@ type JWTClaims struct {
 	SessionID string `json:"sid,omitempty"`
 	// BindingHash 会话指纹哈希（IP+UA），会话绑定开启时校验；空值表示旧 token（平滑升级）。
 	BindingHash string `json:"bnd,omitempty"`
+	// AuthIdentityID identifies the binding that authorized an OIDC session.
+	AuthIdentityID int64 `json:"auth_identity_id,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -1459,11 +1461,11 @@ func (s *AuthService) GenerateToken(ctx context.Context, user *User) (string, er
 	if err != nil {
 		return "", fmt.Errorf("generate session id: %w", err)
 	}
-	return s.generateAccessToken(user, sessionID, sessionBindingHashFromContext(ctx))
+	return s.generateAccessToken(ctx, user, sessionID, sessionBindingHashFromContext(ctx))
 }
 
 // generateAccessToken 生成带会话 ID 与绑定指纹的 access token。
-func (s *AuthService) generateAccessToken(user *User, sessionID, bindingHash string) (string, error) {
+func (s *AuthService) generateAccessToken(ctx context.Context, user *User, sessionID, bindingHash string) (string, error) {
 	now := time.Now()
 	var expiresAt time.Time
 	if s.cfg.JWT.AccessTokenExpireMinutes > 0 {
@@ -1474,12 +1476,13 @@ func (s *AuthService) generateAccessToken(user *User, sessionID, bindingHash str
 	}
 
 	claims := &JWTClaims{
-		UserID:       user.ID,
-		Email:        user.Email,
-		Role:         user.Role,
-		TokenVersion: resolvedTokenVersion(user),
-		SessionID:    sessionID,
-		BindingHash:  bindingHash,
+		UserID:         user.ID,
+		Email:          user.Email,
+		Role:           user.Role,
+		TokenVersion:   resolvedTokenVersion(user),
+		SessionID:      sessionID,
+		BindingHash:    bindingHash,
+		AuthIdentityID: oidcSessionIdentity(ctx),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
 			IssuedAt:  jwt.NewNumericDate(now),
@@ -1527,6 +1530,10 @@ func (s *AuthService) RefreshToken(ctx context.Context, oldTokenString string) (
 	if err != nil && !errors.Is(err, ErrTokenExpired) {
 		return "", err
 	}
+	if err := s.ValidateTokenIdentity(ctx, claims); err != nil {
+		return "", err
+	}
+	ctx = withOIDCSessionIdentity(ctx, claims.AuthIdentityID)
 
 	// 获取最新的用户信息
 	user, err := s.userRepo.GetByID(ctx, claims.UserID)
@@ -1749,7 +1756,7 @@ func (s *AuthService) GenerateTokenPair(ctx context.Context, user *User, familyI
 	}
 
 	// 生成Access Token（携带会话ID与绑定指纹）
-	accessToken, err := s.generateAccessToken(user, familyID, sessionBindingHashFromContext(ctx))
+	accessToken, err := s.generateAccessToken(ctx, user, familyID, sessionBindingHashFromContext(ctx))
 	if err != nil {
 		return nil, fmt.Errorf("generate access token: %w", err)
 	}
@@ -1792,12 +1799,13 @@ func (s *AuthService) generateRefreshToken(ctx context.Context, user *User, fami
 	ttl := time.Duration(s.cfg.JWT.RefreshTokenExpireDays) * 24 * time.Hour
 
 	data := &RefreshTokenData{
-		UserID:       user.ID,
-		TokenVersion: resolvedTokenVersion(user),
-		FamilyID:     familyID,
-		BindingHash:  sessionBindingHashFromContext(ctx),
-		CreatedAt:    now,
-		ExpiresAt:    now.Add(ttl),
+		UserID:         user.ID,
+		TokenVersion:   resolvedTokenVersion(user),
+		FamilyID:       familyID,
+		BindingHash:    sessionBindingHashFromContext(ctx),
+		AuthIdentityID: oidcSessionIdentity(ctx),
+		CreatedAt:      now,
+		ExpiresAt:      now.Add(ttl),
 	}
 
 	// 存储Token数据
@@ -1853,6 +1861,13 @@ func (s *AuthService) RefreshTokenPair(ctx context.Context, refreshToken string)
 		_ = s.refreshTokenCache.DeleteRefreshToken(ctx, tokenHash)
 		return nil, ErrRefreshTokenExpired
 	}
+	if err := s.ValidateTokenIdentity(ctx, &JWTClaims{UserID: data.UserID, AuthIdentityID: data.AuthIdentityID}); err != nil {
+		if errors.Is(err, ErrTokenRevoked) {
+			_ = s.refreshTokenCache.DeleteTokenFamily(ctx, data.FamilyID)
+		}
+		return nil, err
+	}
+	ctx = withOIDCSessionIdentity(ctx, data.AuthIdentityID)
 
 	// 获取用户信息
 	user, err := s.userRepo.GetByID(ctx, data.UserID)
@@ -1943,7 +1958,9 @@ func (s *AuthService) RevokeAllUserSessions(ctx context.Context, userID int64) e
 	return s.refreshTokenCache.DeleteUserRefreshTokens(ctx, userID)
 }
 
-// RevokeAllUserTokens invalidates both stateless access tokens and refresh sessions.
+// RevokeAllUserTokens clears refresh sessions. Password changes invalidate access
+// tokens via their credential fingerprint; OIDC unbinding deletes the identity
+// checked by ValidateTokenIdentity. This method alone cannot revoke stateless JWTs.
 //
 // 注意：users 表没有 token_version 列（resolvedTokenVersion 由 email+password_hash
 // 指纹推导），因此对 user.TokenVersion 自增只影响内存副本。之前紧跟其后的整行

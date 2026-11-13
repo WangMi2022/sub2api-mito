@@ -112,7 +112,7 @@ var ProviderSet = wire.NewSet(
 	NewIdempotencyRepository,
 	NewUsageCleanupRepository,
 	NewDashboardAggregationRepository,
-	NewSettingRepository,
+	ProvideSettingRepository,
 	NewCodexHarvestNodeRepository,
 	NewCodexHarvestFlowRepository,
 	NewScopedAdminKeyRepository,

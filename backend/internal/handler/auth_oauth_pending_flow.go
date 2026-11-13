@@ -38,6 +38,7 @@ const (
 
 	oauthCompletionResponseKey = "completion_response"
 	oauthPromoCodeStateKey     = "promo_code"
+	oauthOIDCVerificationKey   = "oidc_identity_verification"
 )
 
 var pendingOAuthCreateAccountPreCommitHook func(context.Context, *dbent.PendingAuthSession) error
@@ -51,6 +52,7 @@ type oauthPendingSessionPayload struct {
 	BrowserSessionKey      string
 	UpstreamIdentityClaims map[string]any
 	CompletionResponse     map[string]any
+	OIDCVerification       *service.OIDCIdentityVerification
 }
 
 type oauthAdoptionDecisionRequest struct {
@@ -240,6 +242,14 @@ func (h *AuthHandler) createOAuthPendingSession(c *gin.Context, payload oauthPen
 	localFlowState := map[string]any{
 		oauthCompletionResponseKey: payload.CompletionResponse,
 	}
+	if v := payload.OIDCVerification; v != nil {
+		if err := v.ValidateFor(payload.Identity.ProviderType, payload.Identity.ProviderKey, payload.Identity.ProviderSubject, time.Now()); err != nil {
+			return err
+		}
+		localFlowState[oauthOIDCVerificationKey] = map[string]any{
+			"issuer": v.Issuer, "subject": v.Subject, "verified_at": v.VerifiedAt.UTC().Format(time.RFC3339Nano),
+		}
+	}
 	if promoCode := readOAuthPromoCode(c); promoCode != "" {
 		localFlowState[oauthPromoCodeStateKey] = promoCode
 	}
@@ -268,6 +278,31 @@ func (h *AuthHandler) createOAuthPendingSession(c *gin.Context, payload oauthPen
 
 	setOAuthPendingSessionCookie(c, session.SessionToken, isRequestHTTPS(c))
 	return nil
+}
+
+// Read only private flow state. Upstream claims and browser request fields are
+// not evidence that the server validated an ID token.
+func pendingOIDCVerification(session *dbent.PendingAuthSession) (*service.OIDCIdentityVerification, error) {
+	raw, exists := session.LocalFlowState[oauthOIDCVerificationKey]
+	if !exists {
+		return nil, nil
+	}
+	values, ok := raw.(map[string]any)
+	if !ok || len(values) != 3 {
+		return nil, infraerrors.BadRequest("OIDC_VERIFICATION_INVALID", "invalid oidc identity verification")
+	}
+	issuer, _ := values["issuer"].(string)
+	subject, _ := values["subject"].(string)
+	stamp, _ := values["verified_at"].(string)
+	verifiedAt, err := time.Parse(time.RFC3339Nano, stamp)
+	if err != nil {
+		return nil, infraerrors.BadRequest("OIDC_VERIFICATION_INVALID", "invalid oidc identity verification time")
+	}
+	v := &service.OIDCIdentityVerification{Issuer: issuer, Subject: subject, VerifiedAt: verifiedAt}
+	if err := v.ValidateFor(session.ProviderType, session.ProviderKey, session.ProviderSubject, time.Now()); err != nil {
+		return nil, err
+	}
+	return v, nil
 }
 
 func readCompletionResponse(session map[string]any) (map[string]any, bool) {
@@ -860,6 +895,7 @@ func ensurePendingOAuthIdentityForUser(ctx context.Context, tx *dbent.Tx, sessio
 			}
 			return client.AuthIdentity.UpdateOneID(identity.ID).
 				SetUserID(userID).
+				ClearVerifiedAt().
 				Save(ctx)
 		}
 		return identity, nil
@@ -1144,7 +1180,6 @@ func applyPendingOAuthBinding(
 	if !forceBind && !shouldBindPendingOAuthIdentity(session, decision) {
 		return nil
 	}
-
 	if tx := dbent.TxFromContext(ctx); tx != nil {
 		return applyPendingOAuthBindingTx(ctx, tx, authService, userService, session, decision, overrideUserID, forceBind, applyFirstBindDefaults)
 	}
@@ -1178,6 +1213,10 @@ func applyPendingOAuthBindingTx(
 	}
 	if !forceBind && !shouldBindPendingOAuthIdentity(session, decision) {
 		return nil
+	}
+	verification, err := pendingOIDCVerification(session)
+	if err != nil {
+		return err
 	}
 
 	targetUserID := int64(0)
@@ -1235,6 +1274,9 @@ func applyPendingOAuthBindingTx(
 	updateIdentity := tx.Client().AuthIdentity.UpdateOneID(identity.ID).SetMetadata(metadata)
 	if issuer := oauthIdentityIssuer(session); issuer != nil {
 		updateIdentity = updateIdentity.SetIssuer(strings.TrimSpace(*issuer))
+	}
+	if verification != nil {
+		updateIdentity.SetIssuer(verification.Issuer).SetVerifiedAt(verification.VerifiedAt)
 	}
 	if _, err := updateIdentity.Save(ctx); err != nil {
 		return err
@@ -1683,7 +1725,7 @@ func (h *AuthHandler) bindPendingOAuthLogin(c *gin.Context, provider string) {
 	h.authService.RecordSuccessfulLogin(c.Request.Context(), user.ID)
 	// bindPendingOAuthLogin = 绑定已有账户登录，不动 users.username（用户已有自己的名字）
 	h.maybeSyncDingTalkAfterLogin(c.Request.Context(), session, user.ID)
-	tokenPair, err := h.authService.GenerateTokenPair(c.Request.Context(), user, "")
+	tokenPair, err := h.authService.GenerateOAuthTokenPair(c.Request.Context(), user, session.ProviderType, session.ProviderKey, session.ProviderSubject)
 	if err != nil {
 		response.InternalError(c, "Failed to generate token pair")
 		return
@@ -1885,6 +1927,16 @@ func (h *AuthHandler) createPendingOAuthAccount(c *gin.Context, provider string)
 		return
 	}
 
+	if strings.EqualFold(session.ProviderType, "oidc") {
+		// The registration pair predates binding commit and must never be returned.
+		_ = h.authService.RevokeRefreshToken(c.Request.Context(), tokenPair.RefreshToken)
+		tokenPair, err = h.authService.GenerateOAuthTokenPair(c.Request.Context(), user, session.ProviderType, session.ProviderKey, session.ProviderSubject)
+		if err != nil {
+			response.ErrorFrom(c, err)
+			return
+		}
+	}
+
 	h.authService.ApplyOAuthSignupPromoCode(c.Request.Context(), user.ID, pendingOAuthPromoCode(session))
 	h.authService.RecordSuccessfulLogin(c.Request.Context(), user.ID)
 	// createPendingOAuthAccount = 注册新账户，需要把钉钉昵称同步到 users.username 作为初始值
@@ -2048,7 +2100,7 @@ func (h *AuthHandler) ExchangePendingOAuthCompletion(c *gin.Context) {
 	}
 
 	if canIssueTokenPair {
-		tokenPair, err := h.authService.GenerateTokenPair(c.Request.Context(), loginUser, "")
+		tokenPair, err := h.authService.GenerateOAuthTokenPair(c.Request.Context(), loginUser, session.ProviderType, session.ProviderKey, session.ProviderSubject)
 		if err != nil {
 			clearCookies()
 			response.InternalError(c, "Failed to generate token pair")

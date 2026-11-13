@@ -1130,6 +1130,9 @@ func TestCreateOIDCOAuthAccountCreatesUserBindsIdentityAndConsumesSession(t *tes
 		Only(ctx)
 	require.NoError(t, err)
 	require.Equal(t, createdUser.ID, identity.UserID)
+	claims, err := handler.authService.ValidateToken(payload["access_token"].(string))
+	require.NoError(t, err)
+	require.Equal(t, identity.ID, claims.AuthIdentityID, "registration must issue its token after binding commit")
 
 	storedSession, err := client.PendingAuthSession.Get(ctx, session.ID)
 	require.NoError(t, err)
@@ -2455,6 +2458,7 @@ func TestLogin2FACompletesPendingOAuthBindAndConsumesSession(t *testing.T) {
 		Only(ctx)
 	require.NoError(t, err)
 	require.Equal(t, existingUser.ID, identity.UserID)
+	require.Equal(t, identity.ID, claims.AuthIdentityID, "2FA completion must preserve its OIDC binding")
 
 	storedSession, err := client.PendingAuthSession.Get(ctx, session.ID)
 	require.NoError(t, err)

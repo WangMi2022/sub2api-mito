@@ -58,7 +58,7 @@ func initializeApplication(buildInfo handler.BuildInfo) (*Application, error) {
 	userGroupRepository := repository.NewUserGroupRepository(db)
 	userPlatformQuotaRepository := repository.NewUserPlatformQuotaRepository(client)
 	serviceUserPlatformQuotaRepository := repository.NewUserPlatformQuotaServiceAdapter(userPlatformQuotaRepository)
-	settingRepository := repository.NewSettingRepository(client)
+	settingRepository := repository.ProvideSettingRepository(client, configConfig)
 	emailCache := repository.NewEmailCache(redisClient)
 	emailService := service.NewEmailService(settingRepository, emailCache)
 	schedulerCache := repository.ProvideSchedulerCache(redisClient, configConfig)

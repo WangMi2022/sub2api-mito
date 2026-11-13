@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAuthHandlerRevokeAllSessionsInvalidatesAccessTokens(t *testing.T) {
+func TestAuthHandlerRevokeAllSessionsClearsRefreshSessions(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	repo := &userHandlerRepoStub{

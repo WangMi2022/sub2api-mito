@@ -184,6 +184,10 @@ func validateJWTForAdmin(
 		return false
 	}
 
+	if !enforceTokenIdentity(c, authService, claims) {
+		return false
+	}
+
 	// 从数据库获取用户
 	user, err := userService.GetByID(c.Request.Context(), claims.UserID)
 	if err != nil {

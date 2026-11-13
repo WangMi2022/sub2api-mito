@@ -1146,6 +1146,12 @@ linuxdo_connect:
 # 通用 OIDC OAuth 登录（用于 Sub2API 用户登录）
 # =============================================================================
 oidc_connect:
+  # database: shared admin settings override config/env (default).
+  # instance: config/env only; this process never writes shared OIDC settings.
+  # Use OIDC_CONNECT_SETTINGS_SOURCE=instance to isolate a customized instance.
+  # In instance mode, change OIDC values here/env and restart; admin saves do not
+  # change these values. Password login and all other settings keep their scope.
+  settings_source: "database"
   enabled: false
   provider_name: "OIDC"
   client_id: ""
