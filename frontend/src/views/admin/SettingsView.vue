@@ -6965,46 +6965,6 @@
                 />
               </div>
 
-              <HomeBackgroundPanel
-                v-if="isMitoTheme"
-                v-model:storage="homeBackgroundStorage"
-                v-model:blur="form.home_background_blur"
-                v-model:overlay="form.home_background_overlay"
-                :options="homeBackgroundStorageOptions"
-                :image-url="form.home_background_image"
-                :uploading="homeBackgroundUploading"
-                :error="homeBackgroundError"
-              >
-                <input
-                  ref="homeBackgroundInput"
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
-                  class="hidden"
-                  @change="onHomeBackgroundSelected"
-                />
-                <div class="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    :disabled="homeBackgroundUploading"
-                    @click="homeBackgroundInput?.click()"
-                  >
-                    <Icon v-if="!homeBackgroundUploading" name="upload" size="sm" />
-                    <span v-else class="mr-1 inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
-                    {{ t("admin.settings.site.uploadImage") }}
-                  </button>
-                  <button
-                    v-if="form.home_background_image"
-                    type="button"
-                    class="btn btn-secondary"
-                    :disabled="homeBackgroundUploading"
-                    @click="removeHomeBackground"
-                  >
-                    {{ t("admin.settings.site.remove") }}
-                  </button>
-                </div>
-              </HomeBackgroundPanel>
-              <template v-else>
               <!-- Home Background Image -->
               <div>
                 <label
@@ -7080,8 +7040,6 @@
                   />
                 </div>
               </div>
-
-              </template>
 
               <!-- Home Content -->
               <div>
@@ -7953,29 +7911,6 @@
             </p>
           </div>
           <div class="space-y-5 p-6">
-            <div class="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
-              <Icon
-                name="exclamationTriangle"
-                size="md"
-                class="mt-0.5 flex-shrink-0 text-amber-500"
-              />
-              <div class="min-w-0">
-                <p class="text-sm font-medium text-amber-800 dark:text-amber-200">
-                  {{ t('admin.settings.features.modelPlaza.manageTitle') }}
-                </p>
-                <p class="mt-1 text-xs text-amber-700 dark:text-amber-300">
-                  {{ t('admin.settings.features.modelPlaza.manageHint') }}
-                </p>
-                <router-link
-                  to="/admin/groups"
-                  class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary-600 hover:underline dark:text-primary-400"
-                >
-                  {{ t('admin.settings.features.modelPlaza.manageLink') }}
-                  <span aria-hidden="true">→</span>
-                </router-link>
-              </div>
-            </div>
-
             <div class="flex items-center justify-between">
               <div>
                 <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -9830,8 +9765,6 @@ import Toggle from "@/components/common/Toggle.vue";
 import ProxySelector from "@/components/common/ProxySelector.vue";
 import ImageUpload from "@/components/common/ImageUpload.vue";
 import BackupSettings from "@/views/admin/BackupView.vue";
-import HomeBackgroundPanel from "@/themes/mito/settings/HomeBackgroundPanel.vue";
-import { isMitoTheme } from "@/themes/mito";
 import ServerlessSettings from "@/components/settings/ServerlessSettings.vue";
 import EmailTemplateEditor from "@/views/admin/settings/EmailTemplateEditor.vue";
 import RechargeBonusTierEditor from "@/components/admin/settings/RechargeBonusTierEditor.vue";
@@ -10648,8 +10581,6 @@ const form = reactive<SettingsForm>({
   site_logo: "",
   site_subtitle: "Subscription to API Conversion Platform",
   home_background_image: "",
-  home_background_blur: 0,
-  home_background_overlay: 100,
   api_base_url: "",
   contact_info: "",
   doc_url: "",
@@ -12507,8 +12438,6 @@ async function saveSettings() {
       site_name: form.site_name,
       site_logo: form.site_logo,
       home_background_image: form.home_background_image,
-      home_background_blur: form.home_background_blur,
-      home_background_overlay: form.home_background_overlay,
       site_subtitle: form.site_subtitle,
       api_base_url: form.api_base_url,
       contact_info: form.contact_info,
