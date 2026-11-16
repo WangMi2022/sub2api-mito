@@ -1437,16 +1437,3 @@ contracts.push(...[
     anchors: ["import './auth.css'"]
   }
 ])
-
-// Default to Chinese in new browsers while preserving an explicit language choice.
-adaptations.push({
-  path: 'frontend/src/i18n/index.ts',
-  edits: [{
-    before: "const DEFAULT_LOCALE: LocaleCode = 'en'",
-    after: "const DEFAULT_LOCALE: LocaleCode = 'zh'"
-  }]
-})
-contracts.push({
-  path: 'frontend/src/i18n/index.ts',
-  anchors: ['getDefaultLocale', "localStorage.getItem(LOCALE_KEY)", 'isLocaleCode(saved)']
-})
