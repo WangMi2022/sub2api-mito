@@ -375,13 +375,14 @@ const showPasskeyLogin = computed(
 
 const showOAuthLogin = computed(
   () =>
-    !backendModeEnabled.value &&
-    (linuxdoOAuthEnabled.value ||
-      dingtalkOAuthEnabled.value ||
-      wechatOAuthEnabled.value ||
-      oidcOAuthEnabled.value ||
-      githubOAuthEnabled.value ||
-      googleOAuthEnabled.value)
+    (unifiedOnly.value && oidcOAuthEnabled.value) ||
+    (!backendModeEnabled.value &&
+      (linuxdoOAuthEnabled.value ||
+        dingtalkOAuthEnabled.value ||
+        wechatOAuthEnabled.value ||
+        oidcOAuthEnabled.value ||
+        githubOAuthEnabled.value ||
+        googleOAuthEnabled.value))
 )
 
 watch(validationToastMessage, (value, previousValue) => {

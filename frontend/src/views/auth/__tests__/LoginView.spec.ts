@@ -130,9 +130,9 @@ describe('unified identity login policy', () => {
     expect(wrapper.find('input[type="password"]').exists()).toBe(true)
   })
 
-  it('only offers unified sign-in when local authentication is disabled', async () => {
+  it.each([false, true])('only offers unified sign-in when local authentication is disabled (backend mode: %s)', async (backendMode) => {
     sessionStorage.setItem('mito_identity_login_attempt', '1')
-    getPublicSettingsMock.mockResolvedValueOnce({ ...publicSettings, mito_oidc_only: true, oidc_oauth_enabled: true, passkey_enabled: true, github_oauth_enabled: true })
+    getPublicSettingsMock.mockResolvedValueOnce({ ...publicSettings, backend_mode_enabled: backendMode, mito_oidc_only: true, oidc_oauth_enabled: true, passkey_enabled: true, github_oauth_enabled: true })
     const wrapper = mountLogin()
     await flushPromises()
     expect(wrapper.find('input[type="password"]').exists()).toBe(false)
