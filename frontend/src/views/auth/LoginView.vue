@@ -1,25 +1,17 @@
 <template>
   <AuthLayout>
-    <div class="mito-auth-form-flow space-y-6">
+    <div class="space-y-6">
       <!-- Title -->
-      <div class="mito-auth-form-heading text-center">
+      <div class="text-center">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-          {{ authText('loginTitle') }}
+          {{ t('auth.welcomeBack') }}
         </h2>
         <p class="mt-2 text-sm text-gray-500 dark:text-dark-400">
-          {{ authText('loginSubtitle') }}
+          {{ t('auth.signInToAccount') }}
         </p>
       </div>
-
-      <div v-if="publicSettingsLoaded && registrationEnabled" class="mito-auth-create-prompt">
-        <div>
-          <strong>{{ authText('createPromptTitle') }}</strong>
-          <span>{{ authText('createPromptDescription') }}</span>
-        </div>
-        <router-link to="/register">{{ authText('registerNow') }}</router-link>
-      </div>
       <!-- Login Form -->
-      <form @submit.prevent="handleLogin" class="mito-auth-primary-form space-y-5">
+      <form @submit.prevent="handleLogin" class="space-y-5">
         <!-- Email Input -->
         <div>
           <label for="email" class="input-label">
@@ -66,8 +58,6 @@
             />
             <button
               type="button"
-              :aria-label="showPassword ? authText('hidePassword') : authText('showPassword')"
-              class="mito-password-toggle absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-dark-300"
               @click="showPassword = !showPassword"
               :disabled="authActionDisabled"
             >
@@ -148,7 +138,7 @@
           @open="showAgreementModal = true"
         />
 
-        <div v-if="showPasskeyLogin || showOAuthLogin" class="mito-auth-alternatives space-y-3 pt-1">
+        <div v-if="showPasskeyLogin || showOAuthLogin" class="space-y-3 pt-1">
           <div class="flex items-center gap-3">
             <div class="h-px flex-1 bg-gray-200 dark:bg-dark-700"></div>
             <span class="text-xs text-gray-500 dark:text-dark-400">
@@ -207,7 +197,7 @@
 
     <!-- Footer -->
     <template v-if="!backendModeEnabled && publicSettingsLoaded && registrationEnabled" #footer>
-      <p class="mito-auth-account-switch text-gray-500 dark:text-dark-400">
+      <p class="text-gray-500 dark:text-dark-400">
         {{ t('auth.dontHaveAccount') }}
         <router-link
           to="/register"
@@ -235,7 +225,6 @@ import { computed, ref, reactive, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { AuthLayout } from '@/components/layout'
-import { useMitoLabels } from '@/themes/mito/labels'
 import LinuxDoOAuthSection from '@/components/auth/LinuxDoOAuthSection.vue'
 import DingTalkOAuthSection from '@/components/auth/DingTalkOAuthSection.vue'
 import OidcOAuthSection from '@/components/auth/OidcOAuthSection.vue'
@@ -263,7 +252,6 @@ import { extractI18nErrorMessage } from '@/utils/apiError'
 import { clearAllAffiliateReferralCodes } from '@/utils/oauthAffiliate'
 
 const { t } = useI18n()
-const authText = useMitoLabels()
 const LOGIN_AGREEMENT_STORAGE_KEY = 'sub2api_login_agreement_consent'
 
 // ==================== Router & Stores ====================

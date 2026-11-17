@@ -1,15 +1,12 @@
 <template>
-  <div class="mito-auth-layout relative flex min-h-screen items-center justify-center overflow-hidden p-4"
-    :class="{ 'mito-auth-entry': isMitoTheme && isAccountEntry }">
-    <MitoAuthHeader v-if="isMitoTheme && settingsLoaded" :name="siteName" :logo="siteLogo" :registration-enabled="registrationEnabled" />
-    <MitoAuthAside v-if="isMitoTheme && settingsLoaded && isAccountEntry" />
+  <div class="relative flex min-h-screen items-center justify-center overflow-hidden p-4">
     <!-- Background -->
     <div
-      class="mito-auth-background absolute inset-0 bg-gradient-to-br from-gray-50 via-primary-50/30 to-gray-100 dark:from-dark-950 dark:via-dark-900 dark:to-dark-950"
+      class="absolute inset-0 bg-gradient-to-br from-gray-50 via-primary-50/30 to-gray-100 dark:from-dark-950 dark:via-dark-900 dark:to-dark-950"
     ></div>
 
     <!-- Decorative Elements -->
-    <div class="mito-auth-decoration pointer-events-none absolute inset-0 overflow-hidden">
+    <div class="pointer-events-none absolute inset-0 overflow-hidden">
       <!-- Gradient Orbs -->
       <div
         class="absolute -right-40 -top-40 h-80 w-80 rounded-full bg-primary-400/20 blur-3xl"
@@ -28,9 +25,9 @@
     </div>
 
     <!-- Content Container -->
-    <div class="mito-auth-content relative z-10 w-full max-w-md">
+    <div class="relative z-10 w-full max-w-md">
       <!-- Logo/Brand -->
-      <div class="mito-auth-brand mb-8 text-center">
+      <div class="mb-8 text-center">
         <!-- Custom Logo or Default Logo -->
         <template v-if="settingsLoaded">
           <div
@@ -48,7 +45,7 @@
       </div>
 
       <!-- Card Container -->
-      <div class="mito-auth-card card-glass rounded-2xl p-8 shadow-glass">
+      <div class="card-glass rounded-2xl p-8 shadow-glass">
         <slot />
       </div>
 
@@ -68,21 +65,14 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useAppStore } from '@/stores'
-import { useRoute } from 'vue-router'
 import { sanitizeUrl } from '@/utils/url'
-import MitoAuthAside from '@/themes/mito/MitoAuthAside.vue'
-import MitoAuthHeader from '@/themes/mito/AuthHeader.vue'
-import { isMitoTheme } from '@/themes/mito'
 
 const appStore = useAppStore()
-const route = useRoute()
-const isAccountEntry = computed(() => route.path === '/login' || route.path === '/register')
 
 const siteName = computed(() => appStore.siteName || 'Sub2API')
 const siteLogo = computed(() => sanitizeUrl(appStore.siteLogo || '', { allowRelative: true, allowDataUrl: true }))
 const siteSubtitle = computed(() => appStore.cachedPublicSettings?.site_subtitle || 'Subscription to API Conversion Platform')
 const settingsLoaded = computed(() => appStore.publicSettingsLoaded)
-const registrationEnabled = computed(() => appStore.cachedPublicSettings?.registration_enabled === true)
 
 const currentYear = computed(() => new Date().getFullYear())
 
