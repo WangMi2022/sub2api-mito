@@ -8,23 +8,23 @@ import (
 	"strconv"
 
 	"github.com/Wei-Shaw/sub2api/internal/pkg/response"
-	"github.com/Wei-Shaw/sub2api/internal/server/middleware"
 	"github.com/gin-gonic/gin"
 )
 
 // Register keeps authorization ahead of every directory operation. Capabilities
 // are advisory for navigation; backend authorization never trusts browser state.
-func Register(parent *gin.RouterGroup, client *Client, jwt, audit, stepUp, limiter gin.HandlerFunc) {
+func Register(parent *gin.RouterGroup, client *Client, userID func(*gin.Context) int64, jwt, audit, stepUp, limiter gin.HandlerFunc) {
 	group := parent.Group("/identity")
 	group.Use(jwt, limiter)
 	group.GET("/capabilities", func(ctx *gin.Context) {
-		subject, ok := middleware.GetAuthSubjectFromContext(ctx)
-		response.Success(ctx, gin.H{"manage": ok && client != nil && client.cfg.Allows(subject.UserID)})
+		id := userID(ctx)
+		response.Success(ctx, gin.H{"manage": client != nil && client.cfg.Allows(id)})
 	})
 	group.Use(audit, func(ctx *gin.Context) {
-		subject, ok := middleware.GetAuthSubjectFromContext(ctx)
-		if !ok || client == nil || !client.cfg.Allows(subject.UserID) {
-			middleware.AbortWithError(ctx, 403, "identity_forbidden", "Identity administration permission required")
+		id := userID(ctx)
+		if client == nil || !client.cfg.Allows(id) {
+			reply(ctx, nil, failure("identity_forbidden", 403))
+			ctx.Abort()
 			return
 		}
 		if _, err := client.Realm(ctx.Request.Context()); err != nil {

@@ -9,7 +9,6 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/Wei-Shaw/sub2api/internal/server/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,10 +35,9 @@ func router(client *Client, userID int64) *gin.Engine {
 			c.AbortWithStatus(401)
 			return
 		}
-		c.Set(string(middleware.ContextKeyUser), middleware.AuthSubject{UserID: userID})
 		c.Next()
 	}
-	Register(r.Group("/api/v1"), client, auth, next, next, next)
+	Register(r.Group("/api/v1"), client, func(*gin.Context) int64 { return userID }, auth, next, next, next)
 	return r
 }
 func perform(r http.Handler, method, path, body string) *httptest.ResponseRecorder {

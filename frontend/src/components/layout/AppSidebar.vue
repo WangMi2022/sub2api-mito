@@ -306,11 +306,11 @@
 </template>
 
 <script setup lang="ts">
-import { useIdentityAdminStore } from '@/stores/identityAdmin'
 import { isMitoTheme } from '@/themes/mito'
 import { useThemeSync } from '@/themes/mito/useThemeSync'
 import { applyMitoSidebarSections, applyMitoUserSidebarSections, groupMitoSidebarSections, normalizeAdminRoutePath } from '@/themes/mito/sidebarSections'
 import { attachCustomMenuItems } from '@/utils/sidebarCustomMenus'
+import { useIdentityAdminStore } from '@/stores/identityAdmin'
 import { computed, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'

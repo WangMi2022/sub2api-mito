@@ -163,7 +163,10 @@ func registerRoutes(
 			log.Printf("Identity administration disabled: %v", err)
 		}
 	}
-	identityadmin.Register(v1, directory, gin.HandlerFunc(jwtAuth), gin.HandlerFunc(auditLog), gin.HandlerFunc(stepUpAuth), panelRateLimiter.Heavy())
+	identityadmin.Register(v1, directory, func(ctx *gin.Context) int64 {
+		subject, ok := middleware2.GetAuthSubjectFromContext(ctx)
+		if !ok { return 0 }; return subject.UserID
+	}, gin.HandlerFunc(jwtAuth), gin.HandlerFunc(auditLog), gin.HandlerFunc(stepUpAuth), panelRateLimiter.Heavy())
 
 	// 注册各模块路由
 	routes.RegisterAuthRoutes(v1, h, jwtAuth, auditLog, redisClient, settingService, panelRateLimiter)
