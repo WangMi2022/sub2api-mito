@@ -218,12 +218,12 @@ export const adaptations = [
   "path": "frontend/src/views/auth/RegisterView.vue",
   "edits": [
     {
-      "before": "    <div class=\"space-y-6\">",
-      "after": "    <div class=\"mito-auth-form-flow space-y-6\">"
+      "before": "    <div data-auth-page=\"register\" class=\"space-y-6\">",
+      "after": "    <div data-auth-page=\"register\" class=\"mito-auth-form-flow space-y-6\">"
     },
     {
-      "before": "      <!-- Title -->\n      <div class=\"text-center\">\n        <h2 class=\"text-2xl font-bold text-gray-900 dark:text-white\">\n          {{ t('auth.createAccount') }}\n        </h2>\n        <p class=\"mt-2 text-sm text-gray-500 dark:text-dark-400\">\n          {{ t('auth.signUpToStart', { siteName }) }}\n        </p>\n      </div>",
-      "after": "      <!-- Title -->\n      <div class=\"mito-auth-form-heading text-center\">\n        <h2 class=\"text-2xl font-bold text-gray-900 dark:text-white\">\n          {{ authText('registerTitle') }}\n        </h2>\n        <p class=\"mt-2 text-sm text-gray-500 dark:text-dark-400\">\n          {{ authText('registerSubtitle') }}\n        </p>\n      </div>\n\n      <div v-if=\"settingsLoaded\" class=\"mito-auth-register-note\">\n        <strong>{{ authText('registerNoteTitle') }}</strong>\n        <p>{{ authText('registerNoteDescription') }}</p>\n        <div class=\"mito-auth-register-flags\">\n          <span v-if=\"!invitationCodeEnabled\">{{ authText('noInvitationRequired') }}</span>\n          <span v-if=\"!emailVerifyEnabled\">{{ authText('directConsoleAccess') }}</span>\n        </div>\n      </div>"
+      "before": "      <!-- Title -->\n      <div class=\"text-center\">\n        <h2 class=\"text-2xl font-bold text-gray-900 dark:text-white\">\n          {{ registrationMode === 'oidc' ? t('auth.access.unifiedRegistration') : t('auth.createAccount') }}\n        </h2>\n        <p class=\"mt-2 text-sm text-gray-500 dark:text-dark-400\">\n          {{ registrationMode === 'oidc' ? t('auth.access.registerHint') : t('auth.signUpToStart', { siteName }) }}\n        </p>\n      </div>",
+      "after": "      <!-- Title -->\n      <div class=\"mito-auth-form-heading text-center\">\n        <h2 class=\"text-2xl font-bold text-gray-900 dark:text-white\">\n          {{ registrationMode === 'oidc' ? t('auth.access.unifiedRegistration') : authText('registerTitle') }}\n        </h2>\n        <p class=\"mt-2 text-sm text-gray-500 dark:text-dark-400\">\n          {{ registrationMode === 'oidc' ? t('auth.access.registerHint') : authText('registerSubtitle') }}\n        </p>\n      </div>\n\n      <div v-if=\"settingsLoaded && registrationMode === 'legacy'\" class=\"mito-auth-register-note\">\n        <strong>{{ authText('registerNoteTitle') }}</strong>\n        <p>{{ authText('registerNoteDescription') }}</p>\n        <div class=\"mito-auth-register-flags\">\n          <span v-if=\"!invitationCodeEnabled\">{{ authText('noInvitationRequired') }}</span>\n          <span v-if=\"!emailVerifyEnabled\">{{ authText('directConsoleAccess') }}</span>\n        </div>\n      </div>"
     },
     {
       "before": "      <form v-else @submit.prevent=\"handleRegister\" class=\"space-y-5\">",
