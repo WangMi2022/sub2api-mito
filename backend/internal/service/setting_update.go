@@ -136,9 +136,6 @@ func (s *SettingService) buildSystemSettingsUpdates(ctx context.Context, setting
 	if err := validateHomeBackgroundAppearance(settings.HomeBackgroundBlur, settings.HomeBackgroundOverlay); err != nil {
 		return nil, err
 	}
-	if err := settings.normalizeBalanceForecastSettings(); err != nil {
-		return nil, err
-	}
 	captureConfig := settings.requestCaptureConfig()
 	if err := captureConfig.Validate(); err != nil {
 		return nil, infraerrors.BadRequest("INVALID_REQUEST_CAPTURE_SETTINGS", err.Error())
