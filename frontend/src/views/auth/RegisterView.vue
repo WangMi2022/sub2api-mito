@@ -1,17 +1,17 @@
 <template>
   <AuthLayout>
-    <div class="mito-auth-form-flow space-y-6">
+    <div data-auth-page="register" class="mito-auth-form-flow space-y-6">
       <!-- Title -->
       <div class="mito-auth-form-heading text-center">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-          {{ authText('registerTitle') }}
+          {{ registrationMode === 'oidc' ? t('auth.access.unifiedRegistration') : authText('registerTitle') }}
         </h2>
         <p class="mt-2 text-sm text-gray-500 dark:text-dark-400">
-          {{ authText('registerSubtitle') }}
+          {{ registrationMode === 'oidc' ? t('auth.access.registerHint') : authText('registerSubtitle') }}
         </p>
       </div>
 
-      <div v-if="settingsLoaded" class="mito-auth-register-note">
+      <div v-if="settingsLoaded && registrationMode === 'legacy'" class="mito-auth-register-note">
         <strong>{{ authText('registerNoteTitle') }}</strong>
         <p>{{ authText('registerNoteDescription') }}</p>
         <div class="mito-auth-register-flags">
@@ -20,13 +20,16 @@
         </div>
       </div>
 
+      <p v-if="errorMessage" role="alert" class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</p>
+
       <!-- Registration Disabled Message -->
       <div v-if="lotteryInviteNotice" role="status" class="rounded-lg border border-primary-200 bg-primary-50 p-3 text-sm leading-6 text-primary-800 dark:border-primary-800 dark:bg-primary-950 dark:text-primary-200">
         <p v-if="lotteryInviteName" class="font-semibold">{{ lotteryInviteName }}</p>
         {{ lotteryInviteNotice }}
       </div>
+      <p v-if="!settingsLoaded" role="status" class="text-sm text-gray-500 dark:text-gray-400">{{ t('auth.processing') }}</p>
       <div
-        v-if="!registrationEnabled && settingsLoaded"
+        v-else-if="!registrationEnabled"
         class="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800/50 dark:bg-amber-900/20"
       >
         <div class="flex items-start gap-3">
@@ -66,7 +69,7 @@
         </div>
 
         <!-- Password Input -->
-        <div>
+        <div v-if="registrationMode === 'legacy'">
           <label for="password" class="input-label">
             {{ t('auth.passwordLabel') }}
           </label>
@@ -102,7 +105,7 @@
         </div>
 
         <!-- Confirm Password Input -->
-        <div>
+        <div v-if="registrationMode === 'legacy'">
           <label for="confirmPassword" class="input-label">
             {{ t('auth.confirmPassword') }}
           </label>
@@ -311,9 +314,13 @@
           {{
             isLoading
               ? t('auth.processing')
-              : emailVerifyEnabled
-                ? t('auth.continue')
-                : t('auth.createAccount')
+              : registrationMode === 'oidc'
+                ? emailVerifyEnabled
+                  ? t('auth.continue')
+                  : t('auth.access.continueInProvider', { providerName: oidcOAuthProviderName })
+                : emailVerifyEnabled
+                  ? t('auth.continue')
+                  : t('auth.createAccount')
           }}
         </button>
 
@@ -353,14 +360,17 @@
           :show-divider="false"
           @start="handleOAuthStart"
         />
-        <OidcOAuthSection
-          v-if="oidcOAuthEnabled"
-          :disabled="registrationActionDisabled"
-          :provider-name="oidcOAuthProviderName"
-          :aff-code="formData.aff_code"
-          :show-divider="false"
-          @start="handleOAuthStart"
-        />
+      </div>
+      <div v-if="oidcRegistrationEnabled" class="space-y-2 text-center text-sm">
+        <p class="text-gray-500 dark:text-gray-400">{{ t('auth.access.permissionBoundary') }}</p>
+        <button
+          type="button"
+          class="font-medium text-primary-600 hover:underline dark:text-primary-400"
+          :disabled="isLoading"
+          @click="switchRegistrationMode(registrationMode === 'oidc' ? 'legacy' : 'oidc')"
+        >
+          {{ registrationMode === 'oidc' ? t('auth.access.useLegacyRegistration') : t('auth.access.useUnifiedRegistration') }}
+        </button>
       </div>
     </div>
 
@@ -386,7 +396,6 @@ import { useI18n } from 'vue-i18n'
 import { AuthLayout } from '@/components/layout'
 import { useMitoLabels } from '@/themes/mito/labels'
 import LinuxDoOAuthSection from '@/components/auth/LinuxDoOAuthSection.vue'
-import OidcOAuthSection from '@/components/auth/OidcOAuthSection.vue'
 import WechatOAuthSection from '@/components/auth/WechatOAuthSection.vue'
 import EmailOAuthButtons from '@/components/auth/EmailOAuthButtons.vue'
 import LoginAgreementPrompt from '@/components/auth/LoginAgreementPrompt.vue'
@@ -398,6 +407,7 @@ import {
   buildOAuthLoginStartURL,
   getPublicSettings,
   isWeChatWebOAuthEnabled,
+  startOIDCRegistration,
   startOAuthLogin,
   type OAuthLoginStart,
   validatePromoCode,
@@ -464,7 +474,12 @@ const siteName = ref<string>('Sub2API')
 const linuxdoOAuthEnabled = ref<boolean>(false)
 const wechatOAuthEnabled = ref<boolean>(false)
 const oidcOAuthEnabled = ref<boolean>(false)
+const oidcRegistrationAllowed = ref<boolean>(false)
 const oidcOAuthProviderName = ref<string>('OIDC')
+const registrationMode = ref<'oidc' | 'legacy'>('legacy')
+const oidcRegistrationEnabled = computed(
+  () => registrationEnabled.value && oidcOAuthEnabled.value && oidcRegistrationAllowed.value
+)
 const githubOAuthEnabled = ref<boolean>(false)
 const googleOAuthEnabled = ref<boolean>(false)
 const registrationEmailSuffixWhitelist = ref<string[]>([])
@@ -549,7 +564,6 @@ const showOAuthLogin = computed(
   () =>
     linuxdoOAuthEnabled.value ||
     wechatOAuthEnabled.value ||
-    oidcOAuthEnabled.value ||
     githubOAuthEnabled.value ||
     googleOAuthEnabled.value
 )
@@ -602,7 +616,9 @@ onMounted(async () => {
     linuxdoOAuthEnabled.value = settings.linuxdo_oauth_enabled
     wechatOAuthEnabled.value = isWeChatWebOAuthEnabled(settings)
     oidcOAuthEnabled.value = settings.oidc_oauth_enabled
+    oidcRegistrationAllowed.value = settings.oidc_registration_enabled === true
     oidcOAuthProviderName.value = settings.oidc_oauth_provider_name || 'OIDC'
+    registrationMode.value = oidcRegistrationEnabled.value ? 'oidc' : 'legacy'
     githubOAuthEnabled.value = settings.github_oauth_enabled
     googleOAuthEnabled.value = settings.google_oauth_enabled
     registrationEmailSuffixWhitelist.value = normalizeRegistrationEmailSuffixWhitelist(
@@ -992,22 +1008,24 @@ function validateForm(): boolean {
     isValid = false
   }
 
-  // Password validation
-  if (!formData.password) {
-    errors.password = t('auth.passwordRequired')
-    isValid = false
-  } else if (formData.password.length < 6) {
-    errors.password = t('auth.passwordMinLength')
-    isValid = false
-  }
+  if (registrationMode.value === 'legacy') {
+    // Password validation
+    if (!formData.password) {
+      errors.password = t('auth.passwordRequired')
+      isValid = false
+    } else if (formData.password.length < 6) {
+      errors.password = t('auth.passwordMinLength')
+      isValid = false
+    }
 
-  // Confirm password validation
-  if (!confirmPassword.value) {
-    errors.confirmPassword = t('auth.confirmPasswordRequired')
-    isValid = false
-  } else if (formData.password !== confirmPassword.value) {
-    errors.confirmPassword = t('auth.passwordsDoNotMatch')
-    isValid = false
+    // Confirm password validation
+    if (!confirmPassword.value) {
+      errors.confirmPassword = t('auth.confirmPasswordRequired')
+      isValid = false
+    } else if (formData.password !== confirmPassword.value) {
+      errors.confirmPassword = t('auth.passwordsDoNotMatch')
+      isValid = false
+    }
   }
 
   // Invitation code validation (required when enabled)
@@ -1028,6 +1046,13 @@ function validateForm(): boolean {
 }
 
 // ==================== Form Handlers ====================
+
+function switchRegistrationMode(mode: 'oidc' | 'legacy'): void {
+  registrationMode.value = mode
+  errorMessage.value = ''
+  errors.password = ''
+  errors.confirmPassword = ''
+}
 
 async function handleRegister(): Promise<void> {
   // Clear previous error
@@ -1088,12 +1113,50 @@ async function handleRegister(): Promise<void> {
       formData.aff_code = affCode
     }
 
-    // If email verification is enabled, redirect to verification page
+    const captchaPayload = {
+      turnstile_token:
+        turnstileEnabled.value || aliyunCaptchaEnabled.value ? turnstileToken.value : undefined,
+      tencent_captcha_ticket: tencentCaptchaEnabled.value ? turnstileToken.value : undefined,
+      tencent_captcha_randstr: tencentCaptchaEnabled.value ? tencentCaptchaRandstr.value : undefined
+    }
+
+    if (registrationMode.value === 'oidc') {
+      if (emailVerifyEnabled.value) {
+        sessionStorage.setItem(
+          'register_data',
+          JSON.stringify({
+            registration_mode: 'oidc',
+            email: formData.email,
+            ...captchaPayload,
+            promo_code: formData.promo_code || undefined,
+            invitation_code: formData.invitation_code || undefined,
+            ...(affCode ? { aff_code: affCode } : {})
+          })
+        )
+        await router.push('/email-verify')
+        return
+      }
+
+      const redirectTo =
+        typeof route.query.redirect === 'string' ? route.query.redirect : '/dashboard'
+      const result = await startOIDCRegistration({
+        email: formData.email,
+        ...captchaPayload,
+        promo_code: formData.promo_code || undefined,
+        invitation_code: formData.invitation_code || undefined,
+        aff_code: affCode || undefined,
+        redirect: redirectTo
+      })
+      window.location.href = result.authorize_url
+      return
+    }
+
+    // If email verification is enabled, redirect to verification page.
     if (emailVerifyEnabled.value) {
-      // Store registration data in sessionStorage
       sessionStorage.setItem(
         'register_data',
         JSON.stringify({
+          registration_mode: 'legacy',
           email: formData.email,
           password: formData.password,
           turnstile_token:
@@ -1106,7 +1169,6 @@ async function handleRegister(): Promise<void> {
         })
       )
 
-      // Navigate to email verification page
       await router.push('/email-verify')
       return
     }
@@ -1115,10 +1177,7 @@ async function handleRegister(): Promise<void> {
     await authStore.register({
       email: formData.email,
       password: formData.password,
-      turnstile_token:
-        turnstileEnabled.value || aliyunCaptchaEnabled.value ? turnstileToken.value : undefined,
-      tencent_captcha_ticket: tencentCaptchaEnabled.value ? turnstileToken.value : undefined,
-      tencent_captcha_randstr: tencentCaptchaEnabled.value ? tencentCaptchaRandstr.value : undefined,
+      ...captchaPayload,
       promo_code: formData.promo_code || undefined,
       invitation_code: formData.invitation_code || undefined,
       ...(affCode ? { aff_code: affCode } : {})
@@ -1145,11 +1204,30 @@ async function handleRegister(): Promise<void> {
 }
 
 function buildRegistrationErrorMessage(error: unknown, fallback: string): string {
-  if (extractApiErrorCode(error) === 'EMAIL_ALIAS_NOT_ALLOWED') {
+  const code = extractApiErrorCode(error)
+  if (code === 'EMAIL_ALIAS_NOT_ALLOWED') {
     return t('auth.emailAliasNotAllowed')
   }
-  if (extractApiErrorCode(error) === 'EMAIL_DOMAIN_REGISTRATION_LIMIT') {
+  if (code === 'EMAIL_DOMAIN_REGISTRATION_LIMIT') {
     return t('auth.emailDomainRegistrationLimit')
+  }
+  if (code === 'OIDC_REGISTRATION_EMAIL_EXISTS') {
+    return t('auth.access.identityExists')
+  }
+  if (code === 'OIDC_REGISTRATION_IDENTITY_CONFLICT') {
+    return t('auth.access.identityConflict')
+  }
+  if (code === 'OIDC_REGISTRATION_EMAIL_MISMATCH') {
+    return t('auth.access.identityEmailMismatch')
+  }
+  if (code === 'OIDC_REGISTRATION_INTENT_EXPIRED') {
+    return t('auth.access.identityExpired')
+  }
+  if (code === 'OIDC_REGISTRATION_INTENT_CONSUMED') {
+    return t('auth.access.identityConsumed')
+  }
+  if (code === 'OIDC_REGISTRATION_DISABLED') {
+    return t('auth.access.identityUnavailable')
   }
   return buildAuthErrorMessage(error, { fallback })
 }

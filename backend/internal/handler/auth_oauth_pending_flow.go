@@ -1611,6 +1611,7 @@ func clearOAuthLogoutCookies(c *gin.Context) {
 	oidcClearCookie(c, oidcOAuthRedirectCookie, secureCookie)
 	oidcClearCookie(c, oidcOAuthNonceCookie, secureCookie)
 	oidcClearCookie(c, oidcOAuthIntentCookieName, secureCookie)
+	oidcClearCookie(c, oidcOAuthRegistrationCookieName, secureCookie)
 	oidcClearCookie(c, oidcOAuthBindUserCookieName, secureCookie)
 
 	wechatClearCookie(c, wechatOAuthStateCookieName, secureCookie)

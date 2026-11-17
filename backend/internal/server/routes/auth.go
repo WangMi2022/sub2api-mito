@@ -235,6 +235,9 @@ func RegisterAuthRoutes(
 		auth.POST("/oauth/oidc/start", rateLimiter.LimitWithOptions("oauth-oidc-start", 20, time.Minute, middleware.RateLimitOptions{
 			FailureMode: middleware.RateLimitFailClose,
 		}), h.Auth.OIDCOAuthStart)
+		auth.POST("/oauth/oidc/register/start", rateLimiter.LimitWithOptions("oauth-oidc-register-start", 10, time.Minute, middleware.RateLimitOptions{
+			FailureMode: middleware.RateLimitFailClose,
+		}), h.Auth.OIDCOAuthRegistrationStart)
 		auth.GET("/oauth/oidc/bind/start", func(c *gin.Context) {
 			query := c.Request.URL.Query()
 			query.Set("intent", "bind_current_user")

@@ -72,6 +72,33 @@ func TestUserRepositoryExistsByEmailNormalizesLegacySpacingAndCase(t *testing.T)
 	require.True(t, exists)
 }
 
+func TestUserRepositoryExistsByEmailUsesTransactionContext(t *testing.T) {
+	repo, client := newUserEntRepo(t)
+	ctx := context.Background()
+	tx, err := client.Tx(ctx)
+	require.NoError(t, err)
+	defer func() { _ = tx.Rollback() }()
+
+	txCtx := dbent.NewTxContext(ctx, tx)
+	_, err = tx.Client().User.Create().
+		SetEmail("transaction-only@example.com").
+		SetUsername("transaction-only").
+		SetPasswordHash("hash").
+		SetRole(service.RoleUser).
+		SetStatus(service.StatusActive).
+		Save(txCtx)
+	require.NoError(t, err)
+
+	exists, err := repo.ExistsByEmail(txCtx, "TRANSACTION-ONLY@example.com")
+	require.NoError(t, err)
+	require.True(t, exists, "the lookup must see writes in the caller's transaction")
+
+	require.NoError(t, tx.Rollback())
+	exists, err = repo.ExistsByEmail(ctx, "transaction-only@example.com")
+	require.NoError(t, err)
+	require.False(t, exists, "a rolled-back write must not leak into the default client")
+}
+
 func TestUserRepositoryCreateRejectsNormalizedEmailDuplicate(t *testing.T) {
 	repo, _ := newUserEntRepo(t)
 	ctx := context.Background()

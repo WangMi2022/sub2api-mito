@@ -44,6 +44,7 @@ function createPublicSettings(overrides: Partial<PublicSettings> = {}): PublicSe
     linuxdo_oauth_enabled: false,
     wechat_oauth_enabled: false,
     oidc_oauth_enabled: false,
+    oidc_registration_enabled: false,
     oidc_oauth_provider_name: 'OIDC',
     github_oauth_enabled: false,
     google_oauth_enabled: false,

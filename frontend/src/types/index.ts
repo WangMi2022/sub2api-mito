@@ -280,6 +280,7 @@ export interface PublicSettings {
   wechat_oauth_mp_enabled?: boolean
   wechat_oauth_mobile_enabled?: boolean
   oidc_oauth_enabled: boolean
+  oidc_registration_enabled?: boolean
   oidc_oauth_provider_name: string
   github_oauth_enabled: boolean
   google_oauth_enabled: boolean

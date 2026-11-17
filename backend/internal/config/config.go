@@ -349,6 +349,7 @@ type OIDCConnectConfig struct {
 	// Instance settings isolate this process from OIDC rows in a shared database.
 	SettingsSource          string `mapstructure:"settings_source"`
 	Enabled                 bool   `mapstructure:"enabled"`
+	RegistrationEnabled     bool   `mapstructure:"registration_enabled"`
 	ProviderName            string `mapstructure:"provider_name"` // 显示名: "Keycloak" 等
 	ClientID                string `mapstructure:"client_id"`
 	ClientSecret            string `mapstructure:"client_secret"`
@@ -2505,6 +2506,7 @@ func setDefaults() {
 	// Generic OIDC OAuth 登录
 	viper.SetDefault("oidc_connect.settings_source", "database")
 	viper.SetDefault("oidc_connect.enabled", false)
+	viper.SetDefault("oidc_connect.registration_enabled", false)
 	viper.SetDefault("oidc_connect.provider_name", "OIDC")
 	viper.SetDefault("identity_admin_file", "")
 	viper.SetDefault("oidc_connect.client_id", "")

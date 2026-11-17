@@ -1171,7 +1171,7 @@ func (r *userRepository) BatchUpdateLimits(ctx context.Context, userIDs []int64,
 }
 
 func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool, error) {
-	return r.client.User.Query().Where(userEmailLookupPredicate(email)).Exist(ctx)
+	return clientFromContext(ctx, r.client).User.Query().Where(userEmailLookupPredicate(email)).Exist(ctx)
 }
 
 // emailAliasCandidateLimit 限制一次别名查重最多取回的候选行数。探针都以去点后的

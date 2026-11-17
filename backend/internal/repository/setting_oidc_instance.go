@@ -19,6 +19,7 @@ func ProvideSettingRepository(client *ent.Client, cfg *config.Config) service.Se
 	c := cfg.OIDC
 	r.instanceOIDC = map[string]string{
 		service.SettingKeyOIDCConnectEnabled:              strconv.FormatBool(c.Enabled),
+		service.SettingKeyOIDCConnectRegistrationEnabled:  strconv.FormatBool(c.RegistrationEnabled),
 		service.SettingKeyOIDCConnectProviderName:         c.ProviderName,
 		service.SettingKeyOIDCConnectClientID:             c.ClientID,
 		service.SettingKeyOIDCConnectClientSecret:         c.ClientSecret,

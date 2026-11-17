@@ -33,16 +33,17 @@ import (
 )
 
 const (
-	oidcOAuthCookiePath         = "/api/v1/auth/oauth/oidc"
-	oidcOAuthStateCookieName    = "oidc_oauth_state"
-	oidcOAuthVerifierCookie     = "oidc_oauth_verifier"
-	oidcOAuthRedirectCookie     = "oidc_oauth_redirect"
-	oidcOAuthNonceCookie        = "oidc_oauth_nonce"
-	oidcOAuthIntentCookieName   = "oidc_oauth_intent"
-	oidcOAuthBindUserCookieName = "oidc_oauth_bind_user"
-	oidcOAuthCookieMaxAgeSec    = 10 * 60 // 10 minutes
-	oidcOAuthDefaultRedirectTo  = "/dashboard"
-	oidcOAuthDefaultFrontendCB  = "/auth/oidc/callback"
+	oidcOAuthCookiePath             = "/api/v1/auth/oauth/oidc"
+	oidcOAuthStateCookieName        = "oidc_oauth_state"
+	oidcOAuthVerifierCookie         = "oidc_oauth_verifier"
+	oidcOAuthRedirectCookie         = "oidc_oauth_redirect"
+	oidcOAuthNonceCookie            = "oidc_oauth_nonce"
+	oidcOAuthIntentCookieName       = "oidc_oauth_intent"
+	oidcOAuthRegistrationCookieName = "oidc_oauth_registration"
+	oidcOAuthBindUserCookieName     = "oidc_oauth_bind_user"
+	oidcOAuthCookieMaxAgeSec        = 10 * 60 // 10 minutes
+	oidcOAuthDefaultRedirectTo      = "/dashboard"
+	oidcOAuthDefaultFrontendCB      = "/auth/oidc/callback"
 )
 
 type oidcTokenResponse struct {
@@ -230,6 +231,7 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 		oidcClearCookie(c, oidcOAuthRedirectCookie, secureCookie)
 		oidcClearCookie(c, oidcOAuthNonceCookie, secureCookie)
 		oidcClearCookie(c, oidcOAuthIntentCookieName, secureCookie)
+		oidcClearCookie(c, oidcOAuthRegistrationCookieName, secureCookie)
 		oidcClearCookie(c, oidcOAuthBindUserCookieName, secureCookie)
 		clearOAuthPromoCodeCookie(c, secureCookie)
 	}()
@@ -239,6 +241,7 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 		redirectOAuthError(c, frontendCallback, "invalid_state", "invalid oauth state", "")
 		return
 	}
+	registrationIntentToken, _ := readCookieDecoded(c, oidcOAuthRegistrationCookieName)
 
 	redirectTo, _ := readCookieDecoded(c, oidcOAuthRedirectCookie)
 	redirectTo = sanitizeFrontendRedirectPath(redirectTo)
@@ -411,6 +414,69 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 	if compatEmail != "" && !strings.EqualFold(strings.TrimSpace(compatEmail), strings.TrimSpace(email)) {
 		upstreamClaims["compat_email"] = compatEmail
 	}
+	if strings.TrimSpace(registrationIntentToken) != "" {
+		if !oidcEmailVerificationSatisfied(cfg, emailVerified) {
+			redirectOAuthError(c, frontendCallback, "email_not_verified", "email is not verified", "")
+			return
+		}
+		if idClaims == nil || verification == nil || strings.TrimSpace(compatEmail) == "" {
+			redirectOAuthError(c, frontendCallback, "invalid_registration_identity", "registration requires a verified id_token identity and email", "")
+			return
+		}
+		// Registration identities must retain the IdP email. The generic OIDC
+		// login path uses a synthetic local email before this branch, but that
+		// value must not overwrite the real verified claim in identity metadata.
+		upstreamClaims["email"] = strings.TrimSpace(compatEmail)
+		registeredUser, persistedRedirect, err := h.authService.ConsumeOIDCRegistrationIntent(
+			c.Request.Context(),
+			service.ConsumeOIDCRegistrationIntentInput{
+				IntentToken:       registrationIntentToken,
+				State:             state,
+				BrowserSessionKey: browserSessionKey,
+				Issuer:            issuer,
+				ProviderSubject:   subject,
+				Email:             compatEmail,
+				Username:          username,
+				DisplayName: firstNonEmpty(userInfoClaims.DisplayName, func() string {
+					if idClaims != nil {
+						return idClaims.Name
+					}
+					return ""
+				}(), username),
+				AvatarURL:        userInfoClaims.AvatarURL,
+				UpstreamMetadata: upstreamClaims,
+				RedirectTo:       redirectTo,
+			},
+			h.secretEncryptor,
+		)
+		if err != nil {
+			redirectOAuthError(c, frontendCallback, infraerrors.Reason(err), infraerrors.Message(err), "")
+			return
+		}
+		persistedRedirect = sanitizeFrontendRedirectPath(persistedRedirect)
+		if persistedRedirect == "" {
+			persistedRedirect = oidcOAuthDefaultRedirectTo
+		}
+		if err := h.createOAuthPendingSession(c, oauthPendingSessionPayload{
+			Intent:                 oauthIntentLogin,
+			Identity:               identityRef,
+			TargetUserID:           &registeredUser.ID,
+			OIDCSessionID:          idpSessionID,
+			ResolvedEmail:          registeredUser.Email,
+			RedirectTo:             persistedRedirect,
+			BrowserSessionKey:      browserSessionKey,
+			UpstreamIdentityClaims: upstreamClaims,
+			OIDCVerification:       verification,
+			CompletionResponse: map[string]any{
+				"redirect": persistedRedirect,
+			},
+		}); err != nil {
+			redirectOAuthError(c, frontendCallback, "session_error", "failed to continue oauth registration", "")
+			return
+		}
+		redirectToFrontendCallback(c, frontendCallback)
+		return
+	}
 	if intent == oauthIntentBindCurrentUser {
 		targetUserID, err := h.readOAuthBindUserIDFromCookie(c, oidcOAuthBindUserCookieName)
 		if err != nil {
@@ -471,11 +537,9 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 		return
 	}
 
-	if cfg.RequireEmailVerified {
-		if emailVerified == nil || !*emailVerified {
-			redirectOAuthError(c, frontendCallback, "email_not_verified", "email is not verified", "")
-			return
-		}
+	if !oidcEmailVerificationSatisfied(cfg, emailVerified) {
+		redirectOAuthError(c, frontendCallback, "email_not_verified", "email is not verified", "")
+		return
 	}
 
 	// 快捷路径：当上游返回已验证邮箱、部署不要求额外确认且本地没有同邮箱账号时，
@@ -975,6 +1039,10 @@ func oidcParseUserInfo(body string, cfg config.OIDCConnectConfig) *oidcUserInfoC
 	return claims
 }
 
+func oidcEmailVerificationSatisfied(cfg config.OIDCConnectConfig, emailVerified *bool) bool {
+	return !cfg.RequireEmailVerified || (emailVerified != nil && *emailVerified)
+}
+
 func getGJSONBool(body string, path string) (bool, bool) {
 	path = strings.TrimSpace(path)
 	if path == "" {
@@ -988,6 +1056,14 @@ func getGJSONBool(body string, path string) (bool, bool) {
 }
 
 func buildOIDCAuthorizeURL(cfg config.OIDCConnectConfig, state, nonce, codeChallenge, redirectURI string) (string, error) {
+	return buildOIDCAuthorizeURLWithExtra(cfg, state, nonce, codeChallenge, redirectURI, nil)
+}
+
+func buildOIDCAuthorizeURLWithExtra(
+	cfg config.OIDCConnectConfig,
+	state, nonce, codeChallenge, redirectURI string,
+	extra url.Values,
+) (string, error) {
 	u, err := url.Parse(cfg.AuthorizeURL)
 	if err != nil {
 		return "", fmt.Errorf("parse authorize_url: %w", err)
@@ -1007,6 +1083,17 @@ func buildOIDCAuthorizeURL(cfg config.OIDCConnectConfig, state, nonce, codeChall
 	if strings.TrimSpace(codeChallenge) != "" {
 		q.Set("code_challenge", codeChallenge)
 		q.Set("code_challenge_method", "S256")
+	}
+	for key, values := range extra {
+		if strings.TrimSpace(key) == "" {
+			continue
+		}
+		q.Del(key)
+		for _, value := range values {
+			if strings.TrimSpace(value) != "" {
+				q.Add(key, value)
+			}
+		}
 	}
 
 	u.RawQuery = q.Encode()

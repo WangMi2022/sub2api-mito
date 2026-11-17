@@ -2579,6 +2579,26 @@ CREATE TABLE IF NOT EXISTS user_affiliates (
 	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 )`)
 	require.NoError(t, err)
+	_, err = db.Exec(`
+CREATE TABLE IF NOT EXISTS oidc_registration_intents (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	intent_token_hash TEXT NOT NULL UNIQUE,
+	state_hash TEXT NOT NULL UNIQUE,
+	browser_session_hash TEXT NOT NULL,
+	email_normalized TEXT NOT NULL,
+	issuer TEXT NOT NULL,
+	redirect_to TEXT NOT NULL DEFAULT '/dashboard',
+	invitation_code_encrypted TEXT,
+	promo_code_encrypted TEXT,
+	affiliate_code_encrypted TEXT,
+	expires_at TIMESTAMP NOT NULL,
+	consumed_at TIMESTAMP NULL,
+	user_id INTEGER NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	CHECK (email_normalized = lower(trim(email_normalized))),
+	CHECK (expires_at > created_at)
+)`)
+	require.NoError(t, err)
 
 	drv := entsql.OpenDB(dialect.SQLite, db)
 	client := enttest.NewClient(t, enttest.WithOptions(dbent.Driver(drv)))

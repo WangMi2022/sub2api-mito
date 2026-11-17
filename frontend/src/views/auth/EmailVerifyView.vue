@@ -1,15 +1,22 @@
 <template>
   <AuthLayout>
-    <div class="space-y-6">
+    <div data-auth-page="email-verify" class="space-y-6">
       <!-- Title -->
       <div class="text-center">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-          {{ t('auth.verifyYourEmail') }}
+          {{ oidcRegistrationFlow ? t('auth.access.verifyUnifiedTitle') : t('auth.verifyYourEmail') }}
         </h2>
         <p class="mt-2 text-sm text-gray-500 dark:text-dark-400">
-          {{ t('auth.sendCodeDesc') }}
+          {{ oidcRegistrationFlow ? t('auth.access.verifyUnifiedHint') : t('auth.sendCodeDesc') }}
           <span class="font-medium text-gray-700 dark:text-gray-300">{{ email }}</span>
         </p>
+        <div v-if="oidcRegistrationFlow" class="auth-provider-route auth-provider-route--compact">
+          <span class="auth-provider-mark">{{ oidcProviderInitial }}</span>
+          <div>
+            <strong>{{ oidcProviderName }}</strong>
+            <span>{{ t('auth.access.providerPasswordHint') }}</span>
+          </div>
+        </div>
       </div>
 
       <!-- No Data Warning -->
@@ -86,7 +93,7 @@
           />
         </div>
 
-        <div v-if="pendingOAuthCreateCaptchaEnabled" class="space-y-2">
+        <div v-if="confirmationCaptchaEnabled" class="space-y-2">
           <TurnstileWidget
             ref="createAccountTurnstileRef"
             :site-key="turnstileSiteKey"
@@ -108,7 +115,7 @@
         <!-- Submit Button -->
         <button
           type="submit"
-          :disabled="isLoading || !verifyCode || (pendingOAuthCreateTurnstileRequired && !createAccountTurnstileToken)"
+          :disabled="isLoading || !verifyCode || (confirmationTurnstileRequired && !createAccountTurnstileToken)"
           class="btn btn-primary w-full"
         >
           <svg
@@ -132,7 +139,7 @@
             ></path>
           </svg>
           <Icon v-else name="checkCircle" size="md" class="mr-2" />
-          {{ isLoading ? t('auth.verifying') : t('auth.verifyAndCreate') }}
+          {{ isLoading ? t('auth.verifying') : oidcRegistrationFlow ? t('auth.access.verifyAndContinue') : t('auth.verifyAndCreate') }}
         </button>
 
         <!-- Resend Code -->
@@ -192,6 +199,7 @@ import {
   type PendingOAuthSendVerifyCodeResponse,
   sendPendingOAuthVerifyCode,
   sendVerifyCode,
+  startOIDCRegistration,
 } from '@/api/auth'
 import { apiClient } from '@/api/client'
 import { buildAuthErrorMessage } from '@/utils/authError'
@@ -254,6 +262,7 @@ const pendingAuthToken = ref<string>('')
 const pendingAuthTokenField = ref<PendingAuthTokenField>('pending_auth_token')
 const pendingProvider = ref<string>('')
 const pendingRedirect = ref<string>('')
+const oidcRegistrationFlow = ref<boolean>(false)
 const pendingAdoptionDecision = ref<{
   adoptDisplayName?: boolean
   adoptAvatar?: boolean
@@ -271,6 +280,10 @@ const aliyunCaptchaSceneId = ref<string>('')
 const aliyunCaptchaPrefix = ref<string>('')
 const aliyunCaptchaRegion = ref<string>('cn')
 const siteName = ref<string>('Sub2API')
+const oidcProviderName = ref<string>('OIDC')
+const oidcProviderInitial = computed(
+  () => oidcProviderName.value.trim().charAt(0).toUpperCase() || 'U'
+)
 const registrationEmailSuffixWhitelist = ref<string[]>([])
 // 域名限量注册开关：开启时非白名单域名可注册 1 个账户（由后端判定），前端不做白名单预检。
 const emailDomainQuotaEnabled = ref<boolean>(false)
@@ -308,11 +321,11 @@ const errors = ref({
 const validationToastMessage = computed(
   () => errors.value.code || errors.value.turnstile || ''
 )
-const pendingOAuthCreateTurnstileRequired = computed(
-  () => isPendingOAuthFlow() && turnstileEnabled.value
+const confirmationTurnstileRequired = computed(
+  () => (isPendingOAuthFlow() || oidcRegistrationFlow.value) && turnstileEnabled.value
 )
-const pendingOAuthCreateCaptchaEnabled = computed(
-  () => isPendingOAuthFlow() && captchaEnabled.value
+const confirmationCaptchaEnabled = computed(
+  () => (isPendingOAuthFlow() || oidcRegistrationFlow.value) && captchaEnabled.value
 )
 
 watch(validationToastMessage, (value, previousValue) => {
@@ -343,13 +356,16 @@ onMounted(async () => {
       pendingAuthTokenField.value = registerData.pending_auth_token_field || activePendingSession?.token_field || 'pending_auth_token'
       pendingProvider.value = registerData.pending_provider || activePendingSession?.provider || ''
       pendingRedirect.value = registerData.pending_redirect || activePendingSession?.redirect || ''
+      oidcRegistrationFlow.value = registerData.registration_mode === 'oidc'
       pendingAdoptionDecision.value = registerData.pending_adoption_decision
         ? {
             adoptDisplayName: registerData.pending_adoption_decision.adopt_display_name === true,
             adoptAvatar: registerData.pending_adoption_decision.adopt_avatar === true
           }
         : null
-      hasRegisterData.value = !!(email.value && password.value)
+      hasRegisterData.value = !!(
+        email.value && (password.value || oidcRegistrationFlow.value)
+      )
     } catch {
       hasRegisterData.value = false
     }
@@ -373,6 +389,7 @@ onMounted(async () => {
     aliyunCaptchaPrefix.value = settings.aliyun_captcha_prefix || ''
     aliyunCaptchaRegion.value = settings.aliyun_captcha_region || 'cn'
     siteName.value = settings.site_name || 'Sub2API'
+    oidcProviderName.value = settings.oidc_oauth_provider_name || 'OIDC'
     registrationEmailSuffixWhitelist.value = normalizeRegistrationEmailSuffixWhitelist(
       settings.registration_email_suffix_whitelist || []
     )
@@ -471,7 +488,7 @@ async function acquireResendActionProof(): Promise<boolean> {
 }
 
 async function acquireCreateAccountActionProof(): Promise<boolean> {
-  if (!isPendingOAuthFlow() || !actionCaptchaEnabled.value) return true
+  if ((!isPendingOAuthFlow() && !oidcRegistrationFlow.value) || !actionCaptchaEnabled.value) return true
 
   const proof = await createAccountTurnstileRef.value?.verifyAction()
   if (!proof) return false
@@ -673,21 +690,39 @@ async function handleVerify(): Promise<void> {
   isLoading.value = true
 
   try {
+    const confirmationCaptchaPayload = {
+      ...((turnstileEnabled.value || aliyunCaptchaEnabled.value) &&
+      createAccountTurnstileToken.value
+        ? { turnstile_token: createAccountTurnstileToken.value }
+        : {}),
+      ...(tencentCaptchaEnabled.value && createAccountTurnstileToken.value
+        ? {
+            tencent_captcha_ticket: createAccountTurnstileToken.value,
+            tencent_captcha_randstr: createAccountTencentCaptchaRandstr.value
+          }
+        : {})
+    }
+
+    if (oidcRegistrationFlow.value) {
+      const result = await startOIDCRegistration({
+        email: email.value,
+        verify_code: verifyCode.value.trim(),
+        ...confirmationCaptchaPayload,
+        promo_code: promoCode.value || undefined,
+        invitation_code: invitationCode.value || undefined,
+        aff_code: affCode.value || loadAffiliateReferralCode() || undefined,
+        redirect: pendingRedirect.value || undefined
+      })
+      window.location.href = result.authorize_url
+      return
+    }
+
     if (isPendingOAuthFlow()) {
       const payload: Record<string, unknown> = {
         email: email.value,
         password: password.value,
         verify_code: verifyCode.value.trim(),
-        ...((turnstileEnabled.value || aliyunCaptchaEnabled.value) &&
-        createAccountTurnstileToken.value
-          ? { turnstile_token: createAccountTurnstileToken.value }
-          : {}),
-        ...(tencentCaptchaEnabled.value && createAccountTurnstileToken.value
-          ? {
-              tencent_captcha_ticket: createAccountTurnstileToken.value,
-              tencent_captcha_randstr: createAccountTencentCaptchaRandstr.value
-          }
-          : {}),
+        ...confirmationCaptchaPayload,
         ...oauthAffiliatePayload(affCode.value || loadAffiliateReferralCode()),
       }
       if (invitationCode.value) {
@@ -751,7 +786,7 @@ async function handleVerify(): Promise<void> {
   } finally {
     initialTurnstileToken.value = ''
     initialTencentCaptchaRandstr.value = ''
-    if (pendingOAuthCreateCaptchaEnabled.value) {
+    if (confirmationCaptchaEnabled.value) {
       resetCreateAccountTurnstile()
     }
     isLoading.value = false
@@ -783,11 +818,30 @@ function buildEmailSuffixNotAllowedMessage(): string {
 }
 
 function buildRegistrationErrorMessage(error: unknown, fallback: string): string {
-  if (extractApiErrorCode(error) === 'EMAIL_ALIAS_NOT_ALLOWED') {
+  const code = extractApiErrorCode(error)
+  if (code === 'EMAIL_ALIAS_NOT_ALLOWED') {
     return t('auth.emailAliasNotAllowed')
   }
-  if (extractApiErrorCode(error) === 'EMAIL_DOMAIN_REGISTRATION_LIMIT') {
+  if (code === 'EMAIL_DOMAIN_REGISTRATION_LIMIT') {
     return t('auth.emailDomainRegistrationLimit')
+  }
+  if (code === 'OIDC_REGISTRATION_EMAIL_EXISTS') {
+    return t('auth.access.identityExists')
+  }
+  if (code === 'OIDC_REGISTRATION_IDENTITY_CONFLICT') {
+    return t('auth.access.identityConflict')
+  }
+  if (code === 'OIDC_REGISTRATION_EMAIL_MISMATCH') {
+    return t('auth.access.identityEmailMismatch')
+  }
+  if (code === 'OIDC_REGISTRATION_INTENT_EXPIRED') {
+    return t('auth.access.identityExpired')
+  }
+  if (code === 'OIDC_REGISTRATION_INTENT_CONSUMED') {
+    return t('auth.access.identityConsumed')
+  }
+  if (code === 'OIDC_REGISTRATION_DISABLED') {
+    return t('auth.access.identityUnavailable')
   }
   return buildAuthErrorMessage(error, { fallback })
 }

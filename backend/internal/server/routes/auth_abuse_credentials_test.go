@@ -52,7 +52,7 @@ func newAuthCredentialFixture(t *testing.T) *handler.Handlers {
 	require.NoError(t, err)
 	settings := service.NewSettingService(&authCredentialSettingRepo{}, cfg)
 	return &handler.Handlers{
-		Auth:    handler.NewAuthHandler(cfg, auth, nil, nil, nil, nil, totp, nil),
+		Auth:    handler.NewAuthHandler(cfg, auth, nil, nil, nil, nil, totp, nil, nil),
 		Passkey: handler.NewPasskeyHandler(passkeys, auth, settings),
 		Setting: &handler.SettingHandler{},
 	}

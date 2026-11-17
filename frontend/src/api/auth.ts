@@ -41,6 +41,22 @@ export interface OAuthLoginStartResponse {
   authorize_url: string
 }
 
+export interface OIDCRegistrationStartRequest {
+  email: string
+  verify_code?: string
+  invitation_code?: string
+  promo_code?: string
+  aff_code?: string
+  redirect?: string
+  turnstile_token?: string
+  tencent_captcha_ticket?: string
+  tencent_captcha_randstr?: string
+}
+
+export interface OIDCRegistrationStartResponse {
+  authorize_url: string
+}
+
 export function buildOAuthLoginStartURL(request: OAuthLoginStart): string {
   const apiBase = (import.meta.env.VITE_API_BASE_URL as string | undefined) || '/api/v1'
   const normalized = apiBase.replace(/\/$/, '')
@@ -57,6 +73,16 @@ export async function startOAuthLogin(
     `/auth/oauth/${request.provider}/start`,
     proof,
     { params: request.params }
+  )
+  return data
+}
+
+export async function startOIDCRegistration(
+  request: OIDCRegistrationStartRequest
+): Promise<OIDCRegistrationStartResponse> {
+  const { data } = await apiClient.post<OIDCRegistrationStartResponse>(
+    '/auth/oauth/oidc/register/start',
+    request
   )
   return data
 }
@@ -705,6 +731,7 @@ export const authAPI = {
   getTokenExpiresAt,
   clearAuthToken,
   getPublicSettings,
+  startOIDCRegistration,
   sendVerifyCode,
   sendPendingOAuthVerifyCode,
   validatePromoCode,

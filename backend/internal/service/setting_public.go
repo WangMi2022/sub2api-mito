@@ -220,6 +220,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		SettingPaymentEnabled,
 		SettingBalancePayDisabled,
 		SettingKeyOIDCConnectEnabled,
+		SettingKeyOIDCConnectRegistrationEnabled,
 		SettingKeyOIDCConnectProviderName,
 		SettingKeyGitHubOAuthEnabled,
 		SettingKeyGitHubOAuthClientID,
@@ -278,6 +279,12 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		oidcEnabled = raw == "true"
 	} else {
 		oidcEnabled = s.cfg != nil && s.cfg.OIDC.Enabled
+	}
+	oidcRegistrationEnabled := false
+	if raw, ok := settings[SettingKeyOIDCConnectRegistrationEnabled]; ok {
+		oidcRegistrationEnabled = raw == "true"
+	} else {
+		oidcRegistrationEnabled = s.cfg != nil && s.cfg.OIDC.RegistrationEnabled
 	}
 	oidcProviderName := strings.TrimSpace(settings[SettingKeyOIDCConnectProviderName])
 	if oidcProviderName == "" && s.cfg != nil {
@@ -364,6 +371,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		PaymentEnabled:                      settings[SettingPaymentEnabled] == "true",
 		PaymentBalanceDisabled:              settings[SettingBalancePayDisabled] == "true",
 		OIDCOAuthEnabled:                    oidcEnabled,
+		OIDCRegistrationEnabled:             oidcRegistrationEnabled,
 		OIDCOAuthProviderName:               oidcProviderName,
 		GitHubOAuthEnabled:                  gitHubEnabled,
 		GoogleOAuthEnabled:                  googleEnabled,
@@ -681,6 +689,7 @@ type PublicSettingsInjectionPayload struct {
 	WeChatOAuthMPEnabled                bool                     `json:"wechat_oauth_mp_enabled"`
 	WeChatOAuthMobileEnabled            bool                     `json:"wechat_oauth_mobile_enabled"`
 	OIDCOAuthEnabled                    bool                     `json:"oidc_oauth_enabled"`
+	OIDCRegistrationEnabled             bool                     `json:"oidc_registration_enabled"`
 	OIDCOAuthProviderName               string                   `json:"oidc_oauth_provider_name"`
 	GitHubOAuthEnabled                  bool                     `json:"github_oauth_enabled"`
 	GoogleOAuthEnabled                  bool                     `json:"google_oauth_enabled"`
@@ -787,6 +796,7 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		WeChatOAuthMPEnabled:                settings.WeChatOAuthMPEnabled,
 		WeChatOAuthMobileEnabled:            settings.WeChatOAuthMobileEnabled,
 		OIDCOAuthEnabled:                    settings.OIDCOAuthEnabled,
+		OIDCRegistrationEnabled:             settings.OIDCRegistrationEnabled,
 		OIDCOAuthProviderName:               settings.OIDCOAuthProviderName,
 		GitHubOAuthEnabled:                  settings.GitHubOAuthEnabled,
 		GoogleOAuthEnabled:                  settings.GoogleOAuthEnabled,
