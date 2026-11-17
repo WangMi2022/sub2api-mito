@@ -62,6 +62,7 @@ func RegisterAuthRoutes(
 	auth.Use(servermiddleware.BackendModeAuthGuard(settingService))
 	// 认证事件（登录/注册/2FA/token 刷新失败）入审计
 	auth.Use(gin.HandlerFunc(auditLog))
+	auth.Use(h.Auth.IdentityLoginGuard)
 	auth.Use(middleware.AuthAbuseGuardWithOptions(redisClient, middleware.AuthAbuseGuardOptions{
 		LoginRateLimitEnabled: loginRateLimitEnabled,
 		RegistrationIPLimitEnabled: func(c *gin.Context) bool {

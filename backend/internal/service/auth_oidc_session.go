@@ -60,6 +60,9 @@ func (s *AuthService) ValidateTokenIdentity(ctx context.Context, claims *JWTClai
 	if claims == nil {
 		return ErrInvalidToken
 	}
+	if err := s.enforceIdentityLoginPolicy(ctx, claims); err != nil {
+		return err
+	}
 	if claims.AuthIdentityID == 0 {
 		return nil
 	}

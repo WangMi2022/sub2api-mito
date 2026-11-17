@@ -92,6 +92,7 @@ func (h *SettingHandler) GetPublicSettings(c *gin.Context) {
 		WeChatOAuthOpenEnabled:              settings.WeChatOAuthOpenEnabled,
 		WeChatOAuthMPEnabled:                settings.WeChatOAuthMPEnabled,
 		WeChatOAuthMobileEnabled:            settings.WeChatOAuthMobileEnabled,
+		MitoOIDCOnly:                        settings.MitoOIDCOnly,
 		OIDCOAuthEnabled:                    settings.OIDCOAuthEnabled,
 		OIDCRegistrationEnabled:             settings.OIDCRegistrationEnabled,
 		OIDCOAuthProviderName:               settings.OIDCOAuthProviderName,

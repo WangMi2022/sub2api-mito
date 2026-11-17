@@ -372,6 +372,10 @@ func (h *AuthHandler) Login2FA(c *gin.Context) {
 			return
 		}
 
+		if err := h.enforcePendingIdentityPolicy(c.Request.Context(), pendingSession.ProviderType, pendingSession.ProviderKey); err != nil {
+			response.ErrorFrom(c, err)
+			return
+		}
 		decision, err := h.ensurePendingOAuthAdoptionDecision(c, pendingSession.ID, oauthAdoptionDecisionRequest{})
 		if err != nil {
 			response.ErrorFrom(c, err)

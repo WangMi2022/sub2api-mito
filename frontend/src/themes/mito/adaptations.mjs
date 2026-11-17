@@ -185,12 +185,12 @@ export const adaptations = [
       "after": "    <div class=\"mito-auth-form-flow space-y-6\">"
     },
     {
-      "before": "      <!-- Title -->\n      <div class=\"text-center\">\n        <h2 class=\"text-2xl font-bold text-gray-900 dark:text-white\">\n          {{ t('auth.welcomeBack') }}\n        </h2>\n        <p class=\"mt-2 text-sm text-gray-500 dark:text-dark-400\">\n          {{ t('auth.signInToAccount') }}\n        </p>\n      </div>",
-      "after": "      <!-- Title -->\n      <div class=\"mito-auth-form-heading text-center\">\n        <h2 class=\"text-2xl font-bold text-gray-900 dark:text-white\">\n          {{ authText('loginTitle') }}\n        </h2>\n        <p class=\"mt-2 text-sm text-gray-500 dark:text-dark-400\">\n          {{ authText('loginSubtitle') }}\n        </p>\n      </div>\n\n      <div v-if=\"publicSettingsLoaded && registrationEnabled\" class=\"mito-auth-create-prompt\">\n        <div>\n          <strong>{{ authText('createPromptTitle') }}</strong>\n          <span>{{ authText('createPromptDescription') }}</span>\n        </div>\n        <router-link to=\"/register\">{{ authText('registerNow') }}</router-link>\n      </div>"
+      "before": "      <!-- Title -->\n      <div class=\"text-center\">\n        <h2 class=\"text-2xl font-bold text-gray-900 dark:text-white\">\n          {{ unifiedOnly ? t('identity.unifiedLoginTitle') : t('auth.welcomeBack') }}\n        </h2>\n        <p class=\"mt-2 text-sm text-gray-500 dark:text-dark-400\">\n          {{ unifiedOnly ? t('identity.unifiedLoginHint') : t('auth.signInToAccount') }}\n        </p>\n      </div>",
+      "after": "      <!-- Title -->\n      <div class=\"mito-auth-form-heading text-center\">\n        <h2 class=\"text-2xl font-bold text-gray-900 dark:text-white\">\n          {{ unifiedOnly ? t('identity.unifiedLoginTitle') : authText('loginTitle') }}\n        </h2>\n        <p class=\"mt-2 text-sm text-gray-500 dark:text-dark-400\">\n          {{ unifiedOnly ? t('identity.unifiedLoginHint') : authText('loginSubtitle') }}\n        </p>\n      </div>\n\n      <div v-if=\"publicSettingsLoaded && registrationEnabled && !unifiedOnly\" class=\"mito-auth-create-prompt\">\n        <div>\n          <strong>{{ authText('createPromptTitle') }}</strong>\n          <span>{{ authText('createPromptDescription') }}</span>\n        </div>\n        <router-link to=\"/register\">{{ authText('registerNow') }}</router-link>\n      </div>"
     },
     {
-      "before": "      <form @submit.prevent=\"handleLogin\" class=\"space-y-5\">",
-      "after": "      <form @submit.prevent=\"handleLogin\" class=\"mito-auth-primary-form space-y-5\">"
+      "before": "      <form v-if=\"publicSettingsLoaded && !settingsFailed && !automaticIdentityLogin\" @submit.prevent=\"handleLogin\" class=\"space-y-5\">",
+      "after": "      <form v-if=\"publicSettingsLoaded && !settingsFailed && !automaticIdentityLogin\" @submit.prevent=\"handleLogin\" class=\"mito-auth-primary-form space-y-5\">"
     },
     {
       "before": "              @click=\"showPassword = !showPassword\"",

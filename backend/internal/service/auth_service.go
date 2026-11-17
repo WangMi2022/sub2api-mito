@@ -1466,6 +1466,9 @@ func (s *AuthService) GenerateToken(ctx context.Context, user *User) (string, er
 
 // generateAccessToken 生成带会话 ID 与绑定指纹的 access token。
 func (s *AuthService) generateAccessToken(ctx context.Context, user *User, sessionID, bindingHash string) (string, error) {
+	if err := s.enforceIdentityLoginPolicy(ctx, &JWTClaims{UserID: user.ID, AuthIdentityID: oidcSessionIdentity(ctx)}); err != nil {
+		return "", err
+	}
 	now := time.Now()
 	var expiresAt time.Time
 	if s.cfg.JWT.AccessTokenExpireMinutes > 0 {

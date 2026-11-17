@@ -155,6 +155,10 @@ func (s *SettingService) GetFrontendURL(ctx context.Context) string {
 
 // GetPublicSettings 获取公开设置（无需登录）
 func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings, error) {
+	oidcOnly, policyErr := s.MitoOIDCOnly(ctx)
+	if policyErr != nil {
+		return nil, policyErr
+	}
 	keys := []string{
 		SettingKeyRegistrationEnabled,
 		SettingKeyEmailVerifyEnabled,
@@ -370,6 +374,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		BackendModeEnabled:                  settings[SettingKeyBackendModeEnabled] == "true",
 		PaymentEnabled:                      settings[SettingPaymentEnabled] == "true",
 		PaymentBalanceDisabled:              settings[SettingBalancePayDisabled] == "true",
+		MitoOIDCOnly:                        oidcOnly,
 		OIDCOAuthEnabled:                    oidcEnabled,
 		OIDCRegistrationEnabled:             oidcRegistrationEnabled,
 		OIDCOAuthProviderName:               oidcProviderName,
@@ -688,6 +693,7 @@ type PublicSettingsInjectionPayload struct {
 	WeChatOAuthOpenEnabled              bool                     `json:"wechat_oauth_open_enabled"`
 	WeChatOAuthMPEnabled                bool                     `json:"wechat_oauth_mp_enabled"`
 	WeChatOAuthMobileEnabled            bool                     `json:"wechat_oauth_mobile_enabled"`
+	MitoOIDCOnly                        bool                     `json:"mito_oidc_only"`
 	OIDCOAuthEnabled                    bool                     `json:"oidc_oauth_enabled"`
 	OIDCRegistrationEnabled             bool                     `json:"oidc_registration_enabled"`
 	OIDCOAuthProviderName               string                   `json:"oidc_oauth_provider_name"`
@@ -795,6 +801,7 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		WeChatOAuthOpenEnabled:              settings.WeChatOAuthOpenEnabled,
 		WeChatOAuthMPEnabled:                settings.WeChatOAuthMPEnabled,
 		WeChatOAuthMobileEnabled:            settings.WeChatOAuthMobileEnabled,
+		MitoOIDCOnly:                        settings.MitoOIDCOnly,
 		OIDCOAuthEnabled:                    settings.OIDCOAuthEnabled,
 		OIDCRegistrationEnabled:             settings.OIDCRegistrationEnabled,
 		OIDCOAuthProviderName:               settings.OIDCOAuthProviderName,

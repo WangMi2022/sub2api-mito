@@ -13,7 +13,7 @@ import (
 
 // Register keeps authorization ahead of every directory operation. Capabilities
 // are advisory for navigation; backend authorization never trusts browser state.
-func Register(parent *gin.RouterGroup, client *Client, userID func(*gin.Context) int64, jwt, audit, stepUp, limiter gin.HandlerFunc) {
+func Register(parent *gin.RouterGroup, client *Client, userID func(*gin.Context) int64, jwt, audit, stepUp, limiter gin.HandlerFunc, extensions ...func(*gin.RouterGroup, *gin.RouterGroup)) {
 	group := parent.Group("/identity")
 	group.Use(jwt, limiter)
 	group.GET("/capabilities", func(ctx *gin.Context) {
@@ -27,6 +27,14 @@ func Register(parent *gin.RouterGroup, client *Client, userID func(*gin.Context)
 			ctx.Abort()
 			return
 		}
+		ctx.Next()
+	})
+	policyWrite := group.Group("")
+	policyWrite.Use(stepUp)
+	for _, register := range extensions {
+		register(group, policyWrite)
+	}
+	group.Use(func(ctx *gin.Context) {
 		if _, err := client.Realm(ctx.Request.Context()); err != nil {
 			reply(ctx, nil, err)
 			ctx.Abort()
@@ -52,6 +60,15 @@ func Register(parent *gin.RouterGroup, client *Client, userID func(*gin.Context)
 		reply(ctx, result, err)
 	})
 	group.GET("/groups", func(ctx *gin.Context) { result, err := client.Groups(ctx.Request.Context()); reply(ctx, result, err) })
+	group.GET("/groups/:id/members", func(ctx *gin.Context) {
+		first, err := strconv.Atoi(ctx.DefaultQuery("first", "0"))
+		if err != nil {
+			reply(ctx, nil, failure("invalid_request", 400))
+			return
+		}
+		result, err := client.GroupMembers(ctx.Request.Context(), ctx.Param("id"), first)
+		reply(ctx, result, err)
+	})
 	write := group.Group("")
 	write.Use(stepUp)
 	write.POST("/users", func(ctx *gin.Context) {

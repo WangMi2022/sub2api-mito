@@ -169,7 +169,7 @@ func registerRoutes(
 			return 0
 		}
 		return subject.UserID
-	}, gin.HandlerFunc(jwtAuth), gin.HandlerFunc(auditLog), gin.HandlerFunc(stepUpAuth), panelRateLimiter.Heavy())
+	}, gin.HandlerFunc(jwtAuth), gin.HandlerFunc(auditLog), gin.HandlerFunc(stepUpAuth), panelRateLimiter.Heavy(), h.Auth.RegisterIdentityLoginPolicy)
 
 	// 注册各模块路由
 	routes.RegisterAuthRoutes(v1, h, jwtAuth, auditLog, redisClient, settingService, panelRateLimiter)

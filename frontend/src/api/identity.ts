@@ -25,11 +25,15 @@ export interface IdentityAccess extends IdentityApplication { granted: boolean; 
 export interface IdentitySession { id: string; ipAddress: string; start: number; lastAccess: number; clients: Record<string, string> }
 export interface IdentityDetail { user: IdentityUser; groups: IdentityGroup[]; applications: IdentityAccess[]; sessions: IdentitySession[] }
 export interface IdentityOverview { realm: { id: string; realm: string; displayName: string }; applications: IdentityApplication[] }
+export interface IdentityLoginPolicy { oidc_only: boolean; unified_session: boolean }
 export interface IdentityPage { users: IdentityUser[]; first: number; hasMore: boolean }
 
 const userPath = (id: string) => `/identity/users/${encodeURIComponent(id)}`
 const groupPath = (id: string) => `/identity/groups/${encodeURIComponent(id)}`
 export const identityAPI = {
+  loginPolicy: async () => (await apiClient.get<IdentityLoginPolicy>('/identity/login-policy')).data,
+  setLoginPolicy: async (oidc_only: boolean) => (await apiClient.put<IdentityLoginPolicy>('/identity/login-policy', { oidc_only })).data,
+  groupMembers: async (id: string, first = 0) => (await apiClient.get<IdentityPage>(`${groupPath(id)}/members`, { params: { first } })).data,
   capabilities: async () => (await apiClient.get<{ manage: boolean }>('/identity/capabilities')).data,
   overview: async () => (await apiClient.get<IdentityOverview>('/identity/overview')).data,
   users: async (search = '', first = 0) => (await apiClient.get<IdentityPage>('/identity/users', { params: { search, first } })).data,

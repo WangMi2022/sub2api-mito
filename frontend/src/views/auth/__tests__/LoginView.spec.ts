@@ -92,6 +92,7 @@ function mountLogin() {
 
 describe('LoginView registration entry', () => {
   beforeEach(() => {
+    sessionStorage.clear()
     getPublicSettingsMock.mockReset()
     pushMock.mockReset()
     getPublicSettingsMock.mockResolvedValue(publicSettings)
@@ -114,5 +115,37 @@ describe('LoginView registration entry', () => {
     await flushPromises()
 
     expect(wrapper.text()).not.toContain('auth.signUp')
+  })
+})
+
+
+describe('unified identity login policy', () => {
+  it('does not flash the password form while loading policy', async () => {
+    let resolve!: (value: typeof publicSettings) => void
+    getPublicSettingsMock.mockImplementationOnce(() => new Promise(r => { resolve = r }))
+    const wrapper = mountLogin()
+    expect(wrapper.find('input[type="password"]').exists()).toBe(false)
+    resolve(publicSettings)
+    await flushPromises()
+    expect(wrapper.find('input[type="password"]').exists()).toBe(true)
+  })
+
+  it('only offers unified sign-in when local authentication is disabled', async () => {
+    sessionStorage.setItem('mito_identity_login_attempt', '1')
+    getPublicSettingsMock.mockResolvedValueOnce({ ...publicSettings, mito_oidc_only: true, oidc_oauth_enabled: true, passkey_enabled: true, github_oauth_enabled: true })
+    const wrapper = mountLogin()
+    await flushPromises()
+    expect(wrapper.find('input[type="password"]').exists()).toBe(false)
+    expect(wrapper.find('oidc-o-auth-section-stub').exists()).toBe(true)
+    expect(wrapper.find('email-o-auth-buttons-stub').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('auth.signUp')
+  })
+
+  it('keeps authentication closed if policy cannot be loaded', async () => {
+    getPublicSettingsMock.mockRejectedValueOnce(new Error('offline'))
+    const wrapper = mountLogin()
+    await flushPromises()
+    expect(wrapper.find('input[type="password"]').exists()).toBe(false)
+    expect(wrapper.text()).toContain('identity.loginSettingsFailed')
   })
 })

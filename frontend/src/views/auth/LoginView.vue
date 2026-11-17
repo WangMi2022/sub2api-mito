@@ -4,22 +4,26 @@
       <!-- Title -->
       <div class="mito-auth-form-heading text-center">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-          {{ authText('loginTitle') }}
+          {{ unifiedOnly ? t('identity.unifiedLoginTitle') : authText('loginTitle') }}
         </h2>
         <p class="mt-2 text-sm text-gray-500 dark:text-dark-400">
-          {{ authText('loginSubtitle') }}
+          {{ unifiedOnly ? t('identity.unifiedLoginHint') : authText('loginSubtitle') }}
         </p>
       </div>
 
-      <div v-if="publicSettingsLoaded && registrationEnabled" class="mito-auth-create-prompt">
+      <div v-if="publicSettingsLoaded && registrationEnabled && !unifiedOnly" class="mito-auth-create-prompt">
         <div>
           <strong>{{ authText('createPromptTitle') }}</strong>
           <span>{{ authText('createPromptDescription') }}</span>
         </div>
         <router-link to="/register">{{ authText('registerNow') }}</router-link>
       </div>
+      <p v-if="!publicSettingsLoaded" role="status" class="text-center text-sm text-gray-500">{{ t('common.loading') }}</p>
+      <p v-if="settingsFailed" role="alert" class="text-sm text-red-600">{{ t('identity.loginSettingsFailed') }}</p>
+      <p v-if="automaticIdentityLogin" role="status" class="text-center text-sm text-gray-500">{{ t('identity.unifiedLoginLoading') }}</p>
       <!-- Login Form -->
-      <form @submit.prevent="handleLogin" class="mito-auth-primary-form space-y-5">
+      <form v-if="publicSettingsLoaded && !settingsFailed && !automaticIdentityLogin" @submit.prevent="handleLogin" class="mito-auth-primary-form space-y-5">
+        <template v-if="!unifiedOnly">
         <!-- Email Input -->
         <div>
           <label for="email" class="input-label">
@@ -87,6 +91,7 @@
           </div>
         </div>
 
+        </template>
         <!-- Turnstile Widget -->
         <div v-if="captchaEnabled">
           <TurnstileWidget
@@ -108,6 +113,7 @@
 
         <!-- Submit Button -->
         <button
+          v-if="!unifiedOnly"
           type="submit"
           :disabled="authActionDisabled || (turnstileEnabled && !turnstileToken)"
           class="btn btn-primary w-full"
@@ -149,7 +155,7 @@
         />
 
         <div v-if="showPasskeyLogin || showOAuthLogin" class="mito-auth-alternatives space-y-3 pt-1">
-          <div class="flex items-center gap-3">
+          <div v-if="!unifiedOnly" class="flex items-center gap-3">
             <div class="h-px flex-1 bg-gray-200 dark:bg-dark-700"></div>
             <span class="text-xs text-gray-500 dark:text-dark-400">
               {{ t('auth.oauthOrContinue') }}
@@ -168,7 +174,7 @@
             {{ passkeyLoading ? t('auth.passkeySigningIn') : t('auth.passkeySignIn') }}
           </button>
 
-          <EmailOAuthButtons
+          <EmailOAuthButtons v-if="!unifiedOnly"
             :disabled="authActionDisabled"
             :github-enabled="githubOAuthEnabled"
             :google-enabled="googleOAuthEnabled"
@@ -177,19 +183,19 @@
           />
 
           <LinuxDoOAuthSection
-            v-if="linuxdoOAuthEnabled"
+            v-if="linuxdoOAuthEnabled && !unifiedOnly"
             :disabled="authActionDisabled"
             :show-divider="false"
             @start="handleOAuthStart"
           />
           <DingTalkOAuthSection
-            v-if="dingtalkOAuthEnabled"
+            v-if="dingtalkOAuthEnabled && !unifiedOnly"
             :disabled="authActionDisabled"
             :show-divider="false"
             @start="handleOAuthStart"
           />
           <WechatOAuthSection
-            v-if="wechatOAuthEnabled"
+            v-if="wechatOAuthEnabled && !unifiedOnly"
             :disabled="authActionDisabled"
             :show-divider="false"
             @start="handleOAuthStart"
@@ -206,7 +212,7 @@
     </div>
 
     <!-- Footer -->
-    <template v-if="!backendModeEnabled && publicSettingsLoaded && registrationEnabled" #footer>
+    <template v-if="!backendModeEnabled && publicSettingsLoaded && registrationEnabled && !unifiedOnly" #footer>
       <p class="mito-auth-account-switch text-gray-500 dark:text-dark-400">
         {{ t('auth.dontHaveAccount') }}
         <router-link
@@ -260,6 +266,7 @@ import type {
   TotpLoginResponse
 } from '@/types'
 import { extractI18nErrorMessage } from '@/utils/apiError'
+import { canStartIdentityAutomatically, identityReturnPath, markIdentityLoginAttempt } from '@/utils/identityLogin'
 import { clearAllAffiliateReferralCodes } from '@/utils/oauthAffiliate'
 
 const { t } = useI18n()
@@ -279,6 +286,9 @@ const passkeyLoading = ref<boolean>(false)
 const errorMessage = ref<string>('')
 const showPassword = ref<boolean>(false)
 const publicSettingsLoaded = ref<boolean>(false)
+const settingsFailed = ref(false)
+const unifiedOnly = ref(false)
+const automaticIdentityLogin = ref(false)
 
 // Public settings
 const registrationEnabled = ref<boolean>(false)
@@ -360,7 +370,7 @@ const authActionDisabled = computed(
 )
 
 const showPasskeyLogin = computed(
-  () => passkeyEnabled.value && typeof window.PublicKeyCredential !== 'undefined'
+  () => !unifiedOnly.value && passkeyEnabled.value && typeof window.PublicKeyCredential !== 'undefined'
 )
 
 const showOAuthLogin = computed(
@@ -393,6 +403,7 @@ onMounted(async () => {
 
   try {
     const settings = await getPublicSettings()
+    unifiedOnly.value = settings.mito_oidc_only === true
     registrationEnabled.value = settings.registration_enabled === true
     turnstileEnabled.value = settings.turnstile_enabled
     turnstileSiteKey.value = settings.turnstile_site_key || ''
@@ -417,10 +428,13 @@ onMounted(async () => {
     applyLoginAgreementSettings(settings)
   } catch (error) {
     console.error('Failed to load public settings:', error)
-    loginAgreementEnabled.value = false
-    agreementAccepted.value = true
+    settingsFailed.value = true
   } finally {
     publicSettingsLoaded.value = true
+  }
+  if (unifiedOnly.value && oidcOAuthEnabled.value && !settingsFailed.value && !agreementGateActive.value && !captchaEnabled.value && canStartIdentityAutomatically() && !router.currentRoute.value.query.error) {
+    automaticIdentityLogin.value = true
+    await handleOAuthStart({ provider: 'oidc', params: { redirect: identityReturnPath(router.currentRoute.value.query.redirect) } })
   }
 })
 
@@ -673,6 +687,11 @@ async function handlePasskeyLogin(): Promise<void> {
 
 async function handleOAuthStart(request: OAuthLoginStart): Promise<void> {
   if (authActionDisabled.value) return
+  if (unifiedOnly.value && request.provider !== 'oidc') return
+  if (request.provider === 'oidc') {
+    request = { ...request, params: { ...request.params, redirect: identityReturnPath(request.params.redirect) } }
+    markIdentityLoginAttempt()
+  }
 
   if (!actionCaptchaEnabled.value) {
     window.location.href = buildOAuthLoginStartURL(request)

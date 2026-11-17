@@ -132,6 +132,25 @@ func (c *Client) Users(ctx context.Context, search string, first int) (UserPage,
 	if err := c.request(ctx, "GET", "/users?"+query.Encode(), nil, &users); err != nil {
 		return page, err
 	}
+	return c.userPage(ctx, users, first)
+}
+
+// GroupMembers lists direct members, including protected accounts as read-only.
+func (c *Client) GroupMembers(ctx context.Context, id string, first int) (UserPage, error) {
+	page := UserPage{Users: []User{}, First: first}
+	if !objectID.MatchString(id) || first < 0 || first > 100000 {
+		return page, failure("invalid_request", 400)
+	}
+	query := url.Values{"first": {strconv.Itoa(first)}, "max": {"51"}, "briefRepresentation": {"false"}}
+	var users []User
+	if err := c.request(ctx, "GET", "/groups/"+id+"/members?"+query.Encode(), nil, &users); err != nil {
+		return page, err
+	}
+	return c.userPage(ctx, users, first)
+}
+
+func (c *Client) userPage(ctx context.Context, users []User, first int) (UserPage, error) {
+	page := UserPage{Users: []User{}, First: first}
 	page.HasMore = len(users) > 50
 	if page.HasMore {
 		users = users[:50]

@@ -3,6 +3,7 @@
  * Manages user authentication state, login/logout, token refresh, and token persistence
  */
 
+import { finishIdentityLogin, markIdentitySignedOut } from '@/utils/identityLogin'
 import { defineStore } from 'pinia'
 import { ref, computed, readonly } from 'vue'
 import { authAPI, isTotp2FARequired, passkeyAPI, type LoginResponse } from '@/api'
@@ -337,6 +338,7 @@ export const useAuthStore = defineStore('auth', () => {
    * Internal helper function
    */
   function setAuthFromResponse(response: AuthResponse): void {
+    finishIdentityLogin()
     authSessionGeneration += 1
     // Store token and user
     token.value = response.access_token
@@ -456,6 +458,7 @@ export const useAuthStore = defineStore('auth', () => {
    * Clears all authentication state and persisted data
    */
   async function logout(): Promise<boolean> {
+    markIdentitySignedOut()
     authSessionGeneration += 1
     stopAutoRefresh()
     stopTokenRefresh()
@@ -498,6 +501,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       // Update localStorage
       localStorage.setItem(AUTH_USER_KEY, JSON.stringify(userData))
+      finishIdentityLogin()
 
       return userData
     } catch (error) {

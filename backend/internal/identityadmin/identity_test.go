@@ -51,7 +51,7 @@ func perform(r http.Handler, method, path, body string) *httptest.ResponseRecord
 func TestAuthorizationPrecedesKeycloak(t *testing.T) {
 	client := fixture(t, func(http.ResponseWriter, *http.Request) { t.Error("unauthorized call reached Keycloak") })
 	for _, id := range []int64{0, 8} {
-		for _, path := range []string{"/users", "/users/target", "/groups", "/overview"} {
+		for _, path := range []string{"/users", "/users/target", "/groups", "/groups/team/members", "/overview"} {
 			w := perform(router(client, id), "GET", "/api/v1/identity"+path, "")
 			want := 403
 			if id == 0 {
@@ -210,4 +210,65 @@ func TestTokenCacheSupportsConcurrentReads(t *testing.T) {
 		}()
 	}
 	wg.Wait()
+}
+
+func TestGroupMembersPaginationAndProtectedAccounts(t *testing.T) {
+	client := fixture(t, func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case strings.HasSuffix(r.URL.Path, "/groups/team/members"):
+			if r.URL.Query().Get("first") != "50" || r.URL.Query().Get("max") != "51" {
+				t.Error("unbounded pagination")
+			}
+			users := make([]User, 51)
+			for i := range users {
+				users[i] = User{ID: "owner", Username: "owner"}
+			}
+			_ = json.NewEncoder(w).Encode(users)
+		default:
+			t.Error("unexpected directory request", r.URL.Path)
+			w.WriteHeader(500)
+		}
+	})
+	page, err := client.GroupMembers(context.Background(), "team", 50)
+	if err != nil || !page.HasMore || len(page.Users) != 50 || !page.Users[0].Protected {
+		t.Fatalf("invalid page: %+v, %v", page, err)
+	}
+	if _, err := client.GroupMembers(context.Background(), "../admin", 0); err == nil {
+		t.Fatal("invalid group ID accepted")
+	}
+	if _, err := client.GroupMembers(context.Background(), "team", -1); err == nil {
+		t.Fatal("invalid page accepted")
+	}
+}
+
+func TestPolicyExtensionRequiresOwnerAndStepUpWithoutDirectoryAvailability(t *testing.T) {
+	client := fixture(t, func(http.ResponseWriter, *http.Request) { t.Error("policy must not depend on Keycloak availability") })
+	for _, owner := range []bool{false, true} {
+		for _, steppedUp := range []bool{false, true} {
+			r := gin.New()
+			next := func(c *gin.Context) { c.Next() }
+			step := func(c *gin.Context) {
+				if !steppedUp {
+					c.AbortWithStatus(403)
+					return
+				}
+				c.Next()
+			}
+			Register(r.Group("/api/v1"), client, func(*gin.Context) int64 {
+				if owner {
+					return 7
+				}
+				return 8
+			}, next, next, step, next,
+				func(read, write *gin.RouterGroup) { write.PUT("/login-policy", func(c *gin.Context) { c.Status(204) }) })
+			w := perform(r, "PUT", "/api/v1/identity/login-policy", `{}`)
+			want := 403
+			if owner && steppedUp {
+				want = 204
+			}
+			if w.Code != want {
+				t.Fatalf("owner=%v step-up=%v status=%d", owner, steppedUp, w.Code)
+			}
+		}
+	}
 }

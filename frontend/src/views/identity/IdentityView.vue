@@ -8,7 +8,7 @@
         <div><h1 v-if="!isMitoTheme" class="text-xl font-semibold text-gray-900 dark:text-white">{{ t('identity.title') }}</h1><p class="text-sm text-gray-500 dark:text-gray-400">{{ overview?.realm.displayName || overview?.realm.realm || t('identity.subtitle') }}</p></div>
         <button v-if="!isMitoTheme && tab === 'users'" class="btn btn-primary" @click="creating = true"><Icon name="plus" size="sm" class="mr-1" />{{ t('identity.createUser') }}</button>
       </div>
-      <nav class="flex gap-5 border-b border-gray-200 dark:border-dark-700" :aria-label="t('identity.title')">
+      <nav class="flex gap-5 overflow-x-auto whitespace-nowrap border-b border-gray-200 dark:border-dark-700" :aria-label="t('identity.title')">
         <button v-for="section in tabs" :key="section" class="border-b-2 pb-3 text-sm" :class="tab === section ? 'border-primary-500 font-medium text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-gray-400'" :aria-current="tab === section ? 'page' : undefined" @click="tab = section">{{ t(`identity.${section}`) }}</button>
       </nav>
       <p v-if="overviewError" role="alert" class="text-sm text-red-600 dark:text-red-400">{{ overviewError }}</p>
@@ -28,6 +28,7 @@
         </DataTable>
         <div class="flex items-center justify-between gap-3 text-sm"><span class="text-gray-500 dark:text-gray-400">{{ t('identity.shownUsers', { count: page.users.length }) }}</span><div v-if="first > 0 || page.hasMore" class="flex gap-2"><button class="btn btn-secondary btn-sm" :disabled="loading || first === 0" @click="navigate(-50)">{{ t('common.back') }}</button><button class="btn btn-secondary btn-sm" :disabled="loading || !page.hasMore" @click="navigate(50)">{{ t('common.next') }}</button></div></div>
       </template>
+      <IdentityLoginPolicy v-if="tab === 'loginPolicy'" />
       <IdentityGroups v-if="tab === 'groups'" />
       <section v-if="tab === 'applications'" class="max-w-3xl space-y-5">
         <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('identity.applicationHint') }}</p>
@@ -43,6 +44,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
+import IdentityLoginPolicy from '@/components/identity/IdentityLoginPolicy.vue'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import Icon from '@/components/icons/Icon.vue'
 import DataTable from '@/components/common/DataTable.vue'
@@ -52,8 +55,8 @@ import IdentityUserDetail from '@/components/identity/IdentityUserDetail.vue'
 import { isMitoTheme } from '@/themes/mito'
 import { identityAPI, identityErrorKey, type IdentityOverview, type IdentityPage } from '@/api/identity'
 const { t } = useI18n()
-const tabs = ['users', 'groups', 'applications'] as const
-const tab = ref<(typeof tabs)[number]>('users')
+const tabs = ['users', 'groups', 'applications', 'loginPolicy'] as const
+const tab = ref<(typeof tabs)[number]>(useRoute().query.tab === 'loginPolicy' ? 'loginPolicy' : 'users')
 const overview = ref<IdentityOverview>()
 const page = ref<IdentityPage>({ users: [], first: 0, hasMore: false })
 const query = ref('')

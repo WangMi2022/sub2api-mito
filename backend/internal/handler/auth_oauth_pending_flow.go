@@ -1569,6 +1569,10 @@ func readPendingOAuthBrowserSession(c *gin.Context, h *AuthHandler) (*service.Au
 		return nil, nil, clearCookies, err
 	}
 
+	if err := h.enforcePendingIdentityPolicy(c.Request.Context(), session.ProviderType, session.ProviderKey); err != nil {
+		clearCookies()
+		return nil, nil, clearCookies, err
+	}
 	return svc, session, clearCookies, nil
 }
 

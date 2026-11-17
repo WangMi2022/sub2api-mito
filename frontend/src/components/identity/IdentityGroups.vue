@@ -4,10 +4,11 @@
     <p v-if="error" role="alert" class="text-sm text-red-600">{{ error }} <button class="underline" @click="load">{{ t('common.tryAgain') }}</button></p>
     <DataTable :data="groups" :columns="columns" :loading="loading">
       <template #cell-managed="{ row }"><span class="text-sm">{{ t(row.managed ? 'identity.managed' : 'identity.readOnly') }}</span></template>
-      <template #cell-actions="{ row }"><div class="flex gap-2"><button class="btn btn-secondary btn-sm" :disabled="!row.managed" @click="open(row)">{{ t('common.edit') }}</button><button class="btn btn-secondary btn-sm" :disabled="!row.managed" @click="open(row, true)">{{ t('common.delete') }}</button></div></template>
+      <template #cell-actions="{ row }"><div class="flex flex-wrap gap-2"><button class="btn btn-secondary btn-sm" @click="members = row">{{ t('identity.groupMembers') }}</button><button class="btn btn-secondary btn-sm" :disabled="!row.managed" @click="open(row)">{{ t('common.edit') }}</button><button class="btn btn-secondary btn-sm" :disabled="!row.managed" @click="open(row, true)">{{ t('common.delete') }}</button></div></template>
       <template #empty><p class="py-8 text-sm">{{ t('identity.noGroups') }}</p></template>
     </DataTable>
   </div>
+  <IdentityGroupMembers v-if="members" :key="members.id" :group="members" @close="members = undefined" />
   <BaseDialog v-if="show" :show="true" :title="t(removing ? 'identity.deleteGroup' : editing ? 'identity.editGroup' : 'identity.createGroup')" :show-close-button="!busy" :close-on-escape="!busy" @close="show = false">
     <form id="identity-group-form" class="space-y-4" @submit.prevent="save">
       <p v-if="removing" class="text-sm">{{ t('identity.deleteGroupHint', { name: editing?.name }) }}</p>
@@ -21,11 +22,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import IdentityGroupMembers from './IdentityGroupMembers.vue'
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import DataTable from '@/components/common/DataTable.vue'
 import { identityAPI, identityErrorKey, type IdentityGroup } from '@/api/identity'
 const { t } = useI18n()
 const groups = ref<IdentityGroup[]>([])
+const members = ref<IdentityGroup>()
 const loading = ref(true)
 const busy = ref(false)
 const show = ref(false)
