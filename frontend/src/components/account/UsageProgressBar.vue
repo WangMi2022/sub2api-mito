@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div class="mito-account-usage-window">
     <!-- Window stats row (above progress bar) -->
     <div
       v-if="windowStats && (windowStats.requests > 0 || windowStats.tokens > 0)"
-      class="mb-0.5 flex items-center"
+      class="mito-account-usage-stats mb-0.5 flex items-center"
     >
-      <div class="flex items-center gap-1.5 text-[9px] text-gray-500 dark:text-gray-400">
+      <div class="mito-account-usage-metrics flex items-center gap-1.5 text-[9px] text-gray-500 dark:text-gray-400">
         <span class="rounded bg-gray-100 px-1.5 py-0.5 dark:bg-gray-800">
           {{ formatRequests }} req
         </span>
@@ -34,7 +34,7 @@
     </div>
 
     <!-- Progress bar row -->
-    <div class="flex items-center gap-1">
+    <div class="mito-account-usage-progress flex items-center gap-1">
       <!-- Label badge (label-width: fixed = 定宽居中, auto = 限宽截断左对齐) -->
       <span :class="[labelSizeClass, labelClass]">
         {{ label }}

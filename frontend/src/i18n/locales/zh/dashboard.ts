@@ -129,6 +129,15 @@ export default {
     copyToClipboard: '复制到剪贴板',
     copied: '已复制！',
     importToCcSwitch: '导入到 CCS',
+    importToMagpie: '导入到 Magpie',
+    magpieImport: {
+      preview: '在 Magpie 桌面端预览供应商配置，确认后才会保存',
+      openHelp: '如果 Magpie 没有打开，请确认桌面端已安装，并允许浏览器打开它。',
+      settingsUnavailable: '无法读取站点的 API 地址设置。请刷新页面后重试。',
+      unsupportedGroup: '此密钥的分组无法自动导入。请通过「使用密钥」查看可用配置。',
+      invalidBase: 'API 地址无效。请使用不含账号、查询参数或片段的 HTTPS 地址；本机或局域网可使用 HTTP。',
+      invalidKey: '此密钥为空或格式无效，无法导入到 Magpie。'
+    },
     enable: '启用',
     disable: '禁用',
     nameLabel: '名称',
@@ -382,6 +391,9 @@ export default {
 
   // Usage
   usage: {
+    logsTitle: '请求日志',
+    statsTitle: '使用量统计',
+    statsDescription: '查看所选时间内的用量、费用和分布',
     title: '使用记录',
     description: '查看和分析您的 API 使用历史',
     costDetails: '费用明细',
@@ -471,6 +483,10 @@ export default {
     cacheHit: '缓存命中',
     cacheCreate: '缓存创建',
     cacheHitRate: '缓存命中率',
+    cacheReadTokenPrice: '缓存读取单价',
+    imageCacheReadTokenPrice: '图片缓存读取单价',
+    cacheWriteTokenPrice: '缓存写入单价',
+    cacheWriteTTLTokenPrice: '缓存写入单价（{ttl}）',
     inputTokenPrice: '输入单价',
     outputTokenPrice: '输出单价',
     perMillionTokens: '/ 1M Token',
@@ -533,17 +549,23 @@ export default {
     },
     tabs: { usage: '用量明细', errors: '错误请求', ranking: '用户排行' },
     errors: {
+      peerReset: '上游连接被对端重置（{protocol}）。内容可能不完整，请勿自动重试同一请求。',
+      http200StreamFailure: '200 — 响应头发送后流失败',
       time: '时间', model: '模型', endpoint: '端点', status: '状态码',
       category: '分类', platform: '平台', message: '错误信息',
       keyName: 'Key 名称', keyDeleted: '已删除', allKeys: '全部 Key',
       modelPlaceholder: '搜索模型', allCategories: '全部分类', allStatuses: '全部状态码',
       empty: '暂无错误请求', failedToLoad: '加载错误请求失败',
       categories: {
+        transport_error: '传输错误',
         auth: '认证失败', rate_limit: '限流', quota: '余额/订阅',
         invalid_request: '参数错误', service_unavailable: '服务暂时不可用',
         upstream: '上游错误', internal: '平台错误', other: '其他', cyber: '安全策略',
       },
       detail: {
+        clientHttpStatus: '客户端实际 HTTP 状态码',
+        streamFailedAfterHeaders: 'HTTP 响应头已发送，随后流式响应失败；HTTP 200 不表示生成已完成。',
+        gatewayErrorBody: '网关生成的错误详情',
         title: '错误请求详情',
         responseBody: '上游响应内容',
         upstreamStatus: '上游状态码',
@@ -776,6 +798,112 @@ export default {
 
   // Model Plaza (public group/model pricing showcase)
   modelPlaza: {
+    market: {
+      "total": "本站当前已启用模型，总计 {count} 个",
+      "subtitle": "探索精选 AI 模型，清晰比较价格与状态，为不同场景选择合适的模型。",
+      "search": "搜索模型名称、供应商、端点或标签…",
+      "filters": "筛选",
+      "filterHint": "按供应商、分组、类型和标签细化模型。",
+      "reset": "重置",
+      "expand": "展开",
+      "collapse": "收起",
+      "facets": {
+        "group": "分组",
+        "vendor": "所有供应商",
+        "tag": "模型标签",
+        "billing": "定价类型",
+        "endpoint": "端点类型"
+      },
+      "all": {
+        "group": "所有分组",
+        "vendor": "所有供应商",
+        "tag": "所有标签",
+        "billing": "所有模型",
+        "endpoint": "所有类型"
+      },
+      "billing": {
+        "token": "按量计费",
+        "per_request": "按次计费",
+        "image": "按张计费",
+        "video": "视频计费"
+      },
+      "unknownVendor": "未标注供应商",
+      "noDescription": "暂无描述。",
+      "models": "个模型",
+      "group": "分组",
+      "endpoint": "端点",
+      "copy": "复制模型名称 {model}",
+      "priceDisplay": "价格显示口径",
+      "unit": "Token 价格单位",
+      "prices": {
+        "standard": "标准",
+        "effective": "实付"
+      },
+      "priceHint": {
+        "standard": "标准价为渠道基础单价（USD），不含分组或用户专属倍率。",
+        "effective": "实付展示标准时段下的生效倍率价格（USD）；阶梯、缓存、分时等规则请查看详情。"
+      },
+      "offerHint": "不同分组的同名模型单独展示，价格与状态按分组区分。",
+      "starting": "首档",
+      "sortAscending": "按名称升序，点击切换降序",
+      "sortDescending": "按名称降序，点击切换升序",
+      "name": "名称",
+      "view": "展示方式",
+      "cards": "卡片视图",
+      "list": "列表视图",
+      "status": "状态",
+      "latency": "延迟",
+      "throughput": "生成速度",
+      "noSamples": "暂无数据",
+      "states": {
+        "operational": "正常",
+        "degraded": "性能下降",
+        "down": "不可用",
+        "unknown": "暂无有效样本"
+      },
+      "ttftHint": "首 Token 延迟（P50），来自最近采样窗口。",
+      "probeHint": "最近一次探测的响应延迟，并非首 Token 延迟。",
+      "throughputHint": "生成速度：成功输出的 Token 数 ÷ 响应耗时，反映单条回复的生成快慢，不随并发量放大。",
+      "throughputMissing": "该监控暂无输出 Token 或响应耗时样本。",
+      "availabilityHint": "近 {range} 可用率 {value}",
+      "updated": "最近采样：{time}",
+      "loginHint": "登录后查看用户专属报价与专属分组的状态。公开分组的状态无需登录。",
+      "monitorUnavailable": "监控数据暂不可用，已隐藏旧状态；页面会自动重试。",
+      "monitorNotConfigured": "未配置监控",
+      "retry": "重新加载"
+    },
+    catalog: {
+      categories: {
+        language: '大语言模型（LLM）',
+        embedding: '嵌入模型（Embedding）',
+        rerank: '重排序模型（Rerank）',
+        image: '图像模型（Image）',
+        video: '视频模型（Video）',
+        audio: '音频模型（Audio）',
+        other: '其他模型'
+      },
+      tags: {
+        language: '语言模型',
+        embedding: '嵌入',
+        rerank: 'Rerank',
+        image: '图像',
+        video: '视频',
+        audio: '音频',
+        other: 'API'
+      },
+      standardPrice: '标准时段实付',
+      tiered: '区间计费',
+      cacheRead: '缓存读取',
+      cacheWrite: '缓存写入',
+      timePricing: '分时计价',
+      priceHint: '价格已计入分组生效倍率，币种为 USD。同一模型在不同分组的报价分别展示。',
+      priceDescription: '按当前分组的生效倍率展示价格，可查看官方参考价与完整计费规则。',
+      groupDescription: '分组说明：{description}',
+      specialPricing: '另有时段或思考等级计费规则，详见明细。',
+      details: '价格明细',
+      detailsFor: '查看 {group} 的 {model} 价格明细',
+      offerCount: '{count} 个模型报价'
+    },
     title: '模型广场',
     description: '按分组浏览可用模型与价格',
     loading: '加载中...',
@@ -827,12 +955,15 @@ export default {
       unitPerMillion: '$ / 1M token',
       perUnitRequest: '/ 次',
       perUnitImage: '/ 张',
+      perUnitSecond: '/ 秒',
       perRequest: '按次计费',
+      perSecond: '按秒计费',
       perImage: '按图片计费'
     },
     nav: {
       login: '登录',
-      backToDashboard: '回到后台'
+      backToDashboard: '回到后台',
+      home: '返回首页'
     }
   },
 

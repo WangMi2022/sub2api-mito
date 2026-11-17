@@ -232,6 +232,7 @@ func (r *apiKeyRepository) GetByKeyForAuth(ctx context.Context, key string) (*se
 				group.FieldAllowLive,
 				group.FieldForceOpenaiFast,
 				group.FieldFreeOpenaiFast,
+				group.FieldFreeOpenaiUltrafast,
 				group.FieldDefaultMappedModel,
 				group.FieldMessagesDispatchModelConfig,
 				group.FieldModelAllowlist,
@@ -363,12 +364,14 @@ func (r *apiKeyRepository) update(ctx context.Context, key *service.APIKey, fiel
 	}
 
 	// IP 限制字段
-	if fields.IPRules {
+	if fields.IPRules || fields.IPWhitelist {
 		if len(key.IPWhitelist) > 0 {
 			builder.SetIPWhitelist(key.IPWhitelist)
 		} else {
 			builder.ClearIPWhitelist()
 		}
+	}
+	if fields.IPRules || fields.IPBlacklist {
 		if len(key.IPBlacklist) > 0 {
 			builder.SetIPBlacklist(key.IPBlacklist)
 		} else {
@@ -1114,6 +1117,7 @@ func groupEntityToService(g *dbent.Group) *service.Group {
 		AllowLive:                       g.AllowLive,
 		ForceOpenAIFast:                 g.ForceOpenaiFast,
 		FreeOpenAIFast:                  g.FreeOpenaiFast,
+		FreeOpenAIUltrafast:             g.FreeOpenaiUltrafast,
 		RequireOAuthOnly:                g.RequireOauthOnly,
 		RequirePrivacySet:               g.RequirePrivacySet,
 		DefaultMappedModel:              g.DefaultMappedModel,
