@@ -69,6 +69,7 @@ const DefaultUpstreamResponseReadMaxBytes int64 = 128 * 1024 * 1024
 const DefaultModelsListReadMaxBytes int64 = 8 * 1024 * 1024
 
 type Config struct {
+	IdentityAdminFile       string        `mapstructure:"identity_admin_file"`
 	Runtime                 RuntimeConfig `mapstructure:"runtime"`
 	astraRoutingLoader      atomic.Pointer[astraRoutingLoader]
 	Server                  ServerConfig                  `mapstructure:"server"`
@@ -2505,6 +2506,7 @@ func setDefaults() {
 	viper.SetDefault("oidc_connect.settings_source", "database")
 	viper.SetDefault("oidc_connect.enabled", false)
 	viper.SetDefault("oidc_connect.provider_name", "OIDC")
+	viper.SetDefault("identity_admin_file", "")
 	viper.SetDefault("oidc_connect.client_id", "")
 	viper.SetDefault("oidc_connect.client_secret", "")
 	viper.SetDefault("oidc_connect.issuer_url", "")

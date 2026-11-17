@@ -36,7 +36,7 @@ export const SIDEBAR_SECTIONS: SectionSpec[] = [
   {
     id: 'identity',
     labelKey: 'nav.sections.identity',
-    paths: ['/admin/users', '/admin/user-groups', '/admin/groups']
+    paths: ['/identity', '/admin/users', '/admin/user-groups', '/admin/groups']
   },
   {
     id: 'runtime',
@@ -85,7 +85,7 @@ export const USER_SIDEBAR_SECTIONS: SectionSpec[] = [
   {
     id: 'account',
     labelKey: 'nav.sections.account',
-    paths: ['/support-tickets', '/profile']
+    paths: ['/identity', '/support-tickets', '/profile']
   }
 ]
 

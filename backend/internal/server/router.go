@@ -8,6 +8,7 @@ import (
 
 	"github.com/Wei-Shaw/sub2api/internal/config"
 	"github.com/Wei-Shaw/sub2api/internal/handler"
+	"github.com/Wei-Shaw/sub2api/internal/identityadmin"
 	middleware2 "github.com/Wei-Shaw/sub2api/internal/server/middleware"
 	"github.com/Wei-Shaw/sub2api/internal/server/routes"
 	"github.com/Wei-Shaw/sub2api/internal/service"
@@ -149,6 +150,20 @@ func registerRoutes(
 	// 面板 API 限流器：认证接口按用户 ID、公开接口按安全客户端 IP，
 	// 防止高频刷管理面接口打爆数据库（阈值可在系统设置中调整）。
 	panelRateLimiter := middleware2.NewPanelRateLimiter(redisClient, settingService)
+
+	// Identity management is an instance-local capability, independent of the
+	// shared Mito admin role. Invalid configuration leaves the capability closed.
+	var directory *identityadmin.Client
+	if cfg.IdentityAdminFile != "" {
+		identityConfig, err := identityadmin.LoadConfig(cfg.IdentityAdminFile, cfg.OIDC.IssuerURL)
+		if err == nil {
+			directory, err = identityadmin.NewClient(identityConfig)
+		}
+		if err != nil {
+			log.Printf("Identity administration disabled: %v", err)
+		}
+	}
+	identityadmin.Register(v1, directory, gin.HandlerFunc(jwtAuth), gin.HandlerFunc(auditLog), gin.HandlerFunc(stepUpAuth), panelRateLimiter.Heavy())
 
 	// 注册各模块路由
 	routes.RegisterAuthRoutes(v1, h, jwtAuth, auditLog, redisClient, settingService, panelRateLimiter)

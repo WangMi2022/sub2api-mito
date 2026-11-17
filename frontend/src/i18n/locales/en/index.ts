@@ -1,3 +1,4 @@
+import identity from './identity'
 import coupon from './coupon'
 import qqbot from './qqbot'
 import matureProviders from './matureProviders'
@@ -43,6 +44,7 @@ import latencyObservability from './latencyObservability'
 import autoConfig from './autoConfig'
 
 export default {
+  identity,
   coupon,
   ...qqbot,
   matureProviders,

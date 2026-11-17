@@ -306,6 +306,7 @@
 </template>
 
 <script setup lang="ts">
+import { useIdentityAdminStore } from '@/stores/identityAdmin'
 import { isMitoTheme } from '@/themes/mito'
 import { useThemeSync } from '@/themes/mito/useThemeSync'
 import { applyMitoSidebarSections, applyMitoUserSidebarSections, groupMitoSidebarSections, normalizeAdminRoutePath } from '@/themes/mito/sidebarSections'
@@ -376,6 +377,7 @@ const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
 const authStore = useAuthStore()
+const identityAdmin = useIdentityAdminStore()
 const newFeatureNotices = useNewFeatureNoticeStore()
 watch(
   () => authStore.user?.id,
@@ -906,6 +908,7 @@ function buildSelfNavItems(withDashboard: boolean): NavItem[] {
   if (withDashboard) {
     items.push({ path: '/dashboard', label: t('nav.dashboard'), icon: DashboardIcon })
   }
+  if (withDashboard && identityAdmin.canManage) { items.push({ path: '/identity', label: t('identity.title'), icon: ShieldIcon }) }
   items.push(
     { path: '/keys', label: t('nav.apiKeys'), icon: KeyIcon },
     { path: '/batch-image', label: t('nav.batchImage'), icon: BatchImageIcon, hideInSimpleMode: true, featureFlag: flagBatchImageAccess },
@@ -971,6 +974,7 @@ const adminNavItems = computed((): NavItem[] => {
   const baseItems: NavItem[] = [
     { path: '/admin/dashboard', label: t('nav.dashboard'), icon: DashboardIcon },
     { path: '/admin/ops', label: t('nav.ops'), icon: OpsMonitoringIcon, featureFlag: flagOpsMonitoring },
+    { path: '/identity', label: t('identity.title'), icon: ShieldIcon, featureFlag: () => identityAdmin.canManage },
     { path: '/admin/users', label: t('nav.users'), icon: UsersIcon, hideInSimpleMode: true },
     { path: '/admin/user-groups', label: t('nav.userGroups'), icon: UsersIcon, hideInSimpleMode: true },
     { path: '/admin/groups', label: t('nav.groups'), icon: FolderIcon },

@@ -1,3 +1,4 @@
+import { useIdentityAdminStore } from '@/stores/identityAdmin'
 import { settingsLocation } from '@/utils/settingsSearch'
 import { isMitoTheme } from '@/themes/mito'
 /**
@@ -20,6 +21,7 @@ import { resolveRouteDocumentTitle } from './title'
  * Route definitions with lazy loading
  */
 const routes: RouteRecordRaw[] = [
+  { path: '/identity', name: 'IdentityManagement', component: () => import('@/views/identity/IdentityView.vue'), meta: { requiresAuth: true, titleKey: 'identity.title' } },
   // ==================== Setup Routes ====================
   {
     path: '/setup',
@@ -1093,6 +1095,11 @@ router.beforeEach(async (to, _from, next) => {
       path: '/login',
       query: { redirect: to.fullPath } // Save intended destination
     })
+    return
+  }
+
+  if (to.path === '/identity' && !(await useIdentityAdminStore().refresh())) {
+    next(authStore.isAdmin ? '/admin/dashboard' : '/dashboard')
     return
   }
 
