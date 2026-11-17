@@ -79,6 +79,9 @@ html[data-ui-theme='mito'] :is(.mito-stat-value, .table, .mito-account-balance) 
 /* Application shell. The menu's permission/feature filtering stays upstream. */
 html[data-ui-theme='mito'] .mito-app-layout { background: var(--mito-bg); }
 html[data-ui-theme='mito'] .mito-app-decoration { display: none; }
+/* Keep navigation hints readable in both themes without changing the shell. */
+html[data-ui-theme='mito'] .sidebar .sidebar-section-title-text { color: var(--mito-muted); }
+html[data-ui-theme='mito'] .sidebar kbd { color: var(--mito-text); font-size: 11px; }
 html[data-ui-theme='mito'] .mito-main { padding: 24px 16px 24px 24px; min-width: 0; }
 html[data-ui-theme='mito'] .mito-page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
 html[data-ui-theme='mito'] .mito-page-heading-copy { min-width: 0; }
