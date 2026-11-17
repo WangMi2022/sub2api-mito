@@ -173,7 +173,7 @@ export const adaptations = [
     },
     {
       "before": "const settingsLoaded = computed(() => appStore.publicSettingsLoaded)",
-      "after": "const settingsLoaded = computed(() => appStore.publicSettingsLoaded)\nconst registrationEnabled = computed(() => appStore.cachedPublicSettings?.registration_enabled === true)"
+      "after": "const settingsLoaded = computed(() => appStore.publicSettingsLoaded)\nconst registrationEnabled = computed(() => appStore.cachedPublicSettings?.registration_enabled === true && !appStore.cachedPublicSettings?.mito_oidc_only)"
     }
   ]
 },

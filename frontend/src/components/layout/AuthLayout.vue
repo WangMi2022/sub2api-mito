@@ -82,7 +82,7 @@ const siteName = computed(() => appStore.siteName || 'Sub2API')
 const siteLogo = computed(() => sanitizeUrl(appStore.siteLogo || '', { allowRelative: true, allowDataUrl: true }))
 const siteSubtitle = computed(() => appStore.cachedPublicSettings?.site_subtitle || 'Subscription to API Conversion Platform')
 const settingsLoaded = computed(() => appStore.publicSettingsLoaded)
-const registrationEnabled = computed(() => appStore.cachedPublicSettings?.registration_enabled === true)
+const registrationEnabled = computed(() => appStore.cachedPublicSettings?.registration_enabled === true && !appStore.cachedPublicSettings?.mito_oidc_only)
 
 const currentYear = computed(() => new Date().getFullYear())
 
