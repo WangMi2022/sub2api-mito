@@ -640,7 +640,7 @@ export const adaptations = [
       {"before":"<div class=\"card\">","after":"<div class=\"mito-admin-usage-panel card\">"},
       {"before":"<div class=\"flex flex-wrap items-center border-b border-gray-200 px-2 dark:border-dark-700 sm:px-4\">","after":"<div class=\"mito-admin-usage-tabs flex flex-wrap items-center border-b border-gray-200 px-2 dark:border-dark-700 sm:px-4\">"},
       {"before":"data-testid=\"usage-detail-tab\"","after":"data-testid=\"usage-detail-tab\"\n            :aria-pressed=\"activeTab === tab.key\""},
-      {"before":":mode=\"activeTab\" class=\"border-b border-gray-100 dark:border-dark-700/50\"","after":":mode=\"activeTab\" class=\"mito-admin-usage-filters border-b border-gray-100 dark:border-dark-700/50\""},
+      {"before":":mode=\"activeTab\" :notice-user-id=\"props.observerMode ? undefined : authStore.user?.id\" class=\"border-b border-gray-100 dark:border-dark-700/50\"","after":":mode=\"activeTab\" :notice-user-id=\"props.observerMode ? undefined : authStore.user?.id\" class=\"mito-admin-usage-filters border-b border-gray-100 dark:border-dark-700/50\""},
       {"before":"<div v-show=\"activeTab === 'usage'\" class=\"overflow-hidden rounded-b-2xl\">","after":"<div v-show=\"activeTab === 'usage'\" class=\"mito-admin-usage-records overflow-hidden rounded-b-2xl\">"},
       {"before":"<Pagination v-if=\"pagination.total > 0\"","after":"<Pagination class=\"mito-admin-usage-pagination\" v-if=\"pagination.total > 0\""},
       {"before":"import UsageTable from '@/components/admin/usage/UsageTable.vue'; import UsageExportProgress from '@/components/admin/usage/UsageExportProgress.vue'","after":"// mito-theme: the admin usage list reuses the request-log presentation.\nimport UsageTable from '@/themes/mito/AdminRequestLogTable.vue'\nimport { useAdminUsageColumns, ADMIN_USAGE_DEFAULT_HIDDEN_COLUMNS } from '@/themes/mito/adminRequestLogColumns'\nimport UsageExportProgress from '@/components/admin/usage/UsageExportProgress.vue'"},
@@ -670,8 +670,8 @@ export const adaptations = [
         "after": "<MitoFilterSection v-slot=\"{ expanded, panelId }\" :selected-count=\"activeFilterCount\" :class=\"identityOnly ? 'w-full lg:w-auto' : flat ? 'p-4 sm:p-6' : 'card p-6'\">"
       },
       {
-        "before": "    </div>\n  </div>\n</template>",
-        "after": "    </div>\n  </MitoFilterSection>\n</template>"
+        "before": "    </div>\n    <p v-if=\"!identityOnly && mode === 'usage' && !observerMode\" id=\"usage-platform-hint\" class=\"mt-3 text-xs text-gray-500 dark:text-gray-400\">{{ t('admin.usage.platformHistoryHint') }}</p>\n  </div>\n</template>",
+        "after": "    </div>\n    <p v-if=\"!identityOnly && mode === 'usage' && !observerMode\" id=\"usage-platform-hint\" class=\"mt-3 text-xs text-gray-500 dark:text-gray-400\">{{ t('admin.usage.platformHistoryHint') }}</p>\n  </MitoFilterSection>\n</template>"
       },
       {
         "before": "import type { SimpleUser } from '@/api/admin/usage'",
