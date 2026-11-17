@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"log/slog"
+	"net/url"
 	"strings"
 	"sync"
 
@@ -412,6 +413,11 @@ func (h *AuthHandler) Login2FA(c *gin.Context) {
 			response.ErrorFrom(c, err)
 			return
 		}
+		if err := h.bindPendingOIDCSessionPair(c.Request.Context(), pendingSession, pair); err != nil {
+			_ = h.authService.RevokeRefreshToken(c.Request.Context(), pair.RefreshToken)
+			response.ErrorFrom(c, err)
+			return
+		}
 		_ = h.totpService.DeleteLoginSession(c.Request.Context(), req.TempToken)
 		response.Success(c, AuthResponse{
 			AccessToken: pair.AccessToken, RefreshToken: pair.RefreshToken, ExpiresIn: pair.ExpiresIn,
@@ -727,7 +733,8 @@ type LogoutRequest struct {
 
 // LogoutResponse 登出响应
 type LogoutResponse struct {
-	Message string `json:"message"`
+	Message   string `json:"message"`
+	LogoutURL string `json:"logout_url,omitempty"`
 }
 
 // Logout 用户登出
@@ -747,9 +754,43 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	h.consumePendingOAuthSessionOnLogout(c)
 	clearOAuthLogoutCookies(c)
 
+	logoutURL := h.oidcGlobalLogoutURL(c)
+
 	response.Success(c, LogoutResponse{
-		Message: "Logged out successfully",
+		Message:   "Logged out successfully",
+		LogoutURL: logoutURL,
 	})
+}
+
+func (h *AuthHandler) oidcGlobalLogoutURL(c *gin.Context) string {
+	if h.cfg == nil || h.authService == nil || h.settingSvc == nil {
+		return ""
+	}
+	parts := strings.SplitN(strings.TrimSpace(c.GetHeader("Authorization")), " ", 2)
+	if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") || strings.TrimSpace(parts[1]) == "" {
+		return ""
+	}
+	claims, err := h.authService.ValidateToken(strings.TrimSpace(parts[1]))
+	if err != nil || claims == nil {
+		return ""
+	}
+	if claims.AuthIdentityID <= 0 {
+		return ""
+	}
+	if err := h.authService.ValidateTokenIdentity(c.Request.Context(), claims); err != nil {
+		return ""
+	}
+	frontendURL, err := url.Parse(strings.TrimSpace(h.cfg.Server.FrontendURL))
+	if err != nil || frontendURL == nil || frontendURL.Hostname() == "" || (frontendURL.Path != "" && frontendURL.Path != "/") || frontendURL.RawQuery != "" || frontendURL.Fragment != "" || frontendURL.User != nil {
+		return ""
+	}
+	redirect := strings.TrimRight(h.cfg.Server.FrontendURL, "/") + "/login"
+	logoutURL, err := h.settingSvc.OIDCGlobalLogoutURL(c.Request.Context(), redirect)
+	if err != nil {
+		slog.Warn("OIDC global logout unavailable; local logout completed", "error", err)
+		return ""
+	}
+	return logoutURL
 }
 
 // RevokeAllSessionsResponse 撤销所有会话响应

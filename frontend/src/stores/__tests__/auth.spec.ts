@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useAuthStore } from '@/stores/auth'
+import { authNavigation, useAuthStore } from '@/stores/auth'
 
 // Mock authAPI
 const mockLogin = vi.fn()
@@ -61,6 +61,7 @@ describe('useAuthStore', () => {
 
   afterEach(() => {
     vi.useRealTimers()
+    vi.restoreAllMocks()
   })
 
   // --- login ---
@@ -155,6 +156,34 @@ describe('useAuthStore', () => {
       expect(localStorage.getItem('auth_user')).toBeNull()
       expect(localStorage.getItem('refresh_token')).toBeNull()
       expect(localStorage.getItem('token_expires_at')).toBeNull()
+    })
+
+    it('清除本地会话后跳转到服务端返回的 OIDC 全局退出地址', async () => {
+      mockLogin.mockResolvedValue(fakeAuthResponse)
+      mockLogout.mockResolvedValue('https://identity.example/realms/chitu/protocol/openid-connect/logout?client_id=mito')
+      const assign = vi.spyOn(authNavigation, 'assign').mockImplementation(() => {})
+      const store = useAuthStore()
+
+      await store.login({ email: 'test@example.com', password: '123456' })
+      const globalLogoutStarted = await store.logout()
+
+      expect(store.isAuthenticated).toBe(false)
+      expect(globalLogoutStarted).toBe(true)
+      expect(assign).toHaveBeenCalledWith('https://identity.example/realms/chitu/protocol/openid-connect/logout?client_id=mito')
+    })
+
+    it('拒绝不安全的外部退出地址并保留本地退出', async () => {
+      mockLogin.mockResolvedValue(fakeAuthResponse)
+      mockLogout.mockResolvedValue('http://identity.example/logout')
+      const assign = vi.spyOn(authNavigation, 'assign').mockImplementation(() => {})
+      const store = useAuthStore()
+
+      await store.login({ email: 'test@example.com', password: '123456' })
+      const globalLogoutStarted = await store.logout()
+
+      expect(store.isAuthenticated).toBe(false)
+      expect(globalLogoutStarted).toBe(false)
+      expect(assign).not.toHaveBeenCalled()
     })
   })
 

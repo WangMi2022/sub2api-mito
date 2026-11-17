@@ -198,22 +198,33 @@ export async function getCurrentUser() {
 
 /**
  * User logout
- * Clears authentication token and user data from localStorage
- * Optionally revokes the refresh token on the server
+ * Clears authentication token and user data from localStorage.
+ * Revokes the refresh token and returns an RP-initiated logout URL when the
+ * active session is a currently bound OIDC identity.
  */
-export async function logout(): Promise<void> {
-  const refreshToken = getRefreshToken()
+export interface LogoutResponse {
+  message: string
+  logout_url?: string
+}
 
-  // Try to revoke the refresh token on the server
-  if (refreshToken) {
+export async function logout(): Promise<string | null> {
+  const refreshToken = getRefreshToken()
+  const accessToken = getAuthToken()
+  let logoutURL: string | null = null
+
+  // Include the access token whenever possible so the server can decide whether
+  // this is an active OIDC session and return an RP-initiated logout URL.
+  if (refreshToken || accessToken) {
     try {
-      await apiClient.post('/auth/logout', { refresh_token: refreshToken })
+      const { data } = await apiClient.post<LogoutResponse>('/auth/logout', refreshToken ? { refresh_token: refreshToken } : {})
+      logoutURL = typeof data?.logout_url === 'string' && data.logout_url ? data.logout_url : null
     } catch {
       // Ignore errors - we still want to clear local state
     }
   }
 
   clearAuthToken()
+  return logoutURL
 }
 
 /**

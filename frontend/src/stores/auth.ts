@@ -21,6 +21,18 @@ const TOKEN_EXPIRES_AT_KEY = 'token_expires_at' // 存储过期时间戳而非�
 const PENDING_AUTH_SESSION_KEY = 'pending_auth_session'
 const AUTO_REFRESH_INTERVAL = 60 * 1000 // 60 seconds for user data refresh
 const TOKEN_REFRESH_BUFFER = 120 * 1000 // 120 seconds before expiry to refresh token
+export const authNavigation = { assign(url: string) { window.location.assign(url) } }
+
+export function validGlobalLogoutURL(raw: string): boolean {
+  try {
+    const parsed = new URL(raw)
+    if (parsed.username || parsed.password) return false
+    if (parsed.protocol === 'https:') return true
+    return parsed.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname)
+  } catch {
+    return false
+  }
+}
 
 type PendingAuthTokenField = 'pending_auth_token' | 'pending_oauth_token'
 
@@ -443,13 +455,14 @@ export const useAuthStore = defineStore('auth', () => {
    * User logout
    * Clears all authentication state and persisted data
    */
-  async function logout(): Promise<void> {
+  async function logout(): Promise<boolean> {
     authSessionGeneration += 1
     stopAutoRefresh()
     stopTokenRefresh()
+    let globalLogoutURL: string | null = null
     try {
       // Call API logout (revokes refresh token on server)
-      await authAPI.logout()
+      globalLogoutURL = await authAPI.logout()
     } catch (err) {
       // 服务端吊销失败（网络/5xx/超时）不应阻止本地登出，否则用户点了退出仍处于登录态。
       console.warn('Logout API call failed, clearing local session anyway', err)
@@ -457,6 +470,11 @@ export const useAuthStore = defineStore('auth', () => {
       // Always clear local state (tokens, user data, refresh timers)
       clearAuth()
     }
+    if (globalLogoutURL && validGlobalLogoutURL(globalLogoutURL)) {
+      authNavigation.assign(globalLogoutURL)
+      return true
+    }
+    return false
   }
 
   /**

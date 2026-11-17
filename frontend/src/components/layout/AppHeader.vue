@@ -384,13 +384,16 @@ function closeDropdown() {
 
 async function handleLogout() {
   closeDropdown()
+  let globalLogoutStarted = false
   try {
-    await authStore.logout()
+    globalLogoutStarted = await authStore.logout()
   } catch (error) {
     // Ignore logout errors - still redirect to login
     console.error('Logout error:', error)
   }
-  await router.push('/login')
+  if (!globalLogoutStarted) {
+    await router.push('/login')
+  }
 }
 
 function handleReplayGuide() {

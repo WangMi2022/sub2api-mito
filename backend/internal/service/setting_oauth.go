@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -978,6 +979,50 @@ type oidcProviderMetadata struct {
 	TokenEndpoint         string `json:"token_endpoint"`
 	UserInfoEndpoint      string `json:"userinfo_endpoint"`
 	JWKSURI               string `json:"jwks_uri"`
+	EndSessionEndpoint    string `json:"end_session_endpoint"`
+}
+
+// OIDCGlobalLogoutURL resolves the provider logout endpoint and constructs an
+// RP-initiated logout URL. The caller supplies an exact post-logout redirect.
+func (s *SettingService) OIDCGlobalLogoutURL(ctx context.Context, postLogoutRedirectURI string) (string, error) {
+	cfg, err := s.GetOIDCConnectOAuthConfig(ctx)
+	if err != nil {
+		return "", err
+	}
+	metadata, err := oidcResolveProviderMetadata(ctx, cfg.DiscoveryURL)
+	if err != nil {
+		return "", fmt.Errorf("resolve OIDC logout metadata: %w", err)
+	}
+	endSession := strings.TrimSpace(metadata.EndSessionEndpoint)
+	if endSession == "" {
+		return "", fmt.Errorf("OIDC provider does not advertise end_session_endpoint")
+	}
+	if !secureOIDCEndpoint(endSession) {
+		return "", fmt.Errorf("OIDC end_session_endpoint must use HTTPS outside loopback")
+	}
+	if !secureOIDCEndpoint(postLogoutRedirectURI) {
+		return "", fmt.Errorf("OIDC post-logout redirect must use HTTPS outside loopback")
+	}
+	logoutURL, err := url.Parse(endSession)
+	if err != nil || logoutURL.User != nil || logoutURL.RawQuery != "" || logoutURL.Fragment != "" {
+		return "", fmt.Errorf("OIDC end_session_endpoint is invalid")
+	}
+	query := logoutURL.Query()
+	query.Set("client_id", strings.TrimSpace(cfg.ClientID))
+	query.Set("post_logout_redirect_uri", postLogoutRedirectURI)
+	logoutURL.RawQuery = query.Encode()
+	return logoutURL.String(), nil
+}
+
+func secureOIDCEndpoint(raw string) bool {
+	u, err := url.Parse(strings.TrimSpace(raw))
+	if err != nil || u.Hostname() == "" || u.User != nil || u.RawQuery != "" || u.ForceQuery || u.Fragment != "" {
+		return false
+	}
+	if u.Scheme == "https" {
+		return true
+	}
+	return u.Scheme == "http" && (u.Hostname() == "localhost" || u.Hostname() == "127.0.0.1" || u.Hostname() == "::1")
 }
 
 func oidcDefaultDiscoveryURL(issuerURL string) string {

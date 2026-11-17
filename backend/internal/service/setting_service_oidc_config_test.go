@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/Wei-Shaw/sub2api/internal/config"
@@ -100,6 +101,55 @@ func TestGetOIDCConnectOAuthConfig_ResolvesEndpointsFromIssuerDiscovery(t *testi
 	require.Equal(t, srv.URL+"/issuer/protocol/openid-connect/token", got.TokenURL)
 	require.Equal(t, srv.URL+"/issuer/protocol/openid-connect/userinfo", got.UserInfoURL)
 	require.Equal(t, srv.URL+"/issuer/protocol/openid-connect/certs", got.JWKSURL)
+}
+
+func TestOIDCGlobalLogoutURLUsesDiscoveredEndpointAndFixedClientRedirect(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/issuer/.well-known/openid-configuration" {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = fmt.Fprintf(w, `{"authorization_endpoint":"%s/auth","token_endpoint":"%s/token","jwks_uri":"%s/keys","end_session_endpoint":"%s/logout"}`, "https://issuer.example", "https://issuer.example", "https://issuer.example", "https://issuer.example")
+	}))
+	defer srv.Close()
+	cfg := &config.Config{OIDC: config.OIDCConnectConfig{
+		Enabled: true, ClientID: "mito", ClientSecret: "fixture-secret", IssuerURL: srv.URL + "/issuer",
+		RedirectURL: "https://mito.example/api/v1/auth/oauth/oidc/callback", FrontendRedirectURL: "/auth/oidc/callback",
+		Scopes: "openid profile", TokenAuthMethod: "client_secret_post", ValidateIDToken: true,
+		AllowedSigningAlgs: "RS256", ClockSkewSeconds: 120,
+	}}
+	svc := NewSettingService(&settingOIDCRepoStub{values: map[string]string{}}, cfg)
+	got, err := svc.OIDCGlobalLogoutURL(context.Background(), "https://mito.example/login")
+	require.NoError(t, err)
+	u, err := url.Parse(got)
+	require.NoError(t, err)
+	require.Equal(t, "https://issuer.example/logout", u.Scheme+"://"+u.Host+u.Path)
+	require.Equal(t, "mito", u.Query().Get("client_id"))
+	require.Equal(t, "https://mito.example/login", u.Query().Get("post_logout_redirect_uri"))
+}
+
+func TestOIDCGlobalLogoutURLRejectsMissingOrInsecureEndpoint(t *testing.T) {
+	for name, metadata := range map[string]string{
+		"missing":  `{"authorization_endpoint":"https://issuer.example/auth","token_endpoint":"https://issuer.example/token","jwks_uri":"https://issuer.example/keys"}`,
+		"insecure": `{"authorization_endpoint":"https://issuer.example/auth","token_endpoint":"https://issuer.example/token","jwks_uri":"https://issuer.example/keys","end_session_endpoint":"http://issuer.example/logout"}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				_, _ = w.Write([]byte(metadata))
+			}))
+			defer srv.Close()
+			svc := NewSettingService(&settingOIDCRepoStub{values: map[string]string{}}, &config.Config{OIDC: config.OIDCConnectConfig{
+				Enabled: true, ClientID: "mito", ClientSecret: "fixture-secret", IssuerURL: srv.URL + "/issuer",
+				RedirectURL: "https://mito.example/api/v1/auth/oauth/oidc/callback", FrontendRedirectURL: "/auth/oidc/callback",
+				Scopes: "openid profile", TokenAuthMethod: "client_secret_post", ValidateIDToken: true,
+				AllowedSigningAlgs: "RS256", ClockSkewSeconds: 120,
+			}})
+			_, err := svc.OIDCGlobalLogoutURL(context.Background(), "https://mito.example/login")
+			require.Error(t, err)
+		})
+	}
 }
 
 func TestSettingService_ParseSettings_PreservesOptionalOIDCCompatibilityFlags(t *testing.T) {

@@ -86,6 +86,9 @@ func RegisterAuthRoutes(
 			FailureMode: middleware.RateLimitFailClose,
 			Enabled:     loginRateLimitEnabled,
 		}), h.Auth.Login2FA)
+		// OIDC Back-Channel Logout is called server-to-server by the identity
+		// provider. The signed Logout Token is the sole authentication factor.
+		auth.POST("/backchannel-logout", h.Auth.OIDCBackchannelLogout)
 		auth.POST("/passkey/login/begin", rateLimiter.LimitWithOptions("passkey-login-begin", 20, time.Minute, middleware.RateLimitOptions{
 			FailureMode: middleware.RateLimitFailClose,
 			Enabled:     loginRateLimitEnabled,

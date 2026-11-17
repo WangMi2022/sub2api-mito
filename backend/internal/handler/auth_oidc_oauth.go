@@ -80,6 +80,7 @@ type oidcIDTokenClaims struct {
 	EmailVerified     *bool  `json:"email_verified,omitempty"`
 	PreferredUsername string `json:"preferred_username,omitempty"`
 	Name              string `json:"name,omitempty"`
+	SID               string `json:"sid,omitempty"`
 	Nonce             string `json:"nonce,omitempty"`
 	Azp               string `json:"azp,omitempty"`
 	jwt.RegisteredClaims
@@ -341,6 +342,14 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 		redirectOAuthError(c, frontendCallback, "missing_issuer", "missing issuer claim", "")
 		return
 	}
+	idpSessionID := ""
+	if idClaims != nil {
+		idpSessionID = strings.TrimSpace(idClaims.SID)
+		if idpSessionID == "" || idpSessionID != idClaims.SID || len(idpSessionID) > 1024 {
+			redirectOAuthError(c, frontendCallback, "missing_session_id", "missing or invalid session id claim", "")
+			return
+		}
+	}
 
 	emailVerified := userInfoClaims.EmailVerified
 	if emailVerified == nil && idClaims != nil {
@@ -417,6 +426,7 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 			BrowserSessionKey:      browserSessionKey,
 			UpstreamIdentityClaims: upstreamClaims,
 			OIDCVerification:       verification,
+			OIDCSessionID:          idpSessionID,
 			CompletionResponse: map[string]any{
 				"redirect": redirectTo,
 			},
@@ -443,6 +453,7 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 			BrowserSessionKey:      browserSessionKey,
 			UpstreamIdentityClaims: upstreamClaims,
 			OIDCVerification:       verification,
+			OIDCSessionID:          idpSessionID,
 			CompletionResponse: map[string]any{
 				"redirect": redirectTo,
 			},
@@ -481,6 +492,7 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 			username,
 			upstreamClaims,
 			verification,
+			idpSessionID,
 		); handled {
 			return
 		}
@@ -499,6 +511,7 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 			compatEmail,
 			compatEmailUser,
 			true,
+			idpSessionID,
 		); err != nil {
 			redirectOAuthError(c, frontendCallback, "session_error", "failed to continue oauth login", "")
 			return
@@ -519,6 +532,7 @@ func (h *AuthHandler) OIDCOAuthCallback(c *gin.Context) {
 		compatEmail,
 		compatEmailUser,
 		h.isForceEmailOnThirdPartySignup(c.Request.Context()),
+		idpSessionID,
 	); err != nil {
 		redirectOAuthError(c, frontendCallback, "session_error", "failed to continue oauth login", "")
 		return
@@ -563,6 +577,7 @@ func (h *AuthHandler) createOIDCOAuthChoicePendingSession(
 	compatEmail string,
 	compatEmailUser *dbent.User,
 	forceEmailOnSignup bool,
+	idpSessionID string,
 ) error {
 	suggestionEmail := strings.TrimSpace(suggestedEmail)
 	canonicalEmail := strings.TrimSpace(resolvedEmail)
@@ -613,6 +628,7 @@ func (h *AuthHandler) createOIDCOAuthChoicePendingSession(
 		BrowserSessionKey:      browserSessionKey,
 		UpstreamIdentityClaims: upstreamClaims,
 		OIDCVerification:       verification,
+		OIDCSessionID:          idpSessionID,
 		CompletionResponse:     completionResponse,
 	})
 }
@@ -723,6 +739,11 @@ func (h *AuthHandler) CompleteOIDCOAuthRegistration(c *gin.Context) {
 	_ = h.authService.RevokeRefreshToken(c.Request.Context(), tokenPair.RefreshToken)
 	tokenPair, err = h.authService.GenerateOAuthTokenPair(c.Request.Context(), user, session.ProviderType, session.ProviderKey, session.ProviderSubject)
 	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+	if err := h.bindPendingOIDCSessionPair(c.Request.Context(), session, tokenPair); err != nil {
+		_ = h.authService.RevokeRefreshToken(c.Request.Context(), tokenPair.RefreshToken)
 		response.ErrorFrom(c, err)
 		return
 	}
@@ -1036,6 +1057,9 @@ func oidcParseAndValidateIDToken(ctx context.Context, cfg config.OIDCConnectConf
 	if strings.TrimSpace(claims.Subject) == "" || claims.Subject != strings.TrimSpace(claims.Subject) {
 		return nil, errors.New("id_token missing or noncanonical sub")
 	}
+	if strings.TrimSpace(claims.SID) == "" || claims.SID != strings.TrimSpace(claims.SID) || len(claims.SID) > 1024 {
+		return nil, errors.New("id_token missing or noncanonical sid")
+	}
 	if claims.IssuedAt == nil {
 		return nil, errors.New("id_token missing iat")
 	}
@@ -1268,6 +1292,7 @@ func (h *AuthHandler) tryOIDCVerifiedEmailFastPath(
 	username string,
 	upstreamClaims map[string]any,
 	verification *service.OIDCIdentityVerification,
+	idpSessionID string,
 ) bool {
 	if h == nil || h.authService == nil || h.settingSvc == nil {
 		return false
@@ -1318,6 +1343,12 @@ func (h *AuthHandler) tryOIDCVerifiedEmailFastPath(
 	if err != nil {
 		log.Printf("[OIDC OAuth] verified-email fast path skipped: reason=%s", infraerrors.Reason(err))
 		return false
+	}
+	if err := h.bindOIDCSessionPair(ctx, tokenPair, identity.ProviderKey, idpSessionID); err != nil {
+		_ = h.authService.RevokeRefreshToken(ctx, tokenPair.RefreshToken)
+		log.Printf("[OIDC OAuth] session binding failed: reason=%s", infraerrors.Reason(err))
+		redirectOAuthError(c, frontendCallback, "session_binding_failed", "failed to bind unified identity session", "")
+		return true
 	}
 
 	fragment := url.Values{}

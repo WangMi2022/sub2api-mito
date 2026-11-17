@@ -1861,7 +1861,7 @@ func (s *AuthService) RefreshTokenPair(ctx context.Context, refreshToken string)
 		_ = s.refreshTokenCache.DeleteRefreshToken(ctx, tokenHash)
 		return nil, ErrRefreshTokenExpired
 	}
-	if err := s.ValidateTokenIdentity(ctx, &JWTClaims{UserID: data.UserID, AuthIdentityID: data.AuthIdentityID}); err != nil {
+	if err := s.ValidateTokenIdentity(ctx, &JWTClaims{UserID: data.UserID, AuthIdentityID: data.AuthIdentityID, SessionID: data.FamilyID}); err != nil {
 		if errors.Is(err, ErrTokenRevoked) {
 			_ = s.refreshTokenCache.DeleteTokenFamily(ctx, data.FamilyID)
 		}
@@ -1945,6 +1945,9 @@ func (s *AuthService) RevokeRefreshToken(ctx context.Context, refreshToken strin
 func (s *AuthService) RevokeSessionFamily(ctx context.Context, familyID string) error {
 	if s.refreshTokenCache == nil || familyID == "" {
 		return nil
+	}
+	if cache, ok := s.refreshTokenCache.(OIDCSessionCache); ok {
+		return cache.RevokeSessionFamily(ctx, familyID, s.sessionRevocationTTL())
 	}
 	return s.refreshTokenCache.DeleteTokenFamily(ctx, familyID)
 }

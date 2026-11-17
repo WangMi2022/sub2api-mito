@@ -70,6 +70,7 @@ func TestOIDCParseAndValidateIDToken(t *testing.T) {
 	claims := oidcIDTokenClaims{
 		Nonce: "nonce-ok",
 		Azp:   "client-1",
+		SID:   "idp-session-1",
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "https://issuer.example.com",
 			Subject:   "subject-1",
@@ -99,7 +100,7 @@ func TestOIDCParseAndValidateIDToken(t *testing.T) {
 
 	_, err = oidcParseAndValidateIDToken(context.Background(), cfg, signed, "bad-nonce")
 	require.Error(t, err)
-	for _, kind := range []string{"issuer", "audience", "expired", "no_expiry", "no_issued_at", "future_issued_at", "signature", "padded_subject"} {
+	for _, kind := range []string{"issuer", "audience", "expired", "no_expiry", "no_issued_at", "future_issued_at", "signature", "padded_subject", "missing_sid", "padded_sid"} {
 		t.Run(kind, func(t *testing.T) {
 			invalid := claims
 			key := priv
@@ -118,6 +119,10 @@ func TestOIDCParseAndValidateIDToken(t *testing.T) {
 				invalid.IssuedAt = jwt.NewNumericDate(now.Add(time.Hour))
 			case "padded_subject":
 				invalid.Subject = " subject-1 "
+			case "missing_sid":
+				invalid.SID = ""
+			case "padded_sid":
+				invalid.SID = " idp-session-1 "
 			case "signature":
 				key, err = rsa.GenerateKey(rand.Reader, 2048)
 				require.NoError(t, err)
@@ -1010,6 +1015,7 @@ func TestTryOIDCVerifiedEmailFastPathCreatesUserAndIdentity(t *testing.T) {
 			"suggested_avatar_url":   "",
 		},
 		nil,
+		"",
 	)
 	require.True(t, completed)
 	require.Equal(t, http.StatusFound, recorder.Code)
@@ -1233,6 +1239,7 @@ func TestTryOIDCVerifiedEmailFastPathSkippedWhenInvitationCodeRequired(t *testin
 		"invite_only_user",
 		map[string]any{},
 		nil,
+		"",
 	)
 	require.False(t, completed)
 	require.NotEqual(t, http.StatusFound, recorder.Code)
@@ -1268,6 +1275,7 @@ func TestTryOIDCVerifiedEmailFastPathSkippedWhenForceEmailEnabled(t *testing.T) 
 		"force_email_user",
 		map[string]any{},
 		nil,
+		"",
 	)
 	require.False(t, completed)
 
@@ -1278,6 +1286,7 @@ func TestTryOIDCVerifiedEmailFastPathSkippedWhenForceEmailEnabled(t *testing.T) 
 
 type oidcProviderFixture struct {
 	Subject           string
+	SID               string
 	UserInfoSubject   *string
 	PreferredUsername string
 	DisplayName       string
@@ -1393,11 +1402,15 @@ func newOIDCTestProvider(t *testing.T, fixture oidcProviderFixture) (config.OIDC
 
 	issuer = server.URL
 	now := time.Now()
+	if strings.TrimSpace(fixture.SID) == "" {
+		fixture.SID = "idp-session-" + fixture.Subject
+	}
 	claims := oidcIDTokenClaims{
 		Email:             fixture.Email,
 		EmailVerified:     boolPtr(fixture.EmailVerified),
 		PreferredUsername: fixture.PreferredUsername,
 		Name:              fixture.DisplayName,
+		SID:               fixture.SID,
 		Nonce:             "nonce-" + fixture.Subject,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    issuer,

@@ -178,8 +178,10 @@ async function submit(): Promise<void> {
 }
 
 async function logout(): Promise<void> {
-  await authStore.logout()
-  window.location.href = '/login'
+  const globalLogoutStarted = await authStore.logout()
+  if (!globalLogoutStarted) {
+    window.location.href = '/login'
+  }
 }
 </script>
 

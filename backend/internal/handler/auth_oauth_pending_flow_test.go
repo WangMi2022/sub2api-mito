@@ -2909,6 +2909,30 @@ func (s *oauthPendingFlowRefreshTokenCacheStub) IsTokenInFamily(context.Context,
 	return false, nil
 }
 
+func (s *oauthPendingFlowRefreshTokenCacheStub) BindOIDCSession(context.Context, string, string, string, time.Duration) error {
+	return nil
+}
+
+func (s *oauthPendingFlowRefreshTokenCacheStub) RevokeOIDCSession(context.Context, string, string, time.Duration) (int, error) {
+	return 0, nil
+}
+
+func (s *oauthPendingFlowRefreshTokenCacheStub) ConsumeOIDCLogoutAndRevoke(context.Context, string, string, string, time.Duration, time.Duration) (bool, int, error) {
+	return true, 0, nil
+}
+
+func (s *oauthPendingFlowRefreshTokenCacheStub) RevokeSessionFamily(context.Context, string, time.Duration) error {
+	return nil
+}
+
+func (s *oauthPendingFlowRefreshTokenCacheStub) IsSessionFamilyRevoked(context.Context, string) (bool, error) {
+	return false, nil
+}
+
+func (s *oauthPendingFlowRefreshTokenCacheStub) ConsumeOIDCLogoutJTI(context.Context, string, string, time.Duration) (bool, error) {
+	return true, nil
+}
+
 type oauthPendingFlowRedeemCodeRepo struct {
 	client *dbent.Client
 }

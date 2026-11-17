@@ -39,6 +39,7 @@ const (
 	oauthCompletionResponseKey = "completion_response"
 	oauthPromoCodeStateKey     = "promo_code"
 	oauthOIDCVerificationKey   = "oidc_identity_verification"
+	oauthOIDCSessionIDKey      = "oidc_session_id"
 )
 
 var pendingOAuthCreateAccountPreCommitHook func(context.Context, *dbent.PendingAuthSession) error
@@ -53,6 +54,7 @@ type oauthPendingSessionPayload struct {
 	UpstreamIdentityClaims map[string]any
 	CompletionResponse     map[string]any
 	OIDCVerification       *service.OIDCIdentityVerification
+	OIDCSessionID          string
 }
 
 type oauthAdoptionDecisionRequest struct {
@@ -250,6 +252,12 @@ func (h *AuthHandler) createOAuthPendingSession(c *gin.Context, payload oauthPen
 			"issuer": v.Issuer, "subject": v.Subject, "verified_at": v.VerifiedAt.UTC().Format(time.RFC3339Nano),
 		}
 	}
+	if idpSessionID := strings.TrimSpace(payload.OIDCSessionID); idpSessionID != "" {
+		if !strings.EqualFold(strings.TrimSpace(payload.Identity.ProviderType), "oidc") || idpSessionID != payload.OIDCSessionID || len(idpSessionID) > 1024 {
+			return infraerrors.BadRequest("OIDC_SESSION_INVALID", "invalid unified identity session")
+		}
+		localFlowState[oauthOIDCSessionIDKey] = idpSessionID
+	}
 	if promoCode := readOAuthPromoCode(c); promoCode != "" {
 		localFlowState[oauthPromoCodeStateKey] = promoCode
 	}
@@ -303,6 +311,51 @@ func pendingOIDCVerification(session *dbent.PendingAuthSession) (*service.OIDCId
 		return nil, err
 	}
 	return v, nil
+}
+
+func pendingOIDCSessionID(session *dbent.PendingAuthSession) (string, error) {
+	if session == nil || !strings.EqualFold(strings.TrimSpace(session.ProviderType), "oidc") {
+		return "", nil
+	}
+	raw, exists := session.LocalFlowState[oauthOIDCSessionIDKey]
+	if !exists {
+		// Pending sessions created before back-channel logout was enabled may
+		// finish during a rolling deployment. New sessions always carry the sid.
+		return "", nil
+	}
+	idpSessionID, ok := raw.(string)
+	if !ok || strings.TrimSpace(idpSessionID) == "" || idpSessionID != strings.TrimSpace(idpSessionID) || len(idpSessionID) > 1024 {
+		return "", infraerrors.BadRequest("OIDC_SESSION_INVALID", "invalid unified identity session")
+	}
+	return idpSessionID, nil
+}
+
+func (h *AuthHandler) bindOIDCSessionPair(ctx context.Context, pair *service.TokenPair, issuer, idpSessionID string) error {
+	idpSessionID = strings.TrimSpace(idpSessionID)
+	if idpSessionID == "" {
+		return nil
+	}
+	if h == nil || h.authService == nil {
+		return service.ErrServiceUnavailable
+	}
+	if err := h.authService.BindOIDCSessionPair(ctx, pair, strings.TrimSpace(issuer), idpSessionID); err != nil {
+		if errors.Is(err, service.ErrTokenRevoked) {
+			return err
+		}
+		return infraerrors.InternalServer("OIDC_SESSION_BIND_FAILED", "failed to bind unified identity session").WithCause(err)
+	}
+	return nil
+}
+
+func (h *AuthHandler) bindPendingOIDCSessionPair(ctx context.Context, session *dbent.PendingAuthSession, pair *service.TokenPair) error {
+	if session == nil || !strings.EqualFold(strings.TrimSpace(session.ProviderType), "oidc") {
+		return nil
+	}
+	idpSessionID, err := pendingOIDCSessionID(session)
+	if err != nil {
+		return err
+	}
+	return h.bindOIDCSessionPair(ctx, pair, session.ProviderKey, idpSessionID)
 }
 
 func readCompletionResponse(session map[string]any) (map[string]any, bool) {
@@ -1730,6 +1783,11 @@ func (h *AuthHandler) bindPendingOAuthLogin(c *gin.Context, provider string) {
 		response.InternalError(c, "Failed to generate token pair")
 		return
 	}
+	if err := h.bindPendingOIDCSessionPair(c.Request.Context(), session, tokenPair); err != nil {
+		_ = h.authService.RevokeRefreshToken(c.Request.Context(), tokenPair.RefreshToken)
+		response.ErrorFrom(c, err)
+		return
+	}
 	if _, err := pendingSvc.ConsumeBrowserSession(c.Request.Context(), session.SessionToken, session.BrowserSessionKey); err != nil {
 		clearCookies()
 		response.ErrorFrom(c, err)
@@ -1936,6 +1994,11 @@ func (h *AuthHandler) createPendingOAuthAccount(c *gin.Context, provider string)
 			return
 		}
 	}
+	if err := h.bindPendingOIDCSessionPair(c.Request.Context(), session, tokenPair); err != nil {
+		_ = h.authService.RevokeRefreshToken(c.Request.Context(), tokenPair.RefreshToken)
+		response.ErrorFrom(c, err)
+		return
+	}
 
 	h.authService.ApplyOAuthSignupPromoCode(c.Request.Context(), user.ID, pendingOAuthPromoCode(session))
 	h.authService.RecordSuccessfulLogin(c.Request.Context(), user.ID)
@@ -2104,6 +2167,12 @@ func (h *AuthHandler) ExchangePendingOAuthCompletion(c *gin.Context) {
 		if err != nil {
 			clearCookies()
 			response.InternalError(c, "Failed to generate token pair")
+			return
+		}
+		if err := h.bindPendingOIDCSessionPair(c.Request.Context(), session, tokenPair); err != nil {
+			_ = h.authService.RevokeRefreshToken(c.Request.Context(), tokenPair.RefreshToken)
+			clearCookies()
+			response.ErrorFrom(c, err)
 			return
 		}
 		h.authService.RecordSuccessfulLogin(c.Request.Context(), loginUser.ID)

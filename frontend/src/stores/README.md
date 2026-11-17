@@ -81,8 +81,8 @@ if (authStore.isAuthenticated) {
   console.log('User is logged in:', authStore.user?.username)
 }
 
-// Logout
-authStore.logout()
+// Logout; true means the browser was sent to the IdP global logout URL
+const globalLogoutStarted = await authStore.logout()
 ```
 
 ### App Store
@@ -147,8 +147,8 @@ async function handleLogin(username: string, password: string) {
 }
 
 async function handleLogout() {
-  authStore.logout()
-  appStore.showInfo('You have been logged out.')
+  const globalLogoutStarted = await authStore.logout()
+  if (!globalLogoutStarted) appStore.showInfo('You have been logged out.')
 }
 </script>
 
@@ -190,7 +190,7 @@ Stores can be reset to initial state:
 
 ```typescript
 // Auth store
-authStore.logout() // Clears all auth state
+await authStore.logout() // Clears local state and may start IdP global logout
 
 // App store
 appStore.reset() // Resets to defaults
