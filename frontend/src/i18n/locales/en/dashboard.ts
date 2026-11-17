@@ -129,6 +129,15 @@ export default {
     copyToClipboard: 'Copy to clipboard',
     copied: 'Copied!',
     importToCcSwitch: 'Import to CCS',
+    importToMagpie: 'Import to Magpie',
+    magpieImport: {
+      preview: 'Preview the provider in Magpie before saving',
+      openHelp: 'If Magpie did not open, make sure the desktop app is installed and allow your browser to open it.',
+      settingsUnavailable: 'Could not load the API address settings. Refresh the page and try again.',
+      unsupportedGroup: 'This key’s group can’t be imported automatically. Select Use Key to see available configurations.',
+      invalidBase: 'Use an HTTPS API address without credentials, a query, or a fragment. Local addresses may use HTTP.',
+      invalidKey: 'This key is empty or invalid and can’t be imported into Magpie.'
+    },
     enable: 'Enable',
     disable: 'Disable',
     nameLabel: 'Name',
@@ -377,6 +386,9 @@ export default {
 
   // Usage
   usage: {
+    logsTitle: 'Request Logs',
+    statsTitle: 'Usage Stats',
+    statsDescription: 'Usage, costs and distributions for the selected period',
     title: 'Usage Records',
     description: 'View and analyze your API usage history',
     costDetails: 'Cost Breakdown',
@@ -466,6 +478,10 @@ export default {
     cacheHit: 'Cache hit',
     cacheCreate: 'Cache create',
     cacheHitRate: 'Cache hit rate',
+    cacheReadTokenPrice: 'Cache read price',
+    imageCacheReadTokenPrice: 'Image cache read price',
+    cacheWriteTokenPrice: 'Cache write price',
+    cacheWriteTTLTokenPrice: 'Cache write price ({ttl})',
     inputTokenPrice: 'Input price',
     outputTokenPrice: 'Output price',
     perMillionTokens: '/ 1M tokens',
@@ -528,17 +544,23 @@ export default {
     },
     tabs: { usage: 'Usage', errors: 'Error Requests', ranking: 'User Ranking' },
     errors: {
+      peerReset: 'Upstream connection reset by peer ({protocol}). Content may be incomplete. Do not automatically retry the same request.',
+      http200StreamFailure: '200 — Stream failed after headers',
       time: 'Time', model: 'Model', endpoint: 'Endpoint', status: 'Status',
       category: 'Category', platform: 'Platform', message: 'Message',
       keyName: 'Key Name', keyDeleted: 'Deleted', allKeys: 'All keys',
       modelPlaceholder: 'Search model', allCategories: 'All categories', allStatuses: 'All status codes',
       empty: 'No error requests', failedToLoad: 'Failed to load error requests',
       categories: {
+        transport_error: 'Transport error',
         auth: 'Auth failed', rate_limit: 'Rate limited', quota: 'Balance/Subscription',
         invalid_request: 'Invalid request', service_unavailable: 'Service unavailable',
         upstream: 'Upstream error', internal: 'Platform error', other: 'Other', cyber: 'Cyber policy',
       },
       detail: {
+        clientHttpStatus: 'Actual client HTTP status',
+        streamFailedAfterHeaders: 'The HTTP headers were already sent. The stream then failed; HTTP 200 does not mean generation completed.',
+        gatewayErrorBody: 'Gateway-generated error details',
         title: 'Error Request Detail',
         responseBody: 'Response Body',
         upstreamStatus: 'Upstream Status',
@@ -771,6 +793,112 @@ export default {
 
   // Model Plaza (public group/model pricing showcase)
   modelPlaza: {
+    market: {
+      "total": "Currently enabled on this site: {count} models",
+      "subtitle": "Explore AI models. Compare prices and live status to find the right fit for your work.",
+      "search": "Search models, providers, endpoints or tags…",
+      "filters": "Filters",
+      "filterHint": "Refine models by provider, group, pricing and tags.",
+      "reset": "Reset",
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "facets": {
+        "group": "Groups",
+        "vendor": "Providers",
+        "tag": "Model tags",
+        "billing": "Pricing type",
+        "endpoint": "Endpoint type"
+      },
+      "all": {
+        "group": "All groups",
+        "vendor": "All providers",
+        "tag": "All tags",
+        "billing": "All models",
+        "endpoint": "All types"
+      },
+      "billing": {
+        "token": "Token-based",
+        "per_request": "Per request",
+        "image": "Per image",
+        "video": "Video pricing"
+      },
+      "unknownVendor": "Unspecified provider",
+      "noDescription": "No description yet.",
+      "models": "models",
+      "group": "Group",
+      "endpoint": "Endpoint",
+      "copy": "Copy model name {model}",
+      "priceDisplay": "Price basis",
+      "unit": "Token price unit",
+      "prices": {
+        "standard": "Base",
+        "effective": "Effective"
+      },
+      "priceHint": {
+        "standard": "Base channel prices in USD, before group or personal multipliers.",
+        "effective": "Effective prices in USD during standard hours. See details for tiers, cache and time-based rules."
+      },
+      "offerHint": "Same-name models in different groups are separate offers with independent prices and monitoring.",
+      "starting": "first tier",
+      "sortAscending": "Name ascending; switch to descending",
+      "sortDescending": "Name descending; switch to ascending",
+      "name": "Name",
+      "view": "Display mode",
+      "cards": "Card view",
+      "list": "List view",
+      "status": "Status",
+      "latency": "Latency",
+      "throughput": "Tokens/s",
+      "noSamples": "No data",
+      "states": {
+        "operational": "Operational",
+        "degraded": "Degraded",
+        "down": "Unavailable",
+        "unknown": "No qualifying samples"
+      },
+      "ttftHint": "Time to first token (P50) in the latest sampled window.",
+      "probeHint": "Latest probe response latency, not time to first token.",
+      "throughputHint": "Generation speed: successful output tokens divided by response time. It reflects how fast one reply is generated and does not grow with concurrency.",
+      "throughputMissing": "This monitor has no output-token or response-duration samples yet.",
+      "availabilityHint": "Availability over {range}: {value}",
+      "updated": "Latest sample: {time}",
+      "loginHint": "Sign in for personal prices and exclusive groups. Public group status needs no account.",
+      "monitorUnavailable": "Monitoring is temporarily unavailable. Old status is hidden; this page will retry automatically.",
+      "monitorNotConfigured": "Monitoring not configured",
+      "retry": "Reload"
+    },
+    catalog: {
+      categories: {
+        language: 'Language Models (LLM)',
+        embedding: 'Embedding Models',
+        rerank: 'Rerank Models',
+        image: 'Image Models',
+        video: 'Video Models',
+        audio: 'Audio Models',
+        other: 'Other Models'
+      },
+      tags: {
+        language: 'Language',
+        embedding: 'Embedding',
+        rerank: 'Rerank',
+        image: 'Image',
+        video: 'Video',
+        audio: 'Audio',
+        other: 'API'
+      },
+      standardPrice: 'Standard-period price',
+      tiered: 'Tiered pricing',
+      cacheRead: 'Cache read',
+      cacheWrite: 'Cache write',
+      timePricing: 'Time-based pricing',
+      priceHint: 'Prices include the effective group rate and are in USD. Offers for the same model in different groups are shown separately.',
+      priceDescription: 'Prices use the effective rate for this group. Open details for official reference prices and full billing rules.',
+      groupDescription: 'Group notes: {description}',
+      specialPricing: 'Time or reasoning-effort pricing rules also apply. See details.',
+      details: 'Price details',
+      detailsFor: 'View pricing for {model} in {group}',
+      offerCount: '{count} model offers'
+    },
     title: 'Model Plaza',
     description: 'Browse available models and pricing by group',
     loading: 'Loading...',
@@ -823,12 +951,15 @@ export default {
       unitPerMillion: '$ / 1M tokens',
       perUnitRequest: '/ request',
       perUnitImage: '/ image',
+      perUnitSecond: '/ second',
       perRequest: 'Per request',
+      perSecond: 'Per second',
       perImage: 'Per image'
     },
     nav: {
       login: 'Sign In',
-      backToDashboard: 'Back to Console'
+      backToDashboard: 'Back to Console',
+      home: 'Back to Home'
     }
   },
 

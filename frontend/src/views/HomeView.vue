@@ -90,6 +90,25 @@
     </footer>
   </div>
 
+  <!-- Mito Home Page -->
+  <MitoLandingPage
+    v-else-if="isMitoTheme"
+    :site-name="siteName"
+    :site-logo="siteLogo"
+    :home-background-image="homeBackgroundImage"
+    :home-background-blur="appStore.cachedPublicSettings?.home_background_blur"
+    :home-background-overlay="appStore.cachedPublicSettings?.home_background_overlay"
+    :doc-url="docUrl"
+    :github-url="githubUrl"
+    :is-dark="isDark"
+    :is-authenticated="isAuthenticated"
+    :dashboard-path="dashboardPath"
+    :user-initial="userInitial"
+    :current-year="currentYear"
+    :show-model-plaza-entry="showModelPlazaEntry"
+    @toggle-theme="toggleTheme"
+  />
+
   <!-- Default Home Page -->
   <div
     v-else
@@ -499,6 +518,8 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore, useAppStore } from '@/stores'
 import LocaleSwitcher from '@/components/common/LocaleSwitcher.vue'
 import Icon from '@/components/icons/Icon.vue'
+import MitoLandingPage from '@/themes/mito/LandingPage.vue'
+import { isMitoTheme } from '@/themes/mito'
 import { sanitizeUrl } from '@/utils/url'
 import { FeatureFlags, isFeatureFlagEnabled } from '@/utils/featureFlags'
 

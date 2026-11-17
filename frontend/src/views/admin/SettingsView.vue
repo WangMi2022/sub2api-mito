@@ -46,12 +46,6 @@
                   class="settings-tab-badge"
                 />
                 <NewFeatureBadge
-                  v-if="tab.key === 'email'"
-                  :notice-id="NEW_FEATURE_NOTICES.balanceForecast"
-                  :user-id="authStore.user?.id"
-                  class="settings-tab-badge"
-                />
-                <NewFeatureBadge
                   v-if="tab.key === 'gateway'"
                   :notice-id="NEW_FEATURE_NOTICES.openai409OmitEncryptedHistory"
                   :user-id="authStore.user?.id"
@@ -5537,6 +5531,10 @@
                 v-model="form.openai_409_omit_encrypted_history_enabled"
                 :user-id="authStore.user?.id"
               />
+              <EncryptedHistory400Settings
+                v-model="form.openai_400_omit_encrypted_history_enabled"
+                :user-id="authStore.user?.id"
+              />
 
               <!-- OpenAI Responses 首 token 统计 -->
               <div class="border-b border-gray-100 pb-5 dark:border-dark-700 md:col-span-2">
@@ -6976,6 +6974,46 @@
                 />
               </div>
 
+              <HomeBackgroundPanel
+                v-if="isMitoTheme"
+                v-model:storage="homeBackgroundStorage"
+                v-model:blur="form.home_background_blur"
+                v-model:overlay="form.home_background_overlay"
+                :options="homeBackgroundStorageOptions"
+                :image-url="form.home_background_image"
+                :uploading="homeBackgroundUploading"
+                :error="homeBackgroundError"
+              >
+                <input
+                  ref="homeBackgroundInput"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+                  class="hidden"
+                  @change="onHomeBackgroundSelected"
+                />
+                <div class="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    :disabled="homeBackgroundUploading"
+                    @click="homeBackgroundInput?.click()"
+                  >
+                    <Icon v-if="!homeBackgroundUploading" name="upload" size="sm" />
+                    <span v-else class="mr-1 inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+                    {{ t("admin.settings.site.uploadImage") }}
+                  </button>
+                  <button
+                    v-if="form.home_background_image"
+                    type="button"
+                    class="btn btn-secondary"
+                    :disabled="homeBackgroundUploading"
+                    @click="removeHomeBackground"
+                  >
+                    {{ t("admin.settings.site.remove") }}
+                  </button>
+                </div>
+              </HomeBackgroundPanel>
+              <template v-else>
               <!-- Home Background Image -->
               <div>
                 <label
@@ -7051,6 +7089,8 @@
                   />
                 </div>
               </div>
+
+              </template>
 
               <!-- Home Content -->
               <div>
@@ -7922,6 +7962,29 @@
             </p>
           </div>
           <div class="space-y-5 p-6">
+            <div class="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
+              <Icon
+                name="exclamationTriangle"
+                size="md"
+                class="mt-0.5 flex-shrink-0 text-amber-500"
+              />
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-amber-800 dark:text-amber-200">
+                  {{ t('admin.settings.features.modelPlaza.manageTitle') }}
+                </p>
+                <p class="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                  {{ t('admin.settings.features.modelPlaza.manageHint') }}
+                </p>
+                <router-link
+                  to="/admin/groups"
+                  class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary-600 hover:underline dark:text-primary-400"
+                >
+                  {{ t('admin.settings.features.modelPlaza.manageLink') }}
+                  <span aria-hidden="true">→</span>
+                </router-link>
+              </div>
+            </div>
+
             <div class="flex items-center justify-between">
               <div>
                 <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -9483,13 +9546,6 @@
 
           <EmailTemplateEditor />
 
-          <BalanceForecastSettings
-            v-model:enabled="form.balance_forecast_enabled"
-            v-model:threshold-hours="form.balance_forecast_threshold_hours"
-            v-model:max-notifications="form.balance_forecast_max_notifications"
-            :user-id="authStore.user?.id"
-          />
-
           <!-- Balance Low Notification -->
           <div class="card">
             <div
@@ -9711,6 +9767,7 @@
 
 <script setup lang="ts">
 import EncryptedHistory409Settings from "@/components/settings/EncryptedHistory409Settings.vue";
+import EncryptedHistory400Settings from "@/components/settings/EncryptedHistory400Settings.vue";
 import { excelBPSImageLimits } from "@/utils/excelBPSImageLimits";
 import { ref, reactive, computed, onMounted, watch } from "vue";
 import { listPlatformIds } from "@/constants/platformCatalog";
@@ -9780,6 +9837,8 @@ import Toggle from "@/components/common/Toggle.vue";
 import ProxySelector from "@/components/common/ProxySelector.vue";
 import ImageUpload from "@/components/common/ImageUpload.vue";
 import BackupSettings from "@/views/admin/BackupView.vue";
+import HomeBackgroundPanel from "@/themes/mito/settings/HomeBackgroundPanel.vue";
+import { isMitoTheme } from "@/themes/mito";
 import ServerlessSettings from "@/components/settings/ServerlessSettings.vue";
 import EmailTemplateEditor from "@/views/admin/settings/EmailTemplateEditor.vue";
 import RechargeBonusTierEditor from "@/components/admin/settings/RechargeBonusTierEditor.vue";
@@ -9806,7 +9865,6 @@ import { SIDEBAR_PARENT_OPTIONS } from "@/utils/sidebarCustomMenus";
 import { useAppStore, useAuthStore } from "@/stores";
 import { formatBalanceRechargeMultiplier } from "@/utils/rechargeBonus";
 import { useAdminSettingsStore } from "@/stores/adminSettings";
-import BalanceForecastSettings from "@/components/settings/BalanceForecastSettings.vue";
 import SmartOpsSidebarSettings from "@/components/settings/SmartOpsSidebarSettings.vue";
 import NewFeatureBadge from "@/components/common/NewFeatureBadge.vue";
 import GroupSelector from "@/components/common/GroupSelector.vue";
@@ -10596,6 +10654,8 @@ const form = reactive<SettingsForm>({
   site_logo: "",
   site_subtitle: "Subscription to API Conversion Platform",
   home_background_image: "",
+  home_background_blur: 0,
+  home_background_overlay: 100,
   api_base_url: "",
   contact_info: "",
   doc_url: "",
@@ -10778,6 +10838,7 @@ const form = reactive<SettingsForm>({
   grok_default_base_url_mode: "cli",
   grok_video_source_url_enabled: false,
   openai_409_omit_encrypted_history_enabled: false,
+  openai_400_omit_encrypted_history_enabled: false,
   // Identity patch (Claude -> Gemini)
   enable_identity_patch: true,
   identity_patch_prompt: "",
@@ -10838,9 +10899,6 @@ const form = reactive<SettingsForm>({
   codex_cli_only_allow_app_server_clients: false,
   codex_cli_only_engine_fingerprint_signals: "",
   // 余额、订阅到期与账号限额通知
-  balance_forecast_enabled: false,
-  balance_forecast_threshold_hours: 12,
-  balance_forecast_max_notifications: 3,
   balance_low_notify_enabled: false,
   balance_low_notify_threshold: 0,
   balance_low_notify_recharge_url: "",
@@ -11924,9 +11982,6 @@ async function loadSettings() {
   try {
     const settings = await adminAPI.settings.getSettings();
     savedPaymentFeeRate.value = settings.payment_recharge_fee_rate ?? 0;
-    settings.balance_forecast_enabled ??= false;
-    settings.balance_forecast_threshold_hours ??= 12;
-    settings.balance_forecast_max_notifications ??= 3;
     settings.payment_load_balance_strategy =
       settings.payment_load_balance_strategy || "round-robin";
     // Only assign non-null values from backend (null means unconfigured, keep defaults)
@@ -12206,10 +12261,6 @@ const siteBillingModeHint = computed(() =>
 );
 
 async function saveSettings() {
-  if (!Number.isFinite(form.balance_forecast_threshold_hours) || form.balance_forecast_threshold_hours <= 0 || form.balance_forecast_threshold_hours > 168 || !Number.isInteger(form.balance_forecast_max_notifications) || form.balance_forecast_max_notifications < 1 || form.balance_forecast_max_notifications > 10) {
-    appStore.showError(t('admin.settings.balanceForecast.invalid'));
-    return;
-  }
   saving.value = true;
   try {
     const imageBaseUrl = form.excel_bps_image_base_url.trim();
@@ -12455,6 +12506,8 @@ async function saveSettings() {
       site_name: form.site_name,
       site_logo: form.site_logo,
       home_background_image: form.home_background_image,
+      home_background_blur: form.home_background_blur,
+      home_background_overlay: form.home_background_overlay,
       site_subtitle: form.site_subtitle,
       api_base_url: form.api_base_url,
       contact_info: form.contact_info,
@@ -12599,6 +12652,7 @@ async function saveSettings() {
       grok_default_base_url_mode: form.grok_default_base_url_mode,
       grok_video_source_url_enabled: form.grok_video_source_url_enabled,
       openai_409_omit_encrypted_history_enabled: form.openai_409_omit_encrypted_history_enabled,
+      openai_400_omit_encrypted_history_enabled: form.openai_400_omit_encrypted_history_enabled,
       enable_identity_patch: form.enable_identity_patch,
       identity_patch_prompt: form.identity_patch_prompt,
       min_claude_code_version: form.min_claude_code_version,
@@ -12721,9 +12775,6 @@ async function saveSettings() {
       openai_advanced_scheduler_weight_session_sticky:
         form.openai_advanced_scheduler_weight_session_sticky.trim(),
       // 余额、订阅到期与账号限额通知
-      balance_forecast_enabled: form.balance_forecast_enabled,
-      balance_forecast_threshold_hours: form.balance_forecast_threshold_hours,
-      balance_forecast_max_notifications: form.balance_forecast_max_notifications,
       balance_low_notify_enabled: form.balance_low_notify_enabled,
       balance_low_notify_threshold:
         Number(form.balance_low_notify_threshold) || 0,

@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <div class="space-y-6">
+    <div class="mito-usage-view space-y-6">
       <UsageStatsCards v-if="activeTab !== 'traffic'" :stats="usageStats" :show-account-cost="false" :strike-standard-cost="true" />
 
       <div v-if="activeTab !== 'traffic'" class="space-y-4">
@@ -66,7 +66,7 @@
         </div>
       </div>
 
-      <div v-if="activeTab !== 'traffic'" class="card p-6">
+      <div v-if="activeTab !== 'traffic'" class="mito-request-log-filters card p-6">
         <div class="flex flex-wrap items-end justify-between gap-4">
           <div v-if="activeTab === 'errors'" class="flex flex-1 flex-wrap items-end gap-4">
             <div class="w-full sm:w-auto sm:min-w-[220px]">
@@ -171,35 +171,39 @@
         <button class="tab" :class="{ 'tab-active': activeTab === 'usage' }" @click="activeTab = 'usage'">
           {{ t('usage.tabs.usage') }}
         </button>
-        <button v-if="errorViewEnabled" class="tab" :class="{ 'tab-active': activeTab === 'errors' }" @click="switchToErrors">
+        <button v-if="errorViewEnabled" class="mito-request-log-tabs tab" :class="{ 'tab-active': activeTab === 'errors' }" @click="switchToErrors">
           {{ t('usage.tabs.errors') }}
         </button>
         <button class="tab" :class="{ 'tab-active': activeTab === 'traffic' }" @click="activeTab = 'traffic'">{{ t('traffic.title') }}</button>
       </div>
 
       <template v-if="activeTab === 'usage'">
-        <UsageTable
-          :data="usageLogs"
-          :loading="loading"
-          :columns="visibleColumns"
-          :server-side-sort="true"
-          :show-account-billing="false"
-          :show-upstream-endpoint="false"
-          cache-rate-audience="user"
-          default-sort-key="created_at"
-          default-sort-order="desc"
-          @sort="handleSort"
-          @ipGeoBatchFailed="handleIpGeoBatchFailed"
-        />
+        <div class="mito-request-log-section space-y-6">
+          <UsageTable
+            variant="request-log"
+            :data="usageLogs"
+            :loading="loading"
+            :columns="visibleColumns"
+            :server-side-sort="true"
+            :show-account-billing="false"
+            :show-upstream-endpoint="false"
+            cache-rate-audience="user"
+            default-sort-key="created_at"
+            default-sort-order="desc"
+            @sort="handleSort"
+            @ipGeoBatchFailed="handleIpGeoBatchFailed"
+          />
 
-        <Pagination
-          v-if="pagination.total > 0"
-          :page="pagination.page"
-          :total="pagination.total"
-          :page-size="pagination.page_size"
-          @update:page="handlePageChange"
-          @update:pageSize="handlePageSizeChange"
-        />
+          <Pagination
+            v-if="pagination.total > 0"
+            variant="request-log"
+            :page="pagination.page"
+            :total="pagination.total"
+            :page-size="pagination.page_size"
+            @update:page="handlePageChange"
+            @update:pageSize="handlePageSizeChange"
+          />
+        </div>
       </template>
 
       <UserErrorRequestsTable
@@ -313,17 +317,19 @@ const errorModelOptions = computed<SelectOption[]>(() => {
   return opts
 })
 
-const errorCategoryCodes = ['auth', 'rate_limit', 'quota', 'invalid_request', 'service_unavailable', 'upstream', 'internal', 'cyber']
+const errorCategoryCodes = ['auth', 'rate_limit', 'quota', 'invalid_request', 'service_unavailable', 'upstream', 'transport_error', 'internal', 'cyber']
 
 const errorCategoryOptions = computed<SelectOption[]>(() => [
   { value: '', label: t('usage.errors.allCategories') },
   ...errorCategoryCodes.map((c) => ({ value: c, label: t('usage.errors.categories.' + c) })),
 ])
 
-// 状态码候选用固定常用列表(与管理端 UsageFilters 共用常量),不受当前页数据限制:
+// Status is the actual client HTTP boundary, including a failed stream whose
+// headers were already committed as 200. Options must not depend on this page.
 // 后端 status_code 过滤对全量生效,若只列当前页出现过的码,用户就选不到仅在后续页的码。
 const errorStatusOptions = computed<SelectOption[]>(() => [
   { value: null, label: t('usage.errors.allStatuses') },
+  { value: 200, label: t('usage.errors.http200StreamFailure') },
   ...COMMON_ERROR_STATUS_CODES.map((c) => ({ value: c, label: String(c) })),
 ])
 
