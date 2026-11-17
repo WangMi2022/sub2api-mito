@@ -42,6 +42,7 @@ func identityPolicyFixture(t *testing.T) (*AuthHandler, *dbent.Client, *identity
 	t.Helper()
 	cfg := config.OIDCConnectConfig{
 		Enabled: true, ClientID: "mito", IssuerURL: "https://identity.example/realms/business",
+		ClientSecret: "test-client-secret",
 		AuthorizeURL: "https://identity.example/auth", TokenURL: "https://identity.example/token",
 		JWKSURL: "https://identity.example/keys", Scopes: "openid profile email", UsePKCE: true,
 		ValidateIDToken: true, AllowedSigningAlgs: "RS256", RedirectURL: "https://mito.example/api/v1/auth/oauth/oidc/callback",
@@ -51,6 +52,8 @@ func identityPolicyFixture(t *testing.T) (*AuthHandler, *dbent.Client, *identity
 	t.Cleanup(func() { _ = client.Close() })
 	repo := &identityPolicyRepo{oauthPendingFlowSettingRepoStub: oauthPendingFlowSettingRepoStub{values: map[string]string{}}}
 	h.settingSvc = service.NewSettingService(repo, h.cfg)
+	_, err := h.settingSvc.GetOIDCConnectOAuthConfig(context.Background())
+	require.NoError(t, err)
 	rdb := redis.NewClient(&redis.Options{Addr: miniredis.RunT(t).Addr(), MaxRetries: -1})
 	t.Cleanup(func() { _ = rdb.Close() })
 	h.authService = service.NewAuthService(client, &oauthPendingFlowUserRepo{client: client}, nil,
