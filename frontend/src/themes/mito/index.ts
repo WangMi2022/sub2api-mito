@@ -17,6 +17,7 @@ import './table-resize.css'
 import './pelican-showcase.css'
 import './storage-settings.css'
 import './auth.css'
+import './identity.css'
 
 /** Build-time escape hatch: VITE_UI_THEME=upstream restores the upstream UI. */
 export const isMitoTheme = import.meta.env.VITE_UI_THEME !== 'upstream'

@@ -1,0 +1,110 @@
+/* Keep the identity directory aligned with the shared user management layout. */
+html[data-ui-theme='mito'] .mito-identity-users.table-page-layout:not(.mobile-mode) {
+  height: calc(100dvh - 296px);
+  min-height: 360px;
+  gap: 20px;
+}
+
+html[data-ui-theme='mito'] .mito-identity-toolbar {
+  row-gap: 12px;
+}
+
+html[data-ui-theme='mito'] .mito-identity-search .input {
+  height: 40px;
+  padding-left: 40px;
+}
+
+html[data-ui-theme='mito'] .mito-identity-refresh.btn {
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+}
+
+html[data-ui-theme='mito'] .mito-identity-users .table-wrapper :is(th, td):first-child {
+  text-align: left;
+}
+
+html[data-ui-theme='mito'] .mito-identity-users .table-wrapper th:first-child > div {
+  justify-content: flex-start;
+}
+
+html[data-ui-theme='mito'] .mito-identity-account {
+  max-width: 264px;
+  border-radius: 8px;
+}
+
+html[data-ui-theme='mito'] .mito-identity-account:hover .mito-identity-username {
+  color: var(--mito-blue);
+}
+
+html[data-ui-theme='mito'] .mito-identity-name {
+  color: var(--mito-muted);
+}
+
+html[data-ui-theme='mito'] .mito-identity-email {
+  display: inline-block;
+  max-width: 240px;
+  vertical-align: middle;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-ui-theme='mito'] .mito-identity-users .badge {
+  white-space: nowrap;
+}
+
+html[data-ui-theme='mito'] .mito-identity-manage {
+  min-height: 36px;
+  white-space: nowrap;
+}
+
+html[data-ui-theme='mito'] .mito-identity-pagination {
+  min-height: 40px;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 767px) {
+  html[data-ui-theme='mito'] .mito-identity-filters {
+    flex-basis: 100%;
+    gap: 10px;
+  }
+
+  html[data-ui-theme='mito'] .mito-identity-filter {
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+
+  html[data-ui-theme='mito'] .mito-identity-toolbar-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  html[data-ui-theme='mito'] .mito-identity-users .mito-mobile-table [data-field='username'] {
+    align-items: center;
+  }
+
+  html[data-ui-theme='mito'] .mito-identity-account {
+    max-width: min(264px, 58vw);
+  }
+
+  html[data-ui-theme='mito'] .mito-identity-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  html[data-ui-theme='mito'] .mito-identity-email {
+    max-width: 56vw;
+  }
+
+  html[data-ui-theme='mito'] .mito-identity-manage {
+    width: 100%;
+    justify-content: center;
+    background: var(--mito-blue-soft);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-identity-console :is(.animate-spin, .animate-pulse) {
+    animation: none;
+  }
+}

@@ -1437,3 +1437,24 @@ contracts.push(...[
     anchors: ["import './auth.css'"]
   }
 ])
+
+// Identity management is fork-owned product code; its presentation reuses the
+// user management components and keeps all theme overrides in the Mito layer.
+contracts.push(...[
+  {
+    path: 'frontend/src/views/identity/IdentityView.vue',
+    anchors: ['mito-identity-users', 'mito-identity-toolbar', 'mito-identity-account', 'mito-identity-pagination', 'TablePageLayout', 'identity.protectedBadge']
+  },
+  {
+    path: 'frontend/src/themes/mito/identity.css',
+    anchors: ["html[data-ui-theme='mito']", '.mito-identity-users', '.mito-identity-search', '.mito-identity-account', '.mito-identity-email', '@media (max-width: 767px)', '@media (prefers-reduced-motion: reduce)']
+  },
+  {
+    path: 'frontend/src/themes/mito/index.ts',
+    anchors: ["import './identity.css'"]
+  },
+  ...['zh', 'en'].map(locale => ({
+    path: `frontend/src/i18n/locales/${locale}/identity.ts`,
+    anchors: ['"protectedBadge"', '"regularBadge"', '"searchHint"']
+  }))
+])
