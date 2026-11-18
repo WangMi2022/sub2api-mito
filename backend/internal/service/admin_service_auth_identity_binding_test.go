@@ -300,3 +300,31 @@ func TestAdminServiceBindUserAuthIdentityRejectsInvalidProviderType(t *testing.T
 	require.Error(t, err)
 	require.Equal(t, "INVALID_INPUT", infraerrors.Reason(err))
 }
+
+func TestAdminServiceBindMitoAccountChecksTargetInsideTransaction(t *testing.T) {
+	ctx := context.Background()
+	client := newAdminServiceAuthIdentityBindingTestClient(t)
+	row, err := client.User.Create().SetEmail("link@example.invalid").SetPasswordHash("hash").Save(ctx)
+	require.NoError(t, err)
+	svc := &adminServiceImpl{entClient: client, userRepo: &userRepoStub{user: &User{ID: row.ID}}}
+	input := AdminBindAuthIdentityInput{ProviderType: "oidc", ProviderKey: "https://id.example.invalid/realms/business", ProviderSubject: "first", ConfirmMitoAccountEmail: "other@example.invalid"}
+	_, err = svc.BindUserAuthIdentity(ctx, row.ID, input)
+	require.ErrorIs(t, err, ErrMitoLinkUnavailable)
+	input.ConfirmMitoAccountEmail = row.Email
+	_, err = client.User.UpdateOne(row).SetRole(RoleAdmin).Save(ctx)
+	require.NoError(t, err)
+	_, err = svc.BindUserAuthIdentity(ctx, row.ID, input)
+	require.ErrorIs(t, err, ErrMitoLinkUnavailable)
+	_, err = client.User.UpdateOne(row).SetRole(RoleUser).Save(ctx)
+	require.NoError(t, err)
+	for range 2 {
+		_, err = svc.BindUserAuthIdentity(ctx, row.ID, input)
+		require.NoError(t, err)
+	}
+	input.ProviderSubject = "different"
+	_, err = svc.BindUserAuthIdentity(ctx, row.ID, input)
+	require.ErrorIs(t, err, ErrMitoLinkUnavailable)
+	count, err := client.AuthIdentity.Query().Where(authidentity.ProviderTypeEQ("oidc")).Count(ctx)
+	require.NoError(t, err)
+	require.Equal(t, 1, count)
+}

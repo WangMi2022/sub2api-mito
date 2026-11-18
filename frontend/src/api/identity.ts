@@ -12,6 +12,7 @@ export interface IdentityUser {
   protected: boolean
   createdTimestamp: number
   requiredActions?: string[]
+  accessSource?: 'direct' | 'inherited'
 }
 export interface IdentityUserInput {
   username: string
@@ -22,7 +23,7 @@ export interface IdentityUserInput {
   password?: string
   temporaryPassword?: boolean
 }
-export interface IdentityGroup { id: string; name: string; path: string; managed: boolean }
+export interface IdentityGroup { id: string; name: string; path: string; managed: boolean; canAdopt: boolean; memberCount: number; applications: IdentityAccess[] }
 export interface IdentityApplication { clientId: string; name: string; accessRole: string }
 export interface IdentityAccess extends IdentityApplication { granted: boolean; inherited: boolean }
 export interface IdentitySession { id: string; ipAddress: string; start: number; lastAccess: number; clients: Record<string, string> }
@@ -45,7 +46,17 @@ export interface IdentitySecurity {
 }
 export interface IdentityLoginPolicy { oidc_only: boolean; unified_session: boolean }
 export interface IdentityPage { users: IdentityUser[]; first: number; hasMore: boolean }
-export interface IdentityUserFilters { enabled?: string; emailVerified?: string }
+export interface IdentityUserFilters { enabled?: string; emailVerified?: string; ungrouped?: string }
+export interface IdentityMitoAccount {
+  id: number; username: string; email: string; role: 'admin' | 'user' | 'observer'; status: 'active' | 'disabled'
+  userGroupId: number; allowedGroups: number[]; observerGroupIds: number[]; restrictPublicGroups: boolean
+  concurrency: number; rpmLimit: number; revision: string
+}
+export interface IdentityMitoPermissions {
+  linked: boolean; protected: boolean; account?: IdentityMitoAccount
+  groups?: { id: number; name: string; platform: string; status: string; exclusive: boolean; subscriptionType: string }[]
+  userGroups?: { id: number; name: string; status: string; code: string }[]
+}
 
 const userPath = (id: string) => `/identity/users/${encodeURIComponent(id)}`
 const groupPath = (id: string) => `/identity/groups/${encodeURIComponent(id)}`
@@ -60,8 +71,18 @@ export const identityAPI = {
   detail: async (id: string) => (await apiClient.get<IdentityDetail>(userPath(id))).data,
   security: async (id: string) => (await apiClient.get<IdentitySecurity>(`${userPath(id)}/security`)).data,
   applicationAccounts: async (client: string, first = 0) =>
-    (await apiClient.get<IdentityPage>(`/identity/applications/${encodeURIComponent(client)}/users`, { params: { first } })).data,
+    (await apiClient.get<IdentityPage>(`/identity/applications/${encodeURIComponent(client)}/users`, { params: { first, effective: true } })).data,
   groups: async () => (await apiClient.get<IdentityGroup[]>('/identity/groups')).data,
+  summary: async () => (await apiClient.get<{ accounts: number; grouped: number; ungrouped: number }>('/identity/directory-summary')).data,
+  adoptGroup: (id: string) => apiClient.post(`${groupPath(id)}/adopt`, {}),
+  groupAccess: (id: string, client: string, granted: boolean) => apiClient.put(`${groupPath(id)}/applications/${encodeURIComponent(client)}`, { granted }),
+  bulkMembership: async (id: string, userIds: string[], member: boolean) =>
+    (await apiClient.post<{ changed: string[]; failed: string[] }>(`${groupPath(id)}/members`, { userIds, member })).data,
+  mitoPermissions: async (id: string) => (await apiClient.get<IdentityMitoPermissions>(`${userPath(id)}/mito`)).data,
+  linkMitoAccount: async (id: string, input: { userId: number; email: string; reason: string }) =>
+    (await apiClient.post<{ linked: boolean }>(`${userPath(id)}/mito/link`, input)).data,
+  saveMitoPermissions: async (id: string, input: Omit<IdentityMitoAccount, 'id' | 'email' | 'username'> & { reason: string }) =>
+    (await apiClient.put<IdentityMitoAccount>(`${userPath(id)}/mito`, input)).data,
   saveUser: (input: IdentityUserInput, id?: string) => id ? apiClient.put(userPath(id), input) : apiClient.post('/identity/users', input),
   deleteUser: (id: string, confirmation: string) => apiClient.delete(userPath(id), { data: { confirmation } }),
   password: (id: string, password: string, temporary: boolean) => apiClient.put(`${userPath(id)}/password`, { password, temporary }),

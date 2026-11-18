@@ -136,6 +136,11 @@ func APIKeyAuthWithSubscriptionGoogle(apiKeyService *service.APIKeyService, subs
 			abortWithGoogleError(c, 401, "User account is not active")
 			return
 		}
+		if cfg.IdentityAdminFile != "" && (apiKey.User.UserGroupID == nil || *apiKey.User.UserGroupID <= 0) {
+			MarkIngressRejected(c, IngressRejectUserGroupRequired)
+			abortWithGoogleError(c, 403, "User is not assigned to any user group")
+			return
+		}
 		anonymousCredentialSuccess(c)
 		apiKey, err = selectAPIKeyRequestGroup(c, apiKeyService, subscriptionService, cfg, apiKey, true)
 		if err != nil || c.IsAborted() {

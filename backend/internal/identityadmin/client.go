@@ -27,11 +27,14 @@ func (e *Error) Error() string              { return e.Code }
 func failure(code string, status int) error { return &Error{Code: code, Status: status} }
 
 type Client struct {
-	cfg     Config
-	http    *http.Client
-	mu      sync.Mutex
-	token   string
-	expires time.Time
+	cfg         Config
+	http        *http.Client
+	mu          sync.Mutex
+	token       string
+	expires     time.Time
+	accessMu    sync.Mutex
+	accessEpoch uint64
+	accessCache map[string]sessionAccess
 }
 
 func NewClient(cfg Config) (*Client, error) {
@@ -86,6 +89,10 @@ func (c *Client) accessToken(ctx context.Context) (string, error) {
 }
 
 func (c *Client) request(ctx context.Context, method, suffix string, body, out any) error {
+	if method != http.MethodGet {
+		c.invalidateSessionAccess()
+		defer c.invalidateSessionAccess()
+	}
 	token, err := c.accessToken(ctx)
 	if err != nil {
 		return err

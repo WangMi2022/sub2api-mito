@@ -202,18 +202,19 @@ type CreateUserInput struct {
 }
 
 type UpdateUserInput struct {
-	Email            string
-	Password         string
-	Username         *string
-	Notes            *string
-	Role             string   // 空字符串表示"未提供"(不修改);合法值 admin/user
-	Balance          *float64 // 使用指针区分"未提供"和"设置为0"
-	Concurrency      *int     // 使用指针区分"未提供"和"设置为0"
-	RPMLimit         *int     // 使用指针区分"未提供"和"设置为0"
-	Status           string
-	ObserverGroupIDs *[]int64
-	ObserverSetup    *ObserverSetupOptions
-	AllowedGroups    *[]int64 // 使用指针区分"未提供"和"设置为空数组"
+	ExpectedMitoRevision string // Compare the permission snapshot under the user row lock.
+	Email                string
+	Password             string
+	Username             *string
+	Notes                *string
+	Role                 string   // 空字符串表示"未提供"(不修改);合法值 admin/user
+	Balance              *float64 // 使用指针区分"未提供"和"设置为0"
+	Concurrency          *int     // 使用指针区分"未提供"和"设置为0"
+	RPMLimit             *int     // 使用指针区分"未提供"和"设置为0"
+	Status               string
+	ObserverGroupIDs     *[]int64
+	ObserverSetup        *ObserverSetupOptions
+	AllowedGroups        *[]int64 // 使用指针区分"未提供"和"设置为空数组"
 	// RestrictPublicGroups 指针区分"未提供"和"显式开关"。
 	RestrictPublicGroups *bool
 	// GroupRates 用户专属分组倍率配置
@@ -237,12 +238,13 @@ func (o *ObserverSetupOptions) enabled() bool {
 }
 
 type AdminBindAuthIdentityInput struct {
-	ProviderType    string
-	ProviderKey     string
-	ProviderSubject string
-	Issuer          *string
-	Metadata        map[string]any
-	Channel         *AdminBindAuthIdentityChannelInput
+	ConfirmMitoAccountEmail string // Unified identity console links only ordinary accounts without a conflicting binding.
+	ProviderType            string
+	ProviderKey             string
+	ProviderSubject         string
+	Issuer                  *string
+	Metadata                map[string]any
+	Channel                 *AdminBindAuthIdentityChannelInput
 }
 
 type AdminBindAuthIdentityChannelInput struct {

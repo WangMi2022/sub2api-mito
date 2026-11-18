@@ -76,6 +76,7 @@ type JWTClaims struct {
 
 // AuthService 认证服务
 type AuthService struct {
+	unifiedAccessCheck    func(context.Context, string, string) error
 	lottery               *LotteryService
 	entClient             *dbent.Client
 	userRepo              UserRepository

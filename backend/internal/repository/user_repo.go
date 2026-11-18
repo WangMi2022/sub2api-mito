@@ -350,7 +350,11 @@ func (r *userRepository) Update(ctx context.Context, userIn *service.User, field
 		updateOp = updateOp.SetRestrictPublicGroups(userIn.RestrictPublicGroups)
 	}
 	if fields.UserGroupID {
-		updateOp = updateOp.SetNillableUserGroupID(userIn.UserGroupID)
+		if userIn.UserGroupID == nil {
+			updateOp = updateOp.ClearUserGroupID()
+		} else {
+			updateOp = updateOp.SetUserGroupID(*userIn.UserGroupID)
+		}
 	}
 	if fields.BalanceNotifySettings {
 		updateOp = updateOp.

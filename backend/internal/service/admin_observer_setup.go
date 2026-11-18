@@ -20,36 +20,24 @@ const (
 
 // Lock the user before reading its role so concurrent/retried promotions cannot
 // create extra groups or grant the same resources twice.
-func (s *adminServiceImpl) beginObserverSetup(ctx context.Context, id int64, input *UpdateUserInput) (context.Context, *dbent.Tx, error) {
-	if !input.ObserverSetup.enabled() {
+func (s *adminServiceImpl) beginAdminUserUpdate(ctx context.Context, id int64, input *UpdateUserInput) (context.Context, *dbent.Tx, error) {
+	if !input.ObserverSetup.enabled() && input.ExpectedMitoRevision == "" {
 		return ctx, nil, nil
 	}
-	if input.Role != RoleObserver {
+	if input.ObserverSetup.enabled() && input.Role != RoleObserver {
 		return ctx, nil, infraerrors.BadRequest("OBSERVER_SETUP_REQUIRES_PROMOTION", "Observer setup requires changing the role to observer")
 	}
-	if input.ObserverSetup.CreateDedicatedGroup && s.cfg != nil && s.cfg.RunMode == config.RunModeSimple {
+	if input.ObserverSetup.enabled() && input.ObserverSetup.CreateDedicatedGroup && s.cfg != nil && s.cfg.RunMode == config.RunModeSimple {
 		return ctx, nil, infraerrors.BadRequest("SIMPLE_MODE_OPERATION_UNSUPPORTED", "Exclusive observer groups are not supported in simple mode")
 	}
 	if s.entClient == nil {
-		return ctx, nil, errors.New("observer setup requires a database transaction")
+		return ctx, nil, errors.New("user update requires a database transaction")
 	}
 	tx, err := s.entClient.Tx(ctx)
 	if err != nil {
 		return ctx, nil, err
 	}
-	rows, err := tx.Client().QueryContext(ctx, "SELECT id FROM users WHERE id = $1 AND deleted_at IS NULL FOR UPDATE", id)
-	if err == nil {
-		if !rows.Next() {
-			err = rows.Err()
-			if err == nil {
-				err = ErrUserNotFound
-			}
-		}
-		closeErr := rows.Close()
-		if err == nil {
-			err = closeErr
-		}
-	}
+	_, err = lockedMitoUser(ctx, tx, id)
 	if err != nil {
 		_ = tx.Rollback()
 		return ctx, nil, err

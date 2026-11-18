@@ -58,6 +58,7 @@ func Register(parent *gin.RouterGroup, client *Client, userID func(*gin.Context)
 		result, err := client.Users(ctx.Request.Context(), UserFilter{
 			Search: ctx.Query("search"), First: first,
 			Enabled: ctx.Query("enabled"), EmailVerified: ctx.Query("emailVerified"),
+			Ungrouped: ctx.Query("ungrouped") == "true",
 		})
 		reply(ctx, result, err)
 	})
@@ -75,10 +76,16 @@ func Register(parent *gin.RouterGroup, client *Client, userID func(*gin.Context)
 			reply(ctx, nil, failure("invalid_request", 400))
 			return
 		}
-		result, err := client.ApplicationAccounts(ctx.Request.Context(), ctx.Param("client"), first)
+		var result UserPage
+		if ctx.Query("effective") == "true" {
+			result, err = client.EffectiveApplicationAccounts(ctx.Request.Context(), ctx.Param("client"), first)
+		} else {
+			result, err = client.ApplicationAccounts(ctx.Request.Context(), ctx.Param("client"), first)
+		}
 		reply(ctx, result, err)
 	})
 	group.GET("/groups", func(ctx *gin.Context) { result, err := client.Groups(ctx.Request.Context()); reply(ctx, result, err) })
+	group.GET("/directory-summary", func(ctx *gin.Context) { result, err := client.Summary(ctx.Request.Context()); reply(ctx, result, err) })
 	group.GET("/groups/:id/members", func(ctx *gin.Context) {
 		first, err := strconv.Atoi(ctx.DefaultQuery("first", "0"))
 		if err != nil {
@@ -90,6 +97,38 @@ func Register(parent *gin.RouterGroup, client *Client, userID func(*gin.Context)
 	})
 	write := group.Group("")
 	write.Use(stepUp)
+	write.POST("/groups/:id/adopt", func(ctx *gin.Context) {
+		var in struct{}
+		if decode(ctx, &in) {
+			reply(ctx, nil, client.AdoptGroup(ctx.Request.Context(), ctx.Param("id")))
+		}
+	})
+	write.PUT("/groups/:id/applications/:client", func(ctx *gin.Context) {
+		var in struct {
+			Granted *bool `json:"granted"`
+		}
+		if decode(ctx, &in) {
+			if in.Granted == nil {
+				reply(ctx, nil, failure("invalid_request", 400))
+				return
+			}
+			reply(ctx, nil, client.SetGroupAccess(ctx.Request.Context(), ctx.Param("id"), ctx.Param("client"), *in.Granted))
+		}
+	})
+	write.POST("/groups/:id/members", func(ctx *gin.Context) {
+		var in struct {
+			IDs    []string `json:"userIds"`
+			Member *bool    `json:"member"`
+		}
+		if decode(ctx, &in) {
+			if in.Member == nil {
+				reply(ctx, nil, failure("invalid_request", 400))
+				return
+			}
+			result, err := client.BulkMembership(ctx.Request.Context(), ctx.Param("id"), in.IDs, *in.Member)
+			reply(ctx, result, err)
+		}
+	})
 	write.POST("/users", func(ctx *gin.Context) {
 		var in UserInput
 		if decode(ctx, &in) {

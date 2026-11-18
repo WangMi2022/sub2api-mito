@@ -1458,3 +1458,13 @@ contracts.push(...[
     anchors: ['"protectedBadge"', '"regularBadge"', '"searchHint"']
   }))
 ])
+
+contracts.push(...[
+  { path: 'frontend/src/components/identity/IdentityGroups.vue', anchors: ['mito-identity-group-summary', 'identity.groupWorkflowHint', 'identity.configureGroupAccess', 'identity.adoptGroup'] },
+  { path: 'frontend/src/components/identity/IdentityGroupMembers.vue', anchors: ['identity.onlyUngrouped', 'identity.bulkAddMembers', 'identityAPI.bulkMembership', 'result.failed.length'] },
+  { path: 'frontend/src/components/identity/IdentityGroupAccess.vue', anchors: ['identity.groupAccessHint', 'identityAPI.groupAccess'] },
+  { path: 'frontend/src/components/identity/IdentityMitoPermissions.vue', anchors: ['mito-identity-permissions', 'identity.mitoObserverScope', 'identityAPI.saveMitoPermissions', 'identityAPI.linkMitoAccount', 'data.protected'] },
+  { path: 'frontend/src/components/identity/IdentityUserDetail.vue', anchors: ['IdentityMitoPermissions', "tab === 'mito'"] },
+  { path: 'frontend/src/components/identity/IdentityAccessOverview.vue', anchors: ['identity.effectiveAccounts', 'cell-accessSource'] },
+  { path: 'frontend/src/api/identity.ts', anchors: ['saveMitoPermissions', 'bulkMembership', 'effective: true'] }
+])

@@ -108,3 +108,28 @@ html[data-ui-theme='mito'] .mito-identity-pagination {
     animation: none;
   }
 }
+
+html[data-ui-theme='mito'] .mito-identity-group-summary > div {
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 3%);
+}
+
+html[data-ui-theme='mito'] .mito-identity-permissions fieldset:disabled {
+  opacity: 0.72;
+}
+
+html[data-ui-theme='mito'] .mito-identity-resource-list {
+  max-height: 18rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+html[data-ui-theme='mito'] .mito-identity-groups .table-wrapper {
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  html[data-ui-theme='mito'] .mito-identity-permissions .mito-identity-resource-list {
+    max-height: 16rem;
+  }
+}

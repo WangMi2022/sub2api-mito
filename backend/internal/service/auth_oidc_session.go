@@ -6,7 +6,9 @@ import (
 	"strings"
 	"time"
 
+	dbent "github.com/Wei-Shaw/sub2api/ent"
 	"github.com/Wei-Shaw/sub2api/ent/authidentity"
+	dbuser "github.com/Wei-Shaw/sub2api/ent/user"
 )
 
 type oidcSessionIdentityKey struct{}
@@ -42,15 +44,31 @@ func (s *AuthService) GenerateOAuthTokenPair(ctx context.Context, user *User, pr
 	if s.entClient == nil || user == nil {
 		return nil, ErrServiceUnavailable
 	}
-	identity, err := s.entClient.AuthIdentity.Query().Where(
+	identity, err := s.admittedOIDCIdentities().Where(
 		authidentity.UserIDEQ(user.ID), authidentity.ProviderTypeEQ("oidc"),
 		authidentity.ProviderKeyEQ(strings.TrimSpace(providerKey)),
 		authidentity.ProviderSubjectEQ(strings.TrimSpace(subject)),
 	).Only(ctx)
+	if dbent.IsNotFound(err) && s.unifiedAccessCheck != nil {
+		return nil, ErrTokenRevoked
+	}
 	if err != nil {
 		return nil, ErrServiceUnavailable
 	}
+	if err := s.checkUnifiedAccess(ctx, identity.ProviderKey, identity.ProviderSubject); err != nil {
+		return nil, err
+	}
 	return s.GenerateTokenPair(withOIDCSessionIdentity(ctx, identity.ID), user, "")
+}
+
+// Read the live business account alongside its binding. Removing its user group
+// must also close existing OIDC sessions, including refresh and admin requests.
+func (s *AuthService) admittedOIDCIdentities() *dbent.AuthIdentityQuery {
+	query := s.entClient.AuthIdentity.Query()
+	if s.unifiedAccessCheck != nil {
+		query.Where(authidentity.HasUserWith(dbuser.DeletedAtIsNil(), dbuser.StatusEQ(StatusActive), dbuser.UserGroupIDGT(0)))
+	}
+	return query
 }
 
 // ValidateTokenIdentity checks live binding state without a cache. A failed
@@ -72,14 +90,17 @@ func (s *AuthService) ValidateTokenIdentity(ctx context.Context, claims *JWTClai
 	if s.entClient == nil {
 		return ErrServiceUnavailable
 	}
-	exists, err := s.entClient.AuthIdentity.Query().Where(
+	identity, err := s.admittedOIDCIdentities().Where(
 		authidentity.IDEQ(claims.AuthIdentityID), authidentity.UserIDEQ(claims.UserID), authidentity.ProviderTypeEQ("oidc"),
-	).Exist(ctx)
+	).Only(ctx)
 	if err != nil {
+		if dbent.IsNotFound(err) {
+			return ErrTokenRevoked
+		}
 		return ErrServiceUnavailable
 	}
-	if !exists {
-		return ErrTokenRevoked
+	if err := s.checkUnifiedAccess(ctx, identity.ProviderKey, identity.ProviderSubject); err != nil {
+		return err
 	}
 	if claims.SessionID != "" {
 		if cache, ok := s.refreshTokenCache.(OIDCSessionCache); ok {

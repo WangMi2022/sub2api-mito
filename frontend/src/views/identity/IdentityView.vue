@@ -90,10 +90,13 @@
               </span>
             </template>
             <template #cell-actions="{ row }">
+              <div class="flex flex-wrap items-center gap-1">
+              <button class="btn btn-secondary btn-sm" @click="openUser(row.id, 'mito')">{{ t('identity.mito') }}</button>
               <button class="mito-identity-manage inline-flex items-center gap-1.5 rounded-lg p-2 text-xs font-medium text-primary-600 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-900/20" @click="openUser(row.id)">
                 <Icon name="userCog" size="sm" aria-hidden="true" />
                 {{ t('identity.manageUser') }}
               </button>
+              </div>
             </template>
             <template #empty>
               <EmptyState :title="t(error ? 'identity.loadFailed' : 'identity.noUsers')" :description="error ? '' : t('identity.searchHint')">
@@ -157,7 +160,7 @@ const loading = ref(true)
 const error = ref('')
 const overviewError = ref('')
 const creating = ref(false)
-const selected = ref<{ id: string; section: 'profile' | 'applications' }>()
+const selected = ref<{ id: string; section: 'profile' | 'mito' | 'applications' }>()
 const revision = ref(0)
 let generation = 0
 const columns = computed(() => [{ key: 'username', label: t('identity.username') }, { key: 'email', label: t('identity.email') }, { key: 'emailVerified', label: t('identity.emailVerified') }, { key: 'enabled', label: t('identity.status') }, { key: 'protected', label: t('identity.management') }, { key: 'actions', label: t('common.actions') }])
@@ -174,7 +177,7 @@ async function load() {
 function search() { first.value = 0; appliedQuery.value = query.value.trim(); void load() }
 function navigate(delta: number) { first.value = Math.max(0, first.value + delta); void load() }
 function created() { creating.value = false; search() }
-function openUser(id: string, section: 'profile' | 'applications' = 'profile') { selected.value = { id, section } }
+function openUser(id: string, section: 'profile' | 'mito' | 'applications' = 'profile') { selected.value = { id, section } }
 function userChanged() {
   revision.value++
   if (tab.value === 'users') void load()

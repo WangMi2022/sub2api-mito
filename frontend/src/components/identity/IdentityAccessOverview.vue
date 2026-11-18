@@ -25,7 +25,7 @@
         </div>
       </dl>
       <div class="flex items-center justify-between gap-3">
-        <h2 class="text-sm font-semibold">{{ t('identity.directAccounts') }}</h2>
+        <h2 class="text-sm font-semibold">{{ t('identity.effectiveAccounts') }}</h2>
         <button type="button" class="btn btn-secondary btn-sm" :disabled="loading" @click="load">{{ t('common.refresh') }}</button>
       </div>
       <p v-if="error" role="alert" class="text-sm text-red-600 dark:text-red-400">{{ error }}</p>
@@ -36,11 +36,12 @@
         <template #cell-enabled="{ row }">
           <span :class="['badge', row.enabled ? 'badge-success' : 'badge-gray']">{{ t(row.enabled ? 'identity.enabled' : 'identity.disabled') }}</span>
         </template>
+        <template #cell-accessSource="{ row }"><span class="badge" :class="row.accessSource === 'inherited' ? 'badge-primary' : 'badge-gray'">{{ t(row.accessSource === 'inherited' ? 'identity.inherited' : 'identity.directAccessShort') }}</span></template>
         <template #cell-actions="{ row }">
           <button type="button" class="btn btn-secondary btn-sm" @click="emit('openUser', row.id)">{{ t('identity.manageUser') }}</button>
         </template>
         <template #empty>
-          <p class="py-8 text-sm">{{ t(error ? 'identity.loadFailed' : 'identity.noDirectAccounts') }}</p>
+          <p class="py-8 text-sm">{{ t(error ? 'identity.loadFailed' : 'identity.noEffectiveAccounts') }}</p>
         </template>
       </DataTable>
       <div v-if="first || page.hasMore" class="flex justify-end gap-2">
@@ -72,6 +73,7 @@ const columns = computed(() => [
   { key: 'username', label: t('identity.username') },
   { key: 'email', label: t('identity.email') },
   { key: 'enabled', label: t('identity.status') },
+  { key: 'accessSource', label: t('identity.accessSource') },
   { key: 'actions', label: t('common.actions') }
 ])
 

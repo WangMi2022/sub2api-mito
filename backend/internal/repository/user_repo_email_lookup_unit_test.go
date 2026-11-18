@@ -252,3 +252,22 @@ func TestUserRepositoryCreateSerializesNormalizedEmailConflictsUnderConcurrency(
 	require.NoError(t, err)
 	require.Equal(t, 1, count)
 }
+
+func TestUserRepositoryExplicitlyClearUserGroup(t *testing.T) {
+	repo, client := newUserEntRepo(t)
+	ctx := context.Background()
+	row, err := client.User.Create().SetEmail("membership@example.invalid").SetPasswordHash("hash").SetUserGroupID(37).Save(ctx)
+	require.NoError(t, err)
+	account, err := repo.GetByID(ctx, row.ID)
+	require.NoError(t, err)
+	require.NotNil(t, account.UserGroupID)
+	account.UserGroupID = nil
+	require.NoError(t, repo.Update(ctx, account, service.UserUpdateFields{Notes: true}))
+	persisted, err := repo.GetByID(ctx, row.ID)
+	require.NoError(t, err)
+	require.Equal(t, int64(37), *persisted.UserGroupID)
+	require.NoError(t, repo.Update(ctx, account, service.UserUpdateFields{UserGroupID: true}))
+	persisted, err = repo.GetByID(ctx, row.ID)
+	require.NoError(t, err)
+	require.Nil(t, persisted.UserGroupID)
+}

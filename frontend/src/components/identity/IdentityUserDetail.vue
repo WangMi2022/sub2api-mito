@@ -83,6 +83,8 @@
         </div>
       </section>
 
+      <IdentityMitoPermissions v-if="tab === 'mito'" :id="id" :step-up="stepUp" @changed="emit('changed')" />
+
       <section v-if="tab === 'groups'" class="space-y-3">
         <p v-if="groupsLoading" role="status" class="py-4 text-sm">{{ t('common.loading') }}</p>
         <p v-else-if="groupsError" role="alert" class="text-sm text-red-600 dark:text-red-400">{{ groupsError }} <button class="underline" @click="loadGroups">{{ t('common.tryAgain') }}</button></p>
@@ -156,6 +158,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import IdentityUserEditor from './IdentityUserEditor.vue'
+import IdentityMitoPermissions from './IdentityMitoPermissions.vue'
 import {
   identityAPI, identityErrorKey, type IdentityAccess, type IdentityDetail, type IdentityGroup,
   type IdentityRealm, type IdentitySecurity, type IdentitySession
@@ -163,7 +166,7 @@ import {
 import { isStepUpCancelled, type StepUpController } from '@/composables/useStepUp'
 import { useAppStore } from '@/stores/app'
 
-const sections = ['profile', 'security', 'groups', 'applications', 'sessions'] as const
+const sections = ['profile', 'mito', 'security', 'groups', 'applications', 'sessions'] as const
 type Section = (typeof sections)[number]
 type Operation = 'password' | 'delete' | 'logout' | 'session' | 'access' | 'verify' | 'clearFailures'
 const props = defineProps<{ id: string; initialSection: Section; realm?: IdentityRealm; stepUp: StepUpController }>()

@@ -13,6 +13,7 @@ import (
 var objectID = regexp.MustCompile(`^[a-zA-Z0-9_-]{1,128}$`)
 
 type User struct {
+	AccessSource           string   `json:"accessSource,omitempty"`
 	ID                     string   `json:"id"`
 	Username               string   `json:"username"`
 	Email                  string   `json:"email"`
@@ -41,6 +42,7 @@ type UserFilter struct {
 	First         int
 	Enabled       string
 	EmailVerified string
+	Ungrouped     bool
 }
 
 type UserPage struct {
@@ -55,6 +57,9 @@ type Group struct {
 	SubGroupCount int                 `json:"subGroupCount"`
 	Attributes    map[string][]string `json:"attributes,omitempty"`
 	Managed       bool                `json:"managed"`
+	CanAdopt      bool                `json:"canAdopt"`
+	MemberCount   int                 `json:"memberCount"`
+	Applications  []Access            `json:"applications"`
 }
 type Session struct {
 	ID         string            `json:"id"`
@@ -139,6 +144,9 @@ func (c *Client) Users(ctx context.Context, filter UserFilter) (UserPage, error)
 	search := strings.TrimSpace(filter.Search)
 	if utf8.RuneCountInString(search) > 120 || strings.Contains(search, ":") || filter.First < 0 || filter.First > 100000 {
 		return page, failure("invalid_request", 400)
+	}
+	if filter.Ungrouped {
+		return c.ungroupedUsers(ctx, filter)
 	}
 	query := directoryPageQuery(filter.First)
 	for key, value := range map[string]string{"enabled": filter.Enabled, "emailVerified": filter.EmailVerified} {
@@ -347,7 +355,9 @@ func (c *Client) Groups(ctx context.Context) ([]Group, error) {
 		return nil, failure("identity_group_limit", 409)
 	}
 	for i := range groups {
-		markGroup(&groups[i])
+		if err := c.enrichGroup(ctx, &groups[i]); err != nil {
+			return nil, err
+		}
 		groups[i].Attributes = nil
 	}
 	return groups, nil
@@ -372,7 +382,7 @@ func (c *Client) managedGroup(ctx context.Context, id string) (Group, error) {
 	if err := c.request(ctx, "GET", "/groups/"+id+"/role-mappings", nil, &mappings); err != nil {
 		return group, err
 	}
-	if len(mappings.Realm) > 0 || len(mappings.Clients) > 0 {
+	if !c.safeGroupRoles(mappings.Realm, mappings.Clients) {
 		return group, failure("identity_protected_group", 403)
 	}
 	return group, nil
@@ -398,7 +408,28 @@ func (c *Client) DeleteGroup(ctx context.Context, id, confirmation string) error
 	if confirmation != group.Name {
 		return failure("identity_confirmation_required", 400)
 	}
-	return c.request(ctx, "DELETE", "/groups/"+id, nil, nil)
+	members, err := c.rawMembers(ctx, id)
+	if err != nil {
+		return err
+	}
+	for _, user := range members {
+		protected, err := c.protected(ctx, user)
+		if err != nil {
+			return err
+		}
+		if protected {
+			return failure("identity_protected_account", 403)
+		}
+	}
+	if err := c.request(ctx, "DELETE", "/groups/"+id, nil, nil); err != nil {
+		return err
+	}
+	for _, user := range members {
+		if err := c.logoutAfterMutation(ctx, user.ID); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 func (c *Client) Membership(ctx context.Context, id, groupID string, member bool) error {
 	if _, err := c.mutableUser(ctx, id); err != nil {
@@ -411,7 +442,13 @@ func (c *Client) Membership(ctx context.Context, id, groupID string, member bool
 	if member {
 		method = "PUT"
 	}
-	return c.request(ctx, method, "/users/"+id+"/groups/"+groupID, nil, nil)
+	if err := c.request(ctx, method, "/users/"+id+"/groups/"+groupID, nil, nil); err != nil {
+		return err
+	}
+	if !member {
+		return c.logoutAfterMutation(ctx, id)
+	}
+	return nil
 }
 
 // SessionLogout ends one Keycloak session while preserving the user's other

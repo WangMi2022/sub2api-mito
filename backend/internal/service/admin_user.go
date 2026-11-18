@@ -256,18 +256,22 @@ func (s *adminServiceImpl) UpdateUser(ctx context.Context, id int64, input *Upda
 	}
 
 	originalCtx := ctx
-	ctx, setupTx, err := s.beginObserverSetup(ctx, id, input)
+	ctx, updateTx, err := s.beginAdminUserUpdate(ctx, id, input)
 	if err != nil {
 		return nil, err
 	}
-	if setupTx != nil {
-		defer func() { _ = setupTx.Rollback() }()
+	if updateTx != nil {
+		defer func() { _ = updateTx.Rollback() }()
 	}
 	user, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	if setupTx != nil && user.Role == RoleObserver {
+	if input.ExpectedMitoRevision != "" && user.MitoPermissions().Revision != input.ExpectedMitoRevision {
+		return nil, infraerrors.Conflict("identity_permissions_changed", "Mito permissions changed since the account was loaded")
+	}
+	setupObserver := input.ObserverSetup.enabled()
+	if setupObserver && user.Role == RoleObserver {
 		return nil, infraerrors.Conflict("OBSERVER_SETUP_ALREADY_APPLIED", "Observer setup can only run when changing a non-observer user to observer")
 	}
 
@@ -375,7 +379,7 @@ func (s *adminServiceImpl) UpdateUser(ctx context.Context, id int64, input *Upda
 		fields.UserGroupID = true
 	}
 	var dedicatedGroupID int64
-	if setupTx != nil {
+	if setupObserver {
 		dedicatedGroupID, err = s.applyObserverSetup(ctx, user, &fields, input.ObserverSetup)
 		if err != nil {
 			return nil, err
@@ -386,7 +390,7 @@ func (s *adminServiceImpl) UpdateUser(ctx context.Context, id int64, input *Upda
 		return nil, err
 	}
 	concurrencyDiff := user.Concurrency - oldConcurrency
-	if setupTx != nil {
+	if setupObserver {
 		if input.ObserverSetup.GrantResources {
 			change, err := s.userRepo.AdjustBalance(ctx, user.ID, observerSetupBalanceGrant)
 			if err != nil {
@@ -402,10 +406,14 @@ func (s *adminServiceImpl) UpdateUser(ctx context.Context, id int64, input *Upda
 				return nil, err
 			}
 		}
-		if err := setupTx.Commit(); err != nil {
+	}
+	if updateTx != nil {
+		if err := updateTx.Commit(); err != nil {
 			return nil, err
 		}
 		ctx = originalCtx
+	}
+	if setupObserver {
 		logger.LegacyPrintf("service.admin", "audit: observer setup actor_admin_id=%d target_user_id=%d dedicated_group_id=%d revoke_public_groups=%t grant_resources=%t",
 			input.ActorAdminID, user.ID, dedicatedGroupID, input.ObserverSetup.RevokePublicGroups, input.ObserverSetup.GrantResources)
 		if input.ObserverSetup.GrantResources && s.billingCacheService != nil {
@@ -438,7 +446,7 @@ func (s *adminServiceImpl) UpdateUser(ctx context.Context, id int64, input *Upda
 		}
 	}
 
-	if concurrencyDiff != 0 && setupTx == nil {
+	if concurrencyDiff != 0 && !setupObserver {
 		code, err := GenerateRedeemCode()
 		if err != nil {
 			logger.LegacyPrintf("service.admin", "failed to generate adjustment redeem code: %v", err)
@@ -1093,6 +1101,12 @@ func (s *adminServiceImpl) BindUserAuthIdentity(ctx context.Context, userID int6
 	}
 	defer func() { _ = tx.Rollback() }()
 
+	if input.ConfirmMitoAccountEmail != "" {
+		if err := checkMitoLinkTarget(ctx, tx, userID, providerKey, providerSubject, input.ConfirmMitoAccountEmail); err != nil {
+			return nil, err
+		}
+	}
+
 	identityRecords, err := tx.AuthIdentity.Query().
 		Where(
 			authidentity.ProviderTypeEQ(providerType),
@@ -1122,6 +1136,9 @@ func (s *adminServiceImpl) BindUserAuthIdentity(ctx context.Context, userID int6
 			create = create.SetMetadata(cloneAdminAuthIdentityMetadata(input.Metadata))
 		}
 		identity, err = create.Save(ctx)
+		if input.ConfirmMitoAccountEmail != "" && dbent.IsConstraintError(err) {
+			return nil, ErrMitoLinkUnavailable
+		}
 		if err != nil {
 			return nil, infraerrors.InternalServer("ADMIN_AUTH_IDENTITY_BIND_SAVE_FAILED", "failed to save auth identity").WithCause(err)
 		}
