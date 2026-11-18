@@ -28,8 +28,9 @@ import { useI18n } from 'vue-i18n'
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import DataTable from '@/components/common/DataTable.vue'
 import { identityAPI, identityErrorKey, type IdentityGroup, type IdentityPage, type IdentityUser } from '@/api/identity'
+import { isStepUpCancelled, type StepUpController } from '@/composables/useStepUp'
 
-const props = defineProps<{ group: IdentityGroup }>()
+const props = defineProps<{ group: IdentityGroup; stepUp: StepUpController }>()
 const emit = defineEmits<{ close: [] }>()
 const { t } = useI18n()
 const adding = ref(false)
@@ -62,15 +63,16 @@ function search() { appliedQuery.value = query.value.trim(); first.value = 0; vo
 function navigate(delta: number) { first.value += delta; void load() }
 
 async function changeMember(user: IdentityUser) {
+  if (busy.value) return
   busy.value = true
   error.value = ''
   saved.value = false
   try {
-    await identityAPI.membership(user.id, props.group.id, adding.value)
+    await props.stepUp.run(() => identityAPI.membership(user.id, props.group.id, adding.value))
     if (adding.value) added.value.add(user.id)
     else { added.value.delete(user.id); if (page.value.users.length === 1 && first.value) first.value -= 50; await load() }
     saved.value = true
-  } catch (e) { error.value = t(identityErrorKey(e)) }
+  } catch (e) { if (!isStepUpCancelled(e)) error.value = t(identityErrorKey(e)) }
   finally { busy.value = false }
 }
 

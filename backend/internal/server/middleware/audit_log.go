@@ -111,6 +111,8 @@ func truncateAuditExtraString(value string, limit int) string {
 
 // auditSensitiveReads 需要审计的敏感 GET 读取（method+FullPath → 动作名）。
 var auditSensitiveReads = map[string]string{
+	"GET /api/v1/identity/users/:id/security":                                 "identity.user.security.read",
+	"GET /api/v1/identity/applications/:client/users":                         "identity.application.users.read",
 	"GET /api/v1/identity/groups/:id/members":                                 "identity.group.members.read",
 	"GET /api/v1/identity/login-policy":                                       "identity.login_policy.read",
 	"GET /api/v1/identity/users":                                              "identity.users.read",
@@ -144,6 +146,9 @@ var auditSensitiveReads = map[string]string{
 
 // auditActionOverrides 变更类请求的动作名精确映射（未命中时自动推导）。
 var auditActionOverrides = map[string]string{
+	"POST /api/v1/identity/users/:id/sessions/end":            "identity.user.session.end",
+	"DELETE /api/v1/identity/users/:id/login-failures":        "identity.user.login_failures.clear",
+	"PUT /api/v1/identity/users/:id/verify-email":             "identity.user.email_verification.send",
 	"PUT /api/v1/admin/ops/ai/policy":                         "admin.ops.ai.policy.update",
 	"POST /api/v1/admin/ops/ai/halt":                          "admin.ops.ai.halt",
 	"POST /api/v1/admin/ops/ai/proposals/preview":             "admin.ops.ai.proposal.freeze",
@@ -177,8 +182,6 @@ var auditActionOverrides = map[string]string{
 // auditBodyOmittedRoutes 请求体几乎整体由凭证构成的路由（如整块粘贴 auth JSON 的导入接口）。
 // 这类 body 的凭证内嵌在普通字符串值里，键级脱敏无法覆盖，整体不入库。
 var auditBodyOmittedRoutes = map[string]struct{}{
-	"POST /api/v1/identity/users":             {},
-	"PUT /api/v1/identity/users/:id/password": {},
 	"POST /api/v1/admin/accounts/:id/auth-connections/:connection_id/authorization-status": {},
 	"POST /api/v1/admin/accounts/:id/auth-connections/:connection_id/callback":             {},
 	"POST /api/v1/admin/upstream-channels":                                                 {},
@@ -211,6 +214,7 @@ var auditBodyOmittedRoutes = map[string]struct{}{
 func NewAuditLogMiddleware(auditService *service.AuditLogService) AuditLogMiddleware {
 	return AuditLogMiddleware(func(c *gin.Context) {
 		routeKey := c.Request.Method + " " + c.FullPath()
+		identityRoute := strings.HasPrefix(c.FullPath(), "/api/v1/identity/")
 
 		record := false
 		action := ""
@@ -235,7 +239,9 @@ func NewAuditLogMiddleware(auditService *service.AuditLogService) AuditLogMiddle
 		// 只读取脱敏解析上限内的字节，超出部分与已读部分拼接回填，
 		// 避免大体积导入请求被完整复制进内存两次。
 		var bodyRedacted string
-		if _, omit := auditBodyOmittedRoutes[routeKey]; omit {
+		if identityRoute && c.Request.Method != "GET" {
+			bodyRedacted = "<identity request body omitted>"
+		} else if _, omit := auditBodyOmittedRoutes[routeKey]; omit {
 			bodyRedacted = "<credential-bearing body omitted>"
 		} else if c.Request.Body != nil && c.Request.Method != "GET" {
 			orig := c.Request.Body
@@ -313,7 +319,9 @@ func NewAuditLogMiddleware(auditService *service.AuditLogService) AuditLogMiddle
 		}
 
 		// 请求头凭证掩码（仅保留首尾）。
-		entry.CredentialMasked = MaskedRequestCredential(c)
+		if !identityRoute {
+			entry.CredentialMasked = MaskedRequestCredential(c)
+		}
 
 		extra := map[string]any{}
 		if value, ok := c.Get(auditCtxKeyExtra); ok {
@@ -330,8 +338,10 @@ func NewAuditLogMiddleware(auditService *service.AuditLogService) AuditLogMiddle
 			}
 			extra["params"] = params
 		}
-		if q := service.RedactAuditQuery(c.Request.URL.RawQuery); q != "" {
-			extra["query"] = q
+		if !identityRoute {
+			if q := service.RedactAuditQuery(c.Request.URL.RawQuery); q != "" {
+				extra["query"] = q
+			}
 		}
 		if len(extra) > 0 {
 			entry.Extra = extra

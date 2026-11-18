@@ -135,16 +135,38 @@ func (c *Client) request(ctx context.Context, method, suffix string, body, out a
 }
 
 type Realm struct {
-	ID          string `json:"id"`
-	Name        string `json:"realm"`
-	DisplayName string `json:"displayName"`
+	ID                      string `json:"id"`
+	Name                    string `json:"realm"`
+	DisplayName             string `json:"displayName"`
+	UsernameEditable        bool   `json:"usernameEditable"`
+	EmailAsUsername         bool   `json:"emailAsUsername"`
+	EmailDeliveryConfigured bool   `json:"emailDeliveryConfigured"`
+	LoginProtectionEnabled  bool   `json:"loginProtectionEnabled"`
 }
 
 func (c *Client) Realm(ctx context.Context) (Realm, error) {
-	var realm Realm
-	err := c.request(ctx, "GET", "", nil, &realm)
-	if err == nil && realm.ID != c.cfg.RealmID {
-		err = failure("identity_realm_changed", 503)
+	var upstream struct {
+		ID                          string `json:"id"`
+		Name                        string `json:"realm"`
+		DisplayName                 string `json:"displayName"`
+		EditUsernameAllowed         bool   `json:"editUsernameAllowed"`
+		RegistrationEmailAsUsername bool   `json:"registrationEmailAsUsername"`
+		BruteForceProtected         bool   `json:"bruteForceProtected"`
+		SMTPServer                  struct {
+			Host string `json:"host"`
+		} `json:"smtpServer"`
 	}
-	return realm, err
+	if err := c.request(ctx, "GET", "", nil, &upstream); err != nil {
+		return Realm{}, err
+	}
+	if upstream.ID != c.cfg.RealmID {
+		return Realm{}, failure("identity_realm_changed", 503)
+	}
+	return Realm{
+		ID: upstream.ID, Name: upstream.Name, DisplayName: upstream.DisplayName,
+		UsernameEditable:        upstream.EditUsernameAllowed && !upstream.RegistrationEmailAsUsername,
+		EmailAsUsername:         upstream.RegistrationEmailAsUsername,
+		EmailDeliveryConfigured: upstream.SMTPServer.Host != "",
+		LoginProtectionEnabled:  upstream.BruteForceProtected,
+	}, nil
 }

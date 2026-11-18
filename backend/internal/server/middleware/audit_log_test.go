@@ -67,6 +67,34 @@ func TestUserQuickEnableUsesUserManagementAudit(t *testing.T) {
 	require.JSONEq(t, `{"status":"active","reason":"reviewed disable source"}`, entry.RequestBody)
 }
 
+func TestIdentitySessionAuditKeepsOnlyAccountAndAction(t *testing.T) {
+	repository := &auditCaptureRepository{}
+	auditService := service.NewAuditLogService(repository, nil)
+	auditService.Start()
+	router := gin.New()
+	router.Use(gin.HandlerFunc(NewAuditLogMiddleware(auditService)))
+	router.POST("/api/v1/identity/users/:id/sessions/end", func(c *gin.Context) {
+		var input map[string]string
+		require.NoError(t, c.ShouldBindJSON(&input))
+		require.Equal(t, "private-session", input["sessionId"])
+		c.Status(http.StatusNoContent)
+	})
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/identity/users/demo/sessions/end?query=private-value", strings.NewReader(`{"sessionId":"private-session"}`))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer private-test-credential")
+	router.ServeHTTP(w, req)
+	auditService.Stop()
+	require.Equal(t, http.StatusNoContent, w.Code)
+	require.Len(t, repository.logs, 1)
+	entry := repository.logs[0]
+	require.Equal(t, "identity.user.session.end", entry.Action)
+	require.Equal(t, "/api/v1/identity/users/:id/sessions/end", entry.Path)
+	require.Equal(t, "<identity request body omitted>", entry.RequestBody)
+	require.Empty(t, entry.CredentialMasked)
+	require.Equal(t, map[string]any{"params": map[string]string{"id": "demo"}}, entry.Extra)
+}
+
 func (r *auditCaptureRepository) BatchInsert(_ context.Context, logs []*service.AuditLog) (int64, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()

@@ -41,7 +41,9 @@ import { identityAPI, identityErrorKey, type IdentityLoginPolicy } from '@/api/i
 import { buildOAuthLoginStartURL } from '@/api/auth'
 import { useAppStore } from '@/stores/app'
 import { markIdentityLoginAttempt } from '@/utils/identityLogin'
+import { isStepUpCancelled, type StepUpController } from '@/composables/useStepUp'
 
+const props = defineProps<{ stepUp: StepUpController }>()
 const { t } = useI18n()
 const app = useAppStore()
 const policy = ref<IdentityLoginPolicy>()
@@ -76,15 +78,16 @@ function verifyUnified() {
 }
 
 async function save() {
-  if (confirmation.value === null) return
+  const enabled = confirmation.value
+  if (enabled === null || busy.value) return
   busy.value = true
   actionError.value = ''
   try {
-    policy.value = await identityAPI.setLoginPolicy(confirmation.value)
+    policy.value = await props.stepUp.run(() => identityAPI.setLoginPolicy(enabled))
     confirmation.value = null
     saved.value = true
     await app.fetchPublicSettings(true)
-  } catch (e) { actionError.value = t(identityErrorKey(e)) }
+  } catch (e) { if (!isStepUpCancelled(e)) actionError.value = t(identityErrorKey(e)) }
   finally { busy.value = false }
 }
 

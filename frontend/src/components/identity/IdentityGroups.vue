@@ -8,7 +8,7 @@
       <template #empty><p class="py-8 text-sm">{{ t('identity.noGroups') }}</p></template>
     </DataTable>
   </div>
-  <IdentityGroupMembers v-if="members" :key="members.id" :group="members" @close="members = undefined" />
+  <IdentityGroupMembers v-if="members" :key="members.id" :group="members" :step-up="stepUp" @close="members = undefined" />
   <BaseDialog v-if="show" :show="true" :title="t(removing ? 'identity.deleteGroup' : editing ? 'identity.editGroup' : 'identity.createGroup')" :show-close-button="!busy" :close-on-escape="!busy" @close="show = false">
     <form id="identity-group-form" class="space-y-4" @submit.prevent="save">
       <p v-if="removing" class="text-sm">{{ t('identity.deleteGroupHint', { name: editing?.name }) }}</p>
@@ -26,6 +26,8 @@ import IdentityGroupMembers from './IdentityGroupMembers.vue'
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import DataTable from '@/components/common/DataTable.vue'
 import { identityAPI, identityErrorKey, type IdentityGroup } from '@/api/identity'
+import { isStepUpCancelled, type StepUpController } from '@/composables/useStepUp'
+const props = defineProps<{ stepUp: StepUpController }>()
 const { t } = useI18n()
 const groups = ref<IdentityGroup[]>([])
 const members = ref<IdentityGroup>()
@@ -46,12 +48,14 @@ async function load() {
 }
 function open(group?: IdentityGroup, remove = false) { editing.value = group; removing.value = remove; name.value = remove ? '' : group?.name || ''; actionError.value = ''; show.value = true }
 async function save() {
+  if (busy.value) return
   busy.value = true; actionError.value = ''
   try {
-    if (removing.value && editing.value) await identityAPI.deleteGroup(editing.value.id, name.value)
-    else await identityAPI.saveGroup(name.value, editing.value?.id)
+    await props.stepUp.run(() => removing.value && editing.value
+      ? identityAPI.deleteGroup(editing.value.id, name.value)
+      : identityAPI.saveGroup(name.value, editing.value?.id))
     show.value = false; await load()
-  } catch (e) { actionError.value = t(identityErrorKey(e)) }
+  } catch (e) { if (!isStepUpCancelled(e)) actionError.value = t(identityErrorKey(e)) }
   finally { busy.value = false }
 }
 onMounted(load)

@@ -11,6 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const realmContextKey = "identityadmin.realm"
+
 // Register keeps authorization ahead of every directory operation. Capabilities
 // are advisory for navigation; backend authorization never trusts browser state.
 func Register(parent *gin.RouterGroup, client *Client, userID func(*gin.Context) int64, jwt, audit, stepUp, limiter gin.HandlerFunc, extensions ...func(*gin.RouterGroup, *gin.RouterGroup)) {
@@ -35,16 +37,17 @@ func Register(parent *gin.RouterGroup, client *Client, userID func(*gin.Context)
 		register(group, policyWrite)
 	}
 	group.Use(func(ctx *gin.Context) {
-		if _, err := client.Realm(ctx.Request.Context()); err != nil {
+		realm, err := client.Realm(ctx.Request.Context())
+		if err != nil {
 			reply(ctx, nil, err)
 			ctx.Abort()
 			return
 		}
+		ctx.Set(realmContextKey, realm)
 		ctx.Next()
 	})
 	group.GET("/overview", func(ctx *gin.Context) {
-		realm, err := client.Realm(ctx.Request.Context())
-		reply(ctx, gin.H{"realm": realm, "applications": client.cfg.Applications}, err)
+		reply(ctx, gin.H{"realm": requestRealm(ctx), "applications": client.cfg.Applications}, nil)
 	})
 	group.GET("/users", func(ctx *gin.Context) {
 		first, err := strconv.Atoi(ctx.DefaultQuery("first", "0"))
@@ -52,11 +55,27 @@ func Register(parent *gin.RouterGroup, client *Client, userID func(*gin.Context)
 			reply(ctx, nil, failure("invalid_request", 400))
 			return
 		}
-		result, err := client.Users(ctx.Request.Context(), ctx.Query("search"), first)
+		result, err := client.Users(ctx.Request.Context(), UserFilter{
+			Search: ctx.Query("search"), First: first,
+			Enabled: ctx.Query("enabled"), EmailVerified: ctx.Query("emailVerified"),
+		})
 		reply(ctx, result, err)
 	})
 	group.GET("/users/:id", func(ctx *gin.Context) {
 		result, err := client.Detail(ctx.Request.Context(), ctx.Param("id"))
+		reply(ctx, result, err)
+	})
+	group.GET("/users/:id/security", func(ctx *gin.Context) {
+		result, err := client.Security(ctx.Request.Context(), requestRealm(ctx), ctx.Param("id"))
+		reply(ctx, result, err)
+	})
+	group.GET("/applications/:client/users", func(ctx *gin.Context) {
+		first, err := strconv.Atoi(ctx.DefaultQuery("first", "0"))
+		if err != nil {
+			reply(ctx, nil, failure("invalid_request", 400))
+			return
+		}
+		result, err := client.ApplicationAccounts(ctx.Request.Context(), ctx.Param("client"), first)
 		reply(ctx, result, err)
 	})
 	group.GET("/groups", func(ctx *gin.Context) { result, err := client.Groups(ctx.Request.Context()); reply(ctx, result, err) })
@@ -74,13 +93,13 @@ func Register(parent *gin.RouterGroup, client *Client, userID func(*gin.Context)
 	write.POST("/users", func(ctx *gin.Context) {
 		var in UserInput
 		if decode(ctx, &in) {
-			reply(ctx, nil, client.CreateUser(ctx.Request.Context(), in))
+			reply(ctx, nil, client.CreateUser(ctx.Request.Context(), requestRealm(ctx), in))
 		}
 	})
 	write.PUT("/users/:id", func(ctx *gin.Context) {
 		var in UserInput
 		if decode(ctx, &in) {
-			reply(ctx, nil, client.UpdateUser(ctx.Request.Context(), ctx.Param("id"), in))
+			reply(ctx, nil, client.UpdateUser(ctx.Request.Context(), requestRealm(ctx), ctx.Param("id"), in))
 		}
 	})
 	write.DELETE("/users/:id", func(ctx *gin.Context) {
@@ -93,16 +112,37 @@ func Register(parent *gin.RouterGroup, client *Client, userID func(*gin.Context)
 	})
 	write.PUT("/users/:id/password", func(ctx *gin.Context) {
 		var in struct {
-			Password string `json:"password"`
+			Password  string `json:"password"`
+			Temporary bool   `json:"temporary"`
 		}
 		if decode(ctx, &in) {
-			reply(ctx, nil, client.ResetPassword(ctx.Request.Context(), ctx.Param("id"), in.Password))
+			reply(ctx, nil, client.ResetPassword(ctx.Request.Context(), ctx.Param("id"), in.Password, in.Temporary))
 		}
 	})
 	write.POST("/users/:id/logout", func(ctx *gin.Context) {
 		var in struct{}
 		if decode(ctx, &in) {
 			reply(ctx, nil, client.Logout(ctx.Request.Context(), ctx.Param("id")))
+		}
+	})
+	write.POST("/users/:id/sessions/end", func(ctx *gin.Context) {
+		var in struct {
+			SessionID string `json:"sessionId"`
+		}
+		if decode(ctx, &in) {
+			reply(ctx, nil, client.SessionLogout(ctx.Request.Context(), ctx.Param("id"), in.SessionID))
+		}
+	})
+	write.PUT("/users/:id/verify-email", func(ctx *gin.Context) {
+		var in struct{}
+		if decode(ctx, &in) {
+			reply(ctx, nil, client.VerificationEmail(ctx.Request.Context(), requestRealm(ctx), ctx.Param("id")))
+		}
+	})
+	write.DELETE("/users/:id/login-failures", func(ctx *gin.Context) {
+		var in struct{}
+		if decode(ctx, &in) {
+			reply(ctx, nil, client.ClearLoginFailures(ctx.Request.Context(), requestRealm(ctx), ctx.Param("id")))
 		}
 	})
 	write.PUT("/users/:id/groups/:group", func(ctx *gin.Context) {
@@ -145,6 +185,10 @@ func Register(parent *gin.RouterGroup, client *Client, userID func(*gin.Context)
 			reply(ctx, nil, client.DeleteGroup(ctx.Request.Context(), ctx.Param("id"), in.Confirmation))
 		}
 	})
+}
+
+func requestRealm(ctx *gin.Context) Realm {
+	return ctx.MustGet(realmContextKey).(Realm)
 }
 
 func decode(ctx *gin.Context, target any) bool {
