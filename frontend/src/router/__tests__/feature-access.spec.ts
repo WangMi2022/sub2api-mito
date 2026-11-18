@@ -29,6 +29,7 @@ const appStore = vi.hoisted(() => ({
     risk_control_enabled?: boolean
     subscription_enabled?: boolean
     support_ticket_enabled?: boolean
+    mito_oidc_only?: boolean
     custom_menu_items?: []
   },
   fetchPublicSettings: vi.fn(),
@@ -101,6 +102,7 @@ function runGuard(meta: Record<string, unknown>, path: string) {
       fullPath: path,
       name: 'FeatureRoute',
       params: {},
+      query: {},
       meta: { requiresAuth: true, ...meta },
     },
     {},
@@ -123,6 +125,41 @@ describe('feature route guard', () => {
     appStore.publicSettingsLoaded = false
     appStore.cachedPublicSettings = null
     appStore.fetchPublicSettings.mockReset()
+  })
+
+  it.each(['/home', '/login'])('allows %s with unified sign-in required', async (path) => {
+    authStore.isAuthenticated = false
+    appStore.cachedPublicSettings = { mito_oidc_only: true }
+    appStore.publicSettingsLoaded = true
+
+    const { navigation, next } = runGuard({ requiresAuth: false }, path)
+    await navigation
+
+    expect(next).toHaveBeenCalledWith()
+  })
+
+  it.each(['/register', '/forgot-password', '/reset-password', '/email-verify'])(
+    'keeps %s on unified sign-in', async (path) => {
+      authStore.isAuthenticated = false
+      appStore.cachedPublicSettings = { mito_oidc_only: true }
+      appStore.publicSettingsLoaded = true
+
+      const { navigation, next } = runGuard({ requiresAuth: false }, path)
+      await navigation
+
+      expect(next).toHaveBeenCalledWith({ path: '/login', query: { redirect: '/dashboard' }, replace: true })
+    }
+  )
+
+  it('keeps protected pages behind sign-in when the public home is available', async () => {
+    authStore.isAuthenticated = false
+    appStore.cachedPublicSettings = { mito_oidc_only: true }
+    appStore.publicSettingsLoaded = true
+
+    const { navigation, next } = runGuard({ requiresAdmin: true }, '/admin/dashboard')
+    await navigation
+
+    expect(next).toHaveBeenCalledWith({ path: '/login', query: { redirect: '/admin/dashboard' } })
   })
 
   it('allows observers own usage in backend mode without opening other user or admin pages', async () => {

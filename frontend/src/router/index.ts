@@ -1029,7 +1029,7 @@ router.beforeEach(async (to, _from, next) => {
 
   if (['/login', '/register', '/forgot-password', '/reset-password', '/email-verify', '/home'].includes(to.path)) {
     await appStore.fetchPublicSettings()
-    if (appStore.cachedPublicSettings?.mito_oidc_only && to.path !== '/login') {
+    if (appStore.cachedPublicSettings?.mito_oidc_only && to.path !== '/login' && to.path !== '/home') {
       next({ path: '/login', query: { redirect: typeof to.query.redirect === 'string' ? to.query.redirect : '/dashboard' }, replace: true })
       return
     }
