@@ -107,8 +107,84 @@
     </header>
 
     <!-- Main Content -->
-    <main class="relative z-10 flex-1 px-4 pb-16 pt-10 sm:px-6 sm:pt-14">
+    <main class="relative z-10 flex-1 px-4 pb-16 pt-6 sm:px-6 sm:pt-8">
       <div class="mx-auto max-w-6xl">
+        <!-- Integrated platform view: visible in the initial viewport -->
+        <section class="mito-platform-matrix mb-14" aria-labelledby="mito-platform-title">
+          <div class="mb-7 text-center">
+            <span class="mito-hero-badge mb-4"><span class="mito-hero-badge-dot"></span>{{ t('home.mito.platform.badge') }}</span>
+            <h2 id="mito-platform-title" class="mito-section-title">{{ t('home.mito.platform.title') }}</h2>
+            <p class="mito-section-sub text-sm sm:text-base">{{ t('home.mito.platform.subtitle') }}</p>
+          </div>
+
+          <div class="mb-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.24fr)]">
+            <article class="mito-glass-card p-6">
+              <div class="flex items-center gap-3">
+                <span class="mito-core-icon" data-tone="blue" aria-hidden="true"><Icon name="server" size="lg" /></span>
+                <div>
+                  <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('home.mito.platform.mito.title') }}</h3>
+                  <p class="text-xs text-gray-500 dark:text-dark-400">{{ t('home.mito.platform.mito.tagline') }}</p>
+                </div>
+              </div>
+              <p class="mt-4 text-sm leading-relaxed text-gray-600 dark:text-dark-400">{{ t('home.mito.platform.mito.desc') }}</p>
+              <ul class="mito-core-tags">
+                <li>{{ t('home.mito.platform.mito.tags.1') }}</li>
+                <li>{{ t('home.mito.platform.mito.tags.2') }}</li>
+                <li>{{ t('home.mito.platform.mito.tags.3') }}</li>
+              </ul>
+            </article>
+
+            <article class="mito-glass-card chitu-card p-6">
+              <div class="flex items-center gap-3">
+                <span class="mito-core-icon" data-tone="emerald" aria-hidden="true"><Icon name="grid" size="lg" /></span>
+                <div>
+                  <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('home.mito.platform.chitu.title') }}</h3>
+                  <p class="text-xs text-gray-500 dark:text-dark-400">{{ t('home.mito.platform.chitu.tagline') }}</p>
+                </div>
+              </div>
+              <p class="mt-4 text-sm leading-relaxed text-gray-600 dark:text-dark-400">{{ t('home.mito.platform.chitu.desc') }}</p>
+
+              <div class="mt-5 grid gap-4 md:grid-cols-2">
+                <div v-for="item in chituCapabilities" :key="item.icon" class="mito-platform-capability">
+                  <div class="flex items-center gap-2">
+                    <span class="mito-platform-capability-icon"><Icon :name="item.icon" size="sm" /></span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ t(item.titleKey) }}</span>
+                  </div>
+                  <p class="mt-1.5 text-sm leading-relaxed text-gray-600 dark:text-dark-400">{{ t(item.descKey) }}</p>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="mb-6">
+            <div class="mb-4 flex items-center justify-center gap-2">
+              <span class="mito-platform-flow-line" aria-hidden="true"></span>
+              <h3 class="mito-section-title text-base sm:text-lg">{{ t(platformFlowTitle) }}</h3>
+              <span class="mito-platform-flow-line" aria-hidden="true"></span>
+            </div>
+            <div class="grid gap-4 md:grid-cols-5">
+              <div v-for="(step, index) in platformFlow" :key="step.icon" class="mito-platform-flow-step">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="mito-platform-flow-index">0{{ index + 1 }}</span>
+                  <Icon :name="step.icon" size="sm" class="text-gray-500 dark:text-dark-400" />
+                </div>
+                <h4 class="mt-2 text-sm font-semibold text-gray-900 dark:text-white">{{ t(step.title) }}</h4>
+                <p class="mt-1 text-xs leading-relaxed text-gray-600 dark:text-dark-400">{{ t(step.desc) }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <dl v-for="fact in platformFacts" :key="fact.icon" class="mito-platform-tile">
+              <div class="flex items-center gap-2">
+                <span class="mito-platform-tile-icon"><Icon :name="fact.icon" size="sm" /></span>
+                <dt>{{ t(fact.labelKey) }}</dt>
+              </div>
+              <dd>{{ t(fact.valueKey) }}</dd>
+            </dl>
+          </div>
+        </section>
+
         <!-- Hero Section - Left/Right Layout -->
         <div class="mito-hero mb-14 flex flex-col items-center justify-between gap-12 lg:flex-row lg:gap-16">
           <!-- Left: Text Content -->
@@ -331,82 +407,6 @@
 
         <!-- Interactive API Sandbox -->
         <PlaygroundSandbox />
-
-        <!-- Integrated platform view: MITO + CHITU -->
-        <section class="mito-platform-matrix mb-16" aria-labelledby="mito-platform-title">
-          <div class="mb-7 text-center">
-            <span class="mito-hero-badge mb-4"><span class="mito-hero-badge-dot"></span>{{ t('home.mito.platform.badge') }}</span>
-            <h2 id="mito-platform-title" class="mito-section-title">{{ t('home.mito.platform.title') }}</h2>
-            <p class="mito-section-sub text-sm sm:text-base">{{ t('home.mito.platform.subtitle') }}</p>
-          </div>
-
-          <div class="mb-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.24fr)]">
-            <article class="mito-glass-card p-6">
-              <div class="flex items-center gap-3">
-                <span class="mito-core-icon" data-tone="blue" aria-hidden="true"><Icon name="server" size="lg" /></span>
-                <div>
-                  <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('home.mito.platform.mito.title') }}</h3>
-                  <p class="text-xs text-gray-500 dark:text-dark-400">{{ t('home.mito.platform.mito.tagline') }}</p>
-                </div>
-              </div>
-              <p class="mt-4 text-sm leading-relaxed text-gray-600 dark:text-dark-400">{{ t('home.mito.platform.mito.desc') }}</p>
-              <ul class="mito-core-tags">
-                <li>{{ t('home.mito.platform.mito.tags.1') }}</li>
-                <li>{{ t('home.mito.platform.mito.tags.2') }}</li>
-                <li>{{ t('home.mito.platform.mito.tags.3') }}</li>
-              </ul>
-            </article>
-
-            <article class="mito-glass-card chitu-card p-6">
-              <div class="flex items-center gap-3">
-                <span class="mito-core-icon" data-tone="emerald" aria-hidden="true"><Icon name="grid" size="lg" /></span>
-                <div>
-                  <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('home.mito.platform.chitu.title') }}</h3>
-                  <p class="text-xs text-gray-500 dark:text-dark-400">{{ t('home.mito.platform.chitu.tagline') }}</p>
-                </div>
-              </div>
-              <p class="mt-4 text-sm leading-relaxed text-gray-600 dark:text-dark-400">{{ t('home.mito.platform.chitu.desc') }}</p>
-
-              <div class="mt-5 grid gap-4 md:grid-cols-2">
-                <div v-for="item in chituCapabilities" :key="item.icon" class="mito-platform-capability">
-                  <div class="flex items-center gap-2">
-                    <span class="mito-platform-capability-icon"><Icon :name="item.icon" size="sm" /></span>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ t(item.titleKey) }}</span>
-                  </div>
-                  <p class="mt-1.5 text-sm leading-relaxed text-gray-600 dark:text-dark-400">{{ t(item.descKey) }}</p>
-                </div>
-              </div>
-            </article>
-          </div>
-
-          <div class="mb-6">
-            <div class="mb-4 flex items-center justify-center gap-2">
-              <span class="mito-platform-flow-line" aria-hidden="true"></span>
-              <h3 class="mito-section-title text-base sm:text-lg">{{ t(platformFlowTitle) }}</h3>
-              <span class="mito-platform-flow-line" aria-hidden="true"></span>
-            </div>
-            <div class="grid gap-4 md:grid-cols-5">
-              <div v-for="(step, index) in platformFlow" :key="step.icon" class="mito-platform-flow-step">
-                <div class="flex items-center justify-between gap-2">
-                  <span class="mito-platform-flow-index">0{{ index + 1 }}</span>
-                  <Icon :name="step.icon" size="sm" class="text-gray-500 dark:text-dark-400" />
-                </div>
-                <h4 class="mt-2 text-sm font-semibold text-gray-900 dark:text-white">{{ t(step.title) }}</h4>
-                <p class="mt-1 text-xs leading-relaxed text-gray-600 dark:text-dark-400">{{ t(step.desc) }}</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <dl v-for="fact in platformFacts" :key="fact.icon" class="mito-platform-tile">
-              <div class="flex items-center gap-2">
-                <span class="mito-platform-tile-icon"><Icon :name="fact.icon" size="sm" /></span>
-                <dt>{{ t(fact.labelKey) }}</dt>
-              </div>
-              <dd>{{ t(fact.valueKey) }}</dd>
-            </dl>
-          </div>
-        </section>
 
         <!-- Closing CTA band -->
         <div class="mito-cta-band flex flex-col items-center justify-between gap-5 px-6 py-8 text-center sm:px-10 md:flex-row md:text-left">
