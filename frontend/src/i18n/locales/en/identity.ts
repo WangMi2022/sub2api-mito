@@ -199,7 +199,7 @@ export default {
   "mitoRoleHints": {
     "user": "Users access resources belonging to their own account without administration permissions.",
     "admin": "Administrators can manage Mito. Unified identity administration still requires its separate maintenance-account authorization.",
-    "observer": "Observers can only read accounts within the selected billing groups. This role does not grant administration write access."
+    "observer": "Observers can manage upstream accounts within their authorized billing groups. User management requires the administrator role."
   },
   "mitoUngroupedWarning": "Without a Mito user group, both panel sign-in and API requests are blocked. An identity group does not replace this business user group.",
   "mitoBillingAccess": "Billing group access",
@@ -208,8 +208,8 @@ export default {
   "mitoExclusive": "Exclusive",
   "mitoPublic": "Public",
   "mitoNoBillingGroups": "No billing groups are available.",
-  "mitoObserverScope": "Observer visibility",
-  "mitoObserverHint": "Grants read-only account visibility within the selected billing groups. An empty selection grants no observer visibility.",
+  "mitoObserverScope": "Observer management scope",
+  "mitoObserverHint": "Observers can create, edit, delete and test upstream accounts in the selected billing groups. Leave all groups unchecked to grant access to none.",
   "mitoConcurrency": "Concurrency limit",
   "mitoRPM": "Account RPM limit (0 means no account-level limit)",
   "mitoChangeReason": "Reason for change",

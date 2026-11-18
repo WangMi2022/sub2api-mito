@@ -199,7 +199,7 @@ export default {
   "mitoRoleHints": {
     "user": "普通用户使用自己账号下的资源，不拥有后台管理权限。",
     "admin": "管理员拥有 Mito 后台管理权限；统一身份管理仍受独立的维护账号授权控制。",
-    "observer": "观察员仅能只读查看所选计费分组范围内的账号，不获得管理员写权限。"
+    "observer": "观察员可以管理授权计费分组内的上游账号。用户管理需要管理员角色。"
   },
   "mitoUngroupedWarning": "未分配 Mito 用户组会同时禁止面板登录和 API 调用。身份分组不能代替这里的业务用户组。",
   "mitoBillingAccess": "计费分组访问范围",
@@ -208,8 +208,8 @@ export default {
   "mitoExclusive": "专属分组",
   "mitoPublic": "公开分组",
   "mitoNoBillingGroups": "暂无可配置的计费分组。",
-  "mitoObserverScope": "观察员可见范围",
-  "mitoObserverHint": "仅授予所选计费分组的只读账号可见权限；留空时没有观察范围。",
+  "mitoObserverScope": "观察员管理范围",
+  "mitoObserverHint": "勾选计费分组后，观察员可以在组内新增、编辑、删除和测试上游账号。留空表示不授予任何分组。",
   "mitoConcurrency": "并发上限",
   "mitoRPM": "账号 RPM 上限（0 表示不设账号级限额）",
   "mitoChangeReason": "变更原因",
