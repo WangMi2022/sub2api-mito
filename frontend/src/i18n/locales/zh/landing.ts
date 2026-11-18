@@ -159,19 +159,20 @@ export default {
             gateway: { title: '专用推理网关', desc: '通过独立 C08 Key 调用文本接口，服务端选择受信目标，不透传客户凭据，也不暴露原引擎身份。' },
             usage: { title: '用量与审计', desc: '请求、终态与原事件同事务落库；RPM/TPM/并发共享限流，后续可生成窗口清单与对账证据。' }
           },
-          flow: {
-            title: 'MITO × CHITU 协作流程',
-            steps: {
-              identity: { title: '统一身份', desc: '同一 IdP 分别签发独立客户端会话，双方保持各自授权边界。' },
-              grant: { title: '授权绑定', desc: '客户映射、项目授权与报价同意逐项显式登记，不按邮箱自动放权。' },
-              deploy: { title: '算力部署', desc: 'Chitu 节点完成部署并发布受信路由，确认后形成当前运行权益。' },
-              inference: { title: '受控调用', desc: 'Chitu 专用 Key 走专用 Gateway，MITO 的模型 API Key 不直接操作算力。' },
-              audit: { title: '计量回流', desc: '请求事实与原事件回流 Chitu，用于对账、窗口核验和后续成本分析。' }
-            }
-          },
           resources: { label: '资源与部署', value: 'GPU/NPU 节点接入、服务部署与运行状态管理' },
           gateway: { label: '专用推理网关', value: '专用 Key、受信路由、共享限流与请求事实' }
         },
+        flow: {
+          title: 'MITO × CHITU 协作流程',
+          steps: {
+            identity: { title: '统一身份', desc: '同一 IdP 分别签发独立客户端会话，双方保持各自授权边界。' },
+            grant: { title: '授权绑定', desc: '客户映射、项目授权与报价同意逐项显式登记，不按邮箱自动放权。' },
+            deploy: { title: '算力部署', desc: 'Chitu 节点完成部署并发布受信路由，确认后形成当前运行权益。' },
+            inference: { title: '受控调用', desc: 'Chitu 专用 Key 走专用 Gateway，MITO 的模型 API Key 不直接操作算力。' },
+            audit: { title: '计量回流', desc: '请求事实与原事件回流 Chitu，用于对账、窗口核验和后续成本分析。' }
+          }
+        },
+
         facts: {
           identity: { label: '身份', value: '同一身份环境' },
           key: { label: '密钥', value: 'Mito Key 与 Chitu 专用 Key 分域' },

@@ -159,19 +159,20 @@ export default {
             gateway: { title: 'Dedicated inference gateway', desc: 'Call the text endpoint with a dedicated C08 key. The service selects trusted targets, does not forward customer credentials, and hides engine identity.' },
             usage: { title: 'Usage & audit', desc: 'Requests, final states and original events land in one transaction; shared RPM/TPM/concurrency limits support window attestations later.' }
           },
-          flow: {
-            title: 'MITO × CHITU workflow',
-            steps: {
-              identity: { title: 'Unified identity', desc: 'One IdP issues separate clients for both products; authorization boundaries remain independent.' },
-              grant: { title: 'Grants & binding', desc: 'Customer mappings, project grants and quote consent are registered explicitly, never inferred from email.' },
-              deploy: { title: 'Compute deployment', desc: 'Chitu nodes complete deployment and publish trusted routes; confirmation forms the current running entitlement.' },
-              inference: { title: 'Controlled inference', desc: 'A Chitu key reaches the dedicated gateway. Mito model keys do not operate compute directly.' },
-              audit: { title: 'Metering return', desc: 'Request facts and original events return to Chitu for reconciliation, window attestation and cost analysis.' }
-            }
-          },
           resources: { label: 'Resources & deployment', value: 'GPU/NPU node onboarding, service deployment and runtime status' },
           gateway: { label: 'Dedicated inference gateway', value: 'Dedicated keys, trusted routes, shared limits and request records' }
         },
+        flow: {
+          title: 'MITO × CHITU workflow',
+          steps: {
+            identity: { title: 'Unified identity', desc: 'One IdP issues separate clients for both products; authorization boundaries remain independent.' },
+            grant: { title: 'Grants & binding', desc: 'Customer mappings, project grants and quote consent are registered explicitly, never inferred from email.' },
+            deploy: { title: 'Compute deployment', desc: 'Chitu nodes complete deployment and publish trusted routes; confirmation forms the current running entitlement.' },
+            inference: { title: 'Controlled inference', desc: 'A Chitu key reaches the dedicated gateway. Mito model keys do not operate compute directly.' },
+            audit: { title: 'Metering return', desc: 'Request facts and original events return to Chitu for reconciliation, window attestation and cost analysis.' }
+          }
+        },
+
         facts: {
           identity: { label: 'Identity', value: 'One identity environment' },
           key: { label: 'Keys', value: 'Mito API keys and Chitu dedicated keys are domain-separated' },
