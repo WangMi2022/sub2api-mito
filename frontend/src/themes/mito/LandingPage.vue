@@ -340,7 +340,7 @@
             <p class="mito-section-sub text-sm sm:text-base">{{ t('home.mito.platform.subtitle') }}</p>
           </div>
 
-          <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.18fr)]">
+          <div class="mb-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.24fr)]">
             <article class="mito-glass-card p-6">
               <div class="flex items-center gap-3">
                 <span class="mito-core-icon" data-tone="blue" aria-hidden="true"><Icon name="server" size="lg" /></span>
@@ -366,36 +366,45 @@
                 </div>
               </div>
               <p class="mt-4 text-sm leading-relaxed text-gray-600 dark:text-dark-400">{{ t('home.mito.platform.chitu.desc') }}</p>
-              <div class="mt-5 grid gap-3 sm:grid-cols-2">
-                <dl class="mito-platform-tile">
-                  <dt>{{ t('home.mito.platform.chitu.resources.label') }}</dt>
-                  <dd>{{ t('home.mito.platform.chitu.resources.value') }}</dd>
-                </dl>
-                <dl class="mito-platform-tile">
-                  <dt>{{ t('home.mito.platform.chitu.gateway.label') }}</dt>
-                  <dd>{{ t('home.mito.platform.chitu.gateway.value') }}</dd>
-                </dl>
+
+              <div class="mt-5 grid gap-4 md:grid-cols-2">
+                <div v-for="item in chituCapabilities" :key="item.icon" class="mito-platform-capability">
+                  <div class="flex items-center gap-2">
+                    <span class="mito-platform-capability-icon"><Icon :name="item.icon" size="sm" /></span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ t(item.titleKey) }}</span>
+                  </div>
+                  <p class="mt-1.5 text-sm leading-relaxed text-gray-600 dark:text-dark-400">{{ t(item.descKey) }}</p>
+                </div>
               </div>
             </article>
           </div>
 
-          <div class="mito-core-strip mt-5">
-            <div class="mito-core-fact">
-              <dt>{{ t('home.mito.platform.facts.identity.label') }}</dt>
-              <dd>{{ t('home.mito.platform.facts.identity.value') }}</dd>
+          <div class="mb-6">
+            <div class="mb-4 flex items-center justify-center gap-2">
+              <span class="mito-platform-flow-line" aria-hidden="true"></span>
+              <h3 class="mito-section-title text-base sm:text-lg">{{ t(platformFlowTitle) }}</h3>
+              <span class="mito-platform-flow-line" aria-hidden="true"></span>
             </div>
-            <div class="mito-core-fact">
-              <dt>{{ t('home.mito.platform.facts.key.label') }}</dt>
-              <dd>{{ t('home.mito.platform.facts.key.value') }}</dd>
+            <div class="grid gap-4 md:grid-cols-5">
+              <div v-for="(step, index) in platformFlow" :key="step.icon" class="mito-platform-flow-step">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="mito-platform-flow-index">0{{ index + 1 }}</span>
+                  <Icon :name="step.icon" size="sm" class="text-gray-500 dark:text-dark-400" />
+                </div>
+                <h4 class="mt-2 text-sm font-semibold text-gray-900 dark:text-white">{{ t(step.title) }}</h4>
+                <p class="mt-1 text-xs leading-relaxed text-gray-600 dark:text-dark-400">{{ t(step.desc) }}</p>
+              </div>
             </div>
-            <div class="mito-core-fact">
-              <dt>{{ t('home.mito.platform.facts.billing.label') }}</dt>
-              <dd>{{ t('home.mito.platform.facts.billing.value') }}</dd>
-            </div>
-            <div class="mito-core-fact">
-              <dt>{{ t('home.mito.platform.facts.ops.label') }}</dt>
-              <dd>{{ t('home.mito.platform.facts.ops.value') }}</dd>
-            </div>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <dl v-for="fact in platformFacts" :key="fact.icon" class="mito-platform-tile">
+              <div class="flex items-center gap-2">
+                <span class="mito-platform-tile-icon"><Icon :name="fact.icon" size="sm" /></span>
+                <dt>{{ t(fact.labelKey) }}</dt>
+              </div>
+              <dd>{{ t(fact.valueKey) }}</dd>
+            </dl>
           </div>
         </section>
 
@@ -498,6 +507,29 @@ defineProps<{
   currentYear: number
   showModelPlazaEntry: boolean
 }>()
+
+const chituCapabilities = [
+  { icon: 'cpu', titleKey: 'home.mito.platform.chitu.items.resources.title', descKey: 'home.mito.platform.chitu.items.resources.desc' },
+  { icon: 'cog', titleKey: 'home.mito.platform.chitu.items.deployment.title', descKey: 'home.mito.platform.chitu.items.deployment.desc' },
+  { icon: 'shield', titleKey: 'home.mito.platform.chitu.items.gateway.title', descKey: 'home.mito.platform.chitu.items.gateway.desc' },
+  { icon: 'chart', titleKey: 'home.mito.platform.chitu.items.usage.title', descKey: 'home.mito.platform.chitu.items.usage.desc' }
+] as const
+
+const platformFlowTitle = 'home.mito.platform.flow.title'
+const platformFlow = [
+  { icon: 'user', title: 'home.mito.platform.flow.steps.identity.title', desc: 'home.mito.platform.flow.steps.identity.desc' },
+  { icon: 'key', title: 'home.mito.platform.flow.steps.grant.title', desc: 'home.mito.platform.flow.steps.grant.desc' },
+  { icon: 'server', title: 'home.mito.platform.flow.steps.deploy.title', desc: 'home.mito.platform.flow.steps.deploy.desc' },
+  { icon: 'swap', title: 'home.mito.platform.flow.steps.inference.title', desc: 'home.mito.platform.flow.steps.inference.desc' },
+  { icon: 'book', title: 'home.mito.platform.flow.steps.audit.title', desc: 'home.mito.platform.flow.steps.audit.desc' }
+] as const
+
+const platformFacts = [
+  { icon: 'user', labelKey: 'home.mito.platform.facts.identity.label', valueKey: 'home.mito.platform.facts.identity.value' },
+  { icon: 'key', labelKey: 'home.mito.platform.facts.key.label', valueKey: 'home.mito.platform.facts.key.value' },
+  { icon: 'chart', labelKey: 'home.mito.platform.facts.billing.label', valueKey: 'home.mito.platform.facts.billing.value' },
+  { icon: 'server', labelKey: 'home.mito.platform.facts.ops.label', valueKey: 'home.mito.platform.facts.ops.value' }
+] as const
 
 const emit = defineEmits<{ toggleTheme: [] }>()
 const { t } = useI18n()

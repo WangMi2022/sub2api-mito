@@ -2057,6 +2057,148 @@ html[data-ui-theme='mito'] .mito-landing .mito-platform-title {
   }
 }
 
+/* ---------- Integrated platform matrix ---------- */
+html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix {
+  --pm-border: rgb(226 232 240 / 78%);
+  --pm-surface: rgb(255 255 255 / 72%);
+  --pm-surface-soft: rgb(248 250 252 / 76%);
+  --pm-text: rgb(15 23 42);
+  --pm-muted: rgb(100 116 139);
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-platform-matrix {
+  --pm-border: rgb(51 65 85 / 62%);
+  --pm-surface: rgb(15 23 42 / 68%);
+  --pm-surface-soft: rgb(30 41 59 / 56%);
+  --pm-text: rgb(241 245 249);
+  --pm-muted: rgb(148 163 184);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix .mito-glass-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--pm-surface);
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix .mito-glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, rgb(37 99 235 / 72%), rgb(14 165 233 / 58%));
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix .chitu-card::before {
+  background: linear-gradient(90deg, rgb(5 150 105 / 72%), rgb(132 204 22 / 48%));
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix .mito-glass-card:hover {
+  transform: translateY(-2px);
+  border-color: rgb(37 99 235 / 30%);
+  box-shadow: 0 20px 42px -30px rgb(37 99 235 / 72%);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix .chitu-card:hover {
+  border-color: rgb(5 150 105 / 30%);
+  box-shadow: 0 20px 42px -30px rgb(5 150 105 / 65%);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-capability {
+  border: 1px solid var(--pm-border);
+  border-radius: 0.85rem;
+  background: var(--pm-surface-soft);
+  padding: 0.85rem;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-capability-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 0.55rem;
+  border: 1px solid rgb(5 150 105 / 20%);
+  background: rgb(5 150 105 / 9%);
+  color: #047857;
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-platform-capability-icon {
+  border-color: rgb(16 185 129 / 22%);
+  background: rgb(16 185 129 / 10%);
+  color: #6ee7b7;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-flow-line {
+  height: 1px;
+  width: min(15%, 7rem);
+  background: linear-gradient(90deg, transparent, var(--pm-border));
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-flow-step {
+  border: 1px solid var(--pm-border);
+  border-radius: 0.85rem;
+  background: var(--pm-surface);
+  padding: 0.85rem;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-flow-index {
+  color: var(--pm-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-tile {
+  border: 1px solid var(--pm-border);
+  border-radius: 0.75rem;
+  background: var(--pm-surface-soft);
+  padding: 0.8rem;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-tile-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--pm-border);
+  background: var(--pm-surface);
+  color: var(--pm-muted);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-tile dt {
+  color: var(--pm-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-tile dd {
+  margin-top: 0.3rem;
+  color: var(--pm-text);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+@media (max-width: 640px) {
+  html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix .mito-glass-card {
+    padding: 1.25rem 1.15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix .mito-glass-card {
+    transition: none;
+  }
+
+  html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix .mito-glass-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
 /* ---------- Interactive API Playground ---------- */
 html[data-ui-theme='mito'] .mito-playground {
   --pg-border: var(--sandbox-border);

@@ -138,7 +138,7 @@ export default {
       platform: {
         badge: 'MITO × CHITU · 平台矩阵',
         title: 'AI 网关与专用算力平台',
-        subtitle: 'MITO 负责模型接入、密钥与用量，Chitu 承接 GPU/NPU 资源、部署与推理运维；两个入口通过统一身份与商业链路衔接。',
+        subtitle: 'MITO 管模型接入、密钥与用量；Chitu 管专用算力、部署和推理链路。下面按能力、协作流程和分域规则展开。',
         mito: {
           title: 'MITO：模型 API 服务',
           tagline: '统一接入 · 调度 · 计费',
@@ -152,7 +152,23 @@ export default {
         chitu: {
           title: 'Chitu：专用算力平台',
           tagline: 'GPU/NPU 资源 · 部署与推理',
-          desc: '把资源、服务部署、推理 Gateway 与调用计量纳入同一控制面，适合需要专用算力和受控推理链路的团队。',
+          desc: 'Chitu 把 GPU/NPU 节点、服务部署、受信推理网关与调用计量收束到同一个控制面，适合需要专用算力、显式授权和可审计推理链路的团队。',
+          items: {
+            resources: { title: 'GPU/NPU 资源', desc: '接入客户节点，登记设备与能力；运行状态、就绪观察与硬件生命周期有独立记录。' },
+            deployment: { title: '部署与运行权益', desc: '按项目创建服务部署，绑定受信路由和运行权益；发布、续期与撤下都是显式动作。' },
+            gateway: { title: '专用推理网关', desc: '通过独立 C08 Key 调用文本接口，服务端选择受信目标，不透传客户凭据，也不暴露原引擎身份。' },
+            usage: { title: '用量与审计', desc: '请求、终态与原事件同事务落库；RPM/TPM/并发共享限流，后续可生成窗口清单与对账证据。' }
+          },
+          flow: {
+            title: 'MITO × CHITU 协作流程',
+            steps: {
+              identity: { title: '统一身份', desc: '同一 IdP 分别签发独立客户端会话，双方保持各自授权边界。' },
+              grant: { title: '授权绑定', desc: '客户映射、项目授权与报价同意逐项显式登记，不按邮箱自动放权。' },
+              deploy: { title: '算力部署', desc: 'Chitu 节点完成部署并发布受信路由，确认后形成当前运行权益。' },
+              inference: { title: '受控调用', desc: 'Chitu 专用 Key 走专用 Gateway，MITO 的模型 API Key 不直接操作算力。' },
+              audit: { title: '计量回流', desc: '请求事实与原事件回流 Chitu，用于对账、窗口核验和后续成本分析。' }
+            }
+          },
           resources: { label: '资源与部署', value: 'GPU/NPU 节点接入、服务部署与运行状态管理' },
           gateway: { label: '专用推理网关', value: '专用 Key、受信路由、共享限流与请求事实' }
         },

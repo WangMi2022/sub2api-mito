@@ -138,7 +138,7 @@ export default {
       platform: {
         badge: 'MITO × CHITU · Platform Matrix',
         title: 'AI Gateway & Dedicated Compute',
-        subtitle: 'MITO handles model access, keys and usage. Chitu manages GPU/NPU resources, deployment and inference operations, connected through unified identity and commercial workflows.',
+        subtitle: 'MITO owns model access, keys and usage. Chitu owns dedicated compute, deployment and inference. Here are the capabilities, workflow and separation rules.',
         mito: {
           title: 'MITO: Model API Service',
           tagline: 'Unified access · Routing · Billing',
@@ -152,7 +152,23 @@ export default {
         chitu: {
           title: 'Chitu: Dedicated Compute Platform',
           tagline: 'GPU/NPU resources · Deployment & inference',
-          desc: 'Resources, service deployment, an inference Gateway and call metering live in one controlled plane, suited to teams that need dedicated compute and audited inference.',
+          desc: 'Chitu brings GPU/NPU nodes, service deployment, a trusted inference Gateway and call metering into one control plane for teams that need dedicated compute, explicit grants and auditable inference.',
+          items: {
+            resources: { title: 'GPU/NPU resources', desc: 'Onboard customer nodes and register devices and capabilities; runtime status, readiness and hardware lifecycle are recorded separately.' },
+            deployment: { title: 'Deployment & entitlement', desc: 'Create project deployments, bind trusted routes and running entitlements; publish, renew and withdraw are explicit actions.' },
+            gateway: { title: 'Dedicated inference gateway', desc: 'Call the text endpoint with a dedicated C08 key. The service selects trusted targets, does not forward customer credentials, and hides engine identity.' },
+            usage: { title: 'Usage & audit', desc: 'Requests, final states and original events land in one transaction; shared RPM/TPM/concurrency limits support window attestations later.' }
+          },
+          flow: {
+            title: 'MITO × CHITU workflow',
+            steps: {
+              identity: { title: 'Unified identity', desc: 'One IdP issues separate clients for both products; authorization boundaries remain independent.' },
+              grant: { title: 'Grants & binding', desc: 'Customer mappings, project grants and quote consent are registered explicitly, never inferred from email.' },
+              deploy: { title: 'Compute deployment', desc: 'Chitu nodes complete deployment and publish trusted routes; confirmation forms the current running entitlement.' },
+              inference: { title: 'Controlled inference', desc: 'A Chitu key reaches the dedicated gateway. Mito model keys do not operate compute directly.' },
+              audit: { title: 'Metering return', desc: 'Request facts and original events return to Chitu for reconciliation, window attestation and cost analysis.' }
+            }
+          },
           resources: { label: 'Resources & deployment', value: 'GPU/NPU node onboarding, service deployment and runtime status' },
           gateway: { label: 'Dedicated inference gateway', value: 'Dedicated keys, trusted routes, shared limits and request records' }
         },
