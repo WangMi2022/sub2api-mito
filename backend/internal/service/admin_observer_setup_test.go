@@ -13,7 +13,7 @@ import (
 
 func TestObserverSetupRejectsExclusiveGroupsInSimpleMode(t *testing.T) {
 	svc := &adminServiceImpl{cfg: &config.Config{RunMode: config.RunModeSimple}}
-	_, tx, err := svc.beginObserverSetup(context.Background(), 7, &UpdateUserInput{
+	_, tx, err := svc.beginAdminUserUpdate(context.Background(), 7, &UpdateUserInput{
 		Role: RoleObserver, ObserverSetup: &ObserverSetupOptions{CreateDedicatedGroup: true},
 	})
 	require.Equal(t, "SIMPLE_MODE_OPERATION_UNSUPPORTED", infraerrors.Reason(err))
