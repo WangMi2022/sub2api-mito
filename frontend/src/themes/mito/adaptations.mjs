@@ -1443,7 +1443,7 @@ contracts.push(...[
 contracts.push(...[
   {
     path: 'frontend/src/views/identity/IdentityView.vue',
-    anchors: ['mito-identity-users', 'mito-identity-toolbar', 'mito-identity-account', 'mito-identity-pagination', 'TablePageLayout', 'identity.protectedBadge']
+    anchors: ['mito-identity-users', 'mito-identity-toolbar', 'mito-identity-account', 'mito-identity-manage', 'identity.manageUser', 'mito-identity-pagination', 'TablePageLayout', 'identity.protectedBadge']
   },
   {
     path: 'frontend/src/themes/mito/identity.css',

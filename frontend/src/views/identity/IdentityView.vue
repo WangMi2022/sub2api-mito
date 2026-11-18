@@ -90,13 +90,10 @@
               </span>
             </template>
             <template #cell-actions="{ row }">
-              <div class="flex flex-wrap items-center gap-1">
-              <button class="btn btn-secondary btn-sm" @click="openUser(row.id, 'mito')">{{ t('identity.mito') }}</button>
               <button class="mito-identity-manage inline-flex items-center gap-1.5 rounded-lg p-2 text-xs font-medium text-primary-600 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-900/20" @click="openUser(row.id)">
                 <Icon name="userCog" size="sm" aria-hidden="true" />
                 {{ t('identity.manageUser') }}
               </button>
-              </div>
             </template>
             <template #empty>
               <EmptyState :title="t(error ? 'identity.loadFailed' : 'identity.noUsers')" :description="error ? '' : t('identity.searchHint')">
