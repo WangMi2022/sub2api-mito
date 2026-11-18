@@ -106,7 +106,7 @@ export default {
   "noDirectAccounts": "No accounts have direct access to this application.",
   "noApplications": "No applications are registered.",
   "directAccess": "Direct SSO access",
-  "allStatuses": "All account statuses",
+  "allStatuses": "All statuses",
   "allEmailStatuses": "All email statuses",
   "security": "Account security",
   "authentication": "Sign-in methods",
