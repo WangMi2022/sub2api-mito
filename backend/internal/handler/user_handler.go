@@ -139,6 +139,11 @@ func (h *UserHandler) ChangePassword(c *gin.Context) {
 		return
 	}
 
+	if err := h.authService.CheckLocalPasswordChange(c.Request.Context()); err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+
 	var req ChangePasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, "Invalid request: "+err.Error())

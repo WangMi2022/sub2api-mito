@@ -213,9 +213,10 @@ func (h *PageHandler) findSlugVisibility(c *gin.Context, slug string) (string, b
 	}
 
 	var items []struct {
-		URL        string `json:"url"`
-		PageSlug   string `json:"page_slug"`
-		Visibility string `json:"visibility"`
+		URL         string `json:"url"`
+		PageSlug    string `json:"page_slug"`
+		Visibility  string `json:"visibility"`
+		UserVisible *bool  `json:"user_visible"`
 	}
 	if err := json.Unmarshal([]byte(raw), &items); err != nil {
 		return "", false
@@ -227,7 +228,10 @@ func (h *PageHandler) findSlugVisibility(c *gin.Context, slug string) (string, b
 			itemSlug = strings.TrimPrefix(item.URL, "md:")
 		}
 		if itemSlug == slug {
-			return item.Visibility, true
+			if service.CustomMenuUserVisible(item.Visibility, item.UserVisible) {
+				return "user", true
+			}
+			return "admin", true
 		}
 	}
 	return "", false

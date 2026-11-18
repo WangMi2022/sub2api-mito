@@ -3,6 +3,7 @@ package identityadmin
 import (
 	"context"
 	"strings"
+	"time"
 )
 
 const directoryLimit = 1000
@@ -166,9 +167,11 @@ type MembershipResult struct {
 	Failed  []string `json:"failed"`
 }
 
-// Validate the whole selection before writing; report partial upstream failures
-// explicitly. Membership operations are idempotent, so retries are safe.
+// Validate the entire selection before changing any memberships. All writes
+// through this client are serialized so simultaneous moves cannot add two groups.
 func (c *Client) BulkMembership(ctx context.Context, groupID string, ids []string, member bool) (MembershipResult, error) {
+	c.membershipMu.Lock()
+	defer c.membershipMu.Unlock()
 	result := MembershipResult{Changed: []string{}, Failed: []string{}}
 	if len(ids) == 0 || len(ids) > 50 {
 		return result, failure("invalid_request", 400)
@@ -176,32 +179,109 @@ func (c *Client) BulkMembership(ctx context.Context, groupID string, ids []strin
 	if _, err := c.managedGroup(ctx, groupID); err != nil {
 		return result, err
 	}
-	seen := map[string]bool{}
+	plans := make(map[string][]Group, len(ids))
 	for _, id := range ids {
-		if seen[id] {
+		if _, exists := plans[id]; exists {
 			return result, failure("invalid_request", 400)
 		}
-		seen[id] = true
-		if _, err := c.mutableUser(ctx, id); err != nil {
+		groups, err := c.membershipPlan(ctx, id, groupID, member)
+		if err != nil {
 			return result, err
 		}
-	}
-	method := "DELETE"
-	if member {
-		method = "PUT"
+		plans[id] = groups
 	}
 	for _, id := range ids {
-		err := c.request(ctx, method, "/users/"+id+"/groups/"+groupID, nil, nil)
-		if err == nil && !member {
-			err = c.logoutAfterMutation(ctx, id)
-		}
-		if err != nil {
+		if err := c.changeMembership(ctx, id, groupID, member, plans[id]); err != nil {
 			result.Failed = append(result.Failed, id)
 		} else {
 			result.Changed = append(result.Changed, id)
 		}
 	}
 	return result, nil
+}
+
+func (c *Client) membershipPlan(ctx context.Context, id, target string, member bool) ([]Group, error) {
+	if _, err := c.mutableUser(ctx, id); err != nil {
+		return nil, err
+	}
+	groups, err := c.userGroups(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if member {
+		for _, group := range groups {
+			if group.ID != target {
+				// Never silently remove membership of an external or privileged group.
+				if _, err := c.managedGroup(ctx, group.ID); err != nil {
+					return nil, err
+				}
+			}
+		}
+	}
+	return groups, nil
+}
+
+func (c *Client) changeMembership(ctx context.Context, id, target string, member bool, previous []Group) error {
+	endpoint := "/users/" + id + "/groups/"
+	if !member {
+		if err := c.request(ctx, "DELETE", endpoint+target, nil, nil); err != nil {
+			return err
+		}
+		return c.logoutAfterMutation(ctx, id)
+	}
+	alreadyMember := false
+	old := []Group{}
+	for _, group := range previous {
+		if group.ID == target {
+			alreadyMember = true
+		} else {
+			old = append(old, group)
+		}
+	}
+	// Remove old admission before granting the new one, avoiding a temporary
+	// union of permissions. Restore the original membership on upstream failure.
+	attempted := []Group{}
+	for _, group := range old {
+		attempted = append(attempted, group)
+		if err := c.request(ctx, "DELETE", endpoint+group.ID, nil, nil); err != nil {
+			return c.restoreMembership(ctx, id, target, false, attempted, err)
+		}
+	}
+	if !alreadyMember {
+		if err := c.request(ctx, "PUT", endpoint+target, nil, nil); err != nil {
+			return c.restoreMembership(ctx, id, target, true, attempted, err)
+		}
+	}
+	if len(old) > 0 {
+		return c.logoutAfterMutation(ctx, id)
+	}
+	return nil
+}
+
+func (c *Client) restoreMembership(ctx context.Context, id, target string, removeTarget bool, old []Group, cause error) error {
+	// The browser may have disconnected; compensation must still run.
+	recovery, cancel := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
+	defer cancel()
+	endpoint := "/users/" + id + "/groups/"
+	if removeTarget {
+		if err := c.request(recovery, "DELETE", endpoint+target, nil, nil); err != nil {
+			_ = c.logoutAfterMutation(recovery, id)
+			return failure("identity_membership_recovery_failed", 503)
+		}
+	}
+	failed := false
+	for _, group := range old {
+		if err := c.request(recovery, "PUT", endpoint+group.ID, nil, nil); err != nil {
+			failed = true
+		}
+	}
+	if len(old) > 0 {
+		_ = c.logoutAfterMutation(recovery, id)
+	}
+	if failed {
+		return failure("identity_membership_recovery_failed", 503)
+	}
+	return cause
 }
 
 func (c *Client) allUsers(ctx context.Context) ([]User, error) {

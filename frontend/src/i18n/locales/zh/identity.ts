@@ -12,7 +12,8 @@ export default {
   "disablePolicyConfirm": "关闭后，平台原有的登录方式将按各自配置恢复。已有账号和用量不会改变。",
   "groupMembers": "查看成员",
   "groupMembersTitle": "{name} · 分组成员",
-  "membersHint": "身份分组用于组织账号并继承应用访问。加入分组不会自动改变 Mito 角色或计费权限；移出会退出统一登录会话。",
+  "membersHint": "每个账号只能属于一个身份组，加入新组会移出原组并更新继承的应用访问权限；换组或移出后需重新登录。Mito 业务用户组与计费权限单独管理。",
+  "uniqueGroupHint": "每个账号只能选择一个身份组。选择新组会移出原组；如需取消归属，请点击移出。",
   "readOnlyMembersHint": "此分组由高级身份策略维护，可在此查看成员。",
   "addMembers": "添加成员",
   "backToMembers": "返回成员列表",
@@ -142,6 +143,7 @@ export default {
   },
   "none": "无",
   "errors": {
+    "identity_membership_recovery_failed": "身份平台分组操作未完整完成，请刷新账号归属后重试。",
     "identity_login_required": "请使用当前管理员的统一身份账号登录后重试。",
     "identity_forbidden": "你没有统一身份管理权限。",
     "identity_unavailable": "身份服务暂时不可用，请稍后重试。",

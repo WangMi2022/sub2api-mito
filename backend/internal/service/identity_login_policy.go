@@ -90,3 +90,22 @@ func (s *AuthService) enforceIdentityLoginPolicy(ctx context.Context, claims *JW
 	}
 	return nil
 }
+
+// CheckLocalPasswordChange keeps the original local credential intact while
+// unified-only sign-in is enabled. Disabling that policy restores local changes.
+func (s *AuthService) CheckLocalPasswordChange(ctx context.Context) error {
+	if s == nil {
+		return nil
+	}
+	if s.cfg != nil && s.cfg.IdentityAdminFile != "" && s.settingService == nil {
+		return ErrServiceUnavailable
+	}
+	enabled, err := s.settingService.MitoOIDCOnly(ctx)
+	if err != nil {
+		return err
+	}
+	if enabled {
+		return infraerrors.Forbidden("identity_password_managed", "Change your password through unified identity")
+	}
+	return nil
+}

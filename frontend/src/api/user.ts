@@ -62,6 +62,12 @@ export async function changePassword(
   return data
 }
 
+/** Start the identity provider's authenticated self-service password action. */
+export async function startIdentityPasswordChange(): Promise<{ authorize_url: string }> {
+  const { data } = await apiClient.post<{ authorize_url: string }>('/user/password/identity/start')
+  return data
+}
+
 /**
  * Send verification code for adding a notify email
  * @param email - Email address to verify
@@ -198,6 +204,7 @@ export const userAPI = {
   getProfile,
   updateProfile,
   changePassword,
+  startIdentityPasswordChange,
   sendNotifyEmailCode,
   verifyNotifyEmail,
   removeNotifyEmail,

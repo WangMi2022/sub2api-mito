@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getCustomMenuLabel } from '@/utils/customMenu'
+import { getCustomMenuLabel, isCustomMenuUserVisible, getCustomMenuAdminPlacement } from '@/utils/customMenu'
 
 const menuItem = {
   id: 'help',
@@ -23,4 +23,18 @@ describe('getCustomMenuLabel', () => {
     expect(getCustomMenuLabel({ ...menuItem, label: '', label_zh: '帮助中心', label_en: '' }, 'en'))
       .toBe('帮助中心')
   })
+})
+
+describe('ordinary-user menu audience', () => {
+  it('keeps legacy defaults and allows independent overrides for either placement', () => {
+    expect(isCustomMenuUserVisible(menuItem)).toBe(true)
+    expect(isCustomMenuUserVisible({ ...menuItem, visibility: 'admin' })).toBe(false)
+    expect(isCustomMenuUserVisible({ ...menuItem, visibility: 'admin', user_visible: true })).toBe(true)
+    expect(isCustomMenuUserVisible({ ...menuItem, user_visible: false })).toBe(false)
+  })
+})
+
+it('preserves admin placement when the legacy audience changes for compatibility', () => {
+  expect(getCustomMenuAdminPlacement({ visibility: 'user', admin_placement: 'admin' })).toBe('admin')
+  expect(getCustomMenuAdminPlacement({ visibility: 'admin', admin_placement: 'user' })).toBe('user')
 })

@@ -9,7 +9,14 @@
       </h2>
     </div>
     <div :class="props.embedded ? '' : 'px-6 py-6'">
-      <form @submit.prevent="handleChangePassword" class="space-y-4">
+      <div v-if="unifiedOnly" class="space-y-4" data-testid="identity-password-change">
+        <p v-if="props.embedded" class="text-sm font-semibold text-gray-900 dark:text-white">{{ t('profile.changePassword') }}</p>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ t('profile.identityPasswordHint') }}</p>
+        <div class="flex justify-end">
+          <button type="button" class="btn btn-primary" :disabled="loading" @click="handleIdentityPasswordChange">{{ loading ? t('common.loading') : t('profile.identityPasswordButton') }}</button>
+        </div>
+      </div>
+      <form v-else @submit.prevent="handleChangePassword" class="space-y-4">
         <div v-if="props.embedded">
           <p class="text-sm font-semibold text-gray-900 dark:text-white">
             {{ t('profile.changePassword') }}
@@ -71,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { userAPI } from '@/api'
@@ -85,6 +92,7 @@ const props = withDefaults(defineProps<{
   embedded: false,
 })
 
+const unifiedOnly = computed(() => appStore.cachedPublicSettings?.mito_oidc_only === true)
 const loading = ref(false)
 const form = ref({
   old_password: '',
@@ -92,7 +100,22 @@ const form = ref({
   confirm_password: ''
 })
 
+async function handleIdentityPasswordChange() {
+  if (loading.value) return
+  loading.value = true
+  try {
+    const result = await userAPI.startIdentityPasswordChange()
+    window.location.assign(result.authorize_url)
+  } catch (error: unknown) {
+    appStore.showError(extractApiErrorMessage(error, t('profile.passwordChangeFailed')))
+  } finally {
+    loading.value = false
+  }
+}
+
 const handleChangePassword = async () => {
+  if (unifiedOnly.value) return
+
   if (form.value.new_password !== form.value.confirm_password) {
     appStore.showError(t('profile.passwordsNotMatch'))
     return

@@ -37,6 +37,8 @@ func TestGroupAccessSupportsMembershipAndRevocation(t *testing.T) {
 			_, _ = w.Write([]byte(`[{"id":"realm-management-id"}]`))
 		case "/admin/realms/test/users/person/role-mappings/clients/realm-management-id/composite":
 			_, _ = w.Write([]byte(`[]`))
+		case "/admin/realms/test/users/person/groups":
+			_, _ = w.Write([]byte(`[]`))
 		case "/admin/realms/test/users/person/groups/team":
 			joined = r.Method == "PUT"
 			w.WriteHeader(204)
@@ -85,6 +87,8 @@ func TestBulkMembershipValidatesAllTargetsAndReportsPartialFailure(t *testing.T)
 			} else {
 				w.WriteHeader(204)
 			}
+		case r.Method == "GET" && strings.HasSuffix(r.URL.Path, "/groups"):
+			_, _ = w.Write([]byte(`[]`))
 		case strings.Contains(r.URL.Path, "/users/"):
 			id := strings.TrimPrefix(r.URL.Path, "/admin/realms/test/users/")
 			_ = json.NewEncoder(w).Encode(User{ID: id})

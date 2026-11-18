@@ -1398,10 +1398,31 @@ describe("admin SettingsView payment visible method controls", () => {
 
     expect(updateSettings).toHaveBeenCalledWith(expect.objectContaining({
       custom_menu_items: [
-        { ...menuItems[0], hide_open_button: true, parent_id: "" },
-        { ...menuItems[1], hide_open_button: false, parent_id: "" },
+        { ...menuItems[0], hide_open_button: true, parent_id: "", user_visible: true, admin_placement: "user" },
+        { ...menuItems[1], hide_open_button: false, parent_id: "", user_visible: true, admin_placement: "user" },
       ],
     }));
+    wrapper.unmount();
+  });
+
+  it("keeps administrator placement and ordinary-user access independent", async () => {
+    const menuItems = [
+      { id: "shared", label: "Shared", url: "https://example.com/shared", icon_svg: "", visibility: "admin", parent_id: "/admin/channels", sort_order: 0 },
+      { id: "personal", label: "Private", url: "https://example.com/private", icon_svg: "", visibility: "user", sort_order: 1 },
+    ];
+    getSettings.mockResolvedValue({ ...baseSettingsResponse, custom_menu_items: menuItems });
+    const wrapper = mountView();
+    await flushPromises();
+    const toggles = wrapper.findAll<HTMLInputElement>('[data-testid="custom-menu-user-visible"]');
+    expect(toggles.map(toggle => toggle.element.checked)).toEqual([false, true]);
+    await toggles[0].setValue(true);
+    await toggles[1].setValue(false);
+    await wrapper.find("form").trigger("submit.prevent");
+    await flushPromises();
+    expect(updateSettings.mock.calls[0]?.[0].custom_menu_items).toEqual([
+      expect.objectContaining({ id: "shared", visibility: "user", admin_placement: "admin", parent_id: "/admin/channels", user_visible: true }),
+      expect.objectContaining({ id: "personal", visibility: "admin", admin_placement: "user", parent_id: "", user_visible: false }),
+    ]);
     wrapper.unmount();
   });
 

@@ -16,7 +16,9 @@ type CustomMenuItem struct {
 	IconSVG        string `json:"icon_svg"`
 	URL            string `json:"url"`
 	PageSlug       string `json:"page_slug,omitempty"`
-	Visibility     string `json:"visibility"` // "user" or "admin"
+	Visibility     string `json:"visibility"` // Audience understood by both application versions.
+	AdminPlacement string `json:"admin_placement,omitempty"`
+	UserVisible    *bool  `json:"user_visible,omitempty"`
 	SortOrder      int    `json:"sort_order"`
 	HideOpenButton bool   `json:"hide_open_button,omitempty"`
 	// ParentID optionally nests this entry under a built-in sidebar parent menu.
@@ -694,7 +696,7 @@ func ParseUserVisibleMenuItems(raw string) []CustomMenuItem {
 	items := ParseCustomMenuItems(raw)
 	filtered := make([]CustomMenuItem, 0, len(items))
 	for _, item := range items {
-		if item.Visibility != "admin" {
+		if service.CustomMenuUserVisible(item.Visibility, item.UserVisible) {
 			filtered = append(filtered, item)
 		}
 	}

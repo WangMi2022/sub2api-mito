@@ -845,14 +845,15 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 }
 
 // filterUserVisibleMenuItems filters out admin-only menu items from a raw JSON
-// array string, returning only items with visibility != "admin".
+// array string, retaining only entries that allow ordinary users.
 func filterUserVisibleMenuItems(raw string) json.RawMessage {
 	raw = strings.TrimSpace(raw)
 	if raw == "" || raw == "[]" {
 		return json.RawMessage("[]")
 	}
 	var items []struct {
-		Visibility string `json:"visibility"`
+		Visibility  string `json:"visibility"`
+		UserVisible *bool  `json:"user_visible"`
 	}
 	if err := json.Unmarshal([]byte(raw), &items); err != nil {
 		return json.RawMessage("[]")
@@ -866,7 +867,7 @@ func filterUserVisibleMenuItems(raw string) json.RawMessage {
 
 	var filtered []json.RawMessage
 	for i, item := range items {
-		if item.Visibility != "admin" {
+		if CustomMenuUserVisible(item.Visibility, item.UserVisible) {
 			filtered = append(filtered, fullItems[i])
 		}
 	}

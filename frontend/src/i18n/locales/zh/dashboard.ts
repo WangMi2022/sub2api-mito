@@ -1090,6 +1090,8 @@ export default {
     updateFailed: '资料更新失败',
     usernameRequired: '用户名不能为空',
     changePassword: '修改密码',
+    identityPasswordHint: '当前使用统一身份认证登录。请前往身份平台验证当前密码并设置新密码，修改后用于 Mito、Chitu 等统一登录应用。',
+    identityPasswordButton: '修改统一身份密码',
     currentPassword: '当前密码',
     newPassword: '新密码',
     confirmNewPassword: '确认新密码',

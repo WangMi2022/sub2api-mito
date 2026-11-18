@@ -27,14 +27,15 @@ func (e *Error) Error() string              { return e.Code }
 func failure(code string, status int) error { return &Error{Code: code, Status: status} }
 
 type Client struct {
-	cfg         Config
-	http        *http.Client
-	mu          sync.Mutex
-	token       string
-	expires     time.Time
-	accessMu    sync.Mutex
-	accessEpoch uint64
-	accessCache map[string]sessionAccess
+	cfg          Config
+	http         *http.Client
+	mu           sync.Mutex
+	token        string
+	expires      time.Time
+	membershipMu sync.Mutex
+	accessMu     sync.Mutex
+	accessEpoch  uint64
+	accessCache  map[string]sessionAccess
 }
 
 func NewClient(cfg Config) (*Client, error) {

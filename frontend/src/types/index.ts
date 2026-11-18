@@ -211,6 +211,9 @@ export interface CustomMenuItem {
   hide_open_button?: boolean
   /** Built-in sidebar parent path to nest under; empty/absent means top level. */
   parent_id?: string
+  /** Override ordinary-user access independently from sidebar placement. */
+  user_visible?: boolean
+  admin_placement?: 'user' | 'admin'
   visibility: 'user' | 'admin'
   sort_order: number
 }

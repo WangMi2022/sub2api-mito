@@ -120,6 +120,20 @@ func (h *AuthHandler) OIDCOAuthStart(c *gin.Context) {
 	if !h.requireActionCaptchaForOAuthLoginStart(c) {
 		return
 	}
+	h.startOIDCOAuth(c, nil, "")
+}
+
+// OIDCPasswordStart delegates self-service password verification and mutation
+// to the identity provider. It never receives or resets the user's password.
+func (h *AuthHandler) OIDCPasswordStart(c *gin.Context) {
+	if h.cfg == nil || h.cfg.IdentityAdminFile == "" || !h.unifiedIdentitySession(c) {
+		response.ErrorFrom(c, service.ErrIdentityLoginRequired)
+		return
+	}
+	h.startOIDCOAuth(c, url.Values{"kc_action": {"UPDATE_PASSWORD"}, "prompt": {"login"}}, "/profile")
+}
+
+func (h *AuthHandler) startOIDCOAuth(c *gin.Context, extra url.Values, fixedRedirect string) {
 	cfg, err := h.getOIDCOAuthConfig(c.Request.Context())
 	if err != nil {
 		response.ErrorFrom(c, err)
@@ -133,6 +147,9 @@ func (h *AuthHandler) OIDCOAuthStart(c *gin.Context) {
 	}
 
 	redirectTo := sanitizeFrontendRedirectPath(c.Query("redirect"))
+	if fixedRedirect != "" {
+		redirectTo = fixedRedirect
+	}
 	if redirectTo == "" {
 		redirectTo = oidcOAuthDefaultRedirectTo
 	}
@@ -147,6 +164,9 @@ func (h *AuthHandler) OIDCOAuthStart(c *gin.Context) {
 	oidcSetCookie(c, oidcOAuthStateCookieName, encodeCookieValue(state), oidcOAuthCookieMaxAgeSec, secureCookie)
 	oidcSetCookie(c, oidcOAuthRedirectCookie, encodeCookieValue(redirectTo), oidcOAuthCookieMaxAgeSec, secureCookie)
 	intent := normalizeOAuthIntent(c.Query("intent"))
+	if fixedRedirect != "" {
+		intent = oauthIntentLogin
+	}
 	oidcSetCookie(c, oidcOAuthIntentCookieName, encodeCookieValue(intent), oidcOAuthCookieMaxAgeSec, secureCookie)
 	captureOAuthPromoCode(c, secureCookie)
 	setOAuthPendingBrowserCookie(c, browserSessionKey, secureCookie)
@@ -189,7 +209,7 @@ func (h *AuthHandler) OIDCOAuthStart(c *gin.Context) {
 		return
 	}
 
-	authURL, err := buildOIDCAuthorizeURL(cfg, state, nonce, codeChallenge, redirectURI)
+	authURL, err := buildOIDCAuthorizeURLWithExtra(cfg, state, nonce, codeChallenge, redirectURI, extra)
 	if err != nil {
 		response.ErrorFrom(c, infraerrors.InternalServer("OAUTH_BUILD_URL_FAILED", "failed to build oauth authorization url").WithCause(err))
 		return

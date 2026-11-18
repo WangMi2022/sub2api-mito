@@ -10,8 +10,8 @@ vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: (key: string) => key, locale: 
 vi.mock('@/stores', () => ({ useAppStore: () => ({
   publicSettingsLoaded: true,
   cachedPublicSettings: { custom_menu_items: [
-    { id: 'old', url: 'md:old' }, { id: 'new', url: 'md:new' },
-    { id: 'external', url: 'https://example.com/docs' }
+    { id: 'old', url: 'md:old', visibility: 'user' }, { id: 'new', url: 'md:new', visibility: 'user' },
+    { id: 'external', url: 'https://example.com/docs', visibility: 'user' }
   ] }
 }) }))
 vi.mock('@/stores/auth', () => ({ useAuthStore: () => ({ isAdmin: false, user: { id: 1 }, token: 'test' }) }))

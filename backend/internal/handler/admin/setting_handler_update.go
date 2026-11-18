@@ -1471,6 +1471,23 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 				response.BadRequest(c, "Custom menu item visibility must be 'user' or 'admin'")
 				return
 			}
+			placement := item.AdminPlacement
+			if placement == "" {
+				placement = item.Visibility
+			}
+			if placement != "user" && placement != "admin" {
+				response.BadRequest(c, "Custom menu admin placement must be 'user' or 'admin'")
+				return
+			}
+			// Keep the legacy audience authoritative for the official instance sharing
+			// these settings. It cannot interpret the new placement/visibility fields.
+			if item.UserVisible != nil {
+				items[i].AdminPlacement = placement
+				items[i].Visibility = "admin"
+				if *item.UserVisible {
+					items[i].Visibility = "user"
+				}
+			}
 			if len(item.IconSVG) > maxMenuItemIconSVGLen {
 				response.BadRequest(c, "Custom menu item icon SVG is too large (max 10KB)")
 				return

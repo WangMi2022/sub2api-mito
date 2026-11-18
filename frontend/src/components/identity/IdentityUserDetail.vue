@@ -86,12 +86,16 @@
       <IdentityMitoPermissions v-if="tab === 'mito'" :id="id" :step-up="stepUp" @changed="emit('changed')" />
 
       <section v-if="tab === 'groups'" class="space-y-3">
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('identity.uniqueGroupHint') }}</p>
         <p v-if="groupsLoading" role="status" class="py-4 text-sm">{{ t('common.loading') }}</p>
         <p v-else-if="groupsError" role="alert" class="text-sm text-red-600 dark:text-red-400">{{ groupsError }} <button class="underline" @click="loadGroups">{{ t('common.tryAgain') }}</button></p>
         <p v-else-if="!groups?.length" class="py-6 text-sm">{{ t('identity.noGroups') }}</p>
         <label v-for="group in groups" :key="group.id" class="flex items-center justify-between gap-4 border-b border-gray-100 py-3 text-sm dark:border-dark-700">
           <span class="min-w-0 break-words">{{ group.name }}<small v-if="!group.managed" class="ml-2 text-gray-500">{{ t('identity.readOnly') }}</small></span>
-          <input type="checkbox" :checked="isMember(group.id)" :disabled="busy || !group.managed || detail.user.protected" @click.prevent="membership(group.id, !isMember(group.id))" />
+          <span class="flex items-center gap-3">
+            <button v-if="isMember(group.id) && group.managed" type="button" class="btn btn-secondary btn-sm" :disabled="busy || detail.user.protected" @click.prevent="membership(group.id, false)">{{ t('identity.removeMember') }}</button>
+            <input type="radio" name="identity-group" :checked="isMember(group.id)" :disabled="busy || !group.managed || detail.user.protected" @change="membership(group.id, true)" />
+          </span>
         </label>
       </section>
 

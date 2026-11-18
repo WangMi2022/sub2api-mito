@@ -64,3 +64,25 @@ func TestCustomMenuLocalizedLabelsUseCharacterLimit(t *testing.T) {
 	rejected := doUpdateSettings(t, h, map[string]any{"custom_menu_items": menuItem(strings.Repeat("界", 51))}, nil)
 	require.Equal(t, http.StatusBadRequest, rejected.Code, rejected.Body.String())
 }
+
+func TestCustomMenuOrdinaryVisibilityPersistsIndependentlyOfAdminPlacement(t *testing.T) {
+	h, repo := newStepUpSwitchTestHandler(t, map[string]string{})
+	items := []map[string]any{
+		{"id": "shared", "label": "Shared", "url": "md:shared", "visibility": "admin", "parent_id": "/admin/channels", "user_visible": true},
+		{"id": "private", "label": "Private", "url": "md:private", "visibility": "user", "user_visible": false},
+		{"id": "legacy", "label": "Legacy", "url": "md:legacy", "visibility": "admin"},
+	}
+	rec := doUpdateSettings(t, h, map[string]any{"custom_menu_items": items}, nil)
+	require.Equal(t, 200, rec.Code, rec.Body.String())
+	var saved []map[string]any
+	require.NoError(t, json.Unmarshal([]byte(repo.values[service.SettingKeyCustomMenuItems]), &saved))
+	require.Equal(t, true, saved[0]["user_visible"])
+	require.Equal(t, "/admin/channels", saved[0]["parent_id"])
+	require.Equal(t, false, saved[1]["user_visible"])
+	require.Equal(t, "user", saved[0]["visibility"])
+	require.Equal(t, "admin", saved[0]["admin_placement"])
+	require.Equal(t, "admin", saved[1]["visibility"])
+	require.Equal(t, "user", saved[1]["admin_placement"])
+	require.NotContains(t, saved[2], "user_visible")
+	require.NotContains(t, saved[2], "admin_placement")
+}

@@ -1086,6 +1086,8 @@ export default {
     updateFailed: 'Failed to update profile',
     usernameRequired: 'Username is required',
     changePassword: 'Change Password',
+    identityPasswordHint: 'Unified identity sign-in is enabled. Verify your current password and set a new one with the identity provider. The new password applies to Mito, Chitu and other connected apps.',
+    identityPasswordButton: 'Change unified identity password',
     currentPassword: 'Current Password',
     newPassword: 'New Password',
     confirmNewPassword: 'Confirm New Password',

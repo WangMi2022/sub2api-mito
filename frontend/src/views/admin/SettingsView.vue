@@ -7298,7 +7298,7 @@
                       {{ t("admin.settings.customMenu.visibility") }}
                     </label>
                     <select
-                      v-model="item.visibility"
+                      v-model="item.admin_placement"
                       class="input text-sm"
                       data-testid="custom-menu-visibility"
                       @change="handleVisibilityChange(item)"
@@ -7312,8 +7312,16 @@
                     </select>
                   </div>
 
+                  <div class="sm:col-span-2">
+                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                      <input v-model="item.user_visible" type="checkbox" data-testid="custom-menu-user-visible" />
+                      {{ t("admin.settings.customMenu.userVisible") }}
+                    </label>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ t("admin.settings.customMenu.userVisibleHint") }}</p>
+                  </div>
+
                   <!-- Parent menu (admin-only: the user navigation has no collapsible parents) -->
-                  <div v-if="item.visibility === 'admin'" class="sm:col-span-2">
+                  <div v-if="item.admin_placement === 'admin'" class="sm:col-span-2">
                     <label
                       class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400"
                     >
@@ -9766,6 +9774,7 @@
 </template>
 
 <script setup lang="ts">
+import { isCustomMenuUserVisible, getCustomMenuAdminPlacement } from '@/utils/customMenu';
 import EncryptedHistory409Settings from "@/components/settings/EncryptedHistory409Settings.vue";
 import EncryptedHistory400Settings from "@/components/settings/EncryptedHistory400Settings.vue";
 import { excelBPSImageLimits } from "@/utils/excelBPSImageLimits";
@@ -10704,6 +10713,8 @@ const form = reactive<SettingsForm>({
     icon_svg: string;
     url: string;
     visibility: "user" | "admin";
+    user_visible?: boolean;
+    admin_placement?: "user" | "admin";
     sort_order: number;
     hide_open_button?: boolean;
     /** Built-in sidebar parent path to nest under; empty means top level. */
@@ -11762,12 +11773,11 @@ async function setAndCopyOIDCRedirectUrl() {
 // Custom menu item management
 
 /**
- * The user-side navigation has no collapsible parents, so a user-visible entry
- * cannot nest. Clearing on switch keeps the stored value from contradicting the
- * control the administrator can actually see.
+ * Parent placement applies only to the administrator navigation. Ordinary
+ * users see permitted entries at the top level regardless of this placement.
  */
-function handleVisibilityChange(item: { visibility: "user" | "admin"; parent_id?: string }) {
-  if (item.visibility !== "admin") {
+function handleVisibilityChange(item: { admin_placement?: "user" | "admin"; parent_id?: string }) {
+  if (item.admin_placement !== "admin") {
     item.parent_id = "";
   }
 }
@@ -11781,6 +11791,8 @@ function addMenuItem() {
     icon_svg: "",
     url: "",
     visibility: "user",
+    user_visible: true,
+    admin_placement: "user",
     sort_order: form.custom_menu_items.length,
     parent_id: "",
   });
@@ -11990,6 +12002,9 @@ async function loadSettings() {
         (form as Record<string, unknown>)[key] = value;
       }
     }
+    form.custom_menu_items = (settings.custom_menu_items ?? []).map(item => ({
+      ...item, user_visible: isCustomMenuUserVisible(item), admin_placement: getCustomMenuAdminPlacement(item),
+    }));
     form.smart_ops_hidden_menu_items = [...(settings.smart_ops_hidden_menu_items ?? DEFAULT_SMART_OPS_HIDDEN_MENU_ITEMS)];
     // For this optional override, null explicitly selects per-account rates.
     if (settings.openai_oauth_scheduling_rate_multiplier === null) {
@@ -12520,7 +12535,10 @@ async function saveSettings() {
       table_page_size_options: form.table_page_size_options,
       custom_menu_items: form.custom_menu_items.map((item) => ({
         ...item,
-        parent_id: item.visibility === "admin" ? item.parent_id || "" : "",
+        user_visible: isCustomMenuUserVisible(item),
+        visibility: isCustomMenuUserVisible(item) ? "user" : "admin",
+        admin_placement: getCustomMenuAdminPlacement(item),
+        parent_id: getCustomMenuAdminPlacement(item) === "admin" ? item.parent_id || "" : "",
         label: item.label.trim() || item.label_zh?.trim() || item.label_en?.trim() || "",
       })),
       custom_endpoints: form.custom_endpoints,

@@ -432,23 +432,16 @@ func (c *Client) DeleteGroup(ctx context.Context, id, confirmation string) error
 	return nil
 }
 func (c *Client) Membership(ctx context.Context, id, groupID string, member bool) error {
-	if _, err := c.mutableUser(ctx, id); err != nil {
+	c.membershipMu.Lock()
+	defer c.membershipMu.Unlock()
+	previous, err := c.membershipPlan(ctx, id, groupID, member)
+	if err != nil {
 		return err
 	}
 	if _, err := c.managedGroup(ctx, groupID); err != nil {
 		return err
 	}
-	method := "DELETE"
-	if member {
-		method = "PUT"
-	}
-	if err := c.request(ctx, method, "/users/"+id+"/groups/"+groupID, nil, nil); err != nil {
-		return err
-	}
-	if !member {
-		return c.logoutAfterMutation(ctx, id)
-	}
-	return nil
+	return c.changeMembership(ctx, id, groupID, member, previous)
 }
 
 // SessionLogout ends one Keycloak session while preserving the user's other

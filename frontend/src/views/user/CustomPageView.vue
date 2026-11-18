@@ -127,6 +127,7 @@
 </template>
 
 <script setup lang="ts">
+import { isCustomMenuUserVisible } from '@/utils/customMenu'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useResizeObserver } from '@vueuse/core'
@@ -225,7 +226,7 @@ const menuItemId = computed(() => route.params.id as string)
 const menuItem = computed(() => {
   const id = menuItemId.value
   const publicItems = appStore.cachedPublicSettings?.custom_menu_items ?? []
-  const found = publicItems.find((item) => item.id === id) ?? null
+  const found = publicItems.find((item) => item.id === id && isCustomMenuUserVisible(item)) ?? null
   if (found) return found
   if (authStore.isAdmin) {
     return adminSettingsStore.customMenuItems.find((item) => item.id === id) ?? null

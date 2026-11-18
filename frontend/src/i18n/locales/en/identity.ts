@@ -12,7 +12,8 @@ export default {
   "disablePolicyConfirm": "Platform sign-in methods will become available according to their individual settings. Accounts and usage will be preserved.",
   "groupMembers": "View members",
   "groupMembersTitle": "{name} · Members",
-  "membersHint": "Identity groups organize accounts and grant inherited application admission. Joining does not change Mito roles or billing permissions; leaving ends unified sign-in sessions.",
+  "membersHint": "Each account belongs to one identity group at a time. Joining a new group replaces the old group and its inherited app access. Moving or leaving ends sign-in sessions. Mito business groups and billing permissions are managed separately.",
+  "uniqueGroupHint": "Select one identity group per account. Choosing another replaces the previous group. Use Remove to clear membership.",
   "readOnlyMembersHint": "This group is maintained by advanced identity policies. You can view its members here.",
   "addMembers": "Add members",
   "backToMembers": "Back to members",
@@ -142,6 +143,7 @@ export default {
   },
   "none": "None",
   "errors": {
+    "identity_membership_recovery_failed": "The identity provider could not complete the group change. Refresh membership before retrying.",
     "identity_login_required": "Sign in through unified identity with the current administrator account and try again.",
     "identity_forbidden": "You do not have identity management permission.",
     "identity_unavailable": "Identity service is temporarily unavailable. Please retry later.",

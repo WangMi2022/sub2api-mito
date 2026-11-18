@@ -56,6 +56,7 @@ func RegisterUserRoutes(
 				user.GET("/security/events/:id", h.Admin.PromptAudit.MyPenaltyEvent)
 			}
 			user.PUT("/password", h.User.ChangePassword)
+			user.POST("/password/identity/start", h.Auth.OIDCPasswordStart)
 			user.PUT("", h.User.UpdateProfile)
 			user.GET("/aff", h.User.GetAffiliate)
 			user.POST("/aff/transfer", h.User.TransferAffiliateQuota)

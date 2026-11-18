@@ -324,7 +324,7 @@ import { sanitizeUrl } from '@/utils/url'
 import { FeatureFlags, makeSidebarFlag } from '@/utils/featureFlags'
 import { resolveSiteBillingMode } from '@/utils/siteBillingMode'
 import { useBatchImageAccess } from '@/composables/useBatchImageAccess'
-import { getCustomMenuLabel } from '@/utils/customMenu'
+import { getCustomMenuLabel, isCustomMenuUserVisible, getCustomMenuAdminPlacement } from '@/utils/customMenu'
 import { filterSmartOpsSidebar } from '@/utils/smartOpsSidebar'
 import { NEW_FEATURE_NOTICES } from '@/constants/newFeatureNotices'
 import { useNewFeatureNoticeStore } from '@/stores/newFeatureNotices'
@@ -957,15 +957,16 @@ const personalNavItems = computed((): NavItem[] => finalizeNav(buildSelfNavItems
 
 // Custom menu items filtered by visibility
 const customMenuItemsForUser = computed(() => {
-  const items = appStore.cachedPublicSettings?.custom_menu_items ?? []
-  return items
-    .filter((item) => item.visibility === 'user')
+  const items = authStore.isAdmin
+    ? adminSettingsStore.customMenuItems.filter(item => getCustomMenuAdminPlacement(item) === 'user')
+    : (appStore.cachedPublicSettings?.custom_menu_items ?? []).filter(isCustomMenuUserVisible)
+  return [...items]
     .sort((a, b) => a.sort_order - b.sort_order)
 })
 
 const customMenuItemsForAdmin = computed(() => {
   return adminSettingsStore.customMenuItems
-    .filter((item) => item.visibility === 'admin')
+    .filter((item) => getCustomMenuAdminPlacement(item) === 'admin')
     .sort((a, b) => a.sort_order - b.sort_order)
 })
 
