@@ -119,7 +119,7 @@ func (c *Client) AdoptGroup(ctx context.Context, id string) error {
 		group.Attributes = map[string][]string{}
 	}
 	group.Attributes["mito.identity.managed"] = []string{"true"}
-	return c.request(ctx, "PUT", "/groups/"+id, map[string]any{"attributes": group.Attributes}, nil)
+	return c.request(ctx, "PUT", "/groups/"+id, map[string]any{"name": group.Name, "attributes": group.Attributes}, nil)
 }
 
 func (c *Client) SetGroupAccess(ctx context.Context, id, clientID string, grant bool) error {

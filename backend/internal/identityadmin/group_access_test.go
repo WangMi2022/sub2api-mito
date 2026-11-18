@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -219,11 +220,14 @@ func TestGroupAdoptionRejectsPrivilegesAndPreservesAttributes(t *testing.T) {
 			case r.Method == "PUT":
 				writes++
 				var body struct {
+					Name       string              `json:"name"`
 					Attributes map[string][]string `json:"attributes"`
 				}
-				_ = json.NewDecoder(r.Body).Decode(&body)
-				if body.Attributes["existing"][0] != "keep" || body.Attributes["mito.identity.managed"][0] != "true" {
-					t.Fatal("attributes overwritten")
+				if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+					t.Fatal(err)
+				}
+				if body.Name != "team" || !slices.Equal(body.Attributes["existing"], []string{"keep"}) || !slices.Equal(body.Attributes["mito.identity.managed"], []string{"true"}) {
+					t.Fatal("group name and attributes must survive adoption", body)
 				}
 				w.WriteHeader(204)
 			default:
