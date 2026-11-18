@@ -135,6 +135,34 @@ export default {
         parity: '与官价持平',
         parityNote: '本站按官方参考价计费，无额外溢价'
       },
+      platform: {
+        badge: 'MITO × CHITU · 平台矩阵',
+        title: 'AI 网关与专用算力平台',
+        subtitle: 'MITO 负责模型接入、密钥与用量，Chitu 承接 GPU/NPU 资源、部署与推理运维；两个入口通过统一身份与商业链路衔接。',
+        mito: {
+          title: 'MITO：模型 API 服务',
+          tagline: '统一接入 · 调度 · 计费',
+          desc: '把 Kimi、GLM、DeepSeek、MiniMax 等模型收束到 OpenAI 兼容端点，一个密钥完成调用、多路调度和费用核查。',
+          tags: {
+            1: 'OpenAI 兼容',
+            2: '多路调度',
+            3: '按量计费'
+          }
+        },
+        chitu: {
+          title: 'Chitu：专用算力平台',
+          tagline: 'GPU/NPU 资源 · 部署与推理',
+          desc: '把资源、服务部署、推理 Gateway 与调用计量纳入同一控制面，适合需要专用算力和受控推理链路的团队。',
+          resources: { label: '资源与部署', value: 'GPU/NPU 节点接入、服务部署与运行状态管理' },
+          gateway: { label: '专用推理网关', value: '专用 Key、受信路由、共享限流与请求事实' }
+        },
+        facts: {
+          identity: { label: '身份', value: '同一身份环境' },
+          key: { label: '密钥', value: 'Mito Key 与 Chitu 专用 Key 分域' },
+          billing: { label: '计费', value: '调用按 Token，算力按部署/运行权益' },
+          ops: { label: '运维', value: '调度、网关与资源监控协同' }
+        }
+      },
       cta: {
         title: '让下一次灵感，即刻接入',
         description: '统一管理密钥、模型与用量，把精力留给创造。',

@@ -135,6 +135,34 @@ export default {
         parity: 'AT PARITY',
         parityNote: 'Billed at the vendor reference price, no markup'
       },
+      platform: {
+        badge: 'MITO × CHITU · Platform Matrix',
+        title: 'AI Gateway & Dedicated Compute',
+        subtitle: 'MITO handles model access, keys and usage. Chitu manages GPU/NPU resources, deployment and inference operations, connected through unified identity and commercial workflows.',
+        mito: {
+          title: 'MITO: Model API Service',
+          tagline: 'Unified access · Routing · Billing',
+          desc: 'Bring Kimi, GLM, DeepSeek and MiniMax behind one OpenAI-compatible endpoint, with one key for calls, routing and cost review.',
+          tags: {
+            1: 'OpenAI compatible',
+            2: 'Multi-route dispatch',
+            3: 'Usage billing'
+          }
+        },
+        chitu: {
+          title: 'Chitu: Dedicated Compute Platform',
+          tagline: 'GPU/NPU resources · Deployment & inference',
+          desc: 'Resources, service deployment, an inference Gateway and call metering live in one controlled plane, suited to teams that need dedicated compute and audited inference.',
+          resources: { label: 'Resources & deployment', value: 'GPU/NPU node onboarding, service deployment and runtime status' },
+          gateway: { label: 'Dedicated inference gateway', value: 'Dedicated keys, trusted routes, shared limits and request records' }
+        },
+        facts: {
+          identity: { label: 'Identity', value: 'One identity environment' },
+          key: { label: 'Keys', value: 'Mito API keys and Chitu dedicated keys are domain-separated' },
+          billing: { label: 'Billing', value: 'Calls by token; compute by deployment/running entitlement' },
+          ops: { label: 'Operations', value: 'Coordinated scheduling, gateway and resource monitoring' }
+        }
+      },
       cta: {
         title: 'Connect Your Next Idea',
         description: 'Manage keys, models and usage in one place. Keep your focus on creating.',

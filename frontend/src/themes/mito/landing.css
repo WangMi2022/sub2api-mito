@@ -1968,6 +1968,95 @@ html[data-ui-theme='mito'] .mito-core-fact dd {
   }
 }
 
+/* ---------- Integrated platform matrix ---------- */
+html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix {
+  --pm-border: rgb(226 232 240 / 78%);
+  --pm-surface: rgb(255 255 255 / 72%);
+  --pm-surface-soft: rgb(248 250 252 / 76%);
+  --pm-text: rgb(15 23 42);
+  --pm-muted: rgb(100 116 139);
+}
+
+html[data-ui-theme='mito'].dark .mito-landing .mito-platform-matrix {
+  --pm-border: rgb(51 65 85 / 62%);
+  --pm-surface: rgb(15 23 42 / 68%);
+  --pm-surface-soft: rgb(30 41 59 / 56%);
+  --pm-text: rgb(241 245 249);
+  --pm-muted: rgb(148 163 184);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix .mito-glass-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--pm-surface);
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix .mito-glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, rgb(37 99 235 / 72%), rgb(14 165 233 / 58%));
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix .chitu-card::before {
+  background: linear-gradient(90deg, rgb(5 150 105 / 72%), rgb(132 204 22 / 48%));
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix .mito-glass-card:hover {
+  transform: translateY(-2px);
+  border-color: rgb(37 99 235 / 30%);
+  box-shadow: 0 20px 42px -30px rgb(37 99 235 / 72%);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix .chitu-card:hover {
+  border-color: rgb(5 150 105 / 30%);
+  box-shadow: 0 20px 42px -30px rgb(5 150 105 / 65%);
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-tile {
+  border: 1px solid var(--pm-border);
+  border-radius: 0.75rem;
+  background: var(--pm-surface-soft);
+  padding: 0.8rem;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-tile dt {
+  color: var(--pm-muted);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-tile dd {
+  margin-top: 0.3rem;
+  color: var(--pm-text);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+html[data-ui-theme='mito'] .mito-landing .mito-platform-title {
+  margin-bottom: 0.2rem;
+}
+
+@media (max-width: 640px) {
+  html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix .mito-glass-card {
+    padding: 1.25rem 1.15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix .mito-glass-card {
+    transition: none;
+  }
+
+  html[data-ui-theme='mito'] .mito-landing .mito-platform-matrix .mito-glass-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
 /* ---------- Interactive API Playground ---------- */
 html[data-ui-theme='mito'] .mito-playground {
   --pg-border: var(--sandbox-border);
