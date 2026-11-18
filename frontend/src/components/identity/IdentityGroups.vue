@@ -51,9 +51,10 @@ async function save() {
   if (busy.value) return
   busy.value = true; actionError.value = ''
   try {
-    await props.stepUp.run(() => removing.value && editing.value
-      ? identityAPI.deleteGroup(editing.value.id, name.value)
-      : identityAPI.saveGroup(name.value, editing.value?.id))
+    await props.stepUp.run(async () => {
+      if (removing.value && editing.value) await identityAPI.deleteGroup(editing.value.id, name.value)
+      else await identityAPI.saveGroup(name.value, editing.value?.id)
+    })
     show.value = false; await load()
   } catch (e) { if (!isStepUpCancelled(e)) actionError.value = t(identityErrorKey(e)) }
   finally { busy.value = false }
