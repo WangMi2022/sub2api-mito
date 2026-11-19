@@ -199,7 +199,7 @@ func TestGatewayResponsesGeminiVertexHTTP(t *testing.T) {
 			billing := service.NewBillingCacheService(nil, nil, nil, nil, nil, nil, cfg, nil)
 			t.Cleanup(billing.Stop)
 			key := &service.APIKey{ID: 9262, Key: "sk-synthetic-926", UserID: 9263, Status: service.StatusActive, GroupID: &group.ID, Group: group,
-				User: &service.User{ID: 9263, Status: service.StatusActive, Balance: 100, Concurrency: 2}}
+				User: &service.User{UserGroupID: userGroupIDPtr(1), ID: 9263, Status: service.StatusActive, Balance: 100, Concurrency: 2}}
 			keyService := service.NewAPIKeyService(&responsesVertexKeyRepo{key: key}, nil, nil, nil, nil, nil, cfg)
 			h := &GatewayHandler{gatewayService: gw, apiKeyService: keyService, billingCacheService: billing, cfg: cfg, maxAccountSwitches: 1,
 				concurrencyHelper:   NewConcurrencyHelper(concurrency, SSEPingFormatNone, 0),
