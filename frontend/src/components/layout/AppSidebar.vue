@@ -131,15 +131,15 @@
                         :to="child.path"
                         class="sidebar-link mb-0.5 py-1.5 text-xs font-normal"
                         :class="{ 'sidebar-link-active': route.path === child.path }"
-                        :style="['/admin/ai-ops', '/admin/auto-config', '/admin/account-quality'].includes(child.path) ? { paddingRight: '3.5rem' } : undefined"
+                        :style="child.noticeId ? { paddingRight: '3.5rem' } : undefined"
                         @click="handleMenuItemClick(child.path)"
                       >
                         <component :is="child.icon" class="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-dark-400" />
                         <span>{{ child.label }}</span>
                       </router-link>
                       <NewFeatureBadge
-                        v-if="['/admin/ai-ops', '/admin/auto-config', '/admin/account-quality'].includes(child.path)"
-                        :notice-id="child.path === '/admin/account-quality' ? NEW_FEATURE_NOTICES.qualityRetestRest : child.path === '/admin/auto-config' ? NEW_FEATURE_NOTICES.oauthInitialModelSelection : NEW_FEATURE_NOTICES.aiOpsCodex"
+                        v-if="child.noticeId"
+                        :notice-id="child.noticeId"
                         :user-id="authStore.user?.id"
                         class="absolute right-2 top-1/2 z-10 -translate-y-1/2"
                       />
@@ -264,6 +264,8 @@
     <div class="mt-auto border-t border-gray-100/90 p-3 dark:border-dark-800/80">
       <!-- Theme Toggle -->
       <button
+        type="button"
+        :aria-label="isDark ? t('nav.lightMode') : t('nav.darkMode')"
         @click="toggleTheme"
         class="sidebar-link mb-1.5 w-full text-xs"
         :class="{ 'sidebar-link-collapsed': sidebarCollapsed }"
@@ -278,6 +280,9 @@
 
       <!-- Collapse Button -->
       <button
+        type="button"
+        :aria-label="sidebarCollapsed ? t('nav.expand') : t('nav.collapse')"
+        :aria-expanded="!sidebarCollapsed"
         @click="toggleSidebar"
         class="sidebar-link w-full text-xs"
         :class="{ 'sidebar-link-collapsed': sidebarCollapsed }"
@@ -301,6 +306,8 @@
 </template>
 
 <script setup lang="ts">
+import { isMitoTheme } from '@/themes/mito'
+import { useThemeSync } from '@/themes/mito/useThemeSync'
 import { applyMitoSidebarSections, applyMitoUserSidebarSections, groupMitoSidebarSections, normalizeAdminRoutePath } from '@/themes/mito/sidebarSections'
 import { attachCustomMenuItems } from '@/utils/sidebarCustomMenus'
 import { useIdentityAdminStore } from '@/stores/identityAdmin'
@@ -333,6 +340,7 @@ interface NavItem {
   sectionTitle?: string
   /** mito-theme: stable key for a section's expand/collapse state. */
   sectionId?: string
+  noticeId?: string
   /**
    * When true, the parent item only toggles the expand/collapse state and
    * does NOT navigate to its `path`. The `path` is purely a stable key.
@@ -391,6 +399,7 @@ const mobileOpen = computed(() => appStore.mobileOpen)
 const isAdmin = computed(() => authStore.isAdmin)
 const sidebarNavRef = ref<HTMLElement | null>(null)
 const isDark = ref(document.documentElement.classList.contains('dark'))
+if (isMitoTheme) useThemeSync(isDark) // mito-theme: shared preference
 
 const homePath = computed(() => (
   isAdmin.value ? '/admin/dashboard' : authStore.isObserver ? '/admin/accounts' : '/dashboard'
@@ -414,7 +423,6 @@ const OpsMonitoringIcon = { render: () => h(Icon, { name: 'monitorPulse' }) }
 const SmartOpsIcon = { render: () => h(Icon, { name: 'cpu' }) }
 const QualityOpsIcon = { render: () => h(Icon, { name: 'badge', size: 'sm' }) }
 const AccountOpsIcon = { render: () => h(Icon, { name: 'userCog', size: 'sm' }) }
-const TokenGuardIcon = { render: () => h(Icon, { name: 'shieldKey', size: 'sm' }) }
 const CredentialOpsIcon = { render: () => h(Icon, { name: 'credentialOps', size: 'sm' }) }
 const PelicanTestsIcon = { render: () => h(Icon, { name: 'beaker', size: 'sm' }) }
 const SupportTicketIcon = { render: () => h(Icon, { name: 'chat' }) }
@@ -615,9 +623,6 @@ const GlobeIcon = {
     )
 }
 
-const FlowIcon = {
-  render: () => h(Icon, { name: 'swap', size: 'sm' })
-}
 
 const ServerIcon = {
   render: () =>
@@ -904,9 +909,12 @@ function buildSelfNavItems(withDashboard: boolean): NavItem[] {
   items.push(
     { path: '/keys', label: t('nav.apiKeys'), icon: KeyIcon },
     { path: '/batch-image', label: t('nav.batchImage'), icon: BatchImageIcon, hideInSimpleMode: true, featureFlag: flagBatchImageAccess },
-    { path: '/usage', label: t('nav.usage'), icon: ChartIcon, hideInSimpleMode: !authStore.isObserver },
+    { path: '/usage', label: isMitoTheme && !authStore.isObserver ? t('usage.logsTitle') : t('nav.usage'), icon: ChartIcon, hideInSimpleMode: !authStore.isObserver },
+    ...(isMitoTheme && !authStore.isObserver ? [{ path: '/usage-stats', label: t('usage.statsTitle'), icon: ChartIcon, hideInSimpleMode: true }] : []),
     { path: '/available-channels', label: t('nav.availableChannels'), icon: ChannelIcon, hideInSimpleMode: true, featureFlag: flagAvailableChannels },
-    { path: '/monitor', label: t('nav.channelStatus'), icon: SignalIcon, featureFlag: flagChannelMonitor },
+    ...(isMitoTheme
+      ? [{ path: '/model-plaza', label: t('modelPlaza.title'), icon: SignalIcon, featureFlag: () => !!appStore.cachedPublicSettings?.model_plaza_enabled }]
+      : [{ path: '/monitor', label: t('nav.channelStatus'), icon: SignalIcon, featureFlag: flagChannelMonitor }]),
     { path: '/pelican-showcase', label: t('nav.pelicanShowcase'), icon: GalleryIcon, featureFlag: flagPelicanShowcase },
     { path: '/subscriptions', label: t('nav.mySubscriptions'), icon: CreditCardIcon, hideInSimpleMode: true, featureFlag: flagSubscription },
     { path: '/purchase', label: purchaseNavLabel.value, icon: RechargeSubscriptionIcon, hideInSimpleMode: true, featureFlag: flagPayment },
@@ -984,21 +992,19 @@ const adminNavItems = computed((): NavItem[] => {
     { path: '/admin/accounts', label: t('nav.accounts'), icon: GlobeIcon },
     { path: '/admin/smart-ops', label: t('accountOps.smartTitle'), icon: SmartOpsIcon, expandOnly: true, children: [
       { path: '/admin/lottery', label: t('lottery.adminTitle'), icon: GiftIcon, hideInSimpleMode: true },
-      { path: '/admin/auto-config', label: t('autoConfig.title'), icon: AccountOpsIcon },
+      { path: '/admin/auto-config', label: t('autoConfig.title'), icon: AccountOpsIcon, noticeId: NEW_FEATURE_NOTICES.oauthInitialModelSelection },
       { path: '/admin/priority-scheduling', label: t('priorityScheduling.title'), icon: AccountOpsIcon },
-      { path: '/admin/qqbot/overview', label: t('qqbot.title'), icon: AccountOpsIcon },
-      { path: '/admin/channel-operations', label: t('channelOps.title'), icon: ChannelIcon },
-      { path: '/admin/profit-operations', label: t('profitOps.title'), icon: PriceTagIcon },
-      { path: '/admin/account-quality', label: t('qualityOps.title'), icon: QualityOpsIcon },
+      { path: '/admin/qqbot/overview', label: t('qqbot.title'), icon: AccountOpsIcon, noticeId: NEW_FEATURE_NOTICES.qqCommunity },
+      { path: '/admin/channel-operations', label: t('channelOps.title'), icon: ChannelIcon, noticeId: NEW_FEATURE_NOTICES.matureProviders },
+      { path: '/admin/profit-operations', label: t('profitOps.title'), icon: PriceTagIcon, noticeId: NEW_FEATURE_NOTICES.providerProfit },
+      { path: '/admin/account-quality', label: t('qualityOps.title'), icon: QualityOpsIcon, noticeId: NEW_FEATURE_NOTICES.qualityRetestRest },
       { path: '/admin/controlled-experiments', label: t('controlledExperiments.title'), icon: QualityOpsIcon },
       { path: '/admin/account-ops', label: t('accountOps.title'), icon: AccountOpsIcon },
-      { path: '/admin/token-guard', label: t('tokenGuard.title'), icon: TokenGuardIcon },
       { path: '/admin/token-guard-v2', label: t('tokenGuardV2.title'), icon: CredentialOpsIcon },
       { path: '/admin/pelican-tests', label: t('pelicanTests.title'), icon: PelicanTestsIcon },
       { path: '/admin/group-cache-tests', label: t('admin.groupCacheTest.title'), icon: QualityOpsIcon },
       { path: '/admin/request-captures', label: t('admin.requestCapture.title'), icon: RequestCaptureIcon, featureFlag: () => adminSettingsStore.requestCaptureEnabled },
-      { path: '/admin/ai-ops', label: t('aiOps.title'), icon: SmartOpsIcon, featureFlag: () => authStore.isAdmin },
-      { path: '/admin/harvest-flow', label: t('nav.harvestFlow'), icon: FlowIcon },
+      { path: '/admin/ai-ops', label: t('aiOps.title'), icon: SmartOpsIcon, noticeId: NEW_FEATURE_NOTICES.aiOpsCodex, featureFlag: () => authStore.isAdmin },
     ] },
     { path: '/admin/plugins', label: t('nav.plugins'), icon: PluginIcon, featureFlag: flagPluginManagement },
     { path: '/admin/announcements', label: t('nav.announcements'), icon: BellIcon },

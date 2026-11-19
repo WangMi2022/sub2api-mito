@@ -1,5 +1,6 @@
 import { useIdentityAdminStore } from '@/stores/identityAdmin'
 import { settingsLocation } from '@/utils/settingsSearch'
+import { isMitoTheme } from '@/themes/mito'
 /**
  * Vue Router configuration for Sub2API frontend
  * Defines all application routes with lazy loading and navigation guards
@@ -243,6 +244,20 @@ const routes: RouteRecordRaw[] = [
       descriptionKey: 'usage.description'
     }
   },
+  // mito-theme: separate personal aggregates from request logs.
+  ...(isMitoTheme ? [{
+    path: '/usage-stats',
+    name: 'UsageStats',
+    component: () => import('@/themes/mito/UsageStatsView.vue'),
+    beforeEnter: () => useAuthStore().isObserver ? '/usage' : true,
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: false,
+      title: 'Usage Statistics',
+      titleKey: 'usage.statsTitle',
+      descriptionKey: 'usage.statsDescription'
+    }
+  } satisfies RouteRecordRaw] : []),
   {
     path: '/redeem',
     name: 'Redeem',
@@ -563,7 +578,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/monitor',
     name: 'ChannelStatus',
-    component: () => import('@/views/user/ChannelStatusView.vue'),
+    ...(isMitoTheme ? { redirect: '/model-plaza' } : { component: () => import('@/views/user/ChannelStatusView.vue') }),
     meta: {
       requiresAuth: true,
       requiresAdmin: false,
@@ -619,7 +634,6 @@ const routes: RouteRecordRaw[] = [
   { path: '/admin/smart-ops', redirect: '/admin/account-quality', meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/admin/ai-ops', name: 'AdminAIOps', component: () => import('@/views/admin/AIOpsView.vue'), meta: { requiresAuth: true, requiresAdmin: true, title: 'AI operations', titleKey: 'aiOps.title', descriptionKey: 'aiOps.description' } },
   { path: '/admin/controlled-experiments', name: 'AdminControlledExperiments', component: () => import('@/views/admin/ControlledExperimentsView.vue'), meta: { requiresAuth: true, requiresAdmin: true, title: 'Controlled experiments', titleKey: 'controlledExperiments.title', descriptionKey: 'controlledExperiments.description' } },
-  { path: '/admin/token-guard', name: 'AdminTokenGuard', component: () => import('@/views/admin/ops/TokenGuardView.vue'), meta: { requiresAuth: true, requiresAdmin: true, title: 'Credential Guard', titleKey: 'tokenGuard.title', descriptionKey: 'tokenGuard.description' } },
   { path: '/admin/pelican-tests', name: 'AdminPelicanTests', component: () => import('@/views/admin/PelicanTestsView.vue'), meta: { requiresAuth: true, requiresAdmin: true, title: 'Pelican Showcase', titleKey: 'pelicanTests.title', descriptionKey: 'pelicanTests.description' } },
   { path: '/admin/token-guard-v2', name: 'AdminTokenGuardV2', component: () => import('@/views/admin/ops/TokenGuardV2View.vue'), meta: { requiresAuth: true, requiresAdmin: true, title: 'Credential Operations', titleKey: 'tokenGuardV2.title', descriptionKey: 'tokenGuardV2.description' } },
   { path: '/admin/account-ops', name: 'AdminAccountOps', component: () => import('@/views/admin/AccountOpsView.vue'), meta: { requiresAuth: true, requiresAdmin: true, title: 'Account operations', titleKey: 'accountOps.title', descriptionKey: 'accountOps.description' } },
@@ -639,19 +653,6 @@ const routes: RouteRecordRaw[] = [
       title: 'Account Management',
       titleKey: 'admin.accounts.title',
       descriptionKey: 'admin.accounts.description'
-    }
-  },
-  { path: '/admin/astra-gateway', redirect: '/admin/harvest-flow' },
-  {
-    path: '/admin/harvest-flow',
-    name: 'AdminHarvestFlow',
-    component: () => import('@/views/admin/HarvestFlowView.vue'),
-    meta: {
-      requiresAuth: true,
-      requiresAdmin: true,
-      title: 'Ticket Harvest Flow',
-      titleKey: 'admin.harvestFlow.title',
-      descriptionKey: 'admin.harvestFlow.description'
     }
   },
   {
