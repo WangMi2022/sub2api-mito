@@ -114,11 +114,13 @@ func TestTrafficCalendarBucketsCrossSkippedDaysAndMidnights(t *testing.T) {
 }
 
 func TestTrafficCalendarUsesFirstMidnightWhenRepeated(t *testing.T) {
+	// Pin a historical fold: Cuba's 2025 autumn transition repeats 00:00 local,
+	// while its future schedule has changed between tzdata releases.
 	loc, err := time.LoadLocation("America/Havana")
 	require.NoError(t, err)
-	f, err := newTrafficFilter("day", "2026-11-01", time.Now(), loc)
+	f, err := newTrafficFilter("day", "2025-11-02", time.Now(), loc)
 	require.NoError(t, err)
-	require.Equal(t, "2026-11-01T00:00:00-04:00", f.Start.Format(time.RFC3339))
+	require.Equal(t, "2025-11-02T00:00:00-04:00", f.Start.Format(time.RFC3339))
 	require.Equal(t, 25*time.Hour, f.End.Sub(f.Start))
 	require.Len(t, TrafficBuckets(f), 25)
 }
