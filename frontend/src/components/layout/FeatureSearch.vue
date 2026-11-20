@@ -79,6 +79,7 @@ import BaseDialog from '@/components/common/BaseDialog.vue'
 import Icon from '@/components/icons/Icon.vue'
 import { buildFeatureSearchEntries, searchFeatures, type FeatureSearchEntry, type SearchNavItem } from '@/utils/featureSearch'
 import { withSettingsSearch } from '@/utils/settingsSearch'
+import { sanitizeUrl } from '@/utils/url'
 import { focusSettingsLocation } from '@/composables/useSettingsNavigation'
 
 const props = defineProps<{ items: SearchNavItem[]; collapsed?: boolean }>()
@@ -112,6 +113,11 @@ async function open() {
 async function navigate(item: FeatureSearchEntry) {
   show.value = false
   emit('navigate', item.path)
+  const externalUrl = sanitizeUrl(item.externalUrl ?? '')
+  if (externalUrl) {
+    window.open(externalUrl, '_blank', 'noopener,noreferrer')
+    return
+  }
   const target = router.resolve(item.path)
   const sameLocation = router.currentRoute.value.fullPath === target.fullPath
   await router.push(item.path)

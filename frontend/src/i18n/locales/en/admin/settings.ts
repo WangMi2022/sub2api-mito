@@ -846,7 +846,7 @@ export default {
       },
       customMenu: {
         title: 'Custom Menu Pages',
-        description: 'Add custom iframe pages to the sidebar navigation. Each page can be visible to regular users or administrators.',
+        description: 'Add custom pages or external links to the sidebar, with independent placement and visibility.',
         itemLabel: 'Menu Item #{n}',
         nameZh: 'Chinese Name',
         nameZhPlaceholder: 'e.g. 帮助中心',
@@ -857,6 +857,8 @@ export default {
         url: 'Page URL',
         urlPlaceholder: 'https://example.com/page',
         hideOpenButton: 'Hide the “Open in new tab” button',
+        openInNewTab: 'Open in a new tab when clicked',
+        openInNewTabHint: 'Open the destination directly, for standalone platforms such as Chitu. Turn off to display the page here.',
         iconSvg: 'SVG Icon',
         iconSvgPlaceholder: '<svg>...</svg>',
         iconPreview: 'Icon Preview',

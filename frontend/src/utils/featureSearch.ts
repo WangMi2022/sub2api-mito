@@ -1,5 +1,6 @@
 export interface SearchNavItem {
   path: string
+  externalUrl?: string
   label: string
   keywords?: string
   children?: SearchNavItem[]
@@ -8,6 +9,7 @@ export interface SearchNavItem {
 
 export interface FeatureSearchEntry {
   path: string
+  externalUrl?: string
   label: string
   group: string
   keywords: string
@@ -29,9 +31,10 @@ export function buildFeatureSearchEntries(
         seen.add(item.path)
         entries.push({
           path: item.path,
+          ...(item.externalUrl ? { externalUrl: item.externalUrl } : {}),
           label: item.label,
           group: parents.join(' / '),
-          keywords: normalize([item.label, item.keywords, ...parents, item.path, routeKeywords(item.path)].join(' '))
+          keywords: normalize([item.label, item.keywords, ...parents, item.path, item.externalUrl ? '' : routeKeywords(item.path)].join(' '))
         })
       }
       if (item.children) visit(item.children, [...parents, item.label])

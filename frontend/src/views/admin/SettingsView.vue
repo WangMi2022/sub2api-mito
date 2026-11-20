@@ -7364,7 +7364,15 @@
                     />
                   </div>
 
-                  <label class="flex items-center gap-2 sm:col-span-2">
+                  <div class="sm:col-span-2">
+                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                      <input v-model="item.open_in_new_tab" type="checkbox" data-testid="custom-menu-open-in-new-tab" />
+                      {{ t("admin.settings.customMenu.openInNewTab") }}
+                    </label>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ t("admin.settings.customMenu.openInNewTabHint") }}</p>
+                  </div>
+
+                  <label v-if="!item.open_in_new_tab" class="flex items-center gap-2 sm:col-span-2">
                     <input
                       v-model="item.hide_open_button"
                       type="checkbox"
@@ -10716,6 +10724,7 @@ const form = reactive<SettingsForm>({
     admin_placement?: "user" | "admin";
     sort_order: number;
     hide_open_button?: boolean;
+    open_in_new_tab?: boolean;
     /** Built-in sidebar parent path to nest under; empty means top level. */
     parent_id?: string;
   }>,
@@ -11789,6 +11798,7 @@ function addMenuItem() {
     label_en: "",
     icon_svg: "",
     url: "",
+    open_in_new_tab: false,
     visibility: "user",
     user_visible: true,
     admin_placement: "user",

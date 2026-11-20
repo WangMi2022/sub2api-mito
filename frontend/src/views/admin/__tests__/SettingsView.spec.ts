@@ -1380,6 +1380,27 @@ describe("admin SettingsView payment visible method controls", () => {
     wrapper.unmount();
   });
 
+  it("loads and saves direct opening for each custom menu", async () => {
+    const menuItems = [
+      { id: "compute", label: "Compute", url: "https://example.com/compute", icon_svg: "", visibility: "user", sort_order: 0 },
+      { id: "docs", label: "Docs", url: "https://example.com/docs", icon_svg: "", visibility: "user", sort_order: 1, open_in_new_tab: true },
+    ];
+    getSettings.mockResolvedValue({ ...baseSettingsResponse, custom_menu_items: menuItems });
+    const wrapper = mountView();
+    await flushPromises();
+    const toggles = wrapper.findAll<HTMLInputElement>('[data-testid="custom-menu-open-in-new-tab"]');
+    expect(toggles.map(toggle => toggle.element.checked)).toEqual([false, true]);
+    await toggles[0].setValue(true);
+    await toggles[1].setValue(false);
+    await wrapper.find("form").trigger("submit.prevent");
+    await flushPromises();
+    expect(updateSettings.mock.calls[0]?.[0].custom_menu_items).toEqual([
+      expect.objectContaining({ id: "compute", open_in_new_tab: true }),
+      expect.objectContaining({ id: "docs", open_in_new_tab: false }),
+    ]);
+    wrapper.unmount();
+  });
+
   it("loads and saves the open button visibility for each custom menu", async () => {
     const menuItems = [
       { id: "docs", label: "Docs", url: "https://example.com/docs", icon_svg: "", visibility: "user", sort_order: 0 },

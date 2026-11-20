@@ -20,6 +20,7 @@ type CustomMenuItem struct {
 	AdminPlacement string `json:"admin_placement,omitempty"`
 	UserVisible    *bool  `json:"user_visible,omitempty"`
 	SortOrder      int    `json:"sort_order"`
+	OpenInNewTab   bool   `json:"open_in_new_tab,omitempty"`
 	HideOpenButton bool   `json:"hide_open_button,omitempty"`
 	// ParentID optionally nests this entry under a built-in sidebar parent menu.
 	// Empty means top level. Unknown/stale values are tolerated: the sidebar falls

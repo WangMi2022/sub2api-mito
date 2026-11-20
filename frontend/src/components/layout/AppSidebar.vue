@@ -127,16 +127,21 @@
                   <!-- Nested children of a collapsible parent -->
                   <div v-if="!sidebarCollapsed && isGroupExpanded(item)" class="mb-1 ml-4 border-l border-gray-200/90 pl-2.5 dark:border-dark-700/80">
                     <div v-for="child in item.children" :key="child.path" class="relative">
-                      <router-link
-                        :to="child.path"
+                      <component :is="child.externalUrl ? 'a' : RouterLink"
+                        :to="child.externalUrl ? undefined : child.path"
+                        :href="child.externalUrl"
+                        :target="child.externalUrl ? '_blank' : undefined"
+                        :rel="child.externalUrl ? 'noopener noreferrer' : undefined"
+                        :aria-label="child.externalUrl ? child.label + ' · ' + t('customPage.openInNewTab') : undefined"
                         class="sidebar-link mb-0.5 py-1.5 text-xs font-normal"
-                        :class="{ 'sidebar-link-active': route.path === child.path }"
+                        :class="{ 'sidebar-link-active': !child.externalUrl && route.path === child.path }"
                         :style="child.noticeId ? { paddingRight: '3.5rem' } : undefined"
                         @click="handleMenuItemClick(child.path)"
                       >
-                        <component :is="child.icon" class="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-dark-400" />
+                        <span v-if="child.iconSvg" class="h-4 w-4 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(child.iconSvg)"></span>
+                        <component v-else :is="child.icon" class="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-dark-400" />
                         <span>{{ child.label }}</span>
-                      </router-link>
+                      </component>
                       <NewFeatureBadge
                         v-if="child.noticeId"
                         :notice-id="child.noticeId"
@@ -148,10 +153,14 @@
                 </template>
                 <!-- Normal item (no children) -->
                 <div v-else class="relative">
-                  <router-link
-                    :to="item.path"
+                  <component :is="item.externalUrl ? 'a' : RouterLink"
+                    :to="item.externalUrl ? undefined : item.path"
+                    :href="item.externalUrl"
+                    :target="item.externalUrl ? '_blank' : undefined"
+                    :rel="item.externalUrl ? 'noopener noreferrer' : undefined"
+                    :aria-label="item.externalUrl ? item.label + ' · ' + t('customPage.openInNewTab') : undefined"
                     class="sidebar-link mb-1"
-                    :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
+                    :class="{ 'sidebar-link-active': !item.externalUrl && isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
                     :title="sidebarCollapsed ? item.label : undefined"
                     :id="
                       item.path === '/admin/accounts'
@@ -168,7 +177,7 @@
                     <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
                     <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
                     <span v-if="navBadge(item)" class="sidebar-nav-badge" :class="{ 'sidebar-nav-badge-collapsed': sidebarCollapsed }" data-testid="sidebar-nav-badge">{{ sidebarCollapsed ? '' : navBadgeText(item) }}</span>
-                  </router-link>
+                  </component>
                   <NewFeatureBadge
                     v-if="item.path === '/admin/settings' && !sidebarCollapsed && showProtocolFeatureNotice"
                     :notice-id="NEW_FEATURE_NOTICES.protocolFeatureSwitches"
@@ -196,12 +205,16 @@
             </span>
           </div>
 
-          <router-link
+          <component :is="item.externalUrl ? 'a' : RouterLink"
             v-for="item in personalNavItems"
             :key="item.path"
-            :to="item.path"
+            :to="item.externalUrl ? undefined : item.path"
+            :href="item.externalUrl"
+            :target="item.externalUrl ? '_blank' : undefined"
+            :rel="item.externalUrl ? 'noopener noreferrer' : undefined"
+            :aria-label="item.externalUrl ? item.label + ' · ' + t('customPage.openInNewTab') : undefined"
             class="sidebar-link mb-1"
-            :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
+            :class="{ 'sidebar-link-active': !item.externalUrl && isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
             :title="sidebarCollapsed ? item.label : undefined"
             :data-tour="item.path === '/keys' ? 'sidebar-my-keys' : undefined"
             @click="handleMenuItemClick(item.path)"
@@ -210,7 +223,7 @@
             <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
             <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
             <span v-if="navBadge(item)" class="sidebar-nav-badge" :class="{ 'sidebar-nav-badge-collapsed': sidebarCollapsed }" data-testid="sidebar-nav-badge">{{ sidebarCollapsed ? '' : navBadgeText(item) }}</span>
-          </router-link>
+          </component>
         </div>
       </template>
 
@@ -239,12 +252,16 @@
               class="mito-sidebar-section-children mito-user-section-children"
               :class="{ 'mito-sidebar-section-children-collapsed': sidebarCollapsed }"
             >
-              <router-link
+              <component :is="item.externalUrl ? 'a' : RouterLink"
                 v-for="item in section.items"
                 :key="item.path"
-                :to="item.path"
+                :to="item.externalUrl ? undefined : item.path"
+                :href="item.externalUrl"
+                :target="item.externalUrl ? '_blank' : undefined"
+                :rel="item.externalUrl ? 'noopener noreferrer' : undefined"
+                :aria-label="item.externalUrl ? item.label + ' · ' + t('customPage.openInNewTab') : undefined"
                 class="sidebar-link mb-1 mito-user-link"
-                :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
+                :class="{ 'sidebar-link-active': !item.externalUrl && isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
                 :title="sidebarCollapsed ? item.label : undefined"
                 :data-tour="item.path === '/keys' ? 'sidebar-my-keys' : undefined"
                 @click="handleMenuItemClick(item.path)"
@@ -253,7 +270,7 @@
                 <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
                 <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
                 <span v-if="navBadge(item)" class="sidebar-nav-badge" :class="{ 'sidebar-nav-badge-collapsed': sidebarCollapsed }" data-testid="sidebar-nav-badge">{{ sidebarCollapsed ? '' : navBadgeText(item) }}</span>
-              </router-link>
+              </component>
             </div>
           </div>
         </div>
@@ -312,7 +329,7 @@ import { applyMitoSidebarSections, applyMitoUserSidebarSections, groupMitoSideba
 import { attachCustomMenuItems } from '@/utils/sidebarCustomMenus'
 import { useIdentityAdminStore } from '@/stores/identityAdmin'
 import { computed, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAdminSettingsStore, useAppStore, useAuthStore, useOnboardingStore, useSupportTicketStore } from '@/stores'
 import VersionBadge from '@/components/common/VersionBadge.vue'
@@ -324,7 +341,7 @@ import { sanitizeUrl } from '@/utils/url'
 import { FeatureFlags, makeSidebarFlag } from '@/utils/featureFlags'
 import { resolveSiteBillingMode } from '@/utils/siteBillingMode'
 import { useBatchImageAccess } from '@/composables/useBatchImageAccess'
-import { getCustomMenuLabel, isCustomMenuUserVisible, getCustomMenuAdminPlacement } from '@/utils/customMenu'
+import { getCustomMenuLabel, isCustomMenuUserVisible, getCustomMenuAdminPlacement, getCustomMenuExternalUrl, type CustomMenuLike } from '@/utils/customMenu'
 import { filterSmartOpsSidebar } from '@/utils/smartOpsSidebar'
 import { NEW_FEATURE_NOTICES } from '@/constants/newFeatureNotices'
 import { useNewFeatureNoticeStore } from '@/stores/newFeatureNotices'
@@ -334,6 +351,7 @@ interface NavItem {
   label: string
   icon: unknown
   iconSvg?: string
+  externalUrl?: string
   hideInSimpleMode?: boolean
   children?: NavItem[]
   /** mito-theme: rendered as a non-clickable section heading; `path` is only a stable key. */
@@ -900,6 +918,16 @@ const flagBatchImageAccess = () => canUseBatchImage.value
 //
 // 条目顺序：密钥 → 用量 → 可用渠道 → 渠道状态 → 鹈鹕测智 → 订阅/支付 → 兑换/资料。
 // 可用渠道紧挨渠道状态之上，让用户"先看自己能用什么、再看对应状态"。
+function createCustomNavItem(menu: CustomMenuLike): NavItem {
+  return {
+    path: '/custom/' + menu.id,
+    label: getCustomMenuLabel(menu, locale.value),
+    icon: GlobeIcon,
+    iconSvg: menu.icon_svg,
+    externalUrl: getCustomMenuExternalUrl(menu),
+  }
+}
+
 function buildSelfNavItems(withDashboard: boolean): NavItem[] {
   const items: NavItem[] = []
   if (withDashboard) {
@@ -926,12 +954,7 @@ function buildSelfNavItems(withDashboard: boolean): NavItem[] {
     { path: '/security-records', label: t('securityRecords.title'), icon: ShieldIcon },
     { path: '/profile', label: t('nav.profile'), icon: UserIcon },
   )
-  attachCustomMenuItems(items, customMenuItemsForUser.value, (menu): NavItem => ({
-    path: `/custom/${menu.id}`,
-    label: getCustomMenuLabel(menu, locale.value),
-    icon: null,
-    iconSvg: menu.icon_svg,
-  }))
+  attachCustomMenuItems(items, customMenuItemsForUser.value, createCustomNavItem)
   return items
 }
 
@@ -1059,16 +1082,12 @@ const adminNavItems = computed((): NavItem[] => {
     const filtered = visible.filter(item => !item.hideInSimpleMode)
     filtered.push({ path: '/keys', label: t('nav.apiKeys'), icon: KeyIcon })
     filtered.push({ path: '/admin/settings', label: t('nav.settings'), icon: CogIcon })
-    attachCustomMenuItems(filtered, customMenuItemsForAdmin.value, (menu): NavItem => ({
-      path: `/custom/${menu.id}`, label: getCustomMenuLabel(menu, locale.value), icon: null, iconSvg: menu.icon_svg
-    }))
+    attachCustomMenuItems(filtered, customMenuItemsForAdmin.value, createCustomNavItem)
     return applyMitoSidebarSections(filtered, t)
   }
 
   visible.push({ path: '/admin/settings', label: t('nav.settings'), icon: CogIcon })
-  attachCustomMenuItems(visible, customMenuItemsForAdmin.value, (menu): NavItem => ({
-    path: `/custom/${menu.id}`, label: getCustomMenuLabel(menu, locale.value), icon: null, iconSvg: menu.icon_svg
-  }))
+  attachCustomMenuItems(visible, customMenuItemsForAdmin.value, createCustomNavItem)
   return applyMitoSidebarSections(visible, t)
 })
 

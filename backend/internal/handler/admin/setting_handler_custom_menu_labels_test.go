@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Wei-Shaw/sub2api/internal/handler/dto"
 	"github.com/Wei-Shaw/sub2api/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
@@ -85,4 +86,24 @@ func TestCustomMenuOrdinaryVisibilityPersistsIndependentlyOfAdminPlacement(t *te
 	require.Equal(t, "user", saved[1]["admin_placement"])
 	require.NotContains(t, saved[2], "user_visible")
 	require.NotContains(t, saved[2], "admin_placement")
+}
+
+func TestCustomMenuExternalNavigationRoundTrip(t *testing.T) {
+	h, repo := newStepUpSwitchTestHandler(t, map[string]string{})
+	items := []map[string]any{
+		{"id": "compute", "label": "Compute", "url": "https://example.com/compute", "visibility": "user", "open_in_new_tab": true},
+		{"id": "legacy", "label": "Legacy", "url": "https://example.com/docs", "visibility": "user"},
+	}
+	rec := doUpdateSettings(t, h, map[string]any{"custom_menu_items": items}, nil)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	parsed := dto.ParseCustomMenuItems(repo.values[service.SettingKeyCustomMenuItems])
+	require.Len(t, parsed, 2)
+	require.True(t, parsed[0].OpenInNewTab)
+	require.False(t, parsed[1].OpenInNewTab)
+	visible := dto.ParseUserVisibleMenuItems(repo.values[service.SettingKeyCustomMenuItems])
+	require.Len(t, visible, 2)
+	require.True(t, visible[0].OpenInNewTab)
+	body, err := json.Marshal(visible)
+	require.NoError(t, err)
+	require.Contains(t, string(body), `"open_in_new_tab":true`)
 }

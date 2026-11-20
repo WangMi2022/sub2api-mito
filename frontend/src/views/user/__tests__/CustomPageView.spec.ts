@@ -86,6 +86,16 @@ describe('custom page open button', () => {
     expect(wrapper.get('iframe').attributes('src')).toContain('https://example.com/docs')
   })
 
+  it('shows a direct link instead of an iframe for an external menu, including old bookmarks', () => {
+    Object.assign(appStore.cachedPublicSettings.custom_menu_items[0], { open_in_new_tab: true, url: 'https://example.com/compute?project=one#nodes' })
+    const wrapper = mountPage()
+    expect(wrapper.find('iframe').exists()).toBe(false)
+    expect(wrapper.find('.custom-open-fab').exists()).toBe(false)
+    expect(wrapper.get('[data-testid="custom-menu-external-link"]').attributes()).toMatchObject({
+      href: 'https://example.com/compute?project=one#nodes', target: '_blank', rel: 'noopener noreferrer',
+    })
+  })
+
   it('denies a hidden menu even when stale public settings still contain it', () => {
     Object.assign(appStore.cachedPublicSettings.custom_menu_items[0], { user_visible: false })
     const wrapper = mountPage()

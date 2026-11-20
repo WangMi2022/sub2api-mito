@@ -841,7 +841,7 @@ export default {
       },
       customMenu: {
         title: '自定义菜单页面',
-        description: '添加自定义 iframe 页面到侧边栏导航。每个页面可以设置为普通用户或管理员可见。',
+        description: '添加自定义页面或外部链接到侧边栏导航，并设置显示位置和可见范围。',
         itemLabel: '菜单项 #{n}',
         nameZh: '中文名称',
         nameZhPlaceholder: '如：帮助中心',
@@ -852,6 +852,8 @@ export default {
         url: '页面 URL',
         urlPlaceholder: 'https://example.com/page',
         hideOpenButton: '隐藏“新窗口打开”按钮',
+        openInNewTab: '点击菜单时在新标签页打开',
+        openInNewTabHint: '直接打开目标页面，适用于赤兔等独立平台；关闭后在当前页面内展示。',
         iconSvg: 'SVG 图标',
         iconSvgPlaceholder: '<svg>...</svg>',
         iconPreview: '图标预览',

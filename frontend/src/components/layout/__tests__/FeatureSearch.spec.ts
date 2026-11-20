@@ -75,6 +75,19 @@ async function key(target: EventTarget, value: string, options: KeyboardEventIni
 }
 
 describe('feature search dialog', () => {
+  it('opens an external menu from keyboard search without routing through the iframe page', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    const { wrapper, router } = await setup()
+    await wrapper.setProps({ items: [{ path: '/custom/compute', label: '赤兔算力融合平台', externalUrl: 'https://example.com/compute' }] })
+    await wrapper.get('button').trigger('click')
+    await flushPromises()
+    const input = document.querySelector<HTMLInputElement>('[role=combobox]')!
+    await key(input, 'Enter')
+    expect(open).toHaveBeenCalledWith('https://example.com/compute', '_blank', 'noopener,noreferrer')
+    expect(router.currentRoute.value.path).toBe('/')
+    expect(document.querySelector('[role=dialog]')).toBeNull()
+  })
+
   it('opens from shortcut, focuses input, navigates with arrows and Enter, then closes', async () => {
     const { wrapper, router } = await setup()
     await key(document, 'k', { ctrlKey: true })

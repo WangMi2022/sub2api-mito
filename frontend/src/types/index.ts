@@ -208,6 +208,7 @@ export interface CustomMenuItem {
   icon_svg: string
   url: string
   page_slug?: string
+  open_in_new_tab?: boolean
   hide_open_button?: boolean
   /** Built-in sidebar parent path to nest under; empty/absent means top level. */
   parent_id?: string

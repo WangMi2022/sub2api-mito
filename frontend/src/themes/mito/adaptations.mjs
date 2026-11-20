@@ -1471,10 +1471,17 @@ contracts.push(...[
 
 contracts.push(
   { path: 'frontend/src/components/user/profile/ProfilePasswordForm.vue', anchors: ['identity-password-change', 'userAPI.startIdentityPasswordChange', 'appStore.cachedPublicSettings?.mito_oidc_only'] },
-  { path: 'frontend/src/views/admin/SettingsView.vue', anchors: ['custom-menu-user-visible', 'isCustomMenuUserVisible(item)'] },
+  { path: 'frontend/src/views/admin/SettingsView.vue', anchors: ['custom-menu-user-visible', 'isCustomMenuUserVisible(item)', 'custom-menu-open-in-new-tab'] },
   { path: 'frontend/src/components/identity/IdentityUserDetail.vue', anchors: ['identity.uniqueGroupHint', 'name="identity-group"'] },
-  { path: 'frontend/src/utils/customMenu.ts', anchors: ['isCustomMenuUserVisible', 'getCustomMenuAdminPlacement', 'user_visible', 'admin_placement'] },
+  { path: 'frontend/src/utils/customMenu.ts', anchors: ['isCustomMenuUserVisible', 'getCustomMenuAdminPlacement', 'getCustomMenuExternalUrl', 'user_visible', 'admin_placement', 'open_in_new_tab'] },
   ...['zh', 'en'].map(locale => ({ path: `frontend/src/i18n/locales/${locale}/dashboard.ts`, anchors: ['identityPasswordHint', 'identityPasswordButton'] })),
-  ...['zh', 'en'].map(locale => ({ path: `frontend/src/i18n/locales/${locale}/admin/settings.ts`, anchors: ['userVisibleHint'] })),
+  ...['zh', 'en'].map(locale => ({ path: `frontend/src/i18n/locales/${locale}/admin/settings.ts`, anchors: ['userVisibleHint', 'openInNewTabHint'] })),
   ...['zh', 'en'].map(locale => ({ path: `frontend/src/i18n/locales/${locale}/identity.ts`, anchors: ['uniqueGroupHint', 'identity_membership_recovery_failed'] }))
+)
+
+// Product navigation contracts: external menus must survive theme reapplication.
+contracts.push(
+  { path: 'frontend/src/components/layout/AppSidebar.vue', anchors: ['createCustomNavItem', 'getCustomMenuExternalUrl', 'noopener noreferrer', 'icon: GlobeIcon'] },
+  { path: 'frontend/src/views/user/CustomPageView.vue', anchors: ['custom-menu-external-link', 'externalUrl.value || embeddedUrl.value'] },
+  { path: 'frontend/src/components/layout/FeatureSearch.vue', anchors: ['sanitizeUrl(item.externalUrl', "window.open(externalUrl, '_blank', 'noopener,noreferrer')"] }
 )

@@ -93,6 +93,13 @@
           </div>
         </div>
 
+        <div v-else-if="externalUrl" class="flex h-full items-center justify-center p-10">
+          <a :href="externalUrl" target="_blank" rel="noopener noreferrer" class="btn btn-primary" data-testid="custom-menu-external-link">
+            <Icon name="externalLink" size="sm" class="mr-1.5" />
+            {{ t('customPage.openInNewTab') }}
+          </a>
+        </div>
+
         <!-- Iframe embed mode -->
         <div v-else ref="embedShell" class="custom-embed-shell">
           <a
@@ -127,7 +134,7 @@
 </template>
 
 <script setup lang="ts">
-import { isCustomMenuUserVisible } from '@/utils/customMenu'
+import { isCustomMenuUserVisible, getCustomMenuExternalUrl } from '@/utils/customMenu'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useResizeObserver } from '@vueuse/core'
@@ -244,8 +251,12 @@ const markdownSlug = computed(() => {
 
 const isMarkdownMode = computed(() => !!markdownSlug.value)
 
+const externalUrl = computed(() => menuItem.value && !isMarkdownMode.value
+  ? getCustomMenuExternalUrl(menuItem.value)
+  : undefined)
+
 const embeddedUrl = computed(() => {
-  if (!menuItem.value || isMarkdownMode.value) return ''
+  if (!menuItem.value || isMarkdownMode.value || externalUrl.value) return ''
   return buildEmbeddedUrl(
     menuItem.value.url,
     authStore.user?.id,
@@ -256,7 +267,7 @@ const embeddedUrl = computed(() => {
 
 const isValidUrl = computed(() => {
   if (isMarkdownMode.value) return false
-  const url = embeddedUrl.value
+  const url = externalUrl.value || embeddedUrl.value
   return url.startsWith('http://') || url.startsWith('https://')
 })
 

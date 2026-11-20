@@ -1,3 +1,5 @@
+import { sanitizeUrl } from '@/utils/url'
+
 export type CustomMenuLike = {
   id: string
   label: string
@@ -5,6 +7,8 @@ export type CustomMenuLike = {
   label_en?: string
   icon_svg: string
   url: string
+  /** Open an HTTP(S) destination directly instead of embedding it. */
+  open_in_new_tab?: boolean
   /** Override ordinary-user access independently from sidebar placement. */
   user_visible?: boolean
   admin_placement?: 'user' | 'admin'
@@ -24,4 +28,8 @@ export function isCustomMenuUserVisible(item: Pick<CustomMenuLike, 'visibility' 
 
 export function getCustomMenuAdminPlacement(item: Pick<CustomMenuLike, 'visibility' | 'admin_placement'>): 'user' | 'admin' {
   return item.admin_placement ?? item.visibility
+}
+
+export function getCustomMenuExternalUrl(item: Pick<CustomMenuLike, 'url' | 'open_in_new_tab'>): string | undefined {
+  return item.open_in_new_tab ? sanitizeUrl(item.url) || undefined : undefined
 }
