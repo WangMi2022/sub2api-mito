@@ -1,9 +1,9 @@
 <template>
-  <div :class="identityOnly ? 'w-full lg:w-auto' : flat ? 'p-4 sm:p-6' : 'card p-6'">
+  <MitoFilterSection v-slot="{ expanded, panelId }" :selected-count="activeFilterCount" :class="identityOnly ? 'w-full lg:w-auto' : flat ? 'p-4 sm:p-6' : 'card p-6'">
     <!-- Toolbar: left filters (multi-line) + right actions -->
-    <div class="flex flex-wrap items-end justify-between gap-4">
+    <div class="mito-filter-layout mito-usage-filter-layout flex flex-wrap items-end justify-between gap-4">
       <!-- Left: filters (allowed to wrap to multiple rows) -->
-      <div class="flex flex-1 flex-wrap items-end gap-4">
+      <div v-show="expanded" :id="panelId" class="mito-filter-fields mito-usage-filter-fields flex flex-1 flex-wrap items-end gap-4">
         <!-- User Search -->
         <div v-if="!observerMode" ref="userSearchRef" class="usage-filter-dropdown relative w-full sm:w-auto sm:min-w-[240px]">
           <label class="input-label">{{ t('admin.usage.userFilter') }}</label>
@@ -198,7 +198,7 @@
       </div>
 
       <!-- Right: actions -->
-      <div v-if="showActions" class="flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto">
+      <div v-if="showActions" class="mito-filter-actions mito-usage-filter-actions flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto">
         <button type="button" @click="$emit('refresh')" class="btn btn-secondary">
           {{ t('common.refresh') }}
         </button>
@@ -217,7 +217,7 @@
       </div>
     </div>
     <p v-if="!identityOnly && mode === 'usage' && !observerMode" id="usage-platform-hint" class="mt-3 text-xs text-gray-500 dark:text-gray-400">{{ t('admin.usage.platformHistoryHint') }}</p>
-  </div>
+  </MitoFilterSection>
 </template>
 
 <script setup lang="ts">
@@ -232,6 +232,7 @@ import NewFeatureBadge from '@/components/common/NewFeatureBadge.vue'
 import { NEW_FEATURE_NOTICES } from '@/constants/newFeatureNotices'
 import { CONCRETE_PLATFORM_OPTIONS } from '@/constants/platforms'
 import type { SimpleUser } from '@/api/admin/usage'
+import MitoFilterSection from '@/themes/mito/FilterSection.vue'
 
 type ModelValue = Record<string, any>
 
@@ -274,6 +275,21 @@ const emit = defineEmits([
 const { t } = useI18n()
 const observerMode = inject(observerUsageContext, false)
 const filters = toRef(props, 'modelValue')
+
+const activeFilterCount = computed(() => {
+  const keys = ['api_key_id', 'account_id', 'model', 'group_id']
+  if (!observerMode) keys.push('user_id')
+  if (props.mode === 'errors') {
+    keys.push('error_phase', 'error_category', 'status_code')
+  } else {
+    keys.push('request_type', 'native_compaction_v2', 'billing_type')
+    if (props.mode === 'usage') keys.push('billing_mode', 'upstream_model_mismatch')
+  }
+  return keys.filter(key => {
+    const value = filters.value[key]
+    return value !== undefined && value !== null && value !== ''
+  }).length
+})
 
 const userSearchRef = ref<HTMLElement | null>(null)
 const apiKeySearchRef = ref<HTMLElement | null>(null)
