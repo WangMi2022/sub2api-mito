@@ -1,3 +1,6 @@
+# Chitu continuation: exact HTTPS origin, without path/trailing slash. Empty disables it.
+chitu_sso_origin: ""
+
 # Process role: full retains the dashboard and global background jobs (default).
 # gateway exposes model gateway APIs only and keeps request-local workers running.
 # Keep exactly one full instance until every enabled global job has a shared lease.

@@ -1,4 +1,8 @@
 export default {
+  chituSessionTitle: 'Open Chitu',
+  chituSessionLoading: 'Continuing to Chitu with your Mito session…',
+  chituSessionFailed: 'Unable to open Chitu. Please try again.',
+  chituSessionRetry: 'Try again',
   "loginPolicy": "Sign-in method",
   "oidcOnly": "Require unified identity sign-in",
   "oidcOnlyHint": "Automatically sign in through unified identity and return to the requested page. Local passwords, passkeys and other sign-in methods will be disabled.",

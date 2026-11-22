@@ -1,4 +1,8 @@
 export default {
+  chituSessionTitle: '进入赤兔',
+  chituSessionLoading: '正在使用 Mito 登录状态连接赤兔…',
+  chituSessionFailed: '暂时无法进入赤兔，请重试。',
+  chituSessionRetry: '重试',
   "loginPolicy": "登录方式",
   "oidcOnly": "只允许统一身份登录",
   "oidcOnlyHint": "开启后，访问 Mito 会自动进入统一认证，已登录的用户可直接返回原页面。本地密码、通行密钥和其他登录方式将关闭。",

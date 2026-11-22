@@ -56,6 +56,11 @@ func RegisterAuthRoutes(
 		return enabled
 	}
 
+	// Local-session continuation is an independent, instance-local boundary.
+	chitu := v1.Group("/auth/chitu")
+	chitu.Use(rateLimiter.LimitWithOptions("chitu-sso", 6000, time.Minute, middleware.RateLimitOptions{FailureMode: middleware.RateLimitFailClose}))
+	h.Auth.RegisterChituSSO(chitu, gin.HandlerFunc(jwtAuth), rateLimiter.LimitWithOptions("chitu-sso-authorize", 20, time.Minute, middleware.RateLimitOptions{FailureMode: middleware.RateLimitFailClose}))
+
 	// 公开接口
 	auth := v1.Group("/auth")
 	auth.Use(handler.LotteryVisitorContext)

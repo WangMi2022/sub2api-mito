@@ -374,6 +374,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		BackendModeEnabled:                  settings[SettingKeyBackendModeEnabled] == "true",
 		PaymentEnabled:                      settings[SettingPaymentEnabled] == "true",
 		PaymentBalanceDisabled:              settings[SettingBalancePayDisabled] == "true",
+		ChituSSOOrigin:                      s.ChituSSOOrigin(),
 		MitoOIDCOnly:                        oidcOnly,
 		OIDCOAuthEnabled:                    oidcEnabled,
 		OIDCRegistrationEnabled:             oidcRegistrationEnabled,
@@ -693,6 +694,7 @@ type PublicSettingsInjectionPayload struct {
 	WeChatOAuthOpenEnabled              bool                     `json:"wechat_oauth_open_enabled"`
 	WeChatOAuthMPEnabled                bool                     `json:"wechat_oauth_mp_enabled"`
 	WeChatOAuthMobileEnabled            bool                     `json:"wechat_oauth_mobile_enabled"`
+	ChituSSOOrigin                      string                   `json:"chitu_sso_origin"`
 	MitoOIDCOnly                        bool                     `json:"mito_oidc_only"`
 	OIDCOAuthEnabled                    bool                     `json:"oidc_oauth_enabled"`
 	OIDCRegistrationEnabled             bool                     `json:"oidc_registration_enabled"`
@@ -801,6 +803,7 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		WeChatOAuthOpenEnabled:              settings.WeChatOAuthOpenEnabled,
 		WeChatOAuthMPEnabled:                settings.WeChatOAuthMPEnabled,
 		WeChatOAuthMobileEnabled:            settings.WeChatOAuthMobileEnabled,
+		ChituSSOOrigin:                      settings.ChituSSOOrigin,
 		MitoOIDCOnly:                        settings.MitoOIDCOnly,
 		OIDCOAuthEnabled:                    settings.OIDCOAuthEnabled,
 		OIDCRegistrationEnabled:             settings.OIDCRegistrationEnabled,

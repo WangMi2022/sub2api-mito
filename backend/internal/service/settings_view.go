@@ -439,6 +439,7 @@ type PublicSettings struct {
 	BackendModeEnabled       bool
 	PaymentEnabled           bool
 	PaymentBalanceDisabled   bool
+	ChituSSOOrigin           string
 	MitoOIDCOnly             bool
 	OIDCOAuthEnabled         bool
 	OIDCRegistrationEnabled  bool

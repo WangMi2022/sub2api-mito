@@ -21,6 +21,7 @@ import { resolveRouteDocumentTitle } from './title'
  * Route definitions with lazy loading
  */
 const routes: RouteRecordRaw[] = [
+  { path: '/auth/chitu', name: 'ChituSession', component: () => import('@/views/auth/ChituSessionView.vue'), meta: { requiresAuth: true, titleKey: 'identity.chituSessionTitle' } },
   { path: '/identity', name: 'IdentityManagement', component: () => import('@/views/identity/IdentityView.vue'), meta: { requiresAuth: true, titleKey: 'identity.title' } },
   // ==================== Setup Routes ====================
   {

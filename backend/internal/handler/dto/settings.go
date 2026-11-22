@@ -480,6 +480,7 @@ type PublicSettings struct {
 	WeChatOAuthOpenEnabled              bool                     `json:"wechat_oauth_open_enabled"`
 	WeChatOAuthMPEnabled                bool                     `json:"wechat_oauth_mp_enabled"`
 	WeChatOAuthMobileEnabled            bool                     `json:"wechat_oauth_mobile_enabled"`
+	ChituSSOOrigin                      string                   `json:"chitu_sso_origin"`
 	MitoOIDCOnly                        bool                     `json:"mito_oidc_only"`
 	OIDCOAuthEnabled                    bool                     `json:"oidc_oauth_enabled"`
 	OIDCRegistrationEnabled             bool                     `json:"oidc_registration_enabled"`

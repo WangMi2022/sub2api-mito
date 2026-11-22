@@ -750,6 +750,9 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	// 允许空请求体（向后兼容）
 	_ = c.ShouldBindJSON(&req)
 
+	// Resolve the provider redirect before invalidating the local OIDC family.
+	logoutURL := h.oidcGlobalLogoutURL(c)
+
 	// 如果提供了Refresh Token，撤销它
 	if req.RefreshToken != "" {
 		if err := h.authService.RevokeRefreshToken(c.Request.Context(), req.RefreshToken); err != nil {
@@ -759,8 +762,6 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	}
 	h.consumePendingOAuthSessionOnLogout(c)
 	clearOAuthLogoutCookies(c)
-
-	logoutURL := h.oidcGlobalLogoutURL(c)
 
 	response.Success(c, LogoutResponse{
 		Message:   "Logged out successfully",

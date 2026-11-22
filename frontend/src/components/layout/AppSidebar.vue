@@ -341,6 +341,7 @@ import { sanitizeUrl } from '@/utils/url'
 import { FeatureFlags, makeSidebarFlag } from '@/utils/featureFlags'
 import { resolveSiteBillingMode } from '@/utils/siteBillingMode'
 import { useBatchImageAccess } from '@/composables/useBatchImageAccess'
+import { resolveChituMenuURL } from '@/utils/chituSSO'
 import { getCustomMenuLabel, isCustomMenuUserVisible, getCustomMenuAdminPlacement, getCustomMenuExternalUrl, type CustomMenuLike } from '@/utils/customMenu'
 import { filterSmartOpsSidebar } from '@/utils/smartOpsSidebar'
 import { NEW_FEATURE_NOTICES } from '@/constants/newFeatureNotices'
@@ -924,7 +925,7 @@ function createCustomNavItem(menu: CustomMenuLike): NavItem {
     label: getCustomMenuLabel(menu, locale.value),
     icon: GlobeIcon,
     iconSvg: menu.icon_svg,
-    externalUrl: getCustomMenuExternalUrl(menu),
+    externalUrl: resolveChituMenuURL(getCustomMenuExternalUrl(menu), appStore.cachedPublicSettings?.chitu_sso_origin),
   }
 }
 

@@ -37,6 +37,11 @@ export interface OAuthLoginStart {
   params: Record<string, string>
 }
 
+export async function authorizeChituSession(state: string, codeChallenge: string): Promise<{ authorize_url: string }> {
+  const { data } = await apiClient.post<{ authorize_url: string }>('/auth/chitu/authorize', { state, code_challenge: codeChallenge })
+  return data
+}
+
 export interface OAuthLoginStartResponse {
   authorize_url: string
 }

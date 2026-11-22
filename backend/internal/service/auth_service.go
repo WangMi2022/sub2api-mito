@@ -1944,6 +1944,18 @@ func (s *AuthService) RevokeRefreshToken(ctx context.Context, refreshToken strin
 	}
 
 	tokenHash := hashToken(refreshToken)
+	data, err := s.refreshTokenCache.GetRefreshToken(ctx, tokenHash)
+	if errors.Is(err, ErrRefreshTokenNotFound) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	// OIDC logout must close the local family even after the IdP session has
+	// expired and can no longer send a back-channel logout event.
+	if data.AuthIdentityID > 0 {
+		return s.RevokeSessionFamily(ctx, data.FamilyID)
+	}
 	return s.refreshTokenCache.DeleteRefreshToken(ctx, tokenHash)
 }
 

@@ -281,6 +281,7 @@ export interface PublicSettings {
   wechat_oauth_open_enabled?: boolean
   wechat_oauth_mp_enabled?: boolean
   wechat_oauth_mobile_enabled?: boolean
+  chitu_sso_origin?: string
   mito_oidc_only?: boolean
   oidc_oauth_enabled: boolean
   oidc_registration_enabled?: boolean

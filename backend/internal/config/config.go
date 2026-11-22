@@ -69,6 +69,7 @@ const DefaultUpstreamResponseReadMaxBytes int64 = 128 * 1024 * 1024
 const DefaultModelsListReadMaxBytes int64 = 8 * 1024 * 1024
 
 type Config struct {
+	ChituSSOOrigin          string        `mapstructure:"chitu_sso_origin"`
 	IdentityAdminFile       string        `mapstructure:"identity_admin_file"`
 	Runtime                 RuntimeConfig `mapstructure:"runtime"`
 	astraRoutingLoader      atomic.Pointer[astraRoutingLoader]
@@ -2523,6 +2524,7 @@ func setDefaults() {
 	viper.SetDefault("oidc_connect.registration_enabled", false)
 	viper.SetDefault("oidc_connect.provider_name", "OIDC")
 	viper.SetDefault("identity_admin_file", "")
+	viper.SetDefault("chitu_sso_origin", "")
 	viper.SetDefault("oidc_connect.client_id", "")
 	viper.SetDefault("oidc_connect.client_secret", "")
 	viper.SetDefault("oidc_connect.issuer_url", "")
@@ -3102,6 +3104,12 @@ func setEnvReachableDefaults() {
 }
 
 func (c *Config) Validate() error {
+	if c.ChituSSOOrigin != "" {
+		u, err := url.Parse(c.ChituSSOOrigin)
+		if err != nil || u.Scheme != "https" || u.Hostname() == "" || u.User != nil || u.Path != "" || u.RawPath != "" || u.RawQuery != "" || u.Fragment != "" {
+			return fmt.Errorf("chitu_sso_origin must be an exact HTTPS origin without path, credentials, query or fragment")
+		}
+	}
 	if _, err := upstreamroute.New(c.Gateway.UpstreamRouting); err != nil {
 		return fmt.Errorf("gateway.upstream_routing: %w", err)
 	}
