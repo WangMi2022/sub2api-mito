@@ -59,6 +59,12 @@
                 />
                 <NewFeatureBadge
                   v-if="tab.key === 'gateway'"
+                  :notice-id="NEW_FEATURE_NOTICES.exaSearch"
+                  :user-id="authStore.user?.id"
+                  class="settings-tab-badge"
+                />
+                <NewFeatureBadge
+                  v-if="tab.key === 'gateway'"
                   :notice-id="NEW_FEATURE_NOTICES.serverlessIPRouting"
                   :user-id="authStore.user?.id"
                   class="settings-tab-badge"
@@ -6111,6 +6117,7 @@
                   {{ t("admin.settings.webSearchEmulation.title") }}
                 </h2>
                 <NewFeatureBadge :notice-id="NEW_FEATURE_NOTICES.deepSeekSearch" :user-id="authStore.user?.id" />
+                <NewFeatureBadge :notice-id="NEW_FEATURE_NOTICES.exaSearch" :user-id="authStore.user?.id" />
               </div>
               <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 {{ t("admin.settings.webSearchEmulation.description") }}
@@ -6187,6 +6194,7 @@
                           { value: 'brave', label: 'Brave Search' },
                           { value: 'tavily', label: 'Tavily' },
                           { value: 'deepseek', label: 'DeepSeek' },
+                          { value: 'exa', label: 'Exa' },
                         ]"
                         class="w-36"
                         @click.stop
@@ -6194,6 +6202,12 @@
                       <NewFeatureBadge
                         v-if="provider.type === 'deepseek'"
                         :notice-id="NEW_FEATURE_NOTICES.deepSeekSearch"
+                        :user-id="authStore.user?.id"
+                        @click.stop
+                      />
+                      <NewFeatureBadge
+                        v-if="provider.type === 'exa'"
+                        :notice-id="NEW_FEATURE_NOTICES.exaSearch"
                         :user-id="authStore.user?.id"
                         @click.stop
                       />
@@ -6973,6 +6987,46 @@
                 />
               </div>
 
+              <HomeBackgroundPanel
+                v-if="isMitoTheme"
+                v-model:storage="homeBackgroundStorage"
+                v-model:blur="form.home_background_blur"
+                v-model:overlay="form.home_background_overlay"
+                :options="homeBackgroundStorageOptions"
+                :image-url="form.home_background_image"
+                :uploading="homeBackgroundUploading"
+                :error="homeBackgroundError"
+              >
+                <input
+                  ref="homeBackgroundInput"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+                  class="hidden"
+                  @change="onHomeBackgroundSelected"
+                />
+                <div class="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    :disabled="homeBackgroundUploading"
+                    @click="homeBackgroundInput?.click()"
+                  >
+                    <Icon v-if="!homeBackgroundUploading" name="upload" size="sm" />
+                    <span v-else class="mr-1 inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+                    {{ t("admin.settings.site.uploadImage") }}
+                  </button>
+                  <button
+                    v-if="form.home_background_image"
+                    type="button"
+                    class="btn btn-secondary"
+                    :disabled="homeBackgroundUploading"
+                    @click="removeHomeBackground"
+                  >
+                    {{ t("admin.settings.site.remove") }}
+                  </button>
+                </div>
+              </HomeBackgroundPanel>
+              <template v-else>
               <!-- Home Background Image -->
               <div>
                 <label
@@ -7048,6 +7102,8 @@
                   />
                 </div>
               </div>
+
+              </template>
 
               <!-- Home Content -->
               <div>
@@ -7935,6 +7991,29 @@
             </p>
           </div>
           <div class="space-y-5 p-6">
+            <div class="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
+              <Icon
+                name="exclamationTriangle"
+                size="md"
+                class="mt-0.5 flex-shrink-0 text-amber-500"
+              />
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-amber-800 dark:text-amber-200">
+                  {{ t('admin.settings.features.modelPlaza.manageTitle') }}
+                </p>
+                <p class="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                  {{ t('admin.settings.features.modelPlaza.manageHint') }}
+                </p>
+                <router-link
+                  to="/admin/groups"
+                  class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary-600 hover:underline dark:text-primary-400"
+                >
+                  {{ t('admin.settings.features.modelPlaza.manageLink') }}
+                  <span aria-hidden="true">→</span>
+                </router-link>
+              </div>
+            </div>
+
             <div class="flex items-center justify-between">
               <div>
                 <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -7957,6 +8036,17 @@
                 </p>
               </div>
               <Toggle v-model="form.model_plaza_require_auth" />
+            </div>
+
+            <ModelPlazaCurrencySettings v-if="form.model_plaza_enabled" v-model="form.model_plaza_currency" />
+            <div v-if="form.model_plaza_enabled">
+              <label for="plaza-exchange-rate" class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('admin.settings.features.modelPlaza.displayExchangeRate') }}
+                <NewFeatureBadge :notice-id="NEW_FEATURE_NOTICES.modelPlazaCurrency" :user-id="authStore.user?.id" />
+              </label>
+              <p id="plaza-exchange-rate-help" class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ t('admin.settings.features.modelPlaza.displayExchangeRateHint') }}</p>
+              <input id="plaza-exchange-rate" v-model.number="form.model_plaza_usd_to_cny_rate" type="number" min="0.000001" step="any" required
+                aria-describedby="plaza-exchange-rate-help" class="input mt-2 max-w-xs" />
             </div>
 
             <div v-if="form.model_plaza_enabled">
@@ -9717,6 +9807,8 @@
 
 <script setup lang="ts">
 import { isCustomMenuUserVisible, getCustomMenuAdminPlacement } from '@/utils/customMenu';
+import ModelPlazaCurrencySettings from '@/components/settings/ModelPlazaCurrencySettings.vue'
+import { defaultPlazaCurrencySettings } from '@/utils/plazaCurrency'
 import EncryptedHistory409Settings from "@/components/settings/EncryptedHistory409Settings.vue";
 import EncryptedHistory400Settings from "@/components/settings/EncryptedHistory400Settings.vue";
 import { excelBPSImageLimits } from "@/utils/excelBPSImageLimits";
@@ -9788,6 +9880,8 @@ import Toggle from "@/components/common/Toggle.vue";
 import ProxySelector from "@/components/common/ProxySelector.vue";
 import ImageUpload from "@/components/common/ImageUpload.vue";
 import BackupSettings from "@/views/admin/BackupView.vue";
+import HomeBackgroundPanel from "@/themes/mito/settings/HomeBackgroundPanel.vue";
+import { isMitoTheme } from "@/themes/mito";
 import ServerlessSettings from "@/components/settings/ServerlessSettings.vue";
 import EmailTemplateEditor from "@/views/admin/settings/EmailTemplateEditor.vue";
 import RechargeBonusTierEditor from "@/components/admin/settings/RechargeBonusTierEditor.vue";
@@ -10603,6 +10697,8 @@ const form = reactive<SettingsForm>({
   site_logo: "",
   site_subtitle: "Subscription to API Conversion Platform",
   home_background_image: "",
+  home_background_blur: 0,
+  home_background_overlay: 100,
   api_base_url: "",
   contact_info: "",
   doc_url: "",
@@ -10870,6 +10966,8 @@ const form = reactive<SettingsForm>({
   model_plaza_enabled: false,
   model_plaza_require_auth: false,
   model_plaza_description: '',
+  model_plaza_usd_to_cny_rate: 7,
+  model_plaza_currency: defaultPlazaCurrencySettings(),
   // Plugin management menu visibility; plugin runtime is unaffected.
   plugin_management_enabled: false,
   // Support tickets (网站工单) switch + form config
@@ -12461,6 +12559,8 @@ async function saveSettings() {
       site_name: form.site_name,
       site_logo: form.site_logo,
       home_background_image: form.home_background_image,
+      home_background_blur: form.home_background_blur,
+      home_background_overlay: form.home_background_overlay,
       site_subtitle: form.site_subtitle,
       api_base_url: form.api_base_url,
       contact_info: form.contact_info,
@@ -12760,6 +12860,8 @@ async function saveSettings() {
       model_plaza_enabled: form.model_plaza_enabled,
       model_plaza_require_auth: form.model_plaza_require_auth,
       model_plaza_description: form.model_plaza_description,
+      model_plaza_usd_to_cny_rate: form.model_plaza_usd_to_cny_rate,
+      model_plaza_currency: form.model_plaza_currency,
       plugin_management_enabled: form.plugin_management_enabled,
       // Support tickets: blank category rows are dropped; the server trims and deduplicates.
       support_ticket_enabled: form.support_ticket_enabled,

@@ -609,8 +609,8 @@ export const adaptations = [
         after: "<td class=\"mito-plaza-model-col border-r border-gray-100 py-2.5 pl-5 pr-4 align-middle dark:border-dark-700/60\">"
       },
       {
-        before: "<span class=\"font-medium text-gray-900 dark:text-white\">{{ m.name }}</span>",
-        after: "<span class=\"mito-plaza-model-name font-medium text-gray-900 dark:text-white\">{{ m.name }}</span>"
+        before: "<span class=\"min-w-0 break-words font-medium text-gray-900 dark:text-white\">{{ m.name }}</span>",
+        after: "<span class=\"mito-plaza-model-name min-w-0 break-words font-medium text-gray-900 dark:text-white\">{{ m.name }}</span>"
       },
       {
         before: "class=\"border-l border-gray-100 px-3 py-2.5 align-middle font-mono text-xs text-gray-500 dark:border-dark-700/60 dark:text-dark-400\"",
@@ -670,8 +670,8 @@ export const adaptations = [
         "after": "<MitoFilterSection v-slot=\"{ expanded, panelId }\" :selected-count=\"activeFilterCount\" :class=\"identityOnly ? 'w-full lg:w-auto' : flat ? 'p-4 sm:p-6' : 'card p-6'\">"
       },
       {
-        "before": "    </div>\n    <p v-if=\"!identityOnly && mode === 'usage' && !observerMode\" id=\"usage-platform-hint\" class=\"mt-3 text-xs text-gray-500 dark:text-gray-400\">{{ t('admin.usage.platformHistoryHint') }}</p>\n  </div>\n</template>",
-        "after": "    </div>\n    <p v-if=\"!identityOnly && mode === 'usage' && !observerMode\" id=\"usage-platform-hint\" class=\"mt-3 text-xs text-gray-500 dark:text-gray-400\">{{ t('admin.usage.platformHistoryHint') }}</p>\n  </MitoFilterSection>\n</template>"
+        "before": "    </div>\n    <p v-if=\"!identityOnly && showPlatformFilter\" id=\"usage-platform-hint\" class=\"mt-3 text-xs text-gray-500 dark:text-gray-400\">{{ t('admin.usage.platformHistoryHint') }}</p>\n  </div>\n</template>",
+        "after": "    </div>\n    <p v-if=\"!identityOnly && showPlatformFilter\" id=\"usage-platform-hint\" class=\"mt-3 text-xs text-gray-500 dark:text-gray-400\">{{ t('admin.usage.platformHistoryHint') }}</p>\n  </MitoFilterSection>\n</template>"
       },
       {
         "before": "import type { SimpleUser } from '@/api/admin/usage'",

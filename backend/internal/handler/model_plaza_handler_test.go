@@ -329,7 +329,7 @@ func TestFilterPlazaVisibleGroups_SubscribedExclusiveGroup(t *testing.T) {
 type plazaVarySettingRepo struct{ service.SettingRepository }
 
 func (plazaVarySettingRepo) GetMultiple(context.Context, []string) (map[string]string, error) {
-	return map[string]string{service.SettingKeyModelPlazaEnabled: "true"}, nil
+	return map[string]string{service.SettingKeyModelPlazaEnabled: "true", "model_plaza_usd_to_cny_rate": "7.2"}, nil
 }
 
 type plazaVaryChannelRepo struct{ service.ChannelRepository }
@@ -365,6 +365,8 @@ func TestModelPlazaHandler_VaryKeepsCORSOrigin(t *testing.T) {
 		// 共享缓存需同时按来源与语言区分，否则 A 来源的响应可能被复用给 B。
 		require.Equal(t, []string{"Origin", "Accept-Language"}, w.Header().Values("Vary"))
 		require.Equal(t, "private, no-store", w.Header().Get("Cache-Control"))
+		require.Contains(t, w.Body.String(), `"usd_to_cny_rate":7.2`)
+		require.Contains(t, w.Body.String(), `"wallet_currency":"USD"`)
 	}
 }
 

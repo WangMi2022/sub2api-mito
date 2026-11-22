@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"log/slog"
+	"strings"
 
 	"github.com/Wei-Shaw/sub2api/internal/pkg/response"
 	"github.com/Wei-Shaw/sub2api/internal/server/middleware"
@@ -120,9 +121,11 @@ type modelPlazaGroup struct {
 
 // modelPlazaResponse 广场页响应。
 type modelPlazaResponse struct {
-	Description           string            `json:"description"`
-	Groups                []modelPlazaGroup `json:"groups"`
-	MonitoringUnavailable bool              `json:"monitoring_unavailable,omitempty"`
+	Description           string                             `json:"description"`
+	USDToCNYRate          float64                            `json:"usd_to_cny_rate"`
+	Currency              service.ModelPlazaCurrencySettings `json:"currency"`
+	Groups                []modelPlazaGroup                  `json:"groups"`
+	MonitoringUnavailable bool                               `json:"monitoring_unavailable,omitempty"`
 }
 
 // Get 返回模型广场数据。
@@ -200,6 +203,8 @@ func (h *ModelPlazaHandler) Get(c *gin.Context) {
 	c.Header("Cache-Control", "private, no-store")
 	response.Success(c, modelPlazaResponse{
 		Description:           rt.Description,
+		USDToCNYRate:          rt.USDToCNYRate,
+		Currency:              visiblePlazaCurrency(rt.Currency, out),
 		Groups:                out,
 		MonitoringUnavailable: monitoringUnavailable,
 	})
@@ -316,4 +321,24 @@ func toModelPlazaOfficialPricing(p *service.PlazaOfficialPricing) *modelPlazaOff
 		CacheReadPrice:     p.CacheReadPrice,
 		Intervals:          toUserPricingIntervals(p.Intervals),
 	}
+}
+
+// Currency override IDs follow the same visibility boundary as the model list.
+func visiblePlazaCurrency(settings service.ModelPlazaCurrencySettings, groups []modelPlazaGroup) service.ModelPlazaCurrencySettings {
+	result := settings
+	result.OfficialPlatformCurrencies = map[string]string{}
+	result.OfficialModelCurrencies = map[string]string{}
+	for _, group := range groups {
+		for _, model := range group.Models {
+			platform := strings.ToLower(strings.TrimSpace(model.Platform))
+			name := strings.ToLower(strings.TrimSpace(model.Name))
+			if currency, ok := settings.OfficialPlatformCurrencies[platform]; ok {
+				result.OfficialPlatformCurrencies[platform] = currency
+			}
+			if currency, ok := settings.OfficialModelCurrencies[name]; ok {
+				result.OfficialModelCurrencies[name] = currency
+			}
+		}
+	}
+	return result
 }

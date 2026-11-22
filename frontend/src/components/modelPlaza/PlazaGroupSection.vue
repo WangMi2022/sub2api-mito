@@ -1,23 +1,26 @@
 <template>
   <section
-    class="overflow-hidden rounded-2xl border bg-white shadow-card dark:bg-dark-800/50"
+    class="mito-plaza-group overflow-hidden rounded-2xl border bg-white shadow-card dark:bg-dark-800/50"
     :class="[platformBorderStrongClass(group.platform)]"
   >
     <!-- 分组头部:名称/平台/倍率徽章/专属/订阅徽章 + 描述 -->
-    <header class="border-b border-gray-100 px-5 py-4 dark:border-dark-700/60">
-      <div class="flex flex-wrap items-center gap-2">
-        <GroupBadge
-          :name="group.name"
-          :platform="group.platform as GroupPlatform"
-          :subscription-type="(group.subscription_type || 'standard') as SubscriptionType"
-          :rate-multiplier="group.rate_multiplier"
-          :user-rate-multiplier="group.user_rate_multiplier ?? null"
-          :peak-rate-enabled="group.peak_rate_enabled"
-          :peak-start="group.peak_start"
-          :peak-end="group.peak_end"
-          :peak-rate-multiplier="group.peak_rate_multiplier"
-          always-show-rate
-        />
+    <header class="mito-plaza-group-header border-b border-gray-100 px-5 py-4 dark:border-dark-700/60">
+      <div class="mito-plaza-group-heading flex flex-wrap items-center gap-2">
+        <h2 class="mito-plaza-group-title">
+          <GroupBadge
+            class="mito-plaza-group-badge"
+            :name="group.name"
+            :platform="group.platform as GroupPlatform"
+            :subscription-type="(group.subscription_type || 'standard') as SubscriptionType"
+            :rate-multiplier="group.rate_multiplier"
+            :user-rate-multiplier="group.user_rate_multiplier ?? null"
+            :peak-rate-enabled="group.peak_rate_enabled"
+            :peak-start="group.peak_start"
+            :peak-end="group.peak_end"
+            :peak-rate-multiplier="group.peak_rate_multiplier"
+            always-show-rate
+          />
+        </h2>
         <span
           v-if="group.is_exclusive"
           class="inline-flex items-center gap-1 rounded-md bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-600 dark:bg-purple-900/20 dark:text-purple-400"
@@ -32,7 +35,7 @@
           {{ t('modelPlaza.badges.subscription') }}
         </span>
       </div>
-      <p v-if="group.description" class="mt-2 text-sm text-gray-500 dark:text-dark-400">
+      <p v-if="group.description" class="mito-plaza-group-description mt-2 text-sm text-gray-500 dark:text-dark-400">
         {{ group.description }}
       </p>
       <p
@@ -56,6 +59,7 @@
       <PlazaModelPricingTable
         v-if="group.models.length > 0"
         :models="group.models"
+        :price-display="priceDisplay"
         :platform="group.platform"
         :rate-multiplier="group.rate_multiplier"
         :user-rate-multiplier="group.user_rate_multiplier ?? null"
@@ -80,6 +84,7 @@ import Icon from '@/components/icons/Icon.vue'
 import GroupBadge from '@/components/common/GroupBadge.vue'
 import PlazaModelPricingTable from './PlazaModelPricingTable.vue'
 import type { ModelPlazaGroup } from '@/api/modelPlaza'
+import type { PlazaPriceDisplay } from '@/utils/plazaCurrency'
 import type { GroupPlatform, SubscriptionType } from '@/types'
 import { platformBorderStrongClass } from '@/utils/platformColors'
 import { hasPeakRate, formatPeakRateWindow, serverTimezoneLabel } from '@/utils/peak-rate'
@@ -87,6 +92,7 @@ import { useAppStore } from '@/stores/app'
 
 const props = defineProps<{
   group: ModelPlazaGroup
+  priceDisplay?: PlazaPriceDisplay
 }>()
 
 const { t } = useI18n()

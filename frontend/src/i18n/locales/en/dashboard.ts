@@ -197,10 +197,11 @@ export default {
       macLinux: 'macOS / Linux',
       windows: 'Windows',
       importCatalog: 'Include the model catalog for this API key',
+      noCatalog: 'No custom catalog',
       importCatalogHint: 'Off by default. When enabled, the script fetches available models and also writes codex-models.json.',
       importCatalogLoading: 'Fetching the model catalog…',
       importCatalogReady: 'Model catalog ready with {count} models.',
-      importCatalogError: 'Could not fetch the model catalog. Uncheck and retry, or verify the API key.',
+      importCatalogError: 'Could not fetch the model catalog. Turn off local file mode and try again, or verify the API key.',
       copy: 'Copy Script',
       copied: 'Copied',
       download: 'Download Script',
@@ -386,6 +387,9 @@ export default {
 
   // Usage
   usage: {
+    logsTitle: 'Request Logs',
+    statsTitle: 'Usage Stats',
+    statsDescription: 'Usage, costs and distributions for the selected period',
     title: 'Usage Records',
     description: 'View and analyze your API usage history',
     costDetails: 'Cost Breakdown',
@@ -791,6 +795,112 @@ export default {
 
   // Model Plaza (public group/model pricing showcase)
   modelPlaza: {
+    market: {
+      "total": "Currently enabled on this site: {count} models",
+      "subtitle": "Explore AI models. Compare prices and live status to find the right fit for your work.",
+      "search": "Search models, providers, endpoints or tags…",
+      "filters": "Filters",
+      "filterHint": "Refine models by provider, group, pricing and tags.",
+      "reset": "Reset",
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "facets": {
+        "group": "Groups",
+        "vendor": "Providers",
+        "tag": "Model tags",
+        "billing": "Pricing type",
+        "endpoint": "Endpoint type"
+      },
+      "all": {
+        "group": "All groups",
+        "vendor": "All providers",
+        "tag": "All tags",
+        "billing": "All models",
+        "endpoint": "All types"
+      },
+      "billing": {
+        "token": "Token-based",
+        "per_request": "Per request",
+        "image": "Per image",
+        "video": "Video pricing"
+      },
+      "unknownVendor": "Unspecified provider",
+      "noDescription": "No description yet.",
+      "models": "models",
+      "group": "Group",
+      "endpoint": "Endpoint",
+      "copy": "Copy model name {model}",
+      "priceDisplay": "Price basis",
+      "unit": "Token price unit",
+      "prices": {
+        "standard": "Base",
+        "effective": "Effective"
+      },
+      "priceHint": {
+        "standard": "Base channel prices in USD, before group or personal multipliers.",
+        "effective": "Effective prices in USD during standard hours. See details for tiers, cache and time-based rules."
+      },
+      "offerHint": "Same-name models in different groups are separate offers with independent prices and monitoring.",
+      "starting": "first tier",
+      "sortAscending": "Name ascending; switch to descending",
+      "sortDescending": "Name descending; switch to ascending",
+      "name": "Name",
+      "view": "Display mode",
+      "cards": "Card view",
+      "list": "List view",
+      "status": "Status",
+      "latency": "Latency",
+      "throughput": "Tokens/s",
+      "noSamples": "No data",
+      "states": {
+        "operational": "Operational",
+        "degraded": "Degraded",
+        "down": "Unavailable",
+        "unknown": "No qualifying samples"
+      },
+      "ttftHint": "Time to first token (P50) in the latest sampled window.",
+      "probeHint": "Latest probe response latency, not time to first token.",
+      "throughputHint": "Generation speed: successful output tokens divided by response time. It reflects how fast one reply is generated and does not grow with concurrency.",
+      "throughputMissing": "This monitor has no output-token or response-duration samples yet.",
+      "availabilityHint": "Availability over {range}: {value}",
+      "updated": "Latest sample: {time}",
+      "loginHint": "Sign in for personal prices and exclusive groups. Public group status needs no account.",
+      "monitorUnavailable": "Monitoring is temporarily unavailable. Old status is hidden; this page will retry automatically.",
+      "monitorNotConfigured": "Monitoring not configured",
+      "retry": "Reload"
+    },
+    catalog: {
+      categories: {
+        language: 'Language Models (LLM)',
+        embedding: 'Embedding Models',
+        rerank: 'Rerank Models',
+        image: 'Image Models',
+        video: 'Video Models',
+        audio: 'Audio Models',
+        other: 'Other Models'
+      },
+      tags: {
+        language: 'Language',
+        embedding: 'Embedding',
+        rerank: 'Rerank',
+        image: 'Image',
+        video: 'Video',
+        audio: 'Audio',
+        other: 'API'
+      },
+      standardPrice: 'Standard-period price',
+      tiered: 'Tiered pricing',
+      cacheRead: 'Cache read',
+      cacheWrite: 'Cache write',
+      timePricing: 'Time-based pricing',
+      priceHint: 'Prices include the effective group rate and are in USD. Offers for the same model in different groups are shown separately.',
+      priceDescription: 'Prices use the effective rate for this group. Open details for official reference prices and full billing rules.',
+      groupDescription: 'Group notes: {description}',
+      specialPricing: 'Time or reasoning-effort pricing rules also apply. See details.',
+      details: 'Price details',
+      detailsFor: 'View pricing for {model} in {group}',
+      offerCount: '{count} model offers'
+    },
     title: 'Model Plaza',
     description: 'Browse available models and pricing by group',
     loading: 'Loading...',
@@ -798,6 +908,13 @@ export default {
     loadFailed: 'Failed to load model plaza',
     noSearchResult: 'No matching models',
     anonymousHint: 'Sign in to see your exclusive groups and personal rates',
+    currency: {
+      customerLabel: 'Your reference price: {currency} (discounted)', credits: 'Wallet credits',
+      reference: 'Display reference: 1 USD = {rate} CNY',
+      explanation: 'Wallet reference value: 1 credit = {value} {currency}. Display currencies are set by this site; official references can vary by platform or model. Check the currency symbols and headings. Display conversion does not change billing or represent your cost after recharge offers.',
+      unavailable: 'Conversion settings are unavailable: your prices are in wallet credits and official references are in USD.',
+      minimumCharge: 'Minimum {amount} per request',
+    },
     filters: {
       platformLabel: 'Platform',
       groupLabel: 'Group',
@@ -818,6 +935,7 @@ export default {
     },
     table: {
       model: 'Model',
+      copyModelId: 'Copy model ID {model}',
       input: 'Input',
       output: 'Output',
       cache: 'Cache',
@@ -837,10 +955,10 @@ export default {
         '; prices in this row exclude the peak-hour rate — where this period overlaps the peak hours {window}, the overlapping portion is additionally multiplied by ×{multiplier}',
       timePricingWeekdays: 'Weekdays',
       timePricingRateHint: 'Effective rate {rate} × period multiplier {multiplier}',
-      paidPrice: 'Your Price (Discounted)',
-      officialPrice: 'Official Price',
+      paidPrice: 'Your Reference Price (Discounted)',
+      officialPrice: 'Official Reference',
       rate: 'Rate',
-      unitPerMillion: '$ / 1M tokens',
+      unitPerMillion: '/ 1M tokens',
       perUnitRequest: '/ request',
       perUnitImage: '/ image',
       perUnitSecond: '/ second',
@@ -850,7 +968,8 @@ export default {
     },
     nav: {
       login: 'Sign In',
-      backToDashboard: 'Back to Console'
+      backToDashboard: 'Back to Console',
+      home: 'Back to Home'
     }
   },
 
