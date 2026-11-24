@@ -634,8 +634,8 @@ export const adaptations = [
     path: 'frontend/src/views/admin/UsageView.vue',
     edits: [
       {"before":"  <AppLayout>\n    <div class=\"space-y-6\">","after":"  <AppLayout>\n    <div class=\"mito-admin-usage space-y-6\">"},
-      {"before":"<UsageStatsCards\n        v-if=\"activeTab !== 'traffic'\"\n        :stats=\"usageStats\"","after":"<UsageStatsCards\n        v-if=\"activeTab !== 'traffic'\"\n        class=\"mito-admin-usage-stats\"\n        :stats=\"usageStats\""},
-      {"before":"      <!-- Charts Section -->\n      <div v-if=\"activeTab !== 'traffic'\" class=\"space-y-4\">","after":"      <!-- Charts Section -->\n      <div v-if=\"activeTab !== 'traffic'\" class=\"mito-admin-usage-charts space-y-4\">"},
+      {"before":"<UsageStatsCards\n        :stats=\"usageStats\"","after":"<UsageStatsCards\n        class=\"mito-admin-usage-stats\"\n        :stats=\"usageStats\""},
+      {"before":"      <!-- Charts Section -->\n      <div class=\"space-y-4\">","after":"      <!-- Charts Section -->\n      <div class=\"mito-admin-usage-charts space-y-4\">"},
       {"before":"<div class=\"card p-4\">","after":"<div class=\"mito-admin-usage-date card p-4\">"},
       {"before":"<div class=\"card\">","after":"<div class=\"mito-admin-usage-panel card\">"},
       {"before":"<div class=\"flex flex-wrap items-center border-b border-gray-200 px-2 dark:border-dark-700 sm:px-4\">","after":"<div class=\"mito-admin-usage-tabs flex flex-wrap items-center border-b border-gray-200 px-2 dark:border-dark-700 sm:px-4\">"},
@@ -666,12 +666,12 @@ export const adaptations = [
         "after": "<!-- Right: actions -->\n      <div v-if=\"showActions\" class=\"mito-filter-actions mito-usage-filter-actions flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto\">"
       },
       {
-        "before": "<div :class=\"identityOnly ? 'w-full lg:w-auto' : flat ? 'p-4 sm:p-6' : 'card p-6'\">",
-        "after": "<MitoFilterSection v-slot=\"{ expanded, panelId }\" :selected-count=\"activeFilterCount\" :class=\"identityOnly ? 'w-full lg:w-auto' : flat ? 'p-4 sm:p-6' : 'card p-6'\">"
+        "before": "<div :class=\"flat ? 'p-4 sm:p-6' : 'card p-6'\">",
+        "after": "<MitoFilterSection v-slot=\"{ expanded, panelId }\" :selected-count=\"activeFilterCount\" :class=\"flat ? 'p-4 sm:p-6' : 'card p-6'\">"
       },
       {
-        "before": "    </div>\n    <p v-if=\"!identityOnly && showPlatformFilter\" id=\"usage-platform-hint\" class=\"mt-3 text-xs text-gray-500 dark:text-gray-400\">{{ t('admin.usage.platformHistoryHint') }}</p>\n  </div>\n</template>",
-        "after": "    </div>\n    <p v-if=\"!identityOnly && showPlatformFilter\" id=\"usage-platform-hint\" class=\"mt-3 text-xs text-gray-500 dark:text-gray-400\">{{ t('admin.usage.platformHistoryHint') }}</p>\n  </MitoFilterSection>\n</template>"
+        "before": "    </div>\n    <p v-if=\"showPlatformFilter\" id=\"usage-platform-hint\" class=\"mt-3 text-xs text-gray-500 dark:text-gray-400\">{{ t('admin.usage.platformHistoryHint') }}</p>\n  </div>\n</template>",
+        "after": "    </div>\n    <p v-if=\"showPlatformFilter\" id=\"usage-platform-hint\" class=\"mt-3 text-xs text-gray-500 dark:text-gray-400\">{{ t('admin.usage.platformHistoryHint') }}</p>\n  </MitoFilterSection>\n</template>"
       },
       {
         "before": "import type { SimpleUser } from '@/api/admin/usage'",
