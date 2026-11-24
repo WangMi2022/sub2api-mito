@@ -5,7 +5,6 @@
  */
 
 import { apiClient } from './client'
-import type { PlazaMonitoring } from '@/themes/mito/plazaMonitor'
 import type { UserPricingInterval, UserSupportedModelPricing } from './channels'
 
 /** 官方参考价（USD per token，与计费目录同源；字段缺失 = 目录未覆盖）。 */
@@ -46,8 +45,6 @@ export interface PlazaTimePricing {
 }
 
 export interface PlazaModel {
-  /** Omitted unless this exact offer has an authorized, enabled monitor. */
-  monitoring?: PlazaMonitoring
   name: string
   platform: string
   /** 实收口径的展示定价：档位可提供绝对单价或相对基础价倍率；均为标准时段价。 */
@@ -95,7 +92,6 @@ export interface PlazaCurrencySettings {
 }
 
 export interface ModelPlazaResponse {
-  monitoring_unavailable?: boolean
   /** Display reference only: CNY per real USD, independent of wallet credits. */
   usd_to_cny_rate?: number
   /** Display-only wallet valuation and currency rules, independent of payments. */
