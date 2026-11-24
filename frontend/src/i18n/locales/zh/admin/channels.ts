@@ -809,7 +809,23 @@ export default {
         selected: '已添加 {count} 位用户',
         removeUser: '移除 {email}',
         result: '分配完成：成功 {success} 人，失败 {failed} 人',
-        retryHint: '已移除成功项，可检查失败原因后重新提交剩余用户。'
+        retryHint: '已移除成功项，可检查失败原因后重新提交剩余用户。',
+        errors: {
+          unknownUser: '未知用户',
+          userFallback: '用户 #{id}',
+          conflict_validity_days_mismatch: '{user}：已持有该套餐的有效订阅，且到期时间与本次填写的有效期不一致。如需延长或缩短，请在订阅列表中对该用户使用「调整有效期」；无需变更则直接跳过该用户。',
+          conflict_notes_mismatch: '{user}：已持有该套餐的有效订阅，但备注与本次填写不一致。请保持备注一致后重试，或直接在订阅列表中编辑备注。',
+          conflict_generic: '{user}：已持有该套餐的有效订阅，本次请求与现有订阅冲突。请在订阅列表中查看该用户后处理。',
+          SUBSCRIPTION_ALREADY_EXISTS: '{user}：已存在该套餐的订阅，无需重复分配。',
+          SUBSCRIPTION_RESTORE_CONFLICT: '{user}：已存在该套餐的订阅，无法恢复历史订阅。',
+          GROUP_NOT_SUBSCRIPTION_TYPE: '所选分组不是订阅计费类型，请先在分组管理中将其设置为订阅类型。',
+          SUBSCRIPTION_EXPIRED: '{user}：该套餐订阅已过期，请重新分配。',
+          SUBSCRIPTION_SUSPENDED: '{user}：该套餐订阅已被暂停，请先在订阅列表中恢复。',
+          SUBSCRIPTION_NIL_INPUT: '分配参数缺失，请刷新页面后重试。',
+          INVALID_INPUT: '分配参数不完整，请检查后重试。',
+          ADJUST_WOULD_EXPIRE: '{user}：调整后订阅会立即过期，请增加天数。',
+          fallback: '{user}：分配失败（{detail}）'
+        }
       },
       assignTarget: {
         groupLabel: '用户组',

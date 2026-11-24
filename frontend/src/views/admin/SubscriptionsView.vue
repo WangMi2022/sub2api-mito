@@ -625,8 +625,8 @@
         </div>
         <div v-if="batchAssignResult" class="space-y-2 text-sm" role="status" data-test="batch-assign-result">
           <p>{{ t('admin.subscriptions.batchAssign.result', { success: batchAssignResult.success_count, failed: batchAssignResult.failed_count }) }}</p>
-          <ul v-if="batchAssignResult.errors.length" class="max-h-40 space-y-1 overflow-y-auto text-red-600 dark:text-red-400">
-            <li v-for="(error, index) in batchAssignResult.errors" :key="index">{{ error }}</li>
+          <ul v-if="batchAssignErrorMessages.length" class="max-h-40 space-y-1 overflow-y-auto text-red-600 dark:text-red-400">
+            <li v-for="(message, index) in batchAssignErrorMessages" :key="index">{{ message }}</li>
           </ul>
           <p v-if="batchAssignResult.failed_count > 0" class="input-hint">{{ t('admin.subscriptions.batchAssign.retryHint') }}</p>
         </div>
@@ -863,6 +863,7 @@ import { useTableSelection } from '@/composables/useTableSelection'
 import BulkSubscriptionActionDialog from '@/components/admin/subscription/BulkSubscriptionActionDialog.vue'
 import type { Column } from '@/components/common/types'
 import { formatDateTimeToMinute } from '@/utils/format'
+import { formatAssignError } from '@/utils/subscriptionAssignError'
 import { getPersistedPageSize } from '@/composables/usePersistedPageSize'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import TablePageLayout from '@/components/layout/TablePageLayout.vue'
@@ -884,7 +885,7 @@ import {
 } from '@/utils/subscriptionQuota'
 import { GROUP_PLATFORM_OPTIONS } from '@/constants/platforms'
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 const appStore = useAppStore()
 
 interface GroupOption {
@@ -1083,6 +1084,22 @@ const effectiveAssignUserIds = computed(() => {
 })
 const assignUserCount = computed(() => effectiveAssignUserIds.value.length)
 const batchAssignResult = ref<BulkAssignSubscriptionResult | null>(null)
+
+/** 提交时留存 id→邮箱 快照：成功项会从选择列表移除，失败提示仍需显示邮箱。 */
+const assignUserLabels = ref<Map<number, string>>(new Map())
+
+const batchAssignErrorMessages = computed(() => {
+  const result = batchAssignResult.value
+  if (!result) return []
+  return result.errors.map((raw) =>
+    formatAssignError(
+      raw,
+      t,
+      (userId) => assignUserLabels.value.get(userId) ?? t('admin.subscriptions.batchAssign.errors.userFallback', { id: userId }),
+      te
+    )
+  )
+})
 let userSearchTimeout: ReturnType<typeof setTimeout> | null = null
 
 const filters = reactive({
@@ -1388,6 +1405,9 @@ const handleAssignSubscription = async () => {
   submitting.value = true
   try {
     if (batchAssignEnabled.value) {
+      const labels = new Map<number, string>()
+      for (const user of assignUsers.value) labels.set(user.id, user.email || user.username || `#${user.id}`)
+      assignUserLabels.value = labels
       batchAssignResult.value = await adminAPI.subscriptions.bulkAssign({
         user_ids: effectiveAssignUserIds.value,
         group_id: assignForm.group_id,

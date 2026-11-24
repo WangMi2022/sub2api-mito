@@ -809,7 +809,23 @@ export default {
         selected: '{count} users added',
         removeUser: 'Remove {email}',
         result: 'Assignment complete: {success} succeeded, {failed} failed',
-        retryHint: 'Successful users have been removed. Resolve any errors and submit the remaining users again.'
+        retryHint: 'Successful users have been removed. Resolve any errors and submit the remaining users again.',
+        errors: {
+          unknownUser: 'Unknown user',
+          userFallback: 'User #{id}',
+          conflict_validity_days_mismatch: '{user}: already has an active subscription to this plan, and its expiry does not match the validity period entered here. To extend or shorten it, use "Adjust expiration" for this user in the subscription list; otherwise skip this user.',
+          conflict_notes_mismatch: '{user}: already has an active subscription to this plan, but the notes differ from this submission. Keep the notes identical and retry, or edit the notes in the subscription list.',
+          conflict_generic: '{user}: already has an active subscription to this plan and this request conflicts with it. Review the user in the subscription list first.',
+          SUBSCRIPTION_ALREADY_EXISTS: '{user}: a subscription to this plan already exists; no need to assign again.',
+          SUBSCRIPTION_RESTORE_CONFLICT: '{user}: a subscription to this plan already exists, so the old one cannot be restored.',
+          GROUP_NOT_SUBSCRIPTION_TYPE: 'The selected group is not a subscription-type group. Change its billing type to subscription in Groups first.',
+          SUBSCRIPTION_EXPIRED: '{user}: the subscription to this plan has expired; assign it again.',
+          SUBSCRIPTION_SUSPENDED: '{user}: the subscription to this plan is suspended; restore it in the subscription list first.',
+          SUBSCRIPTION_NIL_INPUT: 'Assignment parameters are missing. Refresh the page and retry.',
+          INVALID_INPUT: 'Assignment parameters are incomplete. Check them and retry.',
+          ADJUST_WOULD_EXPIRE: '{user}: this adjustment would expire the subscription immediately; add more days.',
+          fallback: '{user}: assignment failed ({detail})'
+        }
       },
       assignTarget: {
         groupLabel: 'User Group',
