@@ -47,6 +47,11 @@ function mountDialog(props: Record<string, unknown> = {}) {
   })
 }
 
+async function search(wrapper: ReturnType<typeof mountDialog>) {
+  await wrapper.get('[data-testid="identity-import-search"]').trigger('keydown', { key: 'Enter' })
+  await flushPromises()
+}
+
 describe('IdentityImportDialog', () => {
   it('defaults to the ordinary user group and lists directory accounts on search', async () => {
     mocks.users.mockResolvedValue({ users: [idUser('a'), idUser('b')], first: 2, hasMore: false })
@@ -55,10 +60,10 @@ describe('IdentityImportDialog', () => {
     expect((wrapper.get('[data-testid="identity-import-group"]').element as HTMLSelectElement).value).toBe('2')
     expect(wrapper.findAll('option')).toHaveLength(3) // placeholder + 2 active groups
     await wrapper.get('[data-testid="identity-import-search"]').setValue('alice')
-    await wrapper.get('[data-testid="identity-import-search"]').trigger('keydown', { key: 'Enter' })
-    await flushPromises()
+    await search(wrapper)
     expect(mocks.users).toHaveBeenCalledWith('alice', 0)
     expect(wrapper.findAll('[data-testid="identity-import-candidate"]')).toHaveLength(2)
+    expect(wrapper.findAll('[data-testid="identity-import-selected-item"]')).toHaveLength(0)
   })
 
   it('honours the provided default group and disables protected, disabled and email-less accounts', async () => {
@@ -69,15 +74,73 @@ describe('IdentityImportDialog', () => {
     const wrapper = mountDialog({ defaultGroupId: 1 })
     await flushPromises()
     expect((wrapper.get('[data-testid="identity-import-group"]').element as HTMLSelectElement).value).toBe('1')
-    await wrapper.get('[data-testid="identity-import-search"]').trigger('keydown', { key: 'Enter' })
-    await flushPromises()
+    await search(wrapper)
     const boxes = wrapper.findAll('[data-testid="identity-import-candidate"]')
     expect(boxes[0].attributes('disabled')).toBeUndefined()
     expect(boxes[1].attributes('disabled')).toBeDefined()
     expect(boxes[2].attributes('disabled')).toBeDefined()
     expect(boxes[3].attributes('disabled')).toBeDefined()
     await boxes[1].setValue(true)
-    expect(wrapper.text()).toContain(gt('admin.groups.identityImport.selectedCount', { count: 0 }))
+    expect(wrapper.get('[data-testid="identity-import-selected-count"]').text()).toContain('0/20')
+  })
+
+  it('select-all checks only selectable accounts and the arrow moves them to the right panel', async () => {
+    mocks.users.mockResolvedValue({
+      users: [idUser('a'), idUser('b'), idUser('off', { enabled: false })], first: 3, hasMore: false
+    })
+    const wrapper = mountDialog()
+    await flushPromises()
+    await search(wrapper)
+    await wrapper.get('[data-testid="identity-import-select-all"]').setValue(true)
+    const boxes = wrapper.findAll('[data-testid="identity-import-candidate"]')
+    expect((boxes[0].element as HTMLInputElement).checked).toBe(true)
+    expect((boxes[1].element as HTMLInputElement).checked).toBe(true)
+    expect((boxes[2].element as HTMLInputElement).checked).toBe(false)
+    await wrapper.get('[data-testid="identity-import-add"]').trigger('click')
+    await flushPromises()
+    // 移入后左侧只剩不可选项，右侧出现两条
+    expect(wrapper.findAll('[data-testid="identity-import-candidate"]')).toHaveLength(1)
+    expect(wrapper.findAll('[data-testid="identity-import-selected-item"]')).toHaveLength(2)
+    expect(wrapper.get('[data-testid="identity-import-selected-count"]').text()).toContain('2/20')
+    // 再点全选应清空勾选（toggle 语义）
+    await wrapper.get('[data-testid="identity-import-select-all"]').setValue(true)
+    await wrapper.get('[data-testid="identity-import-select-all"]').setValue(false)
+  })
+
+  it('moves checked accounts back from the right panel and clears all selected', async () => {
+    mocks.users.mockResolvedValue({ users: [idUser('a'), idUser('b')], first: 2, hasMore: false })
+    const wrapper = mountDialog()
+    await flushPromises()
+    await search(wrapper)
+    await wrapper.get('[data-testid="identity-import-select-all"]').setValue(true)
+    await wrapper.get('[data-testid="identity-import-add"]').trigger('click')
+    await flushPromises()
+    const right = wrapper.findAll('[data-testid="identity-import-selected-item"]')
+    await right[0].setValue(true)
+    await wrapper.get('[data-testid="identity-import-remove"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.findAll('[data-testid="identity-import-selected-item"]')).toHaveLength(1)
+    expect(wrapper.findAll('[data-testid="identity-import-candidate"]')).toHaveLength(1)
+    await wrapper.get('[data-testid="identity-import-clear"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.findAll('[data-testid="identity-import-selected-item"]')).toHaveLength(0)
+    expect(wrapper.findAll('[data-testid="identity-import-candidate"]')).toHaveLength(2)
+  })
+
+  it('caps the right panel at 20 accounts and keeps the overflow checked with a warning', async () => {
+    const many = Array.from({ length: 25 }, (_, index) => idUser(`u${index}`))
+    mocks.users.mockResolvedValue({ users: many, first: 25, hasMore: false })
+    const wrapper = mountDialog()
+    await flushPromises()
+    await search(wrapper)
+    await wrapper.get('[data-testid="identity-import-select-all"]').setValue(true)
+    await wrapper.get('[data-testid="identity-import-add"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.findAll('[data-testid="identity-import-selected-item"]')).toHaveLength(20)
+    expect(wrapper.findAll('[data-testid="identity-import-candidate"]')).toHaveLength(5)
+    expect(mocks.showError).toHaveBeenCalledWith(gt('admin.groups.identityImport.maxBatch'))
+    const remaining = wrapper.findAll('[data-testid="identity-import-candidate"]')
+    expect((remaining[0].element as HTMLInputElement).checked).toBe(true)
   })
 
   it('imports selected accounts into the chosen group and emits imported', async () => {
@@ -90,11 +153,10 @@ describe('IdentityImportDialog', () => {
     })
     const wrapper = mountDialog()
     await flushPromises()
-    await wrapper.get('[data-testid="identity-import-search"]').trigger('keydown', { key: 'Enter' })
+    await search(wrapper)
+    await wrapper.get('[data-testid="identity-import-select-all"]').setValue(true)
+    await wrapper.get('[data-testid="identity-import-add"]').trigger('click')
     await flushPromises()
-    const boxes = wrapper.findAll('[data-testid="identity-import-candidate"]')
-    await boxes[0].setValue(true)
-    await boxes[1].setValue(true)
     const submit = wrapper.get('[data-testid="identity-import-submit"]')
     expect(submit.attributes('disabled')).toBeUndefined()
     await submit.trigger('click')
@@ -106,7 +168,7 @@ describe('IdentityImportDialog', () => {
     expect(mocks.showSuccess).toHaveBeenCalledWith(gt('admin.groups.identityImport.success', { count: 1 }))
     expect(wrapper.get('[data-testid="identity-import-results"]').text()).toContain(gt('admin.groups.identityImport.status.created'))
     expect(wrapper.get('[data-testid="identity-import-results"]').text()).toContain(gt('admin.groups.identityImport.status.exists'))
-    expect(wrapper.text()).toContain(gt('admin.groups.identityImport.selectedCount', { count: 0 }))
+    expect(wrapper.findAll('[data-testid="identity-import-selected-item"]')).toHaveLength(0)
   })
 
   it('reports per-item failures without emitting imported when nothing was created', async () => {
@@ -116,9 +178,10 @@ describe('IdentityImportDialog', () => {
     })
     const wrapper = mountDialog()
     await flushPromises()
-    await wrapper.get('[data-testid="identity-import-search"]').trigger('keydown', { key: 'Enter' })
-    await flushPromises()
+    await search(wrapper)
     await wrapper.findAll('[data-testid="identity-import-candidate"]')[0].setValue(true)
+    await wrapper.get('[data-testid="identity-import-add"]').trigger('click')
+    await flushPromises()
     await wrapper.get('[data-testid="identity-import-submit"]').trigger('click')
     await flushPromises()
     expect(wrapper.emitted('imported')).toBeUndefined()
@@ -126,15 +189,18 @@ describe('IdentityImportDialog', () => {
     expect(wrapper.get('[data-testid="identity-import-results"]').text()).toContain(gt('admin.groups.identityImport.reasons.identity_import_email_exists'))
   })
 
-  it('keeps the submit disabled until a group and at least one account are chosen', async () => {
+  it('keeps the submit disabled until a group and at least one account are moved right', async () => {
     mocks.users.mockResolvedValue({ users: [idUser('a')], first: 1, hasMore: false })
     const wrapper = mountDialog()
     await flushPromises()
     const submit = wrapper.get('[data-testid="identity-import-submit"]')
     expect(submit.attributes('disabled')).toBeDefined()
-    await wrapper.get('[data-testid="identity-import-search"]').trigger('keydown', { key: 'Enter' })
-    await flushPromises()
+    await search(wrapper)
     await wrapper.findAll('[data-testid="identity-import-candidate"]')[0].setValue(true)
+    // 仅勾选未移入时仍不可提交
+    expect(submit.attributes('disabled')).toBeDefined()
+    await wrapper.get('[data-testid="identity-import-add"]').trigger('click')
+    await flushPromises()
     expect(submit.attributes('disabled')).toBeUndefined()
     await wrapper.get('[data-testid="identity-import-group"]').setValue('0')
     expect(submit.attributes('disabled')).toBeDefined()
