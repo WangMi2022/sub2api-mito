@@ -46,6 +46,14 @@ export interface IdentitySecurity {
 }
 export interface IdentityLoginPolicy { oidc_only: boolean; unified_session: boolean }
 export interface IdentityPage { users: IdentityUser[]; first: number; hasMore: boolean }
+export interface IdentityImportItem {
+  subject: string
+  email?: string
+  username?: string
+  userId?: number
+  status: 'created' | 'exists' | 'failed'
+  reason?: string
+}
 export interface IdentityUserFilters { enabled?: string; emailVerified?: string; ungrouped?: string }
 export interface IdentityMitoAccount {
   id: number; username: string; email: string; role: 'admin' | 'user' | 'observer'; status: 'active' | 'disabled'
@@ -79,6 +87,8 @@ export const identityAPI = {
   bulkMembership: async (id: string, userIds: string[], member: boolean) =>
     (await apiClient.post<{ changed: string[]; failed: string[] }>(`${groupPath(id)}/members`, { userIds, member })).data,
   mitoPermissions: async (id: string) => (await apiClient.get<IdentityMitoPermissions>(`${userPath(id)}/mito`)).data,
+  importAccounts: async (input: { subjects: string[]; userGroupId: number; reason: string }) =>
+    (await apiClient.post<{ results: IdentityImportItem[] }>('/identity/import', input)).data,
   linkMitoAccount: async (id: string, input: { userId: number; email: string; reason: string }) =>
     (await apiClient.post<{ linked: boolean }>(`${userPath(id)}/mito/link`, input)).data,
   saveMitoPermissions: async (id: string, input: Omit<IdentityMitoAccount, 'id' | 'email' | 'username'> & { reason: string }) =>

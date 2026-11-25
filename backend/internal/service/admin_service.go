@@ -31,6 +31,8 @@ type AdminService interface {
 	// Also returns totalRecharged (sum of all positive balance top-ups).
 	GetUserBalanceHistory(ctx context.Context, userID int64, page, pageSize int, codeType string) ([]RedeemCode, int64, float64, error)
 	BindUserAuthIdentity(ctx context.Context, userID int64, input AdminBindAuthIdentityInput) (*AdminBoundAuthIdentity, error)
+	// ImportIdentities 把统一身份目录账号按需落地为本地用户并归入用户组（只增不删）。
+	ImportIdentities(ctx context.Context, input AdminIdentityImportInput) ([]AdminIdentityImportItem, error)
 
 	// Group management
 	ListGroups(ctx context.Context, page, pageSize int, platform, status, search string, isExclusive *bool, sortBy, sortOrder string) ([]Group, int64, error)

@@ -3,11 +3,22 @@ import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import type { UserGroup } from '@/types'
 import GroupPolicyUserGroupSelect from '../GroupPolicyUserGroupSelect.vue'
 
-const mocks = vi.hoisted(() => ({ list: vi.fn() }))
+const mocks = vi.hoisted(() => ({ list: vi.fn(), capabilities: vi.fn() }))
 vi.mock('@/api/admin', () => ({ adminAPI: { userGroups: { list: mocks.list } } }))
+vi.mock('@/api/identity', () => ({ identityAPI: { capabilities: mocks.capabilities } }))
+// 真实对话框会引入 app store → i18n 实例；本测试只关心入口与事件契约。
+vi.mock('../IdentityImportDialog.vue', async () => {
+  // 异步组件包装器会探测 vue 的内部标记出口；用 Proxy 兜底，未定义出口返回 undefined。
+  const vue = await vi.importActual<Record<string, unknown>>('vue')
+  const stub = { name: 'IdentityImportDialog', props: ['show', 'defaultGroupId'], emits: ['close', 'imported'], template: '<div class="identity-import-dialog-stub" />' }
+  return new Proxy({ ...vue, default: stub }, {
+    get: (target, prop) => (prop in target ? target[prop as string] : undefined),
+    has: () => true
+  })
+})
 vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: (key: string) => key }) }))
 enableAutoUnmount(afterEach)
-beforeEach(() => { vi.resetAllMocks() })
+beforeEach(() => { vi.resetAllMocks(); mocks.capabilities.mockResolvedValue({ manage: false }) })
 
 const group = (id: number, extra: Partial<UserGroup> = {}): UserGroup => ({
   id, name: `Group ${id}`, code: `code-${id}`, member_count: id,
@@ -90,6 +101,42 @@ describe('GroupPolicyUserGroupSelect', () => {
     await wrapper.setProps({ disabled: true })
     await wrapper.get('.select-trigger').trigger('click')
     expect(wrapper.find('[role="listbox"]').exists()).toBe(false)
+  })
+
+  it('hides the identity import entry unless the directory capability is granted', async () => {
+    mocks.list.mockResolvedValue([group(1)])
+    const wrapper = mountSelector()
+    await flushPromises()
+    expect(wrapper.find('[data-testid="identity-import-open"]').exists()).toBe(false)
+    expect(mocks.capabilities).toHaveBeenCalledOnce()
+  })
+
+  it('shows the identity import entry for allowed admins and reloads groups after import', async () => {
+    mocks.capabilities.mockResolvedValue({ manage: true })
+    mocks.list.mockResolvedValue([group(1)])
+    const wrapper = mountSelector()
+    await flushPromises()
+    const entry = wrapper.get('[data-testid="identity-import-open"]')
+    expect(entry.text()).toContain('admin.groups.identityImport.openLabel')
+    await entry.trigger('click')
+    await flushPromises()
+    const dialog = wrapper.findComponent({ name: 'IdentityImportDialog' })
+    expect(dialog.exists()).toBe(true)
+    expect(dialog.props('show')).toBe(true)
+    dialog.vm.$emit('imported', [])
+    await flushPromises()
+    expect(mocks.list).toHaveBeenCalledTimes(2)
+    dialog.vm.$emit('close')
+    await flushPromises()
+    expect(dialog.props('show')).toBe(false)
+  })
+
+  it('keeps the import entry hidden when the capability probe fails', async () => {
+    mocks.capabilities.mockRejectedValue(new Error('offline'))
+    mocks.list.mockResolvedValue([group(1)])
+    const wrapper = mountSelector()
+    await flushPromises()
+    expect(wrapper.find('[data-testid="identity-import-open"]').exists()).toBe(false)
   })
 
   it('loads a fresh list on remount and ignores a late response from the old instance', async () => {

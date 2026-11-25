@@ -46,6 +46,25 @@
         </div>
       </template>
     </Select>
+    <div v-if="identityManage" class="flex items-center justify-end">
+      <button
+        type="button"
+        class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium text-primary-600 underline-offset-4 hover:underline disabled:opacity-50 dark:text-primary-400"
+        :disabled="disabled"
+        data-testid="identity-import-open"
+        @click="importOpen = true"
+      >
+        <Icon name="users" size="sm" class="shrink-0" />
+        {{ t('admin.groups.identityImport.openLabel') }}
+      </button>
+    </div>
+    <IdentityImportDialog
+      v-if="identityManage"
+      :show="importOpen"
+      :default-group-id="modelValue?.id ?? null"
+      @close="importOpen = false"
+      @imported="handleImported"
+    />
     <div v-if="failed" role="alert" class="flex flex-wrap items-center justify-between gap-2 text-xs text-red-600 dark:text-red-400">
       <span>{{ t('admin.userGroups.failedToLoad') }}</span>
       <button type="button" class="rounded px-2 py-1 font-medium underline underline-offset-4" :disabled="disabled" @click="loadGroups">
@@ -59,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { adminAPI } from '@/api/admin'
 import type { UserGroup } from '@/types'
@@ -73,11 +92,32 @@ const props = withDefaults(defineProps<{
 }>(), { disabled: false })
 
 const emit = defineEmits<{ 'update:modelValue': [group: UserGroup | null] }>()
+
+// 异步加载导入对话框：只有具备统一身份管理能力的管理员才会真正加载它，
+// 其余场景不引入 app store / i18n 实例等依赖。
+const IdentityImportDialog = defineAsyncComponent(() => import('./IdentityImportDialog.vue'))
 const { t } = useI18n()
 const groups = ref<UserGroup[]>([])
 const loading = ref(false)
 const failed = ref(false)
 let loadVersion = 0
+const identityManage = ref(false)
+const importOpen = ref(false)
+
+// 统一身份目录可用且当前管理员在允许名单内时，才展示「从统一身份导入」入口。
+async function loadIdentityCapability() {
+  try {
+    // 动态引入：避免把 API client 的 i18n 实例依赖带进本组件的静态依赖图。
+    const { identityAPI } = await import('@/api/identity')
+    identityManage.value = (await identityAPI.capabilities()).manage === true
+  } catch {
+    identityManage.value = false
+  }
+}
+
+async function handleImported() {
+  await loadGroups()
+}
 
 const configuredIds = computed(() => new Set(props.configuredIds))
 const options = computed(() => groups.value.map(group => ({
@@ -116,6 +156,6 @@ function selectGroup(value: unknown) {
   emit('update:modelValue', group)
 }
 
-onMounted(loadGroups)
+onMounted(() => { void loadGroups(); void loadIdentityCapability() })
 onBeforeUnmount(() => { loadVersion++ })
 </script>

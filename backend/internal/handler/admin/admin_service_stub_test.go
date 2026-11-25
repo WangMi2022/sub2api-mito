@@ -231,6 +231,10 @@ func (s *stubAdminService) GetUserRPMStatus(ctx context.Context, userID int64) (
 	}, nil
 }
 
+func (s *stubAdminService) ImportIdentities(ctx context.Context, input service.AdminIdentityImportInput) ([]service.AdminIdentityImportItem, error) {
+	return nil, nil
+}
+
 func (s *stubAdminService) BindUserAuthIdentity(ctx context.Context, userID int64, input service.AdminBindAuthIdentityInput) (*service.AdminBoundAuthIdentity, error) {
 	s.boundAuthIdentityFor = userID
 	copied := input

@@ -106,6 +106,66 @@ func (h *UserHandler) RegisterIdentityPermissions(read, write *gin.RouterGroup, 
 		}
 		response.Success(c, gin.H{"linked": true, "protected": protected, "account": user.MitoPermissions(), "groups": groupOptions, "userGroups": userGroupOptions})
 	})
+	// 从统一身份目录批量导入：账号资料从目录权威读取（绝不信任客户端传入的
+	// 邮箱/用户名），复用管理员建号 + 绑定路径落地本地用户并归入指定用户组。
+	write.POST("/import", func(c *gin.Context) {
+		var input struct {
+			Subjects    []string `json:"subjects"`
+			UserGroupID int64    `json:"userGroupId"`
+			Reason      string   `json:"reason"`
+		}
+		if !decodeMitoInput(c, &input) || len(input.Subjects) == 0 || len(input.Subjects) > 20 || input.UserGroupID <= 0 || !validMitoReason(input.Reason) {
+			identityPermissionError(c, "identity_invalid_import", 400)
+			return
+		}
+		if directory == nil {
+			identityPermissionError(c, "identity_unavailable", 503)
+			return
+		}
+		accounts := make([]service.AdminIdentityImportAccount, 0, len(input.Subjects))
+		for _, subject := range input.Subjects {
+			subject = strings.TrimSpace(subject)
+			if subject == "" {
+				identityPermissionError(c, "identity_invalid_import", 400)
+				return
+			}
+			account, err := directory.Account(c.Request.Context(), subject)
+			if err != nil {
+				var failure *identityadmin.Error
+				if errors.As(err, &failure) {
+					identityPermissionError(c, failure.Code, failure.Status)
+				} else {
+					identityPermissionError(c, "identity_unavailable", 503)
+				}
+				return
+			}
+			if !account.Enabled {
+				identityPermissionError(c, "identity_import_account_disabled", 409)
+				return
+			}
+			if account.ServiceAccountClientID != "" {
+				identityPermissionError(c, "identity_import_service_account", 409)
+				return
+			}
+			accounts = append(accounts, service.AdminIdentityImportAccount{
+				Subject: account.ID, Email: account.Email, Username: account.Username,
+			})
+		}
+		results, err := h.adminService.ImportIdentities(c.Request.Context(), service.AdminIdentityImportInput{
+			Issuer: issuer, UserGroupID: input.UserGroupID, ActorAdminID: getAdminIDFromContext(c), Accounts: accounts,
+		})
+		if err != nil {
+			response.ErrorFrom(c, err)
+			return
+		}
+		middleware.SetAuditAction(c, "identity.mito_account.import")
+		middleware.SetAuditExtra(c, map[string]any{
+			"user_group_id": input.UserGroupID,
+			"subjects":      input.Subjects,
+			"reason_code":   strings.TrimSpace(input.Reason),
+		})
+		response.Success(c, gin.H{"results": results})
+	})
 	write.POST("/users/:id/mito/link", func(c *gin.Context) {
 		var input struct {
 			UserID int64  `json:"userId"`
