@@ -233,7 +233,7 @@
           @select-all-results="handleSelectAllResults"
           @toggle-schedulable="handleBulkToggleSchedulable"
         />
-        <div ref="accountTableRef" class="mito-accounts-table flex min-h-0 flex-1 flex-col overflow-hidden" :aria-busy="loading" :inert="loading && accounts.length > 0">
+        <div ref="accountTableRef" class="flex min-h-0 flex-1 flex-col overflow-hidden" :aria-busy="loading" :inert="loading && accounts.length > 0">
         <DataTable
           ref="dataTableRef"
           :columns="cols"
@@ -245,8 +245,6 @@
           default-sort-key="name"
           default-sort-order="asc"
           :sort-storage-key="ACCOUNT_SORT_STORAGE_KEY"
-          :resizable-columns="isMitoTheme"
-          column-width-storage-key="mito-account-column-widths-v1"
           :estimate-row-height="156"
           :overscan="5"
           :virtualize-threshold="50"
@@ -268,7 +266,7 @@
           </template>
           <template #cell-name="{ row, value }">
             <a v-if="row.upstream_channel_binding" href="/admin/upstream-channels" class="block text-xs text-primary-600" data-testid="account-current-upstream">{{ row.upstream_channel_binding.channel ? `${row.upstream_channel_binding.channel.name} · ${row.upstream_channel_binding.channel.code}` : t('upstreamEntities.unbound') }}</a>
-            <div class="mito-account-identity flex flex-col">
+            <div class="flex flex-col">
               <div class="flex items-center gap-1">
                 <HelpTooltip
                   v-if="accountHomepageUrl(row)"
@@ -316,7 +314,7 @@
             <span v-else class="text-sm text-gray-400 dark:text-dark-500">-</span>
           </template>
           <template #cell-platform_type="{ row }">
-            <div class="mito-account-platform flex min-w-0 flex-col gap-1">
+            <div class="flex min-w-0 flex-col gap-1">
               <div class="flex flex-wrap items-center gap-1">
                 <PlatformTypeBadge :platform="row.platform" :type="row.type"
                   :auth-mode="getOpenAIAuthMode(row)"
@@ -509,7 +507,7 @@
             </div>
           </template>
           <template #cell-actions="{ row }">
-            <div class="mito-account-actions flex items-center gap-1">
+            <div class="flex items-center gap-1">
               <div v-if="authStore.isAdmin && row.type === 'gateway'" class="flex items-center gap-1">
                 <button type="button" class="rounded-lg p-1.5 text-xs text-emerald-600 disabled:opacity-50"
                   data-testid="gateway-sync-saved" :disabled="gatewayModelSyncIds.has(row.id)" @click="syncGatewayModels(row)">
@@ -595,8 +593,6 @@ import TotpStepUpDialog from '@/components/auth/TotpStepUpDialog.vue'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import TablePageLayout from '@/components/layout/TablePageLayout.vue'
 import DataTable from '@/components/common/DataTable.vue'
-import { isMitoTheme } from '@/themes/mito'
-import { withAccountColumnSizes } from '@/themes/mito/accountTableColumns'
 import HelpTooltip from '@/components/common/HelpTooltip.vue'
 import Pagination from '@/components/common/Pagination.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
@@ -2198,12 +2194,11 @@ const toggleableColumns = computed(() =>
 )
 
 // Filtered columns based on visibility
-const cols = computed(() => {
-  const visibleColumns = allColumns.value.filter(col =>
+const cols = computed(() =>
+  allColumns.value.filter(col =>
     col.key === 'select' || col.key === 'name' || col.key === 'actions' || !hiddenColumns.has(col.key)
   )
-  return isMitoTheme ? withAccountColumnSizes(visibleColumns) : visibleColumns
-})
+)
 
 const accountDetailLoading = new Set<number>()
 const loadAccountDetails = async (account: Pick<AccountListItem, 'id'>): Promise<Account | null> => {
