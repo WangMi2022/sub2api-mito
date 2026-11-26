@@ -114,6 +114,7 @@ html[data-ui-theme='mito'] .select-dropdown-portal .select-empty {
    The trigger carries the original .input class; strip its native-input chrome
    so only the unified select styling shows (no double border / focus ring). */
 html[data-ui-theme='mito'] .mito-select-compat .select-trigger {
+  display: flex;
   width: 100%;
 }
 
