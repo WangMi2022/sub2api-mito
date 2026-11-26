@@ -29,11 +29,11 @@
       <div class="rounded-xl border border-gray-200 p-3 dark:border-dark-600">
         <div class="flex flex-wrap items-center gap-3">
           <label for="subscription-download-mode" class="text-sm font-medium">{{ text('订阅下载模式', 'Subscription download mode') }}</label>
-          <select id="subscription-download-mode" v-model="downloadMode" class="input w-auto" :disabled="busy" @change="downloadModeDirty = true">
+          <NativeSelectCompat id="subscription-download-mode" :value="downloadMode" class="input w-auto" :disabled="busy" @change="downloadMode = $event; downloadModeDirty = true">
             <option value="auto">{{ text('自动：代理失败后直连', 'Auto: proxy with direct fallback') }}</option>
             <option value="proxy">{{ text('仅通过 Mihomo', 'Mihomo proxy only') }}</option>
             <option value="direct">{{ text('仅直连', 'Direct only') }}</option>
-          </select>
+          </NativeSelectCompat>
           <button type="button" class="btn btn-secondary btn-sm" :disabled="busy || !downloadModeDirty" @click="saveDownloadMode">{{ text('保存下载模式', 'Save download mode') }}</button>
         </div>
         <p class="mt-2 text-xs text-gray-500">{{ text('仅影响订阅文件下载，不改变打票或账号业务出口。自动模式在代理下载失败或内容无效时尝试直连；仅代理模式不会回退直连。', 'Only affects subscription downloads, not ticket or account traffic. Auto retries direct after a failed or invalid proxy response; proxy-only never falls back to direct.') }}</p>
@@ -79,13 +79,13 @@
       </div>
       <div class="flex flex-wrap items-center gap-3">
         <input v-model="search" type="search" class="input sm:max-w-xs" :placeholder="text('搜索节点名称或地区', 'Search node names or regions')" :aria-label="text('搜索节点', 'Search nodes')" />
-        <select v-model="nodeState" class="input w-auto" :aria-label="text('节点状态', 'Node status')">
+        <NativeSelectCompat :value="nodeState" class="input w-auto" :aria-label="text('节点状态', 'Node status')" @change="nodeState = $event">
           <option value="">{{ text('全部状态', 'All statuses') }}</option><option v-for="state in nodeStates" :key="state" :value="state">{{ stateLabel(state) }}</option>
-        </select>
-        <select v-if="section === 'nodes'" v-model="nodeSource" class="input w-auto" :aria-label="text('节点来源', 'Node source')">
+        </NativeSelectCompat>
+        <NativeSelectCompat v-if="section === 'nodes'" :value="nodeSource" class="input w-auto" :aria-label="text('节点来源', 'Node source')" @change="nodeSource = $event">
           <option value="">{{ text('全部来源', 'All sources') }}</option><option value="dynamic">{{ text('动态代理', 'Dynamic proxies') }}</option>
           <option v-for="source in status?.subscription_items || []" :key="source.id" :value="source.id">{{ source.label }}</option>
-        </select>
+        </NativeSelectCompat>
         <span class="text-xs text-gray-500" data-testid="node-batch-scope">{{ selectedNodes.length ? text(`批量检测已选的 ${nodeBatchTargets.length} 个节点`, `Batch checks cover ${nodeBatchTargets.length} selected nodes`) : text(`未选择时批量检测当前筛选的全部 ${nodeBatchTargets.length} 个节点`, `Without a selection, batch checks cover all ${nodeBatchTargets.length} filtered nodes`) }}</span>
       </div>
       <DataTable v-model:selected-keys="selectedNodes" :columns="nodeColumns" :data="pagedNodes" row-key="name" selectable :loading="loading">
@@ -149,7 +149,7 @@
     <BaseDialog :show="nodeEditDialog" :title="text('批量编辑节点', 'Batch edit nodes')" @close="!pending && (nodeEditDialog = false)">
       <div class="space-y-3 text-sm">
         <p>{{ text(`仅修改已选择的 ${selectedNodeTargets.length} 个节点。`, `Only the ${selectedNodeTargets.length} selected nodes will be changed.`) }}</p>
-        <label class="block">{{ text('操作', 'Action') }}<select v-model="nodeEditAction" class="input mt-2" data-testid="node-batch-action"><option value="recover">{{ text('恢复节点', 'Recover nodes') }}</option><option value="disable">{{ text('停用节点', 'Disable nodes') }}</option><option value="static">{{ text('添加为静态代理', 'Add as static proxies') }}</option></select></label>
+        <label class="block">{{ text('操作', 'Action') }}<NativeSelectCompat :value="nodeEditAction" class="input mt-2" data-testid="node-batch-action" @change="nodeEditAction = $event"><option value="recover">{{ text('恢复节点', 'Recover nodes') }}</option><option value="disable">{{ text('停用节点', 'Disable nodes') }}</option><option value="static">{{ text('添加为静态代理', 'Add as static proxies') }}</option></NativeSelectCompat></label>
         <p class="text-gray-500">{{ text('恢复操作仍受地区规则限制；停用节点会同时停止对应静态代理的转发。', 'Recovery still follows region rules. Disabling a node also stops forwarding through its static proxy.') }}</p>
         <p v-if="error" role="alert" class="text-red-600">{{ error }}</p>
       </div>
@@ -169,7 +169,7 @@
     <BaseDialog :show="dynamicDialog" :title="text('导入动态代理', 'Import dynamic proxies')" @close="dynamicDialog = false">
       <div class="space-y-3">
         <label class="block text-sm" for="mihomo-dynamic-protocol">{{ text('无协议前缀时使用', 'Default protocol') }}</label>
-        <select id="mihomo-dynamic-protocol" v-model="dynamicProtocol" class="input"><option value="http">HTTP</option><option value="https">HTTPS</option><option value="socks5">SOCKS5</option><option value="socks5h">SOCKS5H</option></select>
+        <NativeSelectCompat id="mihomo-dynamic-protocol" :value="dynamicProtocol" class="input" @change="dynamicProtocol = $event"><option value="http">HTTP</option><option value="https">HTTPS</option><option value="socks5">SOCKS5</option><option value="socks5h">SOCKS5H</option></NativeSelectCompat>
         <label class="block text-sm" for="mihomo-dynamic-proxies">{{ text('动态代理（每行一个）', 'Dynamic proxies (one per line)') }}</label>
         <textarea id="mihomo-dynamic-proxies" v-model="dynamicProxies" class="input w-full font-mono text-xs" rows="6" autocomplete="off" spellcheck="false" />
         <details class="text-xs text-gray-500"><summary>{{ text('支持的输入格式', 'Supported formats') }}</summary><pre class="mt-2 whitespace-pre-wrap">hostname:port:username:password
@@ -188,6 +188,7 @@ http://username:password@hostname:port</pre></details>
   </div>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, ref, onMounted, onUnmounted, watch, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { apiClient } from '@/api/client'

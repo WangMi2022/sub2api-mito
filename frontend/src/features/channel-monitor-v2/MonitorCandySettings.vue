@@ -25,7 +25,7 @@
         <p v-if="isDuplicate(index)" class="mt-2 text-xs text-red-600">{{ t('channelMonitorV2.candy.duplicateModel') }}</p>
       </div>
       <div class="flex flex-wrap items-center gap-2">
-        <select v-model.number="selectedGroup" class="input min-w-0 flex-1" data-testid="candy-group-select"><option :value="0">{{ t('channelMonitorV2.candy.selectGroup') }}</option><option v-for="group in groups" :key="group.id" :value="group.id">{{ group.name }} · {{ group.platform }}</option></select>
+        <NativeSelectCompat :value="selectedGroup" class="input min-w-0 flex-1" data-testid="candy-group-select" @change="selectedGroup = Number($event)"><option :value="0">{{ t('channelMonitorV2.candy.selectGroup') }}</option><option v-for="group in groups" :key="group.id" :value="group.id">{{ group.name }} · {{ group.platform }}</option></NativeSelectCompat>
         <button type="button" class="btn btn-secondary" :disabled="!selectedGroup || (modelValue?.length || 0) >= 64" data-testid="add-candy-probe" @click="add">{{ t('channelMonitorV2.candy.addModel') }}</button>
       </div>
       <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('channelMonitorV2.candy.ruleHint') }}</p>
@@ -34,6 +34,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Toggle from '@/components/common/Toggle.vue'

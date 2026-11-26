@@ -48,7 +48,7 @@
           <section class="card space-y-5">
             <header class="flex items-center justify-between gap-3"><h2 class="text-lg font-semibold">{{ t('autoConfig.initial') }}</h2><label class="flex items-center gap-2 text-sm"><input v-model="draft.enabled" data-testid="initial-enabled" type="checkbox" role="switch" />{{ t('autoConfig.enable') }}</label></header>
             <p class="text-sm leading-6 text-gray-500">{{ t('autoConfig.initialHint') }}</p>
-            <label class="block"><span class="field-label">{{ t('autoConfig.platform') }}</span><select v-model="draft.platform" data-testid="platform" class="input w-full" @change="draft.group_ids = []; draft.model_mappings = defaultOAuthModelMappings(draft.platform); draft.selected_models = null; draft.quality_rule = null; draft.openai_totp_rotate_on_429 = false; draft.openai_disable_scheduling_on_429 = false; draft.openai_disable_scheduling_on_429_7d_threshold_percent = DEFAULT_DISABLE_SCHEDULING_429_7D_THRESHOLD_PERCENT; draft.openai_ws_mode = OPENAI_WS_MODE_CTX_POOL; draft.openai_ws_sse_acceleration = false; selectedQualityRule = ''"><option v-for="p in platforms" :key="p.value" :value="p.value">{{ p.label }}</option></select></label>
+            <label class="block"><span class="field-label">{{ t('autoConfig.platform') }}</span><NativeSelectCompat :value="draft.platform" data-testid="platform" class="input w-full" @change="draft.platform = $event; draft.group_ids = []; draft.model_mappings = defaultOAuthModelMappings(draft.platform); draft.selected_models = null; draft.quality_rule = null; draft.openai_totp_rotate_on_429 = false; draft.openai_disable_scheduling_on_429 = false; draft.openai_disable_scheduling_on_429_7d_threshold_percent = DEFAULT_DISABLE_SCHEDULING_429_7D_THRESHOLD_PERCENT; draft.openai_ws_mode = OPENAI_WS_MODE_CTX_POOL; draft.openai_ws_sse_acceleration = false; selectedQualityRule = ''"><option v-for="p in platforms" :key="p.value" :value="p.value">{{ p.label }}</option></NativeSelectCompat></label>
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><label v-for="field in initialFields" :key="field.key"><span class="field-label">{{ t('autoConfig.' + field.key) }}</span><input v-model.number="draft[field.key]" :data-testid="field.key" type="number" :min="field.min" max="10000" step="1" required class="input w-full" /></label><label><span class="field-label">{{ t('autoConfig.cost_multiplier') }}</span><input v-model.number="draft.cost_multiplier" data-testid="cost_multiplier" type="number" min="0" max="1000000" step="0.001" required class="input w-full" /></label></div>
             <p class="text-xs leading-5 text-gray-500">{{ t('autoConfig.loadHint') }}</p>
             <div class="space-y-2">
@@ -85,9 +85,9 @@
                 <label for="initial-openai-ws-mode" class="text-sm font-medium text-gray-600 dark:text-gray-300">{{ t('admin.accounts.openai.wsMode') }}</label>
                 <NewFeatureBadge :notice-id="NEW_FEATURE_NOTICES.oauthInitialWSSettings" :user-id="auth.user?.id" />
               </div>
-              <select id="initial-openai-ws-mode" v-model="draft.openai_ws_mode" data-testid="initial-ws-mode-select" class="input w-full">
+              <NativeSelectCompat id="initial-openai-ws-mode" :value="draft.openai_ws_mode" data-testid="initial-ws-mode-select" class="input w-full" @change="draft.openai_ws_mode = $event">
                 <option v-for="mode in openAIWSModeOptions" :key="mode.value" :value="mode.value">{{ mode.label }}</option>
-              </select>
+              </NativeSelectCompat>
               <p class="text-xs leading-5 text-gray-500">{{ t('autoConfig.ws.modeHint') }}</p>
               <p v-if="openAIWSModeHintKey" class="text-xs leading-5 text-gray-500">{{ t(openAIWSModeHintKey) }}</p>
             </fieldset>
@@ -103,11 +103,11 @@
             <fieldset class="space-y-3" data-testid="initial-quality-rule">
               <legend class="field-label">{{ t('autoConfig.quality.title') }}</legend>
               <p class="text-xs leading-5 text-gray-500">{{ t('autoConfig.quality.hint') }}</p>
-              <select v-model="selectedQualityRule" data-testid="quality-rule-select" class="input w-full" :aria-label="t('autoConfig.quality.title')" @change="selectQualityRule">
+              <NativeSelectCompat :value="selectedQualityRule" data-testid="quality-rule-select" class="input w-full" :aria-label="t('autoConfig.quality.title')" @change="selectedQualityRule = $event; selectQualityRule()">
                 <option value="">{{ t('autoConfig.quality.none') }}</option>
                 <option v-if="draft.quality_rule" value="saved">{{ t('autoConfig.quality.saved') }}</option>
                 <option v-for="plan in availableQualityPlans" :key="plan.id" :value="String(plan.id)">{{ plan.account_name || '#' + plan.account_id }} · #{{ plan.id }} · {{ plan.model_id }} · {{ qualityActionLabel(plan) }}</option>
-              </select>
+              </NativeSelectCompat>
               <p v-if="qualityLoadFailed" role="alert" class="text-sm text-red-600">{{ t('autoConfig.quality.loadFailed') }} <button type="button" class="underline" @click="loadQualityPlans">{{ t('autoConfig.retry') }}</button></p>
               <p v-if="draft.quality_rule" data-testid="quality-rule-summary" class="text-sm text-gray-500">{{ draft.quality_rule.model_id }} · {{ draft.quality_rule.cron_expression }} · {{ t(draft.quality_rule.enabled ? 'qualityOps.activeShort' : 'qualityOps.paused') }}</p>
               <p class="text-xs leading-5 text-gray-500">{{ t('autoConfig.quality.copyHint') }}</p>
@@ -143,6 +143,7 @@
   </AppLayout>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'

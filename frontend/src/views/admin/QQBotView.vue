@@ -147,8 +147,8 @@
           <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('qqbot.chatImageHelp') }}</p>
           <QQBotImageAISettings v-if="activeTab === 'images'" ref="imageAISettings" v-model="form" v-model:quota="imageSiteQuota" v-model:regenerate="regenerateImageSiteKey" :saved-group-id="baseline?.image_site_group_id" />
           <div class="grid gap-4 md:grid-cols-2">
-            <label class="space-y-1">{{ t('qqbot.imageSize') }}<select v-model="form.image_size" class="input"><option>1024x1024</option><option>1536x1024</option><option>1024x1536</option><option>auto</option></select></label>
-            <label class="space-y-1">{{ t('qqbot.imageOutputFormat') }}<select v-model="form.image_output_format" data-testid="image-output-format" class="input"><option value="">{{ t('qqbot.imageOutputDefault') }}</option><option value="png">PNG</option><option value="jpeg">JPEG</option><option value="webp">WebP</option><option value="gif">GIF</option></select></label>
+            <label class="space-y-1">{{ t('qqbot.imageSize') }}<NativeSelectCompat :value="form.image_size" class="input" @change="form.image_size = $event"><option>1024x1024</option><option>1536x1024</option><option>1024x1536</option><option>auto</option></NativeSelectCompat></label>
+            <label class="space-y-1">{{ t('qqbot.imageOutputFormat') }}<NativeSelectCompat :value="form.image_output_format" data-testid="image-output-format" class="input" @change="form.image_output_format = $event"><option value="">{{ t('qqbot.imageOutputDefault') }}</option><option value="png">PNG</option><option value="jpeg">JPEG</option><option value="webp">WebP</option><option value="gif">GIF</option></NativeSelectCompat></label>
           </div>
           <p class="text-sm text-gray-500">{{ t('qqbot.imageHelp') }}</p>
           <p class="text-sm text-gray-500">{{ t('qqbot.imageGIFHelp') }}</p>
@@ -179,6 +179,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import QQCommunityNav from '@/components/admin/qqbot/QQCommunityNav.vue'
 import { computed, nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { useQQGroupNames } from '@/composables/useQQGroupNames'

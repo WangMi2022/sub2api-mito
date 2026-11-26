@@ -19,7 +19,7 @@
           </section>
           <div class="grid gap-5 lg:grid-cols-2">
             <section class="min-w-0 space-y-4">
-              <label class="block"><span class="field-title">{{ t('priorityScheduling.strategy') }}</span><select v-model="draft.mode" class="input w-full" data-testid="mode"><option v-for="mode in modes" :key="mode" :value="mode">{{ t(`priorityScheduling.modes.${mode}`) }}</option></select></label>
+              <label class="block"><span class="field-title">{{ t('priorityScheduling.strategy') }}</span><NativeSelectCompat :value="draft.mode" class="input w-full" data-testid="mode" @change="draft.mode = $event"><option v-for="mode in modes" :key="mode" :value="mode">{{ t(`priorityScheduling.modes.${mode}`) }}</option></NativeSelectCompat></label>
               <div class="grid grid-cols-2 gap-3"><label v-for="(weight, index) in weightKeys" :key="weight"><span class="field-title">{{ t(`priorityScheduling.${weight}`) }}</span><input v-if="draft.mode === 'custom'" v-model.number="draft[weight]" type="number" min="0" max="100" step="0.1" required class="input w-full" /><div v-else class="rounded-lg bg-gray-50 p-3 text-sm dark:bg-dark-800">{{ presets[draft.mode][index] }}</div></label></div>
               <label class="block">
                 <span class="field-title">{{ t('priorityScheduling.cache_weight') }} <NewFeatureBadge :notice-id="NEW_FEATURE_NOTICES.priorityCacheWeight" :user-id="auth.user?.id" compact /></span>
@@ -32,7 +32,7 @@
               <p class="text-xs leading-5 text-gray-500">{{ t('priorityScheduling.errorRateHint') }}</p>
             </section>
             <section>
-              <label class="mb-3 block"><span class="field-title">{{ t('priorityScheduling.latencyPenaltyMode') }}</span><select v-model="draft.latency_penalty_mode" data-testid="latency-penalty-mode" class="input w-full"><option value="deprioritize">{{ t('priorityScheduling.latencyPenaltyModes.deprioritize') }}</option><option value="stop">{{ t('priorityScheduling.latencyPenaltyModes.stop') }}</option></select><small class="mt-2 block text-gray-500">{{ t('priorityScheduling.latencyPenaltyModeHint') }}</small></label>
+              <label class="mb-3 block"><span class="field-title">{{ t('priorityScheduling.latencyPenaltyMode') }}</span><NativeSelectCompat :value="draft.latency_penalty_mode" data-testid="latency-penalty-mode" class="input w-full" @change="draft.latency_penalty_mode = $event"><option value="deprioritize">{{ t('priorityScheduling.latencyPenaltyModes.deprioritize') }}</option><option value="stop">{{ t('priorityScheduling.latencyPenaltyModes.stop') }}</option></NativeSelectCompat><small class="mt-2 block text-gray-500">{{ t('priorityScheduling.latencyPenaltyModeHint') }}</small></label>
 
               <h2 class="mb-3 font-medium">{{ t('priorityScheduling.thresholds') }}</h2><div class="grid gap-3 sm:grid-cols-2"><label v-for="field in fields" :key="field.key"><span class="field-title">{{ t(`priorityScheduling.${field.key}`) }} <NewFeatureBadge v-if="field.key === 'target_tps'" :notice-id="NEW_FEATURE_NOTICES.priorityAccountPerformance" :user-id="auth.user?.id" compact /></span><input v-model.number="draft[field.key]" type="number" :data-testid="field.key" :min="field.min" :max="field.max" step="1" required class="input w-full" /></label></div></section>
           </div>
@@ -44,7 +44,7 @@
       <section class="card grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4" data-testid="priority-filters">
         <label class="min-w-0"><span class="field-title">{{ t('priorityScheduling.model') }}</span><Select v-model="selectedModel" data-testid="priority-model-filter" :disabled="!initialized" :options="modelOptions" :searchable="true" :creatable="true" :aria-label="t('priorityScheduling.model')" /></label>
         <label class="min-w-0"><span class="field-title">{{ t('priorityScheduling.group') }}</span><Select v-model="selectedGroup" data-testid="priority-group-filter" :disabled="!initialized" :options="groupOptions" :searchable="true" :aria-label="t('priorityScheduling.group')" /></label>
-        <label><span class="field-title">{{ t('priorityScheduling.window_minutes') }}</span><select id="priority-profit-window" v-model.number="financeMinutes" :disabled="!initialized" class="input w-full" data-testid="latency-window"><option :value="15">15m</option><option :value="60">60m</option><option :value="180">180m</option></select></label>
+        <label><span class="field-title">{{ t('priorityScheduling.window_minutes') }}</span><NativeSelectCompat id="priority-profit-window" :value="financeMinutes" :disabled="!initialized" class="input w-full" data-testid="latency-window" @change="financeMinutes = Number($event)"><option :value="15">15m</option><option :value="60">60m</option><option :value="180">180m</option></NativeSelectCompat></label>
         <div class="flex items-end"><button class="btn btn-secondary w-full" :disabled="refreshing || catalogLoading" data-testid="latency-refresh" @click="refresh">{{ t('priorityScheduling.refresh') }}</button></div>
         <p v-if="catalogError" class="text-sm text-red-600 sm:col-span-2 lg:col-span-4" role="alert">{{ t('priorityScheduling.filters.catalogError') }}</p>
       </section>
@@ -63,7 +63,7 @@
           <p v-if="snapshot.latency_fallback" role="status" class="mb-3 text-sm text-amber-600" data-testid="priority-latency-fallback">{{ t('priorityScheduling.latencyFallback') }}</p>
           <p class="mb-3 text-xs text-gray-500">{{ t('priorityScheduling.performanceSource') }} · {{ t('priorityScheduling.window_minutes') }}: {{ snapshot.window_minutes ?? '—' }} · {{ t('priorityScheduling.configRevision') }}: {{ snapshot.config_revision ?? '—' }}<template v-if="snapshot.history_window_end"> · {{ t('priorityScheduling.windowEnd') }}: {{ new Date(snapshot.history_window_end).toLocaleString() }}</template></p>
           <p data-testid="candidate-status" :role="snapshotError ? 'alert' : 'status'" class="reading-status mb-3 text-xs" :class="snapshotError ? 'text-red-600' : 'text-gray-500'">{{ t(snapshotError ? 'priorityScheduling.reading.stale' : refreshing ? 'priorityScheduling.reading.refreshing' : 'priorityScheduling.filters.updated') }}</p>
-          <div class="mb-3 flex flex-wrap items-center justify-between gap-3"><span class="text-sm font-medium">{{ t('priorityScheduling.account') }} ({{ candidateRows.length }})</span><label class="flex items-center gap-2 text-sm sm:hidden">{{ t('priorityScheduling.reading.pageSize') }}<select v-model.number="candidatePageSize" class="input" data-testid="candidate-mobile-size"><option v-for="size in pageSizeOptions" :key="size" :value="size">{{ size }}</option></select></label></div>
+          <div class="mb-3 flex flex-wrap items-center justify-between gap-3"><span class="text-sm font-medium">{{ t('priorityScheduling.account') }} ({{ candidateRows.length }})</span><label class="flex items-center gap-2 text-sm sm:hidden">{{ t('priorityScheduling.reading.pageSize') }}<NativeSelectCompat :value="candidatePageSize" class="input" data-testid="candidate-mobile-size" @change="candidatePageSize = Number($event)"><option v-for="size in pageSizeOptions" :key="size" :value="size">{{ size }}</option></NativeSelectCompat></label></div>
           <div v-if="candidateRows.length" data-testid="priority-candidate-scroll" class="overflow-x-auto">
           <DataTable :key="displayScope(snapshot)" data-testid="candidate-table" data-reading-scroll="candidates" class="reading-table candidate-table" :columns="candidateColumns" :data="candidatePageRows" row-key="account_id">
             <template #cell-account="{ row }"><div class="account-cell" :data-reading-account="row.account_id"><strong class="font-medium" :title="row.account_name">{{ row.account_name }}</strong><small class="block text-gray-400">#{{ row.account_id }}</small></div></template>
@@ -162,6 +162,7 @@
   </AppLayout>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { nextTick, computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'

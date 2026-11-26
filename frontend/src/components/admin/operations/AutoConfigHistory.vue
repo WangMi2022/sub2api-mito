@@ -6,10 +6,10 @@
         <p class="mt-1 text-sm leading-6 text-gray-500 dark:text-gray-400">{{ t('autoConfig.logs.description') }}</p>
       </div>
       <div class="flex w-full items-center gap-3 sm:w-auto">
-        <select v-model="kind" class="input min-w-0 flex-1 sm:w-40" :aria-label="t('autoConfig.logs.filter')" data-testid="history-kind">
+        <NativeSelectCompat :value="kind" class="input min-w-0 flex-1 sm:w-40" :aria-label="t('autoConfig.logs.filter')" data-testid="history-kind" @change="kind = $event">
           <option value="">{{ t('autoConfig.logs.all') }}</option>
           <option v-for="value in kinds" :key="value" :value="value">{{ t('autoConfig.logs.kinds.' + value) }}</option>
-        </select>
+        </NativeSelectCompat>
         <button type="button" class="btn btn-secondary shrink-0" :disabled="loading" data-testid="history-refresh" @click="load()">
           <Icon name="refresh" size="sm" :class="{ 'animate-spin': loading }" />
           {{ t('autoConfig.logs.refresh') }}
@@ -68,6 +68,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'

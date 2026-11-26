@@ -27,11 +27,11 @@
       </div>
       <div>
         <label class="input-label">{{ t('admin.users.form.roleLabel') }}</label>
-        <select v-model="form.role" class="input">
+        <NativeSelectCompat :value="form.role" class="input" @change="form.role = $event">
           <option value="user">{{ t('admin.users.roles.user') }}</option>
           <option value="observer">{{ t('admin.users.roles.observer') }}</option>
           <option value="admin">{{ t('admin.users.roles.admin') }}</option>
-        </select>
+        </NativeSelectCompat>
       </div>
       <ObserverGroupSelector v-if="form.role === 'observer'" v-model="form.observer_group_ids" />
       <UserGroupSelect v-model="form.user_group_id" />
@@ -73,6 +73,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'; import { adminAPI } from '@/api/admin'
 import { useAppStore } from '@/stores/app'

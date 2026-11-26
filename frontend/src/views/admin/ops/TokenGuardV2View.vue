@@ -185,11 +185,11 @@
           <div v-else class="selected-account"><span>{{ t('tokenGuardV2.account') }}</span><strong>{{ editing.account_name }} (#{{ editing.account_id }})</strong></div>
           <label class="field-label">{{ t('tokenGuardV2.loginEmail') }}<input v-model.trim="draft.login_email" class="input w-full" type="email" required /></label>
           <label class="field-label">{{ t('tokenGuardV2.loginProxy') }}
-            <select id="token-guard-v2-proxy" v-model="proxyChoice" :disabled="editorEngine === 'session_studio'" class="input w-full">
+            <NativeSelectCompat id="token-guard-v2-proxy" :value="proxyChoice" :disabled="editorEngine === 'session_studio'" class="input w-full" @change="proxyChoice = $event">
               <option value="account">{{ t('tokenGuardV2.accountProxyDefault') }}</option>
               <option value="mihomo">{{ t('tokenGuardV2.mihomoManagedPool') }}</option>
               <option v-for="proxy in proxies" :key="proxy.id" :value="`proxy:${proxy.id}`">{{ proxyOptionLabel(proxy) }}</option>
-            </select>
+            </NativeSelectCompat>
             <small class="field-hint">{{ t('tokenGuardV2.loginProxyHint') }}</small>
           </label>
           <fieldset class="mode-grid">
@@ -216,6 +216,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import CredentialOperationFailureView from '@/components/account/CredentialOperationFailure.vue'
 import { probeOperationFailure, taskOperationFailure, safeDiagnosticToken } from '@/utils/credentialOperationFailure'
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'

@@ -13,10 +13,10 @@
         <label>{{ t('profitOps.group') }}<input v-model.number="draft.group_id" type="number" min="0" class="input w-full" /></label>
         <label>{{ t('profitOps.upstream') }}<input v-model="draft.upstream" maxlength="2048" class="input w-full" @input="draft.channel_id = 0" /></label>
         <label>{{ t('profitOps.model') }}<input v-model="draft.model" data-testid="model-filter" maxlength="200" class="input w-full" /></label>
-        <label>{{ t('profitOps.modelScope') }}<select v-model="draft.model_scope" data-testid="model-scope" class="input w-full"><option value="public">{{ t('profitOps.public') }}</option><option value="recorded">{{ t('profitOps.recorded') }}</option><option value="upstream">{{ t('profitOps.upstreamModel') }}</option></select></label>
-        <label>{{ t('profitOps.dimension') }}<select v-model="draft.dimension" class="input w-full"><option value="upstream">{{ t('profitOps.upstream') }}</option><option value="account">{{ t('profitOps.account') }}</option><option value="model">{{ t('profitOps.model') }}</option></select></label>
-        <label>{{ t('profitOps.sort') }}<select v-model="draft.sort" data-testid="sort-filter" class="input w-full"><option v-for="key in sortKeys" :key="key" :value="key">{{ t(`profitOps.${key}`) }}</option></select></label>
-        <label>{{ t('profitOps.direction') }}<select v-model="draft.direction" class="input w-full"><option value="desc">{{ t('profitOps.desc') }}</option><option value="asc">{{ t('profitOps.asc') }}</option></select></label>
+        <label>{{ t('profitOps.modelScope') }}<NativeSelectCompat :value="draft.model_scope" data-testid="model-scope" class="input w-full" @change="draft.model_scope = $event"><option value="public">{{ t('profitOps.public') }}</option><option value="recorded">{{ t('profitOps.recorded') }}</option><option value="upstream">{{ t('profitOps.upstreamModel') }}</option></NativeSelectCompat></label>
+        <label>{{ t('profitOps.dimension') }}<NativeSelectCompat :value="draft.dimension" class="input w-full" @change="draft.dimension = $event"><option value="upstream">{{ t('profitOps.upstream') }}</option><option value="account">{{ t('profitOps.account') }}</option><option value="model">{{ t('profitOps.model') }}</option></NativeSelectCompat></label>
+        <label>{{ t('profitOps.sort') }}<NativeSelectCompat :value="draft.sort" data-testid="sort-filter" class="input w-full" @change="draft.sort = $event"><option v-for="key in sortKeys" :key="key" :value="key">{{ t(`profitOps.${key}`) }}</option></NativeSelectCompat></label>
+        <label>{{ t('profitOps.direction') }}<NativeSelectCompat :value="draft.direction" class="input w-full" @change="draft.direction = $event"><option value="desc">{{ t('profitOps.desc') }}</option><option value="asc">{{ t('profitOps.asc') }}</option></NativeSelectCompat></label>
         <div class="col-span-full flex flex-wrap items-center gap-2 self-end">
           <button class="btn btn-primary" :disabled="loading">{{ t('profitOps.apply') }}</button>
           <template v-for="preset in timePresets" :key="preset">
@@ -68,6 +68,7 @@
   </component>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, watch, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '@/components/layout/AppLayout.vue'

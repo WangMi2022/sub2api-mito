@@ -4,10 +4,10 @@
     <p class="text-sm text-gray-500">{{ t('coupon.usageHint') }}</p>
     <form class="flex flex-wrap gap-3" @submit.prevent="page = 1; load()">
       <input v-model="search" :placeholder="t('coupon.usageSearch')" :aria-label="t('coupon.usageSearch')" class="input min-w-48 flex-1" />
-      <select v-model="status" :aria-label="t('coupon.status')" class="input w-auto">
+      <NativeSelectCompat :value="status" :aria-label="t('coupon.status')" class="input w-auto" @change="status = $event">
         <option value="">{{ t('coupon.all') }}</option>
         <option v-for="s in ['reserved', 'used', 'released', 'conflict', 'honored']" :key="s" :value="s">{{ t('coupon.' + s) }}</option>
-      </select>
+      </NativeSelectCompat>
       <button class="btn btn-secondary" :disabled="loading">{{ t('common.search') }}</button>
     </form>
     <p v-if="error" role="alert" class="text-sm text-red-600">{{ error }}</p>
@@ -33,6 +33,7 @@
   </section>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Pagination from '@/components/common/Pagination.vue'

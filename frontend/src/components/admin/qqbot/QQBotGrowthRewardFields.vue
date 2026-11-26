@@ -3,9 +3,9 @@
     <h3 class="text-sm font-medium">{{ t('qqbot.rewardEditor.items') }}</h3>
     <div class="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <label class="block min-w-0 space-y-1 text-sm">{{ t('qqbot.rewardEditor.type') }}
-        <select v-model="reward.type" :data-testid="fieldId('reward-type')" class="input" @change="changeType">
+        <NativeSelectCompat :value="reward.type" :data-testid="fieldId('reward-type')" class="input" @change="reward.type = $event; changeType()">
           <option v-for="kind in allowedTypes ?? types" :key="kind" :value="kind">{{ t('qqbot.rewardEditor.types.' + kind) }}</option>
-        </select>
+        </NativeSelectCompat>
       </label>
       <label v-if="reward.type === 'balance'" class="block min-w-0 space-y-1 text-sm">{{ t('qqbot.rewardEditor.amount') }}<input v-model.number="reward.amount" :data-testid="fieldId('reward-amount')" type="number" min="0" max="1000" step="0.00000001" required class="input" /></label>
       <label v-else class="block min-w-0 space-y-1 text-sm">{{ t(reward.type === 'chances' ? 'qqbot.rewardEditor.chancesQuantity' : reward.type === 'coupon' ? 'qqbot.rewardEditor.couponQuantity' : 'qqbot.rewardEditor.quantity') }}<input v-model.number="reward.quantity" :data-testid="fieldId(reward.type === 'chances' ? 'chances' : 'reward-quantity')" type="number" min="0" :max="reward.type === 'coupon' ? 100 : 1000" step="1" required class="input" /></label>
@@ -20,6 +20,7 @@
   </section>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import CouponTemplateSelect from './CouponTemplateSelect.vue'
 import { useI18n } from 'vue-i18n'
 import type { QQGrowthReward, QQRewardType } from '@/api/qqbot'

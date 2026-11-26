@@ -69,9 +69,9 @@
             </div>
             <div>
               <label class="input-label" :for="`idle-probe-effort-${row.groupId}`">{{ t('channelMonitorV3.admin.idleProbe.effort') }}</label>
-              <select :id="`idle-probe-effort-${row.groupId}`" v-model="drafts[row.groupId].effort" class="input" :title="t('channelMonitorV3.admin.idleProbe.effortHint')" data-testid="monitor-v3-idle-probe-effort">
+              <NativeSelectCompat :id="`idle-probe-effort-${row.groupId}`" :value="drafts[row.groupId].effort" class="input" :title="t('channelMonitorV3.admin.idleProbe.effortHint')" data-testid="monitor-v3-idle-probe-effort" @change="drafts[row.groupId].effort = $event">
                 <option v-for="effort in MONITOR_V3_PROBE_EFFORTS" :key="effort" :value="effort">{{ effort || t('channelMonitorV3.admin.idleProbe.effortDefault') }}</option>
-              </select>
+              </NativeSelectCompat>
             </div>
           </div>
 
@@ -99,6 +99,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Toggle from '@/components/common/Toggle.vue'

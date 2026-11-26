@@ -18,9 +18,9 @@
           <article v-for="(prize, index) in form[board.key]" :key="index" class="space-y-4 rounded-lg border p-4 dark:border-dark-700">
             <div class="flex flex-wrap items-end justify-between gap-3">
               <label class="space-y-1">{{ t('qqbot.rankings.rank') }}
-                <select v-model.number="prize.rank" class="input" :data-testid="board.key + '-rank-' + index">
+                <NativeSelectCompat :value="prize.rank" class="input" :data-testid="board.key + '-rank-' + index" @change="prize.rank = Number($event)">
                   <option v-for="rank in 10" :key="rank" :value="rank">{{ t('qqbot.rankings.place', { rank }) }}</option>
-                </select>
+                </NativeSelectCompat>
               </label>
               <button type="button" class="text-sm text-red-600 dark:text-red-400" :data-testid="board.key + '-remove-' + index" @click="form[board.key].splice(index, 1)">{{ t('common.delete') }}</button>
             </div>
@@ -37,6 +37,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { useQQDraft } from './useQQDraft'
 import { onMounted, ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'

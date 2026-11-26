@@ -37,11 +37,11 @@
         <label class="flex items-center gap-2"><input v-model="bps.auto_move_on_403" type="checkbox" data-testid="quality-bps-auto_move_on_403" />{{ t('admin.accounts.openai.excelBPSAutoMoveOn403') }}</label>
         <p class="mt-1 pl-6 text-xs text-gray-500">{{ t('admin.accounts.openai.excelBPSAutoMoveOn403Desc') }}</p>
         <label v-if="bps.auto_move_on_403" class="mt-2 block space-y-1 pl-6"><span>{{ t('admin.accounts.openai.excelBPS403TargetGroup') }}</span>
-          <select v-model.number="bps.target_group_id" class="input" data-testid="quality-bps-target-group">
+          <NativeSelectCompat :value="bps.target_group_id" class="input" data-testid="quality-bps-target-group" @change="bps.target_group_id = Number($event)">
             <option :value="-1" disabled>{{ t('admin.accounts.openai.excelBPS403SelectTarget') }}</option>
             <option :value="0">{{ t('admin.accounts.openai.excelBPS403LeaveAllGroups') }}</option>
             <option v-for="group in targetGroups" :key="group.id" :value="group.id">{{ group.name }} #{{ group.id }}</option>
-          </select>
+          </NativeSelectCompat>
         </label>
       </div>
       <div>
@@ -63,6 +63,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 // 「降智后开启 BPS」的触发条件、满血后关闭和开启时默认勾选的模型/选项。
 // 质量运维的规则表单和添加/编辑账号弹窗共用这一份，改一处三处一致。
 import { useI18n } from 'vue-i18n'

@@ -35,7 +35,7 @@
           <p v-if="wallets.length === 0" class="text-sm text-gray-500">{{ t(`${prefix}.noWallets`) }}</p>
           <div class="grid gap-3 rounded-lg bg-gray-50 p-4 dark:bg-dark-800 md:grid-cols-2">
             <div><label for="bepusdt-wallet-name" class="input-label">{{ t(`${prefix}.walletName`) }}</label><input id="bepusdt-wallet-name" v-model="walletForm.name" class="input" :disabled="busy" /></div>
-            <div><label for="bepusdt-wallet-network" class="input-label">{{ t(`${prefix}.walletNetwork`) }}</label><select id="bepusdt-wallet-network" v-model="walletForm.trade_type" class="input" :disabled="busy"><option v-for="network in BEPUSDT_TRADE_TYPES" :key="network.value" :value="network.value">{{ network.label }}</option></select></div>
+            <div><label for="bepusdt-wallet-network" class="input-label">{{ t(`${prefix}.walletNetwork`) }}</label><NativeSelectCompat id="bepusdt-wallet-network" :value="walletForm.trade_type" class="input" :disabled="busy" @change="walletForm.trade_type = $event"><option v-for="network in BEPUSDT_TRADE_TYPES" :key="network.value" :value="network.value">{{ network.label }}</option></NativeSelectCompat></div>
             <div class="md:col-span-2"><label for="bepusdt-wallet-address" class="input-label">{{ t(`${prefix}.walletAddress`) }}</label><input id="bepusdt-wallet-address" v-model="walletForm.address" class="input font-mono" :disabled="busy" autocomplete="off" /></div>
             <div><label for="bepusdt-wallet-remark" class="input-label">{{ t(`${prefix}.walletRemark`) }}</label><input id="bepusdt-wallet-remark" v-model="walletForm.remark" class="input" :disabled="busy" /></div>
             <label class="flex items-center gap-2"><input v-model="walletEnabled" type="checkbox" :disabled="busy" />{{ t('common.enabled') }}</label>
@@ -89,8 +89,8 @@
           <p class="text-xs text-gray-500">{{ t(`${prefix}.ratesHint`) }}</p>
           <div class="grid gap-2 sm:grid-cols-3"><p v-for="rate in latestRates" :key="`${rate.crypto}:${rate.fiat}`" class="text-sm">1 {{ rate.crypto }} = {{ rate.rate }} {{ rate.fiat }}</p></div>
           <div class="flex flex-wrap items-end gap-3">
-            <div><label class="input-label">{{ t(`${prefix}.coin`) }}</label><select v-model="rateForm.crypto" class="input"><option v-for="coin in ['USDT', 'USDC', 'TRX', 'ETH', 'BNB', 'GRAM']" :key="coin">{{ coin }}</option></select></div>
-            <div><label class="input-label">{{ t(`${prefix}.fiat`) }}</label><select v-model="rateForm.fiat" class="input"><option v-for="fiat in ['CNY', 'USD', 'EUR', 'GBP', 'JPY']" :key="fiat">{{ fiat }}</option></select></div>
+            <div><label class="input-label">{{ t(`${prefix}.coin`) }}</label><NativeSelectCompat :value="rateForm.crypto" class="input" @change="rateForm.crypto = $event"><option v-for="coin in ['USDT', 'USDC', 'TRX', 'ETH', 'BNB', 'GRAM']" :key="coin">{{ coin }}</option></NativeSelectCompat></div>
+            <div><label class="input-label">{{ t(`${prefix}.fiat`) }}</label><NativeSelectCompat :value="rateForm.fiat" class="input" @change="rateForm.fiat = $event"><option v-for="fiat in ['CNY', 'USD', 'EUR', 'GBP', 'JPY']" :key="fiat">{{ fiat }}</option></NativeSelectCompat></div>
             <div><label class="input-label">{{ t(`${prefix}.manualRate`) }}</label><input v-model="rateForm.rate" type="number" min="0" step="any" class="input" /></div>
             <button type="button" class="btn btn-secondary" :disabled="busy || Number(rateForm.rate) <= 0" @click="run(() => bepusdtAPI.saveRate(rateForm.fiat, rateForm.crypto, rateForm.rate))">{{ t('common.save') }}</button>
           </div>
@@ -101,6 +101,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { bepusdtAPI, type CollectionConfig, type CryptoWallet, type CryptoRate } from '@/api/admin/bepusdt'

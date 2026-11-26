@@ -64,10 +64,10 @@
             <p v-else-if="row.matched" class="text-xs text-amber-700 dark:text-amber-400">{{ t('admin.accounts.upstreamBilling.newAPI.costUnavailable') }}</p>
             <label v-if="row.token_options?.length && (!row.matched || row.token_options.length > 1)" class="block text-sm text-gray-700 dark:text-gray-200">
               {{ t('admin.accounts.upstreamBilling.newAPI.chooseToken') }}
-              <select v-model="tokenSelections[row.account_id]" :disabled="busy" class="input mt-1 w-full" :data-testid="`new-api-token-${row.account_id}`">
+              <NativeSelectCompat :value="tokenSelections[row.account_id]" :disabled="busy" class="input mt-1 w-full" :data-testid="`new-api-token-${row.account_id}`" @change="tokenSelections[row.account_id] = $event">
                 <option :value="undefined">{{ t('admin.accounts.upstreamBilling.newAPI.chooseTokenPlaceholder') }}</option>
                 <option v-for="option in row.token_options" :key="option.token_id" :value="option.token_id">{{ option.name }} · #{{ option.token_id }} · {{ option.group }} · {{ option.masked_key }}</option>
-              </select>
+              </NativeSelectCompat>
             </label>
             <p v-if="row.error" class="text-xs text-red-600 dark:text-red-400">{{ rowError(row.error) }}</p>
           </div>
@@ -93,6 +93,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BaseDialog from '@/components/common/BaseDialog.vue'

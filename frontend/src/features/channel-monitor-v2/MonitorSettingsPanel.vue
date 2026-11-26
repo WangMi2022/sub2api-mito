@@ -120,10 +120,10 @@
           </p>
         </div>
         <div class="flex flex-wrap items-center gap-2 border-b border-gray-100 px-5 py-3 dark:border-dark-700">
-          <select v-model="selectedCandidate" class="input min-w-[12rem] flex-1" data-testid="monitor-v2-platform-select" :aria-label="t('channelMonitorV2.settings.selectPlatform')">
+          <NativeSelectCompat :value="selectedCandidate" class="input min-w-[12rem] flex-1" data-testid="monitor-v2-platform-select" :aria-label="t('channelMonitorV2.settings.selectPlatform')" @change="selectedCandidate = $event">
             <option value="">{{ t('channelMonitorV2.settings.selectPlatform') }}</option>
             <option v-for="option in addCandidates" :key="option.value" :value="option.value">{{ option.label }}</option>
-          </select>
+          </NativeSelectCompat>
           <input
             v-model="customPlatform"
             class="input min-w-[12rem] flex-1"
@@ -345,6 +345,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Toggle from '@/components/common/Toggle.vue'

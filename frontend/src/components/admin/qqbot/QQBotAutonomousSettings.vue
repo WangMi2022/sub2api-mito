@@ -9,9 +9,9 @@
     <p class="text-sm text-gray-500">{{ t('qqbot.autonomous.simpleHelp') }}</p>
     <label class="block space-y-2 text-sm">
       <span class="font-medium">{{ t('qqbot.autonomous.replyMode') }}</span>
-      <select v-model="value.reply_mode" data-testid="autonomous-mode" class="input">
+      <NativeSelectCompat :value="value.reply_mode" data-testid="autonomous-mode" class="input" @change="value.reply_mode = $event">
         <option v-for="mode in modes" :key="mode" :value="mode">{{ t('qqbot.autonomous.modes.' + mode) }}</option>
-      </select>
+      </NativeSelectCompat>
     </label>
     <p class="text-sm text-gray-500">{{ t('qqbot.autonomous.modeHelp.' + (value.reply_mode || 'natural')) }}</p>
     <div v-if="value.reply_mode === 'always'" class="space-y-2 rounded-lg bg-primary-50 p-3 text-sm dark:bg-primary-950/30">
@@ -69,6 +69,7 @@
   </section>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import QQGroupPicker from './QQGroupPicker.vue'

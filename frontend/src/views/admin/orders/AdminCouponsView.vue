@@ -5,8 +5,8 @@
     <form v-if="form" class="card space-y-4 p-6" @submit.prevent="save"><h3 class="font-semibold">{{ t(form.id ? 'coupon.edit' : 'coupon.create') }}</h3><p class="text-sm text-gray-500">{{ t('coupon.templateHint') }}</p>
       <fieldset :disabled="busy" class="grid gap-4 md:grid-cols-3">
         <label>{{ t('coupon.name') }}<input v-model.trim="form.name" class="input" maxlength="100" required /></label>
-        <label>{{ t('coupon.kind') }}<select v-model="form.kind" class="input"><option v-for="kind in ['fixed', 'percent', 'bonus']" :key="kind" :value="kind">{{ t('coupon.' + kind) }}</option></select></label>
-        <label>{{ t('coupon.currency') }}<select v-model="form.currency" class="input"><option v-for="currency in currencies" :key="currency">{{ currency }}</option></select></label>
+        <label>{{ t('coupon.kind') }}<NativeSelectCompat :value="form.kind" class="input" @change="form.kind = $event"><option v-for="kind in ['fixed', 'percent', 'bonus']" :key="kind" :value="kind">{{ t('coupon.' + kind) }}</option></NativeSelectCompat></label>
+        <label>{{ t('coupon.currency') }}<NativeSelectCompat :value="form.currency" class="input" @change="form.currency = $event"><option v-for="currency in currencies" :key="currency">{{ currency }}</option></NativeSelectCompat></label>
         <label>{{ t('coupon.minAmount') }}<input v-model.number="form.min_amount" class="input" type="number" min="0" max="1000000000" step="0.01" required /></label>
         <label>{{ t('coupon.value') }}<input v-model.number="form.value" class="input" type="number" min="0.01" :max="form.kind === 'percent' ? 99.99 : form.kind === 'bonus' ? 1000 : 1000000000" step="0.01" required /></label>
         <label v-if="form.kind !== 'bonus'">{{ t('coupon.maxDiscount') }}<input v-model.number="form.max_discount" class="input" type="number" min="0" max="1000000000" step="0.01" required /></label>
@@ -21,7 +21,7 @@
       <h3 class="font-semibold">{{ t('coupon.issue') }}</h3>
       <p class="text-sm text-gray-500">{{ t('coupon.issueHint') }}</p>
       <fieldset class="grid gap-4 md:grid-cols-3" :disabled="busy">
-        <label>{{ t('coupon.template') }}<select v-model.number="issueTemplate" class="input" required><option :value="0" disabled>{{ t('coupon.template') }}</option><option v-for="c in templates.filter(c => c.enabled)" :key="c.id" :value="c.id">#{{ c.id }} {{ c.name }}</option></select></label>
+        <label>{{ t('coupon.template') }}<NativeSelectCompat :value="issueTemplate" class="input" required @change="issueTemplate = Number($event)"><option :value="0" disabled>{{ t('coupon.template') }}</option><option v-for="c in templates.filter(c => c.enabled)" :key="c.id" :value="c.id">#{{ c.id }} {{ c.name }}</option></NativeSelectCompat></label>
         <div ref="userSearchRef" class="min-w-0">
           <label for="coupon-user-search">{{ t('coupon.users') }}</label>
           <div class="relative">
@@ -62,12 +62,13 @@
       </fieldset>
       <button class="btn btn-primary" :disabled="busy || !issueTemplate || !selectedUsers.length || !!userKeyword.trim()">{{ t('coupon.issue') }}</button>
     </form>
-    <section class="card overflow-hidden"><div class="space-y-3 p-6"><h3 class="font-semibold">{{ t('coupon.records') }} · {{ total }}</h3><form class="flex flex-wrap gap-3" @submit.prevent="page = 1; loadRecords()"><input v-model="search" class="input min-w-48 flex-1" :placeholder="t('coupon.search')" /><select v-model="filterTemplate" class="input w-auto"><option :value="0">{{ t('coupon.templates') }}</option><option v-for="c in templates" :key="c.id" :value="c.id">{{ c.name }}</option></select><select v-model="status" class="input w-auto"><option value="">{{ t('coupon.all') }}</option><option v-for="s in statuses" :key="s" :value="s">{{ t('coupon.' + s) }}</option></select><button class="btn btn-secondary">{{ t('common.search') }}</button></form></div>
+    <section class="card overflow-hidden"><div class="space-y-3 p-6"><h3 class="font-semibold">{{ t('coupon.records') }} · {{ total }}</h3><form class="flex flex-wrap gap-3" @submit.prevent="page = 1; loadRecords()"><input v-model="search" class="input min-w-48 flex-1" :placeholder="t('coupon.search')" /><NativeSelectCompat :value="filterTemplate" class="input w-auto" @change="filterTemplate = $event"><option :value="0">{{ t('coupon.templates') }}</option><option v-for="c in templates" :key="c.id" :value="c.id">{{ c.name }}</option></NativeSelectCompat><NativeSelectCompat :value="status" class="input w-auto" @change="status = $event"><option value="">{{ t('coupon.all') }}</option><option v-for="s in statuses" :key="s" :value="s">{{ t('coupon.' + s) }}</option></NativeSelectCompat><button class="btn btn-secondary">{{ t('common.search') }}</button></form></div>
       <div class="overflow-x-auto"><table class="w-full min-w-[680px] text-left text-sm"><thead class="bg-gray-50 dark:bg-dark-800"><tr><th class="p-3">ID / {{ t('coupon.name') }}</th><th class="p-3">{{ t('coupon.user') }}</th><th class="p-3">{{ t('coupon.status') }}</th><th class="p-3">{{ t('coupon.source') }}</th><th class="p-3">{{ t('coupon.order') }}</th><th class="p-3">{{ t('coupon.benefit') }}</th><th class="p-3">{{ t('coupon.expires') }}</th><th class="p-3">{{ t('coupon.usedAt') }}</th><th class="p-3"></th></tr></thead><tbody class="divide-y dark:divide-dark-700"><tr v-for="c in items" :key="c.id"><td class="p-3">#{{ c.id }} {{ c.snapshot.name }}</td><td class="p-3">{{ c.user_email || '#' + c.user_id }}</td><td class="p-3">{{ t('coupon.' + c.status) }}</td><td class="p-3">{{ t('coupon.sources.' + c.source, c.source) }}</td><td class="p-3">{{ c.order_id ? '#' + c.order_id : '—' }}<p class="text-xs text-gray-500">{{ c.order_status ? t('payment.status.' + c.order_status.toLowerCase(), c.order_status) : '' }}</p></td><td class="p-3">{{ c.snapshot.currency }} {{ c.discount_amount.toFixed(2) }}<p v-if="c.bonus_amount">+ USD {{ c.bonus_amount.toFixed(2) }}</p></td><td class="whitespace-nowrap p-3">{{ date(c.expires_at) }}</td><td class="whitespace-nowrap p-3">{{ c.used_at ? date(c.used_at) : '—' }}</td><td class="p-3"><button v-if="c.status === 'available'" class="text-red-600" :disabled="busy" @click="revoke(c.id)">{{ t('coupon.revoke') }}</button></td></tr></tbody></table><p v-if="!items.length" class="p-8 text-center text-gray-500">{{ t('coupon.noCoupons') }}</p></div><div class="p-4"><Pagination :page="page" :page-size="20" :total="total" @update:page="page = $event; loadRecords()" /></div>
     </section>
   <CouponUsageHistory admin /></div></AppLayout>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import NewFeatureBadge from '@/components/common/NewFeatureBadge.vue'
 import { NEW_FEATURE_NOTICES } from '@/constants/newFeatureNotices'
 import { useAuthStore } from '@/stores/auth'

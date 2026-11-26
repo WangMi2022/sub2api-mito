@@ -173,9 +173,9 @@
                     <label class="yuyu-console-dial">
                       <span>{{ t('home.mito.workbench.temperature') }}</span>
                       <div class="yuyu-console-select-wrap">
-                        <select v-model.number="temperature" class="yuyu-console-select">
+                        <NativeSelectCompat :value="temperature" class="yuyu-console-select" @change="temperature = Number($event)">
                           <option v-for="item in temperatures" :key="item.value" :value="item.value">{{ item.label }}</option>
-                        </select>
+                        </NativeSelectCompat>
                         <span class="yuyu-console-select-value">{{ temperatureLabel }}</span>
                         <Icon name="chevronDown" size="sm" />
                       </div>
@@ -183,9 +183,9 @@
                     <label class="yuyu-console-dial">
                       <span>{{ t('home.mito.workbench.endpoint') }}</span>
                       <div class="yuyu-console-select-wrap">
-                        <select v-model="endpoint" class="yuyu-console-select">
+                        <NativeSelectCompat :value="endpoint" class="yuyu-console-select" @change="endpoint = $event">
                           <option v-for="item in endpoints" :key="item.value" :value="item.value">{{ item.description }}</option>
-                        </select>
+                        </NativeSelectCompat>
                         <span class="yuyu-console-select-value">{{ endpointMethod }} {{ endpointDescription }}</span>
                         <Icon name="chevronDown" size="sm" />
                       </div>
@@ -257,6 +257,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Icon from '@/components/icons/Icon.vue'

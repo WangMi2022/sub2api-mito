@@ -342,14 +342,14 @@
             <span>{{ t('common.total') }}: {{ historyTotal }} {{ t('pagination.results') }}</span>
             <label>
               {{ t('pagination.perPage') }}
-              <select
-                v-model="historyPageSize"
+              <NativeSelectCompat
+                :value="historyPageSize"
                 class="input w-20"
                 :disabled="loadingHistory || submitting"
-                @change="fetchHistory(1)"
+                @change="historyPageSize = $event; fetchHistory(1)"
               >
                 <option v-for="size in [20, 50, 100]" :key="size" :value="size">{{ size }}</option>
-              </select>
+              </NativeSelectCompat>
             </label>
             <button
               class="btn btn-secondary"
@@ -369,6 +369,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'

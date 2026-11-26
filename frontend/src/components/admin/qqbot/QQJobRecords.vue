@@ -3,10 +3,10 @@
     <form class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" @submit.prevent="search">
       <label class="text-sm">{{ t('qqbot.group') }}<input v-model.trim="filters.group_id" class="input" maxlength="128" data-testid="qq-job-group" /></label>
       <QQMemberPicker v-model="filters.member_id" :group-id="filters.group_id" :app-id="appId" :disabled="loading" @select="selectMember" />
-      <label class="text-sm">{{ t('qqbot.workspace.jobKind') }}<select v-model="filters.kind" class="input" data-testid="qq-job-kind"><option value="">{{ t('qqbot.workspace.all') }}</option><option v-for="kind in kinds" :key="kind" :value="kind">{{ kindLabel(kind) }}</option></select></label>
-      <label class="text-sm">{{ t('common.status') }}<select v-model="filters.status" class="input"><option value="">{{ t('qqbot.workspace.all') }}</option><option v-for="status in statuses" :key="status" :value="status">{{ status }}</option></select></label>
-      <label class="text-sm">{{ t('qqbot.siteQuery.kindFilter') }}<select v-model="filters.query_kind" class="input" data-testid="qq-job-query-kind"><option value="">{{ t('qqbot.workspace.all') }}</option><option v-for="kind in queryKinds" :key="kind" :value="kind">{{ t(`qqbot.siteQuery.kinds.${kind}`) }}</option></select></label>
-      <label class="text-sm">{{ t('qqbot.siteQuery.statusFilter') }}<select v-model="filters.query_status" class="input" data-testid="qq-job-query-status"><option value="">{{ t('qqbot.workspace.all') }}</option><option v-for="status in queryStatuses" :key="status" :value="status">{{ t(`qqbot.siteQuery.statuses.${status}`) }}</option></select></label>
+      <label class="text-sm">{{ t('qqbot.workspace.jobKind') }}<NativeSelectCompat :value="filters.kind" class="input" data-testid="qq-job-kind" @change="filters.kind = $event"><option value="">{{ t('qqbot.workspace.all') }}</option><option v-for="kind in kinds" :key="kind" :value="kind">{{ kindLabel(kind) }}</option></NativeSelectCompat></label>
+      <label class="text-sm">{{ t('common.status') }}<NativeSelectCompat :value="filters.status" class="input" @change="filters.status = $event"><option value="">{{ t('qqbot.workspace.all') }}</option><option v-for="status in statuses" :key="status" :value="status">{{ status }}</option></NativeSelectCompat></label>
+      <label class="text-sm">{{ t('qqbot.siteQuery.kindFilter') }}<NativeSelectCompat :value="filters.query_kind" class="input" data-testid="qq-job-query-kind" @change="filters.query_kind = $event"><option value="">{{ t('qqbot.workspace.all') }}</option><option v-for="kind in queryKinds" :key="kind" :value="kind">{{ t(`qqbot.siteQuery.kinds.${kind}`) }}</option></NativeSelectCompat></label>
+      <label class="text-sm">{{ t('qqbot.siteQuery.statusFilter') }}<NativeSelectCompat :value="filters.query_status" class="input" data-testid="qq-job-query-status" @change="filters.query_status = $event"><option value="">{{ t('qqbot.workspace.all') }}</option><option v-for="status in queryStatuses" :key="status" :value="status">{{ t(`qqbot.siteQuery.statuses.${status}`) }}</option></NativeSelectCompat></label>
       <label class="text-sm">{{ t('qqbot.workspace.from') }}<input v-model="filters.from" class="input" type="datetime-local" /></label>
       <label class="text-sm">{{ t('qqbot.workspace.to') }}<input v-model="filters.to" class="input" type="datetime-local" /></label>
       <button class="btn btn-primary self-end" :disabled="loading">{{ t('common.search') }}</button>
@@ -42,6 +42,7 @@
   </section>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { qqbotAPI, type QQJobPage, type QQMemberOption, type QQSiteQueryKind } from '@/api/qqbot'

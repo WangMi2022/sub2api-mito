@@ -215,12 +215,12 @@
         >
           <label class="min-w-0 sm:w-64"
             ><span class="input-label">{{ t('lottery.pools') }}</span
-            ><select v-model="filterPool" class="input mt-1">
+            ><NativeSelectCompat :value="filterPool" class="input mt-1" @change="filterPool = $event">
               <option :value="0">{{ t('lottery.allPools') }}</option>
               <option v-for="pool in pools" :key="pool.id" :value="pool.id">
                 {{ pool.name }}
               </option>
-            </select></label
+            </NativeSelectCompat></label
           ><label class="w-36"
             ><span class="input-label">{{ t('lottery.userID') }}</span
             ><input
@@ -383,11 +383,11 @@
                 class="input mt-1" /></label
             ><label class="block"
               ><span class="input-label">{{ t('lottery.mode') }}</span
-              ><select
-                v-model="poolForm.mode"
+              ><NativeSelectCompat
+                :value="poolForm.mode"
                 class="input mt-1"
                 :disabled="locked"
-              >
+               @change="poolForm.mode = $event">
                 <option value="single">{{ t('lottery.single') }}</option>
                 <option value="cumulative">
                   {{ t('lottery.cumulative') }}
@@ -395,7 +395,7 @@
                 <option value="invite_visit">{{ t('lottery.invite_visit') }}</option>
                 <option value="invite_signup">{{ t('lottery.invite_signup') }}</option>
                 <option value="invite_recharge">{{ t('lottery.invite_recharge') }}</option>
-              </select></label
+              </NativeSelectCompat></label
             ><label v-if="!isInvitationPool(poolForm) || poolForm.mode === 'invite_recharge'" class="block"
               ><span class="input-label">{{ t('lottery.threshold') }}</span
               ><input
@@ -410,7 +410,7 @@
             /></label>
             <template v-if="isInvitationPool(poolForm)">
               <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <label><span class="input-label">{{ t('lottery.rewardTo') }}</span><select v-model="inviteForm.reward_to" class="input mt-1" :disabled="locked" data-testid="invite-recipient"><option value="inviter">{{ t('lottery.inviterOnly') }}</option><option value="both">{{ t('lottery.both') }}</option></select></label>
+                <label><span class="input-label">{{ t('lottery.rewardTo') }}</span><NativeSelectCompat :value="inviteForm.reward_to" class="input mt-1" :disabled="locked" data-testid="invite-recipient" @change="inviteForm.reward_to = $event"><option value="inviter">{{ t('lottery.inviterOnly') }}</option><option value="both">{{ t('lottery.both') }}</option></NativeSelectCompat></label>
                 <label><span class="input-label">{{ t('lottery.inviteTickets') }}</span><input v-model.number="inviteForm.tickets" type="number" min="1" max="100" step="1" required :disabled="locked" class="input mt-1" /></label>
               </div>
               <p class="text-xs leading-5 text-gray-500">{{ t('lottery.inviteOnce') }} <span v-if="poolForm.mode === 'invite_visit' && inviteForm.reward_to === 'both'">{{ t('lottery.visitRecipientNote') }}</span></p>
@@ -493,13 +493,13 @@
                 class="input mt-1" /></label
             ><label class="block"
               ><span class="input-label">{{ t('lottery.reward') }}</span
-              ><select v-model="prizeForm.kind" class="input mt-1">
+              ><NativeSelectCompat :value="prizeForm.kind" class="input mt-1" @change="prizeForm.kind = $event">
                 <option value="balance">{{ t('lottery.balance') }}</option>
                 <option value="subscription">
                   {{ t('lottery.subscription') }}
                 </option>
                 <option value="text">{{ t('lottery.text') }}</option>
-              </select></label
+              </NativeSelectCompat></label
             ><label v-if="prizeForm.kind === 'balance'" class="block"
               ><span class="input-label">{{ t('lottery.amount') }}</span
               ><input
@@ -624,6 +624,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '@/components/layout/AppLayout.vue'

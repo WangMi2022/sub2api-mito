@@ -24,7 +24,7 @@
       <form class="space-y-5 border-t border-gray-100 p-5 dark:border-dark-700" @submit.prevent="savePolicy">
         <fieldset :disabled="busy || halting || loading || needsRefresh || !policy?.control_enabled" class="min-w-0 space-y-5">
           <div class="grid gap-4 sm:grid-cols-2">
-            <label><span class="control-label">{{ t('aiOpsControl.mode') }}</span><select v-model="draft.mode" class="input w-full" data-testid="ai-policy-mode"><option v-for="mode in modes" :key="mode" :value="mode">{{ t(`aiOpsControl.modes.${mode}`) }}</option></select></label>
+            <label><span class="control-label">{{ t('aiOpsControl.mode') }}</span><NativeSelectCompat :value="draft.mode" class="input w-full" data-testid="ai-policy-mode" @change="draft.mode = $event"><option v-for="mode in modes" :key="mode" :value="mode">{{ t(`aiOpsControl.modes.${mode}`) }}</option></NativeSelectCompat></label>
             <label><span class="control-label">{{ t('aiOpsControl.group') }}</span><input v-model.number="draft.group_id" type="number" min="1" step="1" class="input w-full" data-testid="ai-policy-group" /></label>
           </div>
           <p class="text-xs leading-5 text-gray-500">{{ t('aiOpsControl.scopeHint') }}</p>
@@ -128,6 +128,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'

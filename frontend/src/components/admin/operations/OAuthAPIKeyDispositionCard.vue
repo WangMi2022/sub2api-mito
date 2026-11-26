@@ -7,12 +7,12 @@
     <p class="text-sm leading-6 text-gray-500">{{ t('autoConfig.apikeyDisposition.hint') }}</p>
     <p v-if="!initialEnabled" class="text-sm text-amber-700 dark:text-amber-300">{{ t('autoConfig.apikeyDisposition.initialDisabled') }}</p>
     <div class="grid gap-4 sm:grid-cols-2">
-      <label><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.apikeyDisposition.action') }}</span><select v-model="model.action" data-testid="apikey-disposition-action" class="input w-full"><option value="pause">{{ t('autoConfig.apikeyDisposition.pause') }}</option><option value="disable">{{ t('autoConfig.apikeyDisposition.disable') }}</option></select></label>
+      <label><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.apikeyDisposition.action') }}</span><NativeSelectCompat :value="model.action" data-testid="apikey-disposition-action" class="input w-full" @change="model.action = $event"><option value="pause">{{ t('autoConfig.apikeyDisposition.pause') }}</option><option value="disable">{{ t('autoConfig.apikeyDisposition.disable') }}</option></NativeSelectCompat></label>
       <label><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.apikeyDisposition.delay') }}</span><input v-model.number="model.delay_minutes" data-testid="apikey-disposition-delay" type="number" min="0" max="43200" step="1" required class="input w-full" /></label>
       <label v-if="model.action === 'pause'"><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.apikeyDisposition.duration') }}</span><input v-model.number="model.pause_minutes" data-testid="apikey-disposition-duration" type="number" min="1" max="43200" step="1" required class="input w-full" /></label>
-      <label><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.apikeyDisposition.timezone') }}</span><select v-model="model.timezone" class="input w-full"><option value="Asia/Shanghai">Asia/Shanghai (UTC+8)</option><option value="UTC">UTC</option><option v-if="!['Asia/Shanghai', 'UTC'].includes(model.timezone)" :value="model.timezone">{{ model.timezone }}</option></select></label>
+      <label><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.apikeyDisposition.timezone') }}</span><NativeSelectCompat :value="model.timezone" class="input w-full" @change="model.timezone = $event"><option value="Asia/Shanghai">Asia/Shanghai (UTC+8)</option><option value="UTC">UTC</option><option v-if="!['Asia/Shanghai', 'UTC'].includes(model.timezone)" :value="model.timezone">{{ model.timezone }}</option></NativeSelectCompat></label>
     </div>
-    <label class="block"><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.apikeyDisposition.scope') }}</span><select v-model="model.scope" data-testid="apikey-disposition-scope" class="input w-full"><option value="accounts">{{ t('autoConfig.apikeyDisposition.manual') }}</option><option value="groups">{{ t('autoConfig.apikeyDisposition.allGroups') }}</option></select></label>
+    <label class="block"><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.apikeyDisposition.scope') }}</span><NativeSelectCompat :value="model.scope" data-testid="apikey-disposition-scope" class="input w-full" @change="model.scope = $event"><option value="accounts">{{ t('autoConfig.apikeyDisposition.manual') }}</option><option value="groups">{{ t('autoConfig.apikeyDisposition.allGroups') }}</option></NativeSelectCompat></label>
     <div v-if="model.scope === 'groups'" class="space-y-2">
       <p class="text-xs text-gray-500">{{ t('autoConfig.apikeyDisposition.groupHint') }}</p>
       <div class="max-h-52 space-y-2 overflow-auto rounded-xl border p-3 dark:border-dark-700">
@@ -42,6 +42,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { list } from '@/api/admin/accounts'

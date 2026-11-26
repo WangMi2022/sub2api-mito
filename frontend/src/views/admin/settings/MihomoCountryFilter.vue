@@ -7,11 +7,11 @@
     <p class="text-xs text-gray-500">{{ text('机场节点按最近的出口 IP 检测结果筛选。动态代理每次连接可能更换 IP，历史检测结果不用于准入。', 'Subscription nodes use the last exit-IP country check. Dynamic proxies may change IP on every connection; previous checks do not determine eligibility.') }}</p>
     <div class="flex flex-wrap items-center gap-2">
       <label class="sr-only" for="country-filter-mode">{{ text('过滤模式', 'Filter mode') }}</label>
-      <select id="country-filter-mode" v-model="draft.mode" class="input w-auto" :disabled="busy" @change="dirty = true">
+      <NativeSelectCompat id="country-filter-mode" :value="draft.mode" class="input w-auto" :disabled="busy" @change="draft.mode = $event; dirty = true">
         <option value="off">{{ text('不限制地区', 'No region filter') }}</option>
         <option value="exclude">{{ text('排除所选地区', 'Exclude selected regions') }}</option>
         <option value="include">{{ text('仅允许所选地区', 'Allow selected regions only') }}</option>
-      </select>
+      </NativeSelectCompat>
       <button type="button" class="btn btn-secondary btn-sm" :disabled="busy" @click="excludeHongKong">{{ text('快捷：排除香港', 'Exclude Hong Kong') }}</button>
     </div>
     <template v-if="draft.mode !== 'off'">
@@ -37,6 +37,7 @@
   </section>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { CountryFilter, CountryNode } from './mihomoCountry'

@@ -5,10 +5,10 @@
     <p class="rounded bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-950 dark:text-amber-200">{{ t('qqbot.chatPreview.savedOnly') }}</p>
     <div class="grid gap-4 md:grid-cols-2">
       <label class="space-y-1 text-sm">{{ t('qqbot.group') }}
-        <select v-model="group" class="input" data-testid="qq-preview-group">
+        <NativeSelectCompat :value="group" class="input" data-testid="qq-preview-group" @change="group = $event">
           <option value="">{{ t('qqbot.workspace.chooseGroup') }}</option>
           <option v-for="id in config.allowed_groups" :key="id" :value="id">{{ config.group_policies?.find(policy => policy.group_id === id)?.label || id }}</option>
-        </select>
+        </NativeSelectCompat>
       </label>
       <div>
         <QQMemberPicker v-if="group" v-model="member" :app-id="config.app_id" :group-id="group" :disabled="busy" @select="selectMember" />
@@ -42,6 +42,7 @@
   </section>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { qqbotAPI, type QQBotConfig, type QQChatPreviewResult, type QQMemberOption } from '@/api/qqbot'

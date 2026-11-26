@@ -10,7 +10,7 @@
     </header>
     <form class="flex flex-wrap gap-2" @submit.prevent="search">
       <input v-model="query" :aria-label="t('matureProviders.search')" :placeholder="t('matureProviders.search')" class="input min-w-0 flex-1" maxlength="120" />
-      <select v-model="status" :aria-label="t('matureProviders.status')" class="input"><option value="">{{ t('matureProviders.allStatuses') }}</option><option v-for="state in states" :key="state" :value="state">{{ t(`matureProviders.${state}`) }}</option></select>
+      <NativeSelectCompat :value="status" :aria-label="t('matureProviders.status')" class="input" @change="status = $event"><option value="">{{ t('matureProviders.allStatuses') }}</option><option v-for="state in states" :key="state" :value="state">{{ t(`matureProviders.${state}`) }}</option></NativeSelectCompat>
       <button class="btn btn-secondary" :disabled="loading">{{ t('matureProviders.search') }}</button>
     </form>
     <p v-if="error && !formOpen" role="alert" class="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950">{{ error }}</p>
@@ -45,11 +45,11 @@
           <p v-if="error" role="alert" class="text-sm text-red-600">{{ error }}</p>
           <div class="grid gap-3 sm:grid-cols-2">
             <label class="text-sm">{{ t('matureProviders.name') }}<input v-model="draft.name" data-testid="provider-name" required maxlength="120" class="input mt-1 w-full" /></label>
-            <label class="text-sm">{{ t('matureProviders.siteType') }}<select v-model="draft.site_type" class="input mt-1 w-full"><option value="sub2api">Sub2API</option><option value="newapi">New API</option></select></label>
+            <label class="text-sm">{{ t('matureProviders.siteType') }}<NativeSelectCompat :value="draft.site_type" class="input mt-1 w-full" @change="draft.site_type = $event"><option value="sub2api">Sub2API</option><option value="newapi">New API</option></NativeSelectCompat></label>
           </div>
           <label class="block text-sm">{{ t('matureProviders.url') }}<input v-model="draft.base_url" data-testid="provider-url" type="url" required placeholder="https://provider.example.com" class="input mt-1 w-full" /></label>
           <div class="grid gap-3 sm:grid-cols-2">
-            <label class="text-sm">{{ t('matureProviders.authMode') }}<select v-model="draft.auth_mode" class="input mt-1 w-full"><option value="token">{{ t('matureProviders.token') }}</option><option value="password">{{ t('matureProviders.passwordMode') }}</option></select></label>
+            <label class="text-sm">{{ t('matureProviders.authMode') }}<NativeSelectCompat :value="draft.auth_mode" class="input mt-1 w-full" @change="draft.auth_mode = $event"><option value="token">{{ t('matureProviders.token') }}</option><option value="password">{{ t('matureProviders.passwordMode') }}</option></NativeSelectCompat></label>
             <label v-if="draft.auth_mode === 'password'" class="text-sm">{{ t('matureProviders.account') }}<input v-model="draft.account" autocomplete="off" maxlength="320" class="input mt-1 w-full" /></label>
             <label v-if="draft.site_type === 'newapi' && draft.auth_mode === 'token'" class="text-sm">{{ t('matureProviders.userID') }}<input v-model="draft.user_id" maxlength="128" class="input mt-1 w-full" /></label>
           </div>
@@ -75,6 +75,7 @@
   </section>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'

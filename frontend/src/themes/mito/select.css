@@ -1,0 +1,142 @@
+/* Unified select polish. Scoped to the Mito theme; applies to the shared
+   Select.vue trigger/portal and the NativeSelectCompat overlay alike. */
+html[data-ui-theme='mito'] .select-trigger {
+  min-height: 42px;
+  border-radius: 12px;
+  border-color: var(--mito-card-border);
+  background: var(--mito-surface);
+  box-shadow: var(--mito-shadow);
+  font-size: 0.875rem;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+html[data-ui-theme='mito'] .select-trigger:hover:not(.select-trigger-disabled) {
+  border-color: var(--mito-blue-border);
+}
+
+html[data-ui-theme='mito'] .select-trigger:focus-visible,
+html[data-ui-theme='mito'] .select-trigger-open {
+  border-color: var(--mito-blue);
+  box-shadow: 0 0 0 3px rgb(var(--mito-primary-500, 59 130 246) / 18%);
+}
+
+html[data-ui-theme='mito'] .select-trigger-error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgb(239 68 68 / 15%);
+}
+
+html[data-ui-theme='mito'] .select-trigger-disabled {
+  background: var(--mito-subtle);
+  box-shadow: none;
+}
+
+html[data-ui-theme='mito'] .select-icon {
+  color: var(--mito-muted);
+  transition: color 150ms ease;
+}
+
+html[data-ui-theme='mito'] .select-trigger-open .select-icon {
+  color: var(--mito-blue);
+}
+
+html[data-ui-theme='mito'] .select-dropdown-portal {
+  border: 1px solid var(--mito-card-border);
+  border-radius: 14px;
+  background: var(--mito-surface);
+  box-shadow: 0 12px 32px rgb(15 23 42 / 12%), 0 2px 8px rgb(15 23 42 / 6%);
+  padding: 4px;
+}
+
+html[data-ui-theme='mito'].dark .select-dropdown-portal {
+  box-shadow: 0 12px 32px rgb(0 0 0 / 45%), 0 2px 8px rgb(0 0 0 / 30%);
+}
+
+html[data-ui-theme='mito'] .select-dropdown-portal .select-search {
+  margin: 0 0 4px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--mito-card-border);
+  border-radius: 10px 10px 0 0;
+  background: var(--mito-subtle);
+}
+
+html[data-ui-theme='mito'] .select-dropdown-portal .select-options {
+  max-height: 280px;
+  padding: 0;
+  scrollbar-width: thin;
+}
+
+html[data-ui-theme='mito'] .select-dropdown-portal .select-option {
+  margin: 1px 0;
+  padding: 8px 10px;
+  border-radius: 9px;
+  font-size: 0.8125rem;
+  color: var(--mito-text);
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+html[data-ui-theme='mito'] .select-dropdown-portal .select-option:hover {
+  background: var(--mito-blue-soft);
+}
+
+html[data-ui-theme='mito'] .select-dropdown-portal .select-option-focused {
+  background: var(--mito-blue-soft);
+}
+
+html[data-ui-theme='mito'] .select-dropdown-portal .select-option-selected {
+  background: var(--mito-blue-soft);
+  color: var(--mito-blue);
+  font-weight: 600;
+}
+
+html[data-ui-theme='mito'] .select-dropdown-portal .select-option-selected:hover {
+  background: var(--mito-blue-soft);
+}
+
+html[data-ui-theme='mito'] .select-dropdown-portal .select-option-group {
+  margin-top: 4px;
+  padding: 6px 10px 4px;
+  border-radius: 0;
+  background: transparent;
+  color: var(--mito-muted);
+  font-size: 0.6875rem;
+}
+
+html[data-ui-theme='mito'] .select-dropdown-portal .select-option-group:hover {
+  background: transparent;
+}
+
+html[data-ui-theme='mito'] .select-dropdown-portal .select-empty {
+  padding: 24px 12px;
+  color: var(--mito-muted);
+}
+
+/* Compat overlay: the transparent native select sits above the styled trigger. */
+html[data-ui-theme='mito'] .mito-select-compat .select-trigger {
+  width: 100%;
+}
+
+html[data-ui-theme='mito'] .mito-select-compat:focus-within .select-trigger {
+  border-color: var(--mito-blue);
+  box-shadow: 0 0 0 3px rgb(var(--mito-primary-500, 59 130 246) / 18%);
+}
+
+/* Compact contexts (table filters, inline rows) keep their smaller rhythm. */
+html[data-ui-theme='mito'] .mito-select-compat .select-trigger.text-xs,
+html[data-ui-theme='mito'] .select-trigger.text-xs {
+  min-height: 32px;
+  border-radius: 9px;
+  font-size: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .select-trigger,
+  html[data-ui-theme='mito'] .select-icon,
+  html[data-ui-theme='mito'] .select-dropdown-portal .select-option {
+    transition: none;
+  }
+
+  html[data-ui-theme='mito'] .select-dropdown-enter-active,
+  html[data-ui-theme='mito'] .select-dropdown-leave-active {
+    transition: none;
+  }
+}

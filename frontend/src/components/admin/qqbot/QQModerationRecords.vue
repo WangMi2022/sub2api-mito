@@ -4,7 +4,7 @@
     <form class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" @submit.prevent="search">
       <label class="text-sm">{{ t('qqbot.group') }}<input v-model.trim="filters.group_id" class="input" maxlength="128" data-testid="qq-moderation-group" /></label>
       <QQMemberPicker v-model="filters.member_id" :group-id="filters.group_id" :app-id="appId" :disabled="loading" @select="selectMember" />
-      <label class="text-sm">{{ t('common.status') }}<select v-model="filters.status" class="input"><option value="">{{ t('qqbot.workspace.all') }}</option><option v-for="status in statuses" :key="status" :value="status">{{ label('statuses', status) }}</option></select></label>
+      <label class="text-sm">{{ t('common.status') }}<NativeSelectCompat :value="filters.status" class="input" @change="filters.status = $event"><option value="">{{ t('qqbot.workspace.all') }}</option><option v-for="status in statuses" :key="status" :value="status">{{ label('statuses', status) }}</option></NativeSelectCompat></label>
       <label class="text-sm">{{ t('qqbot.workspace.from') }}<input v-model="filters.from" class="input" type="datetime-local" /></label>
       <label class="text-sm">{{ t('qqbot.workspace.to') }}<input v-model="filters.to" class="input" type="datetime-local" /></label>
       <button class="btn btn-primary self-end" :disabled="loading">{{ t('common.search') }}</button>
@@ -25,6 +25,7 @@
   </section>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { qqbotAPI, type QQModerationRecord, type QQMemberOption } from '@/api/qqbot'

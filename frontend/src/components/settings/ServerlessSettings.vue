@@ -16,10 +16,10 @@
       <div class="space-y-3 rounded-lg border border-gray-200 p-3 text-sm dark:border-dark-700">
         <label class="flex flex-wrap items-center gap-3">{{ text('绑定范围', 'Binding scope') }}
           <NewFeatureBadge v-if="userId != null" :notice-id="NEW_FEATURE_NOTICES.serverlessIPRouting" :user-id="userId" />
-          <select v-model="draft.affinity_scope" class="input w-auto" :disabled="busy || !loaded" data-testid="serverless-affinity-scope">
+          <NativeSelectCompat :value="draft.affinity_scope" class="input w-auto" :disabled="busy || !loaded" data-testid="serverless-affinity-scope" @change="draft.affinity_scope = $event">
             <option value="api_key">{{ text('API Key（默认）', 'API Key (default)') }}</option>
             <option value="api_key_ip">{{ text('API Key ＋ 客户端 IP', 'API Key + client IP') }}</option>
-          </select>
+          </NativeSelectCompat>
         </label>
         <p class="text-xs text-gray-500">{{ text('同一 Key 需要按使用者地区分流时，选择 Key ＋ IP。每个绑定最后使用后保留 24 小时。切换范围会使用独立绑定；IP 改变可能更换 Pod，不能用于依赖节点内状态的会话。', 'Choose Key + IP when one key is used from multiple regions. Each binding lasts 24 hours after last use. Changing scope uses separate bindings; changing IP may select another Pod, so do not use this for sessions with node-local state.') }}</p>
         <label class="flex items-center gap-2"><input v-model="draft.fallback_to_primary" type="checkbox" :disabled="busy || !loaded" data-testid="serverless-primary-fallback" />{{ text('已绑定 Pod 不可用时回主站', 'Use primary when a bound Pod is unavailable') }}</label>
@@ -87,6 +87,7 @@ RUNTIME_SERVERLESS_ENDPOINT=https://pod.example.com</pre>
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { apiClient } from '@/api/client'

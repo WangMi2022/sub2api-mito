@@ -28,11 +28,11 @@
           <div class="grid gap-4 sm:grid-cols-2">
             <label class="block space-y-1">{{ t('qqbot.growth.name') }}<input v-model="task.name" :data-testid="'task-name-' + index" maxlength="40" required class="input" /></label>
             <label class="block space-y-1">{{ t('qqbot.growth.kind') }}
-              <select v-model="task.kind" :data-testid="'task-kind-' + index" class="input" @change="changeTaskKind(task)">
+              <NativeSelectCompat :value="task.kind" :data-testid="'task-kind-' + index" class="input" @change="task.kind = $event; changeTaskKind(task)">
                 <option v-for="kind in taskKinds(task.period)" :key="kind" :value="kind">{{ t('qqbot.growth.kinds.' + kind) }}</option>
-              </select>
+              </NativeSelectCompat>
             </label>
-            <label class="block space-y-1">{{ t('qqbot.growth.period') }}<select v-model="task.period" :data-testid="'task-period-' + index" class="input" :disabled="persistedTaskIDs.has(task.id)" :title="persistedTaskIDs.has(task.id) ? t('qqbot.growth.periodLocked') : undefined" @change="changeTaskPeriod(task)"><option v-for="period in taskPeriods(task.kind)" :key="period" :value="period">{{ t('qqbot.growth.periods.' + period) }}</option></select></label>
+            <label class="block space-y-1">{{ t('qqbot.growth.period') }}<NativeSelectCompat :value="task.period" :data-testid="'task-period-' + index" class="input" :disabled="persistedTaskIDs.has(task.id)" :title="persistedTaskIDs.has(task.id) ? t('qqbot.growth.periodLocked') : undefined" @change="task.period = $event; changeTaskPeriod(task)"><option v-for="period in taskPeriods(task.kind)" :key="period" :value="period">{{ t('qqbot.growth.periods.' + period) }}</option></NativeSelectCompat></label>
             <label class="block space-y-1">{{ t('qqbot.growth.targets.' + task.kind) }}<input v-model.number="task.target" :data-testid="'task-target-' + index" type="number" :min="isAmountKind(task.kind) ? 0.01 : 1" :max="targetLimit(task.kind, task.period)" :step="isAmountKind(task.kind) ? 0.01 : 1" :readonly="task.kind === 'binding'" required class="input" /></label>
             <label v-if="isDailyAmountKind(task.kind)" class="block space-y-1">{{ t('qqbot.growth.dailyAmount') }}<input v-model.number="task.daily_amount" :data-testid="'task-daily-amount-' + index" type="number" min="0.01" max="1000000000" step="0.01" required class="input" /></label>
           </div>
@@ -43,9 +43,9 @@
         <p v-if="!form.growth.tasks.length" class="rounded-lg border border-dashed p-6 text-center text-sm text-gray-500 dark:border-dark-700">{{ t('qqbot.growth.empty') }}</p>
         <div class="flex flex-wrap items-end gap-3">
           <label class="min-w-0 flex-1 space-y-1">{{ t('qqbot.growth.preset') }}
-            <select v-model="newTaskKind" data-testid="task-preset" class="input">
+            <NativeSelectCompat :value="newTaskKind" data-testid="task-preset" class="input" @change="newTaskKind = $event">
               <option v-for="kind in kinds" :key="kind" :value="kind">{{ t('qqbot.growth.kinds.' + kind) }}</option>
-            </select>
+            </NativeSelectCompat>
           </label>
           <button type="button" class="btn btn-secondary" data-testid="add-growth-task" :disabled="form.growth.tasks.length >= maxTasks" @click="addTask('tasks')">{{ t('qqbot.growth.addTask') }}</button>
         </div>
@@ -74,9 +74,9 @@
             <div class="grid gap-4 sm:grid-cols-2">
               <label class="block space-y-1">{{ t('qqbot.growth.name') }}<input v-model="task.name" :data-testid="'periodic-name-' + index" maxlength="40" required class="input" /></label>
               <label class="block space-y-1">{{ t('qqbot.growth.kind') }}
-                <select v-model="task.kind" :data-testid="'periodic-kind-' + index" class="input" @change="changeTaskKind(task)">
+                <NativeSelectCompat :value="task.kind" :data-testid="'periodic-kind-' + index" class="input" @change="task.kind = $event; changeTaskKind(task)">
                   <option v-for="kind in periodicKinds" :key="kind" :value="kind">{{ t('qqbot.growth.kinds.' + kind) }}</option>
-                </select>
+                </NativeSelectCompat>
               </label>
               <label class="block space-y-1">{{ t('qqbot.growth.periodicTargets.' + task.kind) }}<input v-model.number="task.target" :data-testid="'periodic-target-' + index" type="number" :min="isAmountKind(task.kind) ? 0.01 : 1" :max="targetLimit(task.kind, task.period)" :step="isAmountKind(task.kind) ? 0.01 : 1" required class="input" /></label>
               <label v-if="isDailyAmountKind(task.kind)" class="block space-y-1">{{ t('qqbot.growth.dailyAmount') }}<input v-model.number="task.daily_amount" :data-testid="'periodic-daily-amount-' + index" type="number" min="0.01" max="1000000000" step="0.01" required class="input" /></label>
@@ -88,9 +88,9 @@
           <p v-if="!form.growth.periodic_tasks.length" class="rounded-lg border border-dashed p-6 text-center text-sm text-gray-500 dark:border-dark-700">{{ t('qqbot.growth.empty') }}</p>
           <div class="flex flex-wrap items-end gap-3">
             <label class="min-w-0 flex-1 space-y-1">{{ t('qqbot.growth.preset') }}
-              <select v-model="newPeriodicKind" data-testid="periodic-preset" class="input">
+              <NativeSelectCompat :value="newPeriodicKind" data-testid="periodic-preset" class="input" @change="newPeriodicKind = $event">
                 <option v-for="kind in periodicKinds" :key="kind" :value="kind">{{ t('qqbot.growth.kinds.' + kind) }}</option>
-              </select>
+              </NativeSelectCompat>
             </label>
             <button type="button" class="btn btn-secondary" data-testid="add-periodic-task" :disabled="form.growth.periodic_tasks.length >= maxTasks" @click="addTask('periodic_tasks')">{{ t('qqbot.growth.addTask') }}</button>
           </div>
@@ -104,6 +104,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { useQQDraft } from './useQQDraft'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'

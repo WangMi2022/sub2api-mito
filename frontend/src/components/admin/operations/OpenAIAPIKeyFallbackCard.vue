@@ -6,7 +6,7 @@
     </header>
     <p class="text-sm leading-6 text-gray-500">{{ t('autoConfig.apikeyFallback.hint') }}</p>
     <div class="grid min-w-0 gap-4 sm:grid-cols-2">
-      <label class="sm:col-span-2"><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.apikeyFallback.metric') }}</span><select v-model="model.metric" data-testid="apikey-fallback-metric" class="input w-full"><option value="sla">{{ t('autoConfig.apikeyFallback.metrics.sla') }}</option><option value="health_score">{{ t('autoConfig.apikeyFallback.metrics.health_score') }}</option></select></label>
+      <label class="sm:col-span-2"><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.apikeyFallback.metric') }}</span><NativeSelectCompat :value="model.metric" data-testid="apikey-fallback-metric" class="input w-full" @change="model.metric = $event"><option value="sla">{{ t('autoConfig.apikeyFallback.metrics.sla') }}</option><option value="health_score">{{ t('autoConfig.apikeyFallback.metrics.health_score') }}</option></NativeSelectCompat></label>
       <label><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.apikeyFallback.threshold') }}</span><div class="flex items-center gap-2"><input v-model.number="model.threshold" data-testid="apikey-fallback-threshold" type="number" min="0" max="100" step="any" required class="input min-w-0 w-full" /><span class="shrink-0 text-sm text-gray-500">{{ model.metric === 'sla' ? '%' : t('autoConfig.apikeyFallback.scoreUnit') }}</span></div></label>
       <label><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.apikeyFallback.window') }}</span><input v-model.number="model.window_minutes" data-testid="apikey-fallback-window" type="number" min="1" max="1440" step="1" required class="input w-full" /></label>
     </div>
@@ -48,6 +48,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { list } from '@/api/admin/accounts'

@@ -12,11 +12,11 @@
       </div>
       <p v-if="!config.risk_control_enabled" class="text-amber-600">{{ t('securityRecords.masterOff') }}</p>
       <div class="grid gap-4 sm:grid-cols-2">
-        <label>{{ t('securityRecords.policy') }}<select v-model="config.policy" class="input"><option value="session_block">{{ t('securityRecords.sessionPolicy') }}</option><option value="user_block">{{ t('securityRecords.userPolicy') }}</option><option value="session_route_then_block">{{ t('securityRecords.tieredPolicy') }}</option></select></label>
+        <label>{{ t('securityRecords.policy') }}<NativeSelectCompat :value="config.policy" class="input" @change="config.policy = $event"><option value="session_block">{{ t('securityRecords.sessionPolicy') }}</option><option value="user_block">{{ t('securityRecords.userPolicy') }}</option><option value="session_route_then_block">{{ t('securityRecords.tieredPolicy') }}</option></NativeSelectCompat></label>
         <label>{{ t('securityRecords.threshold') }}<input v-model.number="config.threshold" type="number" min="1" max="1000" required class="input" /></label>
         <label>{{ t('securityRecords.window') }}<input v-model.number="config.window_hours" type="number" min="1" max="87600" required class="input" /></label>
         <label>{{ t('securityRecords.duration') }}<input v-model.number="config.duration_hours" type="number" min="1" max="87600" required class="input" /></label>
-        <label v-if="config.policy === 'session_route_then_block'">{{ t('securityRecords.targetGroup') }}<select v-model="config.target_group_id" class="input" :required="config.enabled"><option :value="null">—</option><option v-for="group in groups" :key="group.id" :value="group.id">{{ group.name }}</option></select></label>
+        <label v-if="config.policy === 'session_route_then_block'">{{ t('securityRecords.targetGroup') }}<NativeSelectCompat :value="config.target_group_id" class="input" :required="config.enabled" @change="config.target_group_id = $event"><option :value="null">—</option><option v-for="group in groups" :key="group.id" :value="group.id">{{ group.name }}</option></NativeSelectCompat></label>
       </div>
       <p v-if="config.policy === 'session_route_then_block'" class="text-sm text-amber-700">{{ t('securityRecords.routeHint') }}</p>
       <label class="block"><input v-model="config.all_groups" type="checkbox" /> {{ t('securityRecords.allGroups') }}</label>
@@ -33,6 +33,7 @@
   </section>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getConfig, release, saveConfig, type PenaltyConfig } from './api'

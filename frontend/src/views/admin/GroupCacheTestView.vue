@@ -13,27 +13,27 @@
           <h2 id="cache-config-title" class="cache-heading">{{ t('admin.groupCacheTest.configuration') }}</h2>
           <form class="mt-4 space-y-4" @submit.prevent="start">
             <fieldset :disabled="busy || loading" class="space-y-4">
-              <label class="cache-field"><span>{{ t('admin.groupCacheTest.group') }}</span><select v-model="groupId" class="input" data-testid="cache-group"><option :value="null">{{ t('admin.groupCacheTest.selectGroup') }}</option><option v-for="group in groups" :key="group.id" :value="group.id">{{ group.name }} · {{ group.platform }}</option></select></label>
-              <label class="cache-field"><span>{{ t('admin.groupCacheTest.key') }}</span><select v-model="keyId" class="input" :disabled="keysLoading || !groupId" data-testid="cache-key"><option :value="null">{{ keysLoading ? t('admin.groupCacheTest.loading') : t('admin.groupCacheTest.selectKey') }}</option><option v-for="key in keys" :key="key.id" :value="key.id">{{ key.name }} · #{{ key.id }}</option></select></label>
+              <label class="cache-field"><span>{{ t('admin.groupCacheTest.group') }}</span><NativeSelectCompat :value="groupId" class="input" data-testid="cache-group" @change="groupId = $event"><option :value="null">{{ t('admin.groupCacheTest.selectGroup') }}</option><option v-for="group in groups" :key="group.id" :value="group.id">{{ group.name }} · {{ group.platform }}</option></NativeSelectCompat></label>
+              <label class="cache-field"><span>{{ t('admin.groupCacheTest.key') }}</span><NativeSelectCompat :value="keyId" class="input" :disabled="keysLoading || !groupId" data-testid="cache-key" @change="keyId = $event"><option :value="null">{{ keysLoading ? t('admin.groupCacheTest.loading') : t('admin.groupCacheTest.selectKey') }}</option><option v-for="key in keys" :key="key.id" :value="key.id">{{ key.name }} · #{{ key.id }}</option></NativeSelectCompat></label>
               <p class="cache-hint">{{ t('admin.groupCacheTest.ownedKeyHint') }}</p>
               <p v-if="keyError" role="alert" class="text-sm text-red-600">{{ t('admin.groupCacheTest.keysError') }} <button type="button" class="underline" @click="loadKeys">{{ t('admin.groupCacheTest.reload') }}</button></p>
               <p v-else-if="groupId && !keysLoading && !keys.length" class="cache-hint">{{ t('admin.groupCacheTest.noKeys') }} <RouterLink to="/keys" class="text-primary-600 underline">{{ t('admin.groupCacheTest.manageKeys') }}</RouterLink></p>
-              <label class="cache-field"><span>{{ t('admin.groupCacheTest.protocol') }}</span><select v-model="settings.protocol" class="input" data-testid="cache-protocol"><option value="responses">Responses</option><option value="chat">Chat Completions</option><option value="messages">Messages</option></select></label>
+              <label class="cache-field"><span>{{ t('admin.groupCacheTest.protocol') }}</span><NativeSelectCompat :value="settings.protocol" class="input" data-testid="cache-protocol" @change="settings.protocol = $event"><option value="responses">Responses</option><option value="chat">Chat Completions</option><option value="messages">Messages</option></NativeSelectCompat></label>
               <label class="cache-field"><span>{{ t('admin.groupCacheTest.model') }}</span><input v-model.trim="settings.model" list="cache-models" class="input" maxlength="200" required autocomplete="off" :placeholder="t('admin.groupCacheTest.modelPlaceholder')" data-testid="cache-model" /><datalist id="cache-models"><option v-for="model in models" :key="model" :value="model" /></datalist></label>
               <div class="grid grid-cols-2 gap-3">
-                <label class="cache-field"><span>{{ t('admin.groupCacheTest.rounds') }}</span><select v-model.number="settings.rounds" class="input"><option v-for="count in [2, 3, 4, 5, 6]" :key="count" :value="count">{{ count }}</option></select></label>
-                <label class="cache-field"><span>{{ t('admin.groupCacheTest.prefix') }}</span><select v-model.number="settings.prefixBlocks" class="input"><option v-for="count in [16, 48, 96, 128]" :key="count" :value="count">{{ t('admin.groupCacheTest.blocks', { count }) }}</option></select></label>
+                <label class="cache-field"><span>{{ t('admin.groupCacheTest.rounds') }}</span><NativeSelectCompat :value="settings.rounds" class="input" @change="settings.rounds = Number($event)"><option v-for="count in [2, 3, 4, 5, 6]" :key="count" :value="count">{{ count }}</option></NativeSelectCompat></label>
+                <label class="cache-field"><span>{{ t('admin.groupCacheTest.prefix') }}</span><NativeSelectCompat :value="settings.prefixBlocks" class="input" @change="settings.prefixBlocks = Number($event)"><option v-for="count in [16, 48, 96, 128]" :key="count" :value="count">{{ t('admin.groupCacheTest.blocks', { count }) }}</option></NativeSelectCompat></label>
               </div>
               <p class="cache-hint">{{ t('admin.groupCacheTest.prefixHint', { count: prefixLength.toLocaleString() }) }}</p>
               <details class="rounded-lg border border-gray-200 p-3 dark:border-dark-600">
                 <summary class="cursor-pointer text-sm font-medium">{{ t('admin.groupCacheTest.advanced') }}</summary>
                 <div class="mt-3 space-y-3">
                   <label class="cache-field"><span>{{ t('admin.groupCacheTest.interval') }}</span><input v-model.number="settings.intervalMs" class="input" type="number" min="0" max="10000" step="100" required /></label>
-                  <label class="cache-field"><span>{{ t('admin.groupCacheTest.timeout') }}</span><select v-model.number="settings.timeoutMs" class="input"><option :value="60000">60 s</option><option :value="120000">120 s</option><option :value="300000">300 s</option></select></label>
+                  <label class="cache-field"><span>{{ t('admin.groupCacheTest.timeout') }}</span><NativeSelectCompat :value="settings.timeoutMs" class="input" @change="settings.timeoutMs = Number($event)"><option :value="60000">60 s</option><option :value="120000">120 s</option><option :value="300000">300 s</option></NativeSelectCompat></label>
                   <label class="cache-field"><span>{{ t('admin.groupCacheTest.maxOutput') }}</span><input v-model.number="settings.maxOutputTokens" class="input" type="number" min="64" max="4096" required /></label>
                   <template v-if="settings.protocol !== 'messages'">
-                    <label class="cache-field"><span>{{ t('admin.groupCacheTest.reasoning') }}</span><select v-model="settings.reasoningEffort" class="input"><option value="">{{ t('admin.groupCacheTest.unspecified') }}</option><option v-for="effort in ['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max']" :key="effort" :value="effort">{{ effort }}</option></select></label>
-                    <label class="cache-field"><span>{{ t('admin.groupCacheTest.tier') }}</span><select v-model="settings.serviceTier" class="input"><option value="">{{ t('admin.groupCacheTest.unspecified') }}</option><option value="default">default</option><option value="priority">priority</option></select></label>
+                    <label class="cache-field"><span>{{ t('admin.groupCacheTest.reasoning') }}</span><NativeSelectCompat :value="settings.reasoningEffort" class="input" @change="settings.reasoningEffort = $event"><option value="">{{ t('admin.groupCacheTest.unspecified') }}</option><option v-for="effort in ['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max']" :key="effort" :value="effort">{{ effort }}</option></NativeSelectCompat></label>
+                    <label class="cache-field"><span>{{ t('admin.groupCacheTest.tier') }}</span><NativeSelectCompat :value="settings.serviceTier" class="input" @change="settings.serviceTier = $event"><option value="">{{ t('admin.groupCacheTest.unspecified') }}</option><option value="default">default</option><option value="priority">priority</option></NativeSelectCompat></label>
                   </template>
                   <p class="cache-hint">{{ t('admin.groupCacheTest.compatibility') }}</p>
                 </div>
@@ -85,6 +85,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'

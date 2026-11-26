@@ -5,7 +5,7 @@
     <p v-if="error" role="alert" class="text-sm text-red-600 dark:text-red-300">{{ error }}</p>
     <p v-if="needsRefresh && !error" role="alert" class="text-sm text-amber-700 dark:text-amber-300">{{ t('aiOpsControl.probes.refreshRequired') }}</p>
     <div class="grid gap-3 sm:grid-cols-2">
-      <label><span class="mb-1 block text-xs text-gray-500">{{ t('aiOpsControl.probes.account') }}</span><select v-model.number="accountId" class="input w-full" :disabled="submitting || disabled" data-testid="ai-probe-account"><option :value="0">{{ t('aiOpsControl.probes.choose') }}</option><option v-for="account in policy.accounts" :key="account.account_id" :value="account.account_id">#{{ account.account_id }}</option></select></label>
+      <label><span class="mb-1 block text-xs text-gray-500">{{ t('aiOpsControl.probes.account') }}</span><NativeSelectCompat :value="accountId" class="input w-full" :disabled="submitting || disabled" data-testid="ai-probe-account" @change="accountId = Number($event)"><option :value="0">{{ t('aiOpsControl.probes.choose') }}</option><option v-for="account in policy.accounts" :key="account.account_id" :value="account.account_id">#{{ account.account_id }}</option></NativeSelectCompat></label>
       <label><span class="mb-1 block text-xs text-gray-500">{{ t('aiOpsControl.probes.model') }}</span><input v-model.trim="model" type="text" maxlength="100" class="input w-full" :disabled="submitting || disabled" data-testid="ai-probe-model" /></label>
     </div>
     <label class="flex items-start gap-2 text-sm"><input v-model="consent" type="checkbox" class="mt-0.5" :disabled="submitting || disabled" data-testid="ai-probe-consent" /><span>{{ t('aiOpsControl.probes.consent') }}</span></label>
@@ -28,6 +28,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'

@@ -27,11 +27,12 @@
     <p v-if="model.ai_connection === 'site'" class="text-xs text-gray-500">{{ t('qqbot.simple.candidates') }}</p>
     <details>
       <summary class="cursor-pointer text-sm">{{ t('qqbot.workspace.advanced') }}</summary>
-      <label class="mt-3 block">{{ t('qqbot.protocol') }}<select v-model="model.chat_protocol" class="input" data-testid="chat-protocol"><option v-if="!protocols.includes(model.chat_protocol)" :value="model.chat_protocol" disabled>{{ model.chat_protocol }} — {{ t('qqbot.simple.unsupportedProtocol') }}</option><option v-for="protocol in protocols" :key="protocol" :value="protocol">{{ protocol === 'responses' ? 'Responses' : 'Chat Completions' }}</option></select></label>
+      <label class="mt-3 block">{{ t('qqbot.protocol') }}<NativeSelectCompat :value="model.chat_protocol" class="input" data-testid="chat-protocol" @change="model.chat_protocol = $event"><option v-if="!protocols.includes(model.chat_protocol)" :value="model.chat_protocol" disabled>{{ model.chat_protocol }} — {{ t('qqbot.simple.unsupportedProtocol') }}</option><option v-for="protocol in protocols" :key="protocol" :value="protocol">{{ protocol === 'responses' ? 'Responses' : 'Chat Completions' }}</option></NativeSelectCompat></label>
     </details>
   </div>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onMounted, onBeforeUnmount, ref, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { qqbotAPI, type QQBotConfig, type QQSetupOptions } from '@/api/qqbot'

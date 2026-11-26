@@ -3,17 +3,17 @@
     <label :for="searchId || 'quality-account-search'" class="block text-sm font-medium">{{ label || t('qualityOps.accounts') }}</label>
     <div class="grid gap-3" :class="{ 'sm:grid-cols-2': !hideTypeFilter }">
       <label class="space-y-1 text-sm"><span>{{ t('qualityOps.accountGroup') }}</span>
-        <select v-model="accountGroup" class="input" data-testid="quality-account-group" @change="emit('search', 1)">
+        <NativeSelectCompat :value="accountGroup" class="input" data-testid="quality-account-group" @change="accountGroup = $event; emit('search', 1)">
           <option value="">{{ t('qualityOps.allAccountGroups') }}</option>
           <option value="ungrouped">{{ t('qualityOps.ungroupedAccounts') }}</option>
           <option v-for="group in groups" :key="group.id" :value="String(group.id)">{{ group.name }} #{{ group.id }}</option>
-        </select>
+        </NativeSelectCompat>
       </label>
       <label v-if="!hideTypeFilter" class="space-y-1 text-sm"><span>{{ t('qualityOps.accountType') }}</span>
-        <select v-model="accountType" class="input" data-testid="quality-account-type" @change="emit('search', 1)">
+        <NativeSelectCompat :value="accountType" class="input" data-testid="quality-account-type" @change="accountType = $event; emit('search', 1)">
           <option value="">{{ t('qualityOps.allAccountTypes') }}</option>
           <option v-for="option in typeOptions || qualityAccountTypeOptions" :key="option.value" :value="option.value">{{ t(option.label) }}</option>
-        </select>
+        </NativeSelectCompat>
       </label>
     </div>
     <div v-if="!hideStatusFilter" class="space-y-1 text-sm">
@@ -48,6 +48,7 @@
 </template>
 
 <script setup lang="ts" generic="T extends { id: number; name: string }">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { qualityAccountStatusOptions, qualityAccountTypeOptions } from '@/utils/qualityAccountFilter'

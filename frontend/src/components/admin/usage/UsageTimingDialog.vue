@@ -31,7 +31,7 @@
       <p v-else-if="!trace" class="rounded-lg bg-gray-50 p-4 text-sm dark:bg-dark-800">{{ t('requestTiming.empty') }}</p>
       <template v-if="trace">
         <label v-if="traces.length > 1" class="block text-sm">{{ t('requestTiming.traceSelection') }}
-          <select v-model="selected" class="input mt-2 w-full"><option v-for="(item, i) in traces" :key="item.trace_id" :value="i">{{ formatDateTime(item.started_at) }} · {{ ms(item.total_ms) }}</option></select>
+          <NativeSelectCompat :value="selected" class="input mt-2 w-full" @change="selected = $event"><option v-for="(item, i) in traces" :key="item.trace_id" :value="i">{{ formatDateTime(item.started_at) }} · {{ ms(item.total_ms) }}</option></NativeSelectCompat>
         </label>
         <div class="rounded-xl border border-sky-200 bg-sky-50 p-4 dark:border-sky-900 dark:bg-sky-950/30">
           <h4 class="font-semibold text-sky-900 dark:text-sky-200">{{ t('requestTiming.health.guideTitle') }}</h4>
@@ -72,6 +72,7 @@
   </BaseDialog>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { inject, computed, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWindowSize } from '@vueuse/core'

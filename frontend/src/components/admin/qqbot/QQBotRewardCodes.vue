@@ -11,7 +11,7 @@
       <h2 class="text-lg font-semibold">{{ t('qqbot.redemption.records') }}</h2>
       <form class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_180px_auto]" @submit.prevent="page = 1; load()">
         <input v-model="search" class="input min-w-0 flex-1" :placeholder="t('qqbot.redemption.search')" :aria-label="t('qqbot.redemption.search')" maxlength="254" />
-        <select v-model="status" class="input" :aria-label="t('qqbot.redemption.status')"><option value="">{{ t('qqbot.redemption.all') }}</option><option v-for="value in statuses" :key="value" :value="value">{{ t(`qqbot.redemption.statuses.${value}`) }}</option></select>
+        <NativeSelectCompat :value="status" class="input" :aria-label="t('qqbot.redemption.status')" @change="status = $event"><option value="">{{ t('qqbot.redemption.all') }}</option><option v-for="value in statuses" :key="value" :value="value">{{ t(`qqbot.redemption.statuses.${value}`) }}</option></NativeSelectCompat>
         <button class="btn btn-secondary" type="submit" :disabled="loading">{{ t('qqbot.redemption.searchButton') }}</button>
       </form>
       <p v-if="listError" role="alert" class="text-sm text-red-600">{{ listError }}</p>
@@ -39,6 +39,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { qqbotAPI, type QQRewardCode } from '@/api/qqbot'

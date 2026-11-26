@@ -475,10 +475,10 @@
                     >
                       {{ t("admin.settings.streamTimeout.action") }}
                     </label>
-                    <select
-                      v-model="streamTimeoutForm.action"
+                    <NativeSelectCompat
+                      :value="streamTimeoutForm.action"
                       class="input w-64"
-                    >
+                     @change="streamTimeoutForm.action = $event">
                       <option value="temp_unsched">
                         {{
                           t("admin.settings.streamTimeout.actionTempUnsched")
@@ -490,7 +490,7 @@
                       <option value="none">
                         {{ t("admin.settings.streamTimeout.actionNone") }}
                       </option>
-                    </select>
+                    </NativeSelectCompat>
                     <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
                       {{ t("admin.settings.streamTimeout.actionHint") }}
                     </p>
@@ -3832,10 +3832,10 @@
                     >
                       {{ t("admin.settings.oidc.tokenAuthMethod") }}
                     </label>
-                    <select
-                      v-model="form.oidc_connect_token_auth_method"
+                    <NativeSelectCompat
+                      :value="form.oidc_connect_token_auth_method"
                       class="input font-mono text-sm"
-                    >
+                     @change="form.oidc_connect_token_auth_method = $event">
                       <option value="client_secret_post">
                         client_secret_post
                       </option>
@@ -3843,7 +3843,7 @@
                         client_secret_basic
                       </option>
                       <option value="none">none</option>
-                    </select>
+                    </NativeSelectCompat>
                   </div>
 
                   <div>
@@ -4723,11 +4723,11 @@
                     :key="`codex-fp-${i}`"
                     class="mb-2 flex items-center gap-2"
                   >
-                    <select v-model="row.type" class="input w-32 text-sm">
+                    <NativeSelectCompat :value="row.type" class="input w-32 text-sm" @change="row.type = $event">
                       <option value="header_exact">{{ t("admin.settings.gatewayForwarding.codexFpTypeHeaderExact") }}</option>
                       <option value="header_prefix">{{ t("admin.settings.gatewayForwarding.codexFpTypeHeaderPrefix") }}</option>
                       <option value="body_path">{{ t("admin.settings.gatewayForwarding.codexFpTypeBodyPath") }}</option>
-                    </select>
+                    </NativeSelectCompat>
                     <input
                       v-model="row.match"
                       type="text"
@@ -5501,18 +5501,18 @@
                   >
                     {{ t("admin.settings.gatewayForwarding.grokDefaultBaseURLMode") }}
                   </label>
-                  <select
+                  <NativeSelectCompat
                     id="grok-default-base-url-mode"
-                    v-model="form.grok_default_base_url_mode"
+                    :value="form.grok_default_base_url_mode"
                     class="input mt-2 w-full"
                     data-testid="grok-default-base-url-mode"
-                  >
+                   @change="form.grok_default_base_url_mode = $event">
                     <option value="cli">{{ t("admin.settings.gatewayForwarding.grokBaseURLModeCLI") }}</option>
                     <option value="api">{{ t("admin.settings.gatewayForwarding.grokBaseURLModeAPI") }}</option>
                     <option value="us-east-1">{{ t("admin.settings.gatewayForwarding.grokBaseURLModeUSEast1") }}</option>
                     <option value="us-west-2">{{ t("admin.settings.gatewayForwarding.grokBaseURLModeUSWest2") }}</option>
                     <option value="eu-west-1">{{ t("admin.settings.gatewayForwarding.grokBaseURLModeEUWest1") }}</option>
-                  </select>
+                  </NativeSelectCompat>
                   <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
                     {{ t("admin.settings.gatewayForwarding.grokDefaultBaseURLModeHint") }}
                   </p>
@@ -5549,19 +5549,19 @@
                 >
                   {{ t("admin.settings.gatewayForwarding.openaiTTFTMode") }}
                 </label>
-                <select
+                <NativeSelectCompat
                   id="openai-ttft-mode"
-                  v-model="form.openai_ttft_mode"
+                  :value="form.openai_ttft_mode"
                   class="input mt-2 w-full"
                   data-testid="openai-ttft-mode"
-                >
+                 @change="form.openai_ttft_mode = $event">
                   <option value="semantic">
                     {{ t("admin.settings.gatewayForwarding.openaiTTFTModeSemantic") }}
                   </option>
                   <option value="visible">
                     {{ t("admin.settings.gatewayForwarding.openaiTTFTModeVisible") }}
                   </option>
-                </select>
+                </NativeSelectCompat>
                 <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
                   {{ t("admin.settings.gatewayForwarding.openaiTTFTModeHint") }}
                 </p>
@@ -7310,11 +7310,11 @@
                     >
                       {{ t("admin.settings.customMenu.visibility") }}
                     </label>
-                    <select
-                      v-model="item.admin_placement"
+                    <NativeSelectCompat
+                      :value="item.admin_placement"
                       class="input text-sm"
                       data-testid="custom-menu-visibility"
-                      @change="handleVisibilityChange(item)"
+                      @change="item.admin_placement = $event; handleVisibilityChange(item)"
                     >
                       <option value="user">
                         {{ t("admin.settings.customMenu.visibilityUser") }}
@@ -7322,7 +7322,7 @@
                       <option value="admin">
                         {{ t("admin.settings.customMenu.visibilityAdmin") }}
                       </option>
-                    </select>
+                    </NativeSelectCompat>
                   </div>
 
                   <div class="sm:col-span-2">
@@ -7340,11 +7340,11 @@
                     >
                       {{ t("admin.settings.customMenu.parent") }}
                     </label>
-                    <select
-                      v-model="item.parent_id"
+                    <NativeSelectCompat
+                      :value="item.parent_id"
                       class="input text-sm"
                       data-testid="custom-menu-parent"
-                    >
+                     @change="item.parent_id = $event">
                       <option value="">
                         {{ t("admin.settings.customMenu.parentTopLevel") }}
                       </option>
@@ -7355,7 +7355,7 @@
                       >
                         {{ t(parent.labelKey) }}
                       </option>
-                    </select>
+                    </NativeSelectCompat>
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                       {{ t("admin.settings.customMenu.parentHint") }}
                     </p>
@@ -7711,10 +7711,10 @@
             </div>
             <div v-if="form.excel_bps_image_relay_enabled">
               <label for="excel-bps-image-mode" class="input-label">{{ t('admin.settings.features.excelBpsImages.mode') }}</label>
-              <select id="excel-bps-image-mode" v-model="form.excel_bps_image_mode" class="input">
+              <NativeSelectCompat id="excel-bps-image-mode" :value="form.excel_bps_image_mode" class="input" @change="form.excel_bps_image_mode = $event">
                 <option value="relay">{{ t('admin.settings.features.excelBpsImages.modeRelay') }}</option>
                 <option value="native">{{ t('admin.settings.features.excelBpsImages.modeNative') }}</option>
-              </select>
+              </NativeSelectCompat>
               <p v-if="form.excel_bps_image_mode === 'native'" class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
                 {{ t('admin.settings.features.excelBpsImages.nativeHint') }}
               </p>
@@ -7736,11 +7736,11 @@
               </div>
               <div class="mt-5 space-y-3" data-testid="bps-image-policy">
                 <label class="input-label" for="bps-image-limit-policy">{{ t('admin.settings.features.excelBpsImages.policyTitle') }}</label>
-                <select id="bps-image-limit-policy" v-model="form.excel_bps_image_limit_policy" class="input">
+                <NativeSelectCompat id="bps-image-limit-policy" :value="form.excel_bps_image_limit_policy" class="input" @change="form.excel_bps_image_limit_policy = $event">
                   <option value="off">{{ t('admin.settings.features.excelBpsImages.policyOff') }}</option>
                   <option value="auto_compact">{{ t('admin.settings.features.excelBpsImages.policyAuto') }}</option>
                   <option value="warn">{{ t('admin.settings.features.excelBpsImages.policyWarn') }}</option>
-                </select>
+                </NativeSelectCompat>
                 <p class="text-xs text-gray-500">{{ t('admin.settings.features.excelBpsImages.policyHint') }}</p>
                 <div v-if="form.excel_bps_image_limit_policy === 'warn'" class="grid gap-4 sm:grid-cols-2">
                   <label class="space-y-1"><span class="input-label">{{ t('admin.settings.features.excelBpsImages.policyWarning') }}</span><input id="bps-image-warning-remaining" v-model.number="form.excel_bps_image_warning_remaining" class="input" type="number" min="1" :max="excelBPSImageLimits.images" required /></label>
@@ -9806,6 +9806,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { isCustomMenuUserVisible, getCustomMenuAdminPlacement } from '@/utils/customMenu';
 import ModelPlazaCurrencySettings from '@/components/settings/ModelPlazaCurrencySettings.vue'
 import { defaultPlazaCurrencySettings } from '@/utils/plazaCurrency'

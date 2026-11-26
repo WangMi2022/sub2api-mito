@@ -32,7 +32,7 @@
             <label class="flex items-center gap-2 text-sm"><input v-model="draft[item.key]" type="checkbox" :disabled="item.key === 'auto_recover_on_403' && !draft.auto_disable_on_403" :data-testid="'bps-' + item.key" />{{ t('admin.accounts.openai.excelBPS' + item.label) }}</label>
             <p class="mt-1 pl-6 text-xs leading-5 text-gray-500">{{ t('autoConfig.bps.' + item.key + 'Hint') }}</p>
             <label v-if="item.key === 'auto_recover_on_403' && draft.auto_recover_on_403 && draft.auto_disable_on_403" class="mt-3 block pl-6 text-xs">{{ t('admin.accounts.openai.excelBPS403RecoveryInterval') }}<input v-model.number="draft.recovery_interval_minutes" class="input mt-1 w-full" type="number" min="1" :max="MAX_BPS_RECOVERY_INTERVAL_MINUTES" step="1" required data-testid="bps-recovery-interval" /></label>
-            <label v-if="item.key === 'auto_move_on_403' && draft.auto_move_on_403" class="mt-3 block pl-6 text-xs">{{ t('admin.accounts.openai.excelBPS403TargetGroup') }}<select v-model.number="draft.target_group_id" class="input mt-1 w-full" data-testid="bps-target-group"><option :value="-1" disabled>{{ t('admin.accounts.openai.excelBPS403SelectTarget') }}</option><option :value="0">{{ t('admin.accounts.openai.excelBPS403LeaveAllGroups') }}</option><option v-for="g in targetGroups" :key="g.id" :value="g.id">{{ g.name }} #{{ g.id }}</option></select></label>
+            <label v-if="item.key === 'auto_move_on_403' && draft.auto_move_on_403" class="mt-3 block pl-6 text-xs">{{ t('admin.accounts.openai.excelBPS403TargetGroup') }}<NativeSelectCompat :value="draft.target_group_id" class="input mt-1 w-full" data-testid="bps-target-group" @change="draft.target_group_id = Number($event)"><option :value="-1" disabled>{{ t('admin.accounts.openai.excelBPS403SelectTarget') }}</option><option :value="0">{{ t('admin.accounts.openai.excelBPS403LeaveAllGroups') }}</option><option v-for="g in targetGroups" :key="g.id" :value="g.id">{{ g.name }} #{{ g.id }}</option></NativeSelectCompat></label>
             <div v-if="item.key === 'session_proxy' && draft.session_proxy" class="mt-3 flex flex-wrap gap-4 pl-6 text-xs" role="radiogroup" :aria-label="t('admin.accounts.openai.excelBPSProxySource')"><label class="flex items-center gap-2"><input v-model="draft.proxy_source" type="radio" value="mihomo" />{{ t('admin.accounts.openai.excelBPSProxySourceMihomo') }}</label><label class="flex items-center gap-2"><input v-model="draft.proxy_source" type="radio" value="ip_pool" />{{ t('admin.accounts.openai.excelBPSProxySourceIPPool') }}</label></div>
           </div>
         </div>
@@ -48,6 +48,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ExcelBPSSearchOptions from '@/components/account/ExcelBPSSearchOptions.vue'

@@ -69,9 +69,9 @@
               <div class="flex flex-wrap items-end gap-3">
                 <div class="min-w-0 flex-1">
                   <label class="input-label" for="bulk-channel-pricing-template">{{ t('admin.channels.bulkEdit.template') }}</label>
-                  <select id="bulk-channel-pricing-template" v-model="templateId" class="input" @change="loadSourceTemplate">
+                  <NativeSelectCompat id="bulk-channel-pricing-template" :value="templateId" class="input" @change="templateId = $event; loadSourceTemplate()">
                     <option v-for="channel in sourceChannels" :key="channel.id" :value="channel.id">{{ channel.name }}</option>
-                  </select>
+                  </NativeSelectCompat>
                 </div>
                 <label class="btn btn-secondary cursor-pointer">
                   {{ t('admin.channels.pricingTransfer.import') }}
@@ -140,6 +140,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { adminAPI } from '@/api/admin'

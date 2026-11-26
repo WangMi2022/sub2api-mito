@@ -57,12 +57,12 @@
               {{ t("admin.settings.emailTemplates.event") }}
               <NewFeatureBadge :notice-id="NEW_FEATURE_NOTICES.vipAutoCreditEmail" :user-id="auth.user?.id" />
             </label>
-            <select
+            <NativeSelectCompat
               id="email-template-event"
-              v-model="selectedEvent"
+              :value="selectedEvent"
               class="input"
               :disabled="loadingTemplate || eventOptions.length === 0"
-            >
+             @change="selectedEvent = $event">
               <option
                 v-for="option in eventOptions"
                 :key="option.value"
@@ -70,18 +70,18 @@
               >
                 {{ formatEventOptionLabel(option) }}
               </option>
-            </select>
+            </NativeSelectCompat>
           </div>
           <div>
             <label class="input-label" for="email-template-locale">
               {{ t("admin.settings.emailTemplates.locale") }}
             </label>
-            <select
+            <NativeSelectCompat
               id="email-template-locale"
-              v-model="selectedLocale"
+              :value="selectedLocale"
               class="input"
               :disabled="loadingTemplate || localeOptions.length === 0"
-            >
+             @change="selectedLocale = $event">
               <option
                 v-for="localeOption in localeOptions"
                 :key="localeOption"
@@ -89,7 +89,7 @@
               >
                 {{ formatLocale(localeOption) }}
               </option>
-            </select>
+            </NativeSelectCompat>
           </div>
         </div>
 
@@ -231,6 +231,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import NewFeatureBadge from "@/components/common/NewFeatureBadge.vue";

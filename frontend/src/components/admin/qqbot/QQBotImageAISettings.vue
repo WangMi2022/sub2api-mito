@@ -11,7 +11,7 @@
     <template v-if="source === 'site'">
       <p class="rounded-lg bg-primary-50 p-3 text-sm text-primary-800 dark:bg-primary-900/20 dark:text-primary-200">{{ t('qqbot.imageAI.managedHelp') }}</p>
       <button v-if="!options" type="button" class="btn btn-secondary" :disabled="loading" @click="load">{{ t('common.refresh') }}</button>
-      <label class="block space-y-1">{{ t('qqbot.imageAI.siteGroup') }}<select v-model.number="model.image_site_group_id" required class="input" data-testid="image-site-group"><option :value="0" disabled>{{ t('qqbot.simple.chooseGroup') }}</option><option v-for="group in options?.image_groups || []" :key="group.id" :value="group.id">{{ group.name }}</option></select></label>
+      <label class="block space-y-1">{{ t('qqbot.imageAI.siteGroup') }}<NativeSelectCompat :value="model.image_site_group_id" required class="input" data-testid="image-site-group" @change="model.image_site_group_id = Number($event)"><option :value="0" disabled>{{ t('qqbot.simple.chooseGroup') }}</option><option v-for="group in options?.image_groups || []" :key="group.id" :value="group.id">{{ group.name }}</option></NativeSelectCompat></label>
       <p v-if="options && !options.image_groups?.length" class="text-sm text-amber-700">{{ t('qqbot.imageAI.noSiteGroups') }}</p>
       <label v-if="model.image_site_api_key_id" class="flex items-start gap-2 text-sm"><input v-model="regenerate" type="checkbox" class="mt-1" data-testid="image-regenerate-key" />{{ t('qqbot.imageAI.regenerateKey') }}</label>
       <label class="block space-y-1">{{ t('qqbot.imageAI.keyQuota') }}<input v-model.number="quota" type="number" class="input" min="0" max="1000000" step="0.01" required :disabled="existingKey && !regenerate" data-testid="image-site-quota" /></label>
@@ -33,6 +33,7 @@
   </div>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Select from '@/components/common/Select.vue'

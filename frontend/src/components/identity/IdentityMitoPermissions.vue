@@ -27,18 +27,18 @@
       <fieldset :disabled="busy || data.protected" class="space-y-5">
         <div class="grid gap-4 sm:grid-cols-2">
           <label class="block text-sm">{{ t('identity.mitoRole') }}
-            <select v-model="form.role" class="input mt-1" @change="roleChanged">
+            <NativeSelectCompat :value="form.role" class="input mt-1" @change="form.role = $event; roleChanged()">
               <option v-for="role in ['user', 'admin', 'observer'] as const" :key="role" :value="role">{{ t(`identity.mitoRoles.${role}`) }}</option>
-            </select>
+            </NativeSelectCompat>
           </label>
           <label class="block text-sm">{{ t('identity.mitoStatus') }}
-            <select v-model="form.status" class="input mt-1"><option value="active">{{ t('identity.enabled') }}</option><option value="disabled">{{ t('identity.disabled') }}</option></select>
+            <NativeSelectCompat :value="form.status" class="input mt-1" @change="form.status = $event"><option value="active">{{ t('identity.enabled') }}</option><option value="disabled">{{ t('identity.disabled') }}</option></NativeSelectCompat>
           </label>
           <label class="block text-sm sm:col-span-2">{{ t('identity.mitoUserGroup') }}
-            <select v-model.number="form.userGroupId" class="input mt-1">
+            <NativeSelectCompat :value="form.userGroupId" class="input mt-1" @change="form.userGroupId = Number($event)">
               <option :value="0">{{ t('identity.mitoNoUserGroup') }}</option>
               <option v-for="group in data.userGroups" :key="group.id" :value="group.id" :disabled="group.status !== 'active'">{{ group.name }}{{ group.status !== 'active' ? ` · ${t('identity.disabled')}` : '' }}</option>
-            </select>
+            </NativeSelectCompat>
           </label>
         </div>
         <p class="text-xs text-gray-500 dark:text-gray-400">{{ t(`identity.mitoRoleHints.${form.role}`) }}</p>
@@ -80,6 +80,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { identityAPI, identityErrorKey, type IdentityMitoAccount, type IdentityMitoPermissions } from '@/api/identity'

@@ -18,18 +18,18 @@
       <div class="flex flex-wrap gap-2">
         <slot name="actions" />
         <input v-model="search" class="input w-48 text-sm" :placeholder="t('accountOps.search')" :aria-label="t('accountOps.search')" />
-        <select v-if="!channelView || activeView === 'official'" v-model="type" class="input w-auto text-sm" :aria-label="t('accountOps.accountType')">
+        <NativeSelectCompat v-if="!channelView || activeView === 'official'" :value="type" class="input w-auto text-sm" :aria-label="t('accountOps.accountType')" @change="type = $event">
           <option value="all">{{ t('accountOps.allAccounts') }}</option>
           <option v-if="!channelView" value="apikey">API Key</option>
           <option v-if="!channelView" value="oauth">OAuth</option>
           <option value="temporary">{{ t('accountOps.oauthTemporary') }}</option>
           <option value="long_term">{{ t('accountOps.oauthLongTerm') }}</option>
           <option v-if="!channelView" value="mixed">API Key + OAuth</option>
-        </select>
-        <select v-model="state" class="input w-auto text-sm" :aria-label="t('accountOps.ruleState')">
+        </NativeSelectCompat>
+        <NativeSelectCompat :value="state" class="input w-auto text-sm" :aria-label="t('accountOps.ruleState')" @change="state = $event">
           <option value="all">{{ t('accountOps.allStates') }}</option>
           <option v-for="value in states" :key="value" :value="value">{{ t(`accountOps.ruleStates.${value}`) }}</option>
-        </select>
+        </NativeSelectCompat>
       </div>
     </div>
     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-5 py-3 dark:border-dark-700">
@@ -129,6 +129,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, ref, watch } from 'vue'
 import Pagination from '@/components/common/Pagination.vue'
 import { channelRuleGroups, type ChannelRuleView } from './channelRuleGroups'

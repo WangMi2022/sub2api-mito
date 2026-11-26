@@ -12,10 +12,10 @@
         <label>{{ t('upstreamOps.group') }}<input v-model.number="draft.group_id" type="number" min="0" class="input w-full" /></label>
         <label>{{ t('upstreamOps.upstream') }}<input v-model="draft.upstream" maxlength="2048" class="input w-full" /></label>
         <label>{{ t('upstreamOps.model') }}<input v-model="draft.model" data-testid="model-filter" maxlength="200" class="input w-full" /></label>
-        <label>{{ t('upstreamOps.modelScope') }}<select v-model="draft.model_scope" data-testid="model-scope" class="input w-full"><option value="public">{{ t('upstreamOps.public') }}</option><option value="recorded">{{ t('upstreamOps.recorded') }}</option><option value="upstream">{{ t('upstreamOps.upstreamModel') }}</option></select></label>
-        <label>{{ t('upstreamOps.dimension') }}<select v-model="draft.dimension" class="input w-full"><option value="upstream">{{ t('upstreamOps.upstream') }}</option><option value="account">{{ t('upstreamOps.account') }}</option><option value="model">{{ t('upstreamOps.model') }}</option></select></label>
-        <label>{{ t('upstreamOps.sort') }}<select v-model="draft.sort" data-testid="sort-filter" class="input w-full"><option v-for="key in sortKeys" :key="key" :value="key">{{ t(`upstreamOps.${key}`) }}</option></select></label>
-        <label>{{ t('upstreamOps.direction') }}<select v-model="draft.direction" class="input w-full"><option value="desc">{{ t('upstreamOps.desc') }}</option><option value="asc">{{ t('upstreamOps.asc') }}</option></select></label>
+        <label>{{ t('upstreamOps.modelScope') }}<NativeSelectCompat :value="draft.model_scope" data-testid="model-scope" class="input w-full" @change="draft.model_scope = $event"><option value="public">{{ t('upstreamOps.public') }}</option><option value="recorded">{{ t('upstreamOps.recorded') }}</option><option value="upstream">{{ t('upstreamOps.upstreamModel') }}</option></NativeSelectCompat></label>
+        <label>{{ t('upstreamOps.dimension') }}<NativeSelectCompat :value="draft.dimension" class="input w-full" @change="draft.dimension = $event"><option value="upstream">{{ t('upstreamOps.upstream') }}</option><option value="account">{{ t('upstreamOps.account') }}</option><option value="model">{{ t('upstreamOps.model') }}</option></NativeSelectCompat></label>
+        <label>{{ t('upstreamOps.sort') }}<NativeSelectCompat :value="draft.sort" data-testid="sort-filter" class="input w-full" @change="draft.sort = $event"><option v-for="key in sortKeys" :key="key" :value="key">{{ t(`upstreamOps.${key}`) }}</option></NativeSelectCompat></label>
+        <label>{{ t('upstreamOps.direction') }}<NativeSelectCompat :value="draft.direction" class="input w-full" @change="draft.direction = $event"><option value="desc">{{ t('upstreamOps.desc') }}</option><option value="asc">{{ t('upstreamOps.asc') }}</option></NativeSelectCompat></label>
         <button class="btn btn-primary self-end" :disabled="loading">{{ t('upstreamOps.apply') }}</button><button type="button" class="btn btn-secondary self-end" :disabled="loading" @click="last24h">{{ t('upstreamOps.last24h') }}</button>
       </form>
       <p v-if="error" role="alert" class="text-red-600">{{ error }}</p><p v-if="loading" role="status">{{ t('upstreamOps.loading') }}</p>
@@ -39,6 +39,7 @@
   </component>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '@/components/layout/AppLayout.vue'

@@ -42,7 +42,7 @@
           </div>
           <div class="grid gap-4 sm:grid-cols-3">
             <label class="space-y-1">{{ t('qqbot.milestones.name') }}<input v-model="milestone.name" :data-testid="'milestone-name-' + index" maxlength="40" required class="input" /></label>
-            <label class="space-y-1">{{ t('qqbot.milestones.kind') }}<select v-model="milestone.kind" class="input" :disabled="persistedMilestoneIDs.has(milestone.id) && milestone.repeat" @change="milestone.repeat = false" :data-testid="'milestone-kind-' + index"><option value="checkin_total">{{ t('qqbot.growth.kinds.checkin_total') }}</option><option value="checkin_streak">{{ t('qqbot.growth.kinds.checkin_streak') }}</option></select></label>
+            <label class="space-y-1">{{ t('qqbot.milestones.kind') }}<NativeSelectCompat :value="milestone.kind" class="input" :disabled="persistedMilestoneIDs.has(milestone.id) && milestone.repeat" @change="milestone.kind = $event; milestone.repeat = false" :data-testid="'milestone-kind-' + index"><option value="checkin_total">{{ t('qqbot.growth.kinds.checkin_total') }}</option><option value="checkin_streak">{{ t('qqbot.growth.kinds.checkin_streak') }}</option></NativeSelectCompat></label>
             <label class="space-y-1">{{ t('qqbot.milestones.days') }}<input v-model.number="milestone.days" :data-testid="'milestone-days-' + index" type="number" min="1" max="3650" step="1" required class="input" /></label>
           </div>
           <label v-if="milestone.kind === 'checkin_total'" class="flex items-center gap-2 text-sm"><input v-model="milestone.repeat" type="checkbox" :disabled="persistedMilestoneIDs.has(milestone.id)" :title="persistedMilestoneIDs.has(milestone.id) ? t('qqbot.milestones.repeatLocked') : undefined" :data-testid="'milestone-repeat-' + index" />{{ t('qqbot.milestones.repeat') }}</label>
@@ -69,6 +69,7 @@
   </div>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import QQBotRewardItems from './QQBotRewardItems.vue'
 import { useQQDraft } from './useQQDraft'
 import { computed, onMounted, ref } from 'vue'

@@ -21,10 +21,10 @@
       <fieldset v-if="canManageTimers" :disabled="busy || switching || loadFailed" class="min-w-0 space-y-2">
         <legend class="mb-2 font-medium">{{ t('admin.accounts.timer.manage') }}</legend>
         <label class="block">{{ t('admin.accounts.timer.planType') }}
-          <select v-model="planType" data-test="timer-plan-type" class="input mt-1 w-full text-xs">
+          <NativeSelectCompat :value="planType" data-test="timer-plan-type" class="input mt-1 w-full text-xs" @change="planType = $event">
             <option value="daily">{{ t('admin.accounts.timer.daily') }}</option>
             <option value="once">{{ t('admin.accounts.timer.once') }}</option>
-          </select>
+          </NativeSelectCompat>
         </label>
         <div v-if="form.mode === 'daily'" class="space-y-2">
           <div class="flex items-center gap-1"><span>{{ t('admin.accounts.timer.daily') }}</span><NewFeatureBadge v-if="noticeUserId != null" :notice-id="NEW_FEATURE_NOTICES.accountDailyScheduling" :user-id="noticeUserId" compact /></div>
@@ -37,16 +37,16 @@
         </div>
         <template v-else>
           <label class="block">{{ t('admin.accounts.timer.action') }}
-            <select v-model="action" data-test="timer-action" class="input mt-1 w-full text-xs" @change="editOneShot(action)">
+            <NativeSelectCompat :value="action" data-test="timer-action" class="input mt-1 w-full text-xs" @change="action = $event; editOneShot(action)">
               <option value="open">{{ t('admin.accounts.timer.openAction') }}</option>
               <option value="close">{{ t('admin.accounts.timer.closeAction') }}</option>
-            </select>
+            </NativeSelectCompat>
           </label>
           <label class="block">{{ t('admin.accounts.timer.mode') }}
-            <select v-model="form.mode" data-test="timer-mode" class="input mt-1 w-full text-xs">
+            <NativeSelectCompat :value="form.mode" data-test="timer-mode" class="input mt-1 w-full text-xs" @change="form.mode = $event">
               <option value="relative">{{ t('admin.accounts.timer.relative') }}</option>
               <option value="absolute">{{ t('admin.accounts.timer.absolute') }}</option>
-            </select>
+            </NativeSelectCompat>
           </label>
           <div v-if="form.mode === 'relative'" class="space-y-1">
             <div class="grid grid-cols-2 gap-2">
@@ -109,6 +109,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'

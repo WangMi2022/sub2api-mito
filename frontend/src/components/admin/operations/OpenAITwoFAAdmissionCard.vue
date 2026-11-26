@@ -7,21 +7,22 @@
     <p class="text-sm leading-6 text-gray-500">{{ t('autoConfig.admission.hint') }}</p>
     <div class="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       <label class="min-w-0"><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.admission.model') }}</span><input v-model="model.model_id" data-testid="admission-model" class="input w-full" maxlength="100" required /></label>
-      <label><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.admission.effort') }}</span><select v-model="model.reasoning_effort" data-testid="admission-effort" class="input w-full"><option v-for="effort in efforts" :key="effort" :value="effort">{{ t('autoConfig.admission.efforts.' + effort) }} ({{ effort }})</option></select></label>
+      <label><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.admission.effort') }}</span><NativeSelectCompat :value="model.reasoning_effort" data-testid="admission-effort" class="input w-full" @change="model.reasoning_effort = $event"><option v-for="effort in efforts" :key="effort" :value="effort">{{ t('autoConfig.admission.efforts.' + effort) }} ({{ effort }})</option></NativeSelectCompat></label>
       <label v-for="field in fields" :key="field.key"><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.admission.' + field.key) }}</span><input v-model.number="model[field.key]" :data-testid="'admission-' + field.key" type="number" min="1" :max="field.max" step="1" required class="input w-full" /></label>
     </div>
     <p class="rounded-xl bg-emerald-50 p-3 text-sm leading-6 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200">{{ t('autoConfig.admission.passHint', { count: model.pass_count, concurrency: model.passed_concurrency }) }}</p>
-    <label class="block"><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.admission.group') }}</span><select v-model.number="model.isolation_group_id" data-testid="admission-group" class="input w-full" :required="model.enabled">
+    <label class="block"><span class="mb-2 block text-sm font-medium">{{ t('autoConfig.admission.group') }}</span><NativeSelectCompat :value="model.isolation_group_id" data-testid="admission-group" class="input w-full" :required="model.enabled" @change="model.isolation_group_id = Number($event)">
       <option :value="0">{{ t('autoConfig.admission.chooseGroup') }}</option>
       <option v-if="model.isolation_group_id && !availableGroups.some(g => g.id === model.isolation_group_id)" :value="model.isolation_group_id" disabled>{{ t('autoConfig.admission.unavailableGroup', { id: model.isolation_group_id }) }}</option>
       <option v-for="group in availableGroups" :key="group.id" :value="group.id">{{ group.name }} · #{{ group.id }} · {{ group.platform }} · {{ t('autoConfig.admission.active') }}</option>
-    </select></label>
+    </NativeSelectCompat></label>
     <p class="text-sm leading-6 text-gray-500">{{ t('autoConfig.admission.isolationRule', { count: model.isolation_count }) }}</p>
     <p class="rounded-xl bg-amber-50 p-3 text-sm leading-6 text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">{{ t('autoConfig.admission.isolationHint') }}</p>
   </section>
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Group } from '@/types'

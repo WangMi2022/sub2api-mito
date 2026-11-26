@@ -45,9 +45,9 @@
     </ul>
     <div class="space-y-2" data-testid="add-connection-fields">
       <label :for="`connection-kind-${accountId}`" class="input-label">{{ t('openaiAuth.kind') }}</label>
-      <select :id="`connection-kind-${accountId}`" v-model="kind" class="input" :disabled="busy">
+      <NativeSelectCompat :id="`connection-kind-${accountId}`" :value="kind" class="input" :disabled="busy" @change="kind = $event">
         <option value="codex">Codex</option><option value="bps">BPS</option><option value="siwc">SIWC</option>
-      </select>
+      </NativeSelectCompat>
       <label :for="`connection-label-${accountId}`" class="input-label">{{ t('openaiAuth.label') }}</label>
       <input :id="`connection-label-${accountId}`" v-model="label" class="input" maxlength="120" autocomplete="off" :disabled="busy" data-testid="connection-label" />
       <p v-if="kind === 'siwc'" class="input-hint">{{ t('openaiAuth.siwcApproval') }}</p>
@@ -81,6 +81,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { authorizeConnection, completeConnection, connectionAuthorizationStatus, createAuthConnection, listAuthConnections, revokeConnection, rotateConnectionAPIKey, updateAuthConnection, useLegacyConnections, type OAuthConnectionKind, type OpenAIAuthConnection } from '@/api/admin/openaiAuthConnections'

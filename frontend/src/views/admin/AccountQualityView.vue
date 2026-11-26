@@ -53,7 +53,7 @@
         </section>
         <section class="workspace-panel operations-panel" aria-labelledby="quality-operations-heading">
           <header class="panel-heading"><div><h3 id="quality-operations-heading">{{ t('qualityOps.operations') }}</h3><p>{{ t('qualityOps.operationsSubtitle') }}</p></div><button class="icon-button" :disabled="store.operationsLoading" :aria-label="t('qualityOps.refreshOperations')" @click="refreshOperations"><Icon name="refresh" size="sm" :class="{ 'animate-spin': store.operationsLoading }" /></button></header>
-          <div class="operations-toolbar"><div class="scope-label"><span class="scope-dot" />{{ selectedPlan ? name(selectedPlan) : t('qualityOps.allAccounts') }}<button v-if="selectedPlan" :aria-label="t('qualityOps.clearScope')" @click="store.selectedPlanId = null"><Icon name="x" size="xs" /></button></div><select v-model="store.operationFilter" :aria-label="t('qualityOps.filterRecords')"><option value="all">{{ t('qualityOps.allOutcomes') }}</option><option value="attention">{{ t('qualityOps.needsAttention') }}</option><option value="passed">{{ t('qualityOps.passedRounds') }}</option><option value="failed">{{ t('qualityOps.otherRounds') }}</option></select></div>
+          <div class="operations-toolbar"><div class="scope-label"><span class="scope-dot" />{{ selectedPlan ? name(selectedPlan) : t('qualityOps.allAccounts') }}<button v-if="selectedPlan" :aria-label="t('qualityOps.clearScope')" @click="store.selectedPlanId = null"><Icon name="x" size="xs" /></button></div><NativeSelectCompat :value="store.operationFilter" :aria-label="t('qualityOps.filterRecords')" @change="store.operationFilter = $event"><option value="all">{{ t('qualityOps.allOutcomes') }}</option><option value="attention">{{ t('qualityOps.needsAttention') }}</option><option value="passed">{{ t('qualityOps.passedRounds') }}</option><option value="failed">{{ t('qualityOps.otherRounds') }}</option></NativeSelectCompat></div>
           <div v-if="store.operationsError" role="alert" class="panel-error">{{ store.operationsError }}<button @click="refreshOperations">{{ t('qualityOps.retry') }}</button></div>
           <div class="operations-scroll" data-testid="operations-scroll" :aria-busy="store.operationsLoading">
             <table class="operations-table"><thead><tr><th>{{ t('qualityOps.time') }}</th><th>{{ t('qualityOps.accounts') }}</th><th>{{ t('qualityOps.testResult') }}</th><th>{{ t('qualityOps.accountAction') }}</th><th><span class="sr-only">{{ t('qualityOps.details') }}</span></th></tr></thead><tbody>
@@ -94,13 +94,13 @@
           <legend>{{ t('qualityOps.reuseConfig') }}</legend>
           <div class="space-y-2" data-testid="quality-account-source-option">
             <p class="font-medium">{{ t('qualityOps.copy') }}</p>
-            <label class="block space-y-1"><span>{{ t('qualityOps.sourceAccount') }}</span><select v-model="sourceAccountId" class="input" data-testid="quality-source-account" :disabled="!canCopyRules" @change="sourceRuleId = ''"><option value="">{{ t('qualityOps.selectSourceAccount') }}</option><option v-for="account in sourceAccounts" :key="account.id" :value="String(account.id)">{{ account.name }} #{{ account.id }}</option></select></label>
-            <label class="block space-y-1"><span>{{ t('qualityOps.sourceRule') }}</span><select v-model="sourceRuleId" class="input" data-testid="quality-source-rule" :disabled="!canCopyRules || !sourceAccountId"><option value="">{{ t('qualityOps.selectSourceRule') }}</option><option v-for="rule in sourceRules" :key="rule.id" :value="String(rule.id)">#{{ rule.id }} · {{ rule.pelican_config?.rule_name || rule.model_id }} · {{ planGroups(rule) }}</option></select></label>
+            <label class="block space-y-1"><span>{{ t('qualityOps.sourceAccount') }}</span><NativeSelectCompat :value="sourceAccountId" class="input" data-testid="quality-source-account" :disabled="!canCopyRules" @change="sourceAccountId = $event; sourceRuleId = ''"><option value="">{{ t('qualityOps.selectSourceAccount') }}</option><option v-for="account in sourceAccounts" :key="account.id" :value="String(account.id)">{{ account.name }} #{{ account.id }}</option></NativeSelectCompat></label>
+            <label class="block space-y-1"><span>{{ t('qualityOps.sourceRule') }}</span><NativeSelectCompat :value="sourceRuleId" class="input" data-testid="quality-source-rule" :disabled="!canCopyRules || !sourceAccountId" @change="sourceRuleId = $event"><option value="">{{ t('qualityOps.selectSourceRule') }}</option><option v-for="rule in sourceRules" :key="rule.id" :value="String(rule.id)">#{{ rule.id }} · {{ rule.pelican_config?.rule_name || rule.model_id }} · {{ planGroups(rule) }}</option></NativeSelectCompat></label>
             <button type="button" class="btn btn-secondary" data-testid="quality-apply-source" :disabled="!canCopyRules || !sourceRuleId" @click="applySourceRule">{{ t('qualityOps.copy') }}</button>
           </div>
           <p v-if="store.presetsError" role="alert">{{ t('qualityOps.presetsLoadFailed') }} {{ store.presetsError }} <button type="button" class="underline" @click="store.refreshPresets">{{ t('qualityOps.retry') }}</button></p>
           <p class="font-medium">{{ t('qualityOps.selectPreset') }}</p>
-          <label class="block space-y-1"><span>{{ t('qualityOps.savedPresets') }}</span><select v-model="selectedPresetId" class="input" data-testid="quality-preset-select" :disabled="store.presetsLoading || !canCopyRules"><option value="">{{ t(store.presetsLoading ? 'qualityOps.loading' : 'qualityOps.selectPreset') }}</option><option v-for="preset in presets" :key="preset.id" :value="String(preset.id)">{{ preset.name }}</option></select></label>
+          <label class="block space-y-1"><span>{{ t('qualityOps.savedPresets') }}</span><NativeSelectCompat :value="selectedPresetId" class="input" data-testid="quality-preset-select" :disabled="store.presetsLoading || !canCopyRules" @change="selectedPresetId = $event"><option value="">{{ t(store.presetsLoading ? 'qualityOps.loading' : 'qualityOps.selectPreset') }}</option><option v-for="preset in presets" :key="preset.id" :value="String(preset.id)">{{ preset.name }}</option></NativeSelectCompat></label>
           <button type="button" class="btn btn-secondary" data-testid="quality-edit-preset" :disabled="!selectedPresetId || !canCopyRules || store.presetsLoading" @click="editPreset">{{ t('qualityOps.editPreset') }}</button>
           <button type="button" class="btn btn-secondary" data-testid="quality-apply-preset" :disabled="!selectedPresetId || !canCopyRules || store.presetsLoading" @click="applyPreset">{{ t('qualityOps.applyPreset') }}</button>
           <p class="text-xs text-gray-500">{{ t('qualityOps.reuseHint') }}</p>
@@ -133,9 +133,9 @@
           :account-page="accountPage" :account-pages="accountPages" :accounts-total="accountsTotal" :bulk="bulkEditing" :scope-locked="!!editingTemplate" :hide-scope="copying" :selection-hint="copying ? t('qualityOps.copyAccountHint') : undefined" :disabled-reason="accountDisabledReason"
           @search="searchAccounts" @select-page="selectCurrentPage" @select-all="selectMatchingAccounts" @clear="clearAccountSelection" />
         <div v-if="editsField('test')" class="space-y-2">
-          <label class="block space-y-1"><span>{{ t('qualityOps.questionKind') }} <NewFeatureBadge :notice-id="NEW_FEATURE_NOTICES.ciallo" :user-id="auth.user?.id" /></span><select v-model="form.pelican_config.question_kind" class="input" data-testid="quality-question-kind" @change="selectQuestionKind"><option value="candy">{{ t('qualityOps.questionCandy') }}</option><option value="ciallo">{{ t('qualityOps.ciallo.title') }}</option><option value="random_reasoning">{{ t('qualityOps.questionRandom') }}</option><option :value="STATE_PROBE_QUESTION">{{ t('qualityOps.questionStateProbe') }}</option></select></label>
+          <label class="block space-y-1"><span>{{ t('qualityOps.questionKind') }} <NewFeatureBadge :notice-id="NEW_FEATURE_NOTICES.ciallo" :user-id="auth.user?.id" /></span><NativeSelectCompat :value="form.pelican_config.question_kind" class="input" data-testid="quality-question-kind" @change="form.pelican_config.question_kind = $event; selectQuestionKind()"><option value="candy">{{ t('qualityOps.questionCandy') }}</option><option value="ciallo">{{ t('qualityOps.ciallo.title') }}</option><option value="random_reasoning">{{ t('qualityOps.questionRandom') }}</option><option :value="STATE_PROBE_QUESTION">{{ t('qualityOps.questionStateProbe') }}</option></NativeSelectCompat></label>
           <p v-if="isProbe" class="text-sm text-gray-500" data-testid="quality-probe-hint">{{ t('qualityOps.probeHint') }}</p>
-          <label v-else class="block space-y-1"><span>{{ t('qualityOps.testChannel') }}</span><select v-model="form.pelican_config.test_channel" class="input" data-testid="quality-test-channel" @change="selectTestChannel"><option value="account">{{ t('qualityOps.accountChannel') }}</option><option value="bps">{{ t('qualityOps.bpsChannel') }}</option></select></label>
+          <label v-else class="block space-y-1"><span>{{ t('qualityOps.testChannel') }}</span><NativeSelectCompat :value="form.pelican_config.test_channel" class="input" data-testid="quality-test-channel" @change="form.pelican_config.test_channel = $event; selectTestChannel()"><option value="account">{{ t('qualityOps.accountChannel') }}</option><option value="bps">{{ t('qualityOps.bpsChannel') }}</option></NativeSelectCompat></label>
           <p v-if="form.pelican_config.test_channel === 'bps'" class="text-sm text-gray-500" data-testid="quality-bps-observation-hint">{{ t('qualityOps.bpsObservationHint') }}</p>
         </div>
         <div class="grid gap-4 sm:grid-cols-2">
@@ -154,7 +154,7 @@
             <label v-else class="space-y-1"><span>{{ t('qualityOps.cron') }}</span><input v-model.trim="form.cron_expression" required class="input" placeholder="*/30 * * * *" /></label>
           </template>
           <template v-if="editsField('test') && !isProbe">
-            <label class="space-y-1"><span>{{ t('qualityOps.effort') }}</span><select v-model="form.pelican_config.reasoning_effort" class="input"><option v-for="effort in ['minimal', 'low', 'medium', 'high', 'xhigh']" :key="effort">{{ effort }}</option></select></label>
+            <label class="space-y-1"><span>{{ t('qualityOps.effort') }}</span><NativeSelectCompat :value="form.pelican_config.reasoning_effort" class="input" @change="form.pelican_config.reasoning_effort = $event"><option v-for="effort in ['minimal', 'low', 'medium', 'high', 'xhigh']" :key="effort">{{ effort }}</option></NativeSelectCompat></label>
             <label class="space-y-1"><span>{{ t('qualityOps.parallel') }}</span><input v-model.number="form.pelican_config.parallel_count" type="number" min="1" max="8" required class="input" /></label>
           </template>
         </div>
@@ -176,10 +176,10 @@
           <p v-if="form.pelican_config.quality.judge.kind === 'jev'" class="text-sm text-gray-500" data-testid="quality-jev-hint">{{ t('qualityOps.judgeJevHint') }}</p>
           <div v-else class="grid gap-4 sm:grid-cols-2">
             <label class="space-y-1"><span>{{ t('qualityOps.judgeGroup') }}</span>
-              <select v-model.number="form.pelican_config.quality.judge.group_id" required class="input" @change="loadJudgeModels">
+              <NativeSelectCompat :value="form.pelican_config.quality.judge.group_id" required class="input" @change="form.pelican_config.quality.judge.group_id = Number($event); loadJudgeModels()">
                 <option disabled :value="0">{{ t('qualityOps.selectJudgeGroup') }}</option>
                 <option v-for="group in groups.filter(g => g.status === 'active')" :key="group.id" :value="group.id">{{ group.name }} #{{ group.id }}</option>
-              </select>
+              </NativeSelectCompat>
             </label>
             <label class="space-y-1"><span>{{ t('qualityOps.judgeModel') }}</span>
               <input v-model.trim="form.pelican_config.quality.judge.model_id" list="quality-judge-models" required maxlength="100" class="input" :placeholder="t('qualityOps.selectJudgeModel')" />
@@ -295,6 +295,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'

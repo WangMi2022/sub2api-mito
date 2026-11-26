@@ -39,10 +39,10 @@
 
       <div>
         <label for="api-key-reasoning-effort" class="input-label">{{ t('apiKeyModelPolicy.reasoningEffort') }}</label>
-        <select id="api-key-reasoning-effort" v-model="reasoningEffort" class="input" :disabled="saving" data-test="reasoning-effort">
+        <NativeSelectCompat id="api-key-reasoning-effort" :value="reasoningEffort" class="input" :disabled="saving" data-test="reasoning-effort" @change="reasoningEffort = $event">
           <option value="">{{ t('apiKeyModelPolicy.followClient') }}</option>
           <option v-for="effort in efforts" :key="effort" :value="effort">{{ effort }}</option>
-        </select>
+        </NativeSelectCompat>
         <p class="mt-2 text-sm text-gray-500 dark:text-dark-300">{{ t('apiKeyModelPolicy.effortHint') }}</p>
       </div>
       <div class="rounded-xl border border-gray-200 p-4 dark:border-dark-600">
@@ -105,6 +105,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { adminAPI } from '@/api/admin'

@@ -79,10 +79,10 @@
             :user-id="userId"
           />
         </div>
-        <select v-model="config.mode" class="input" data-testid="bepusdt-mode">
+        <NativeSelectCompat :value="config.mode" class="input" data-testid="bepusdt-mode" @change="config.mode = $event">
           <option value="embedded">{{ t('admin.settings.payment.bepusdtEmbedded') }}</option>
           <option value="external">{{ t('admin.settings.payment.bepusdtExternal') }}</option>
-        </select>
+        </NativeSelectCompat>
         <p class="text-xs leading-relaxed text-gray-500 dark:text-gray-400">
           {{ t(config.mode === 'embedded' ? 'admin.settings.payment.bepusdtEmbeddedHint' : 'admin.settings.payment.bepusdtHint') }}
         </p>
@@ -319,10 +319,10 @@
         <div class="space-y-2">
           <label class="input-label" for="provider-default-fee-mode">{{ t('admin.settings.payment.providerDefaultFee') }}</label>
           <div class="grid gap-2 sm:grid-cols-2">
-            <select id="provider-default-fee-mode" v-model="feeMode" class="input" data-testid="provider-fee-mode">
+            <NativeSelectCompat id="provider-default-fee-mode" :value="feeMode" class="input" data-testid="provider-fee-mode" @change="feeMode = $event">
               <option value="inherit">{{ t('admin.settings.payment.feeInheritGlobal') }}</option>
               <option value="custom">{{ t('admin.settings.payment.feeCustom') }}</option>
-            </select>
+            </NativeSelectCompat>
             <input v-if="feeMode === 'custom'" v-model="feeRateInput" type="number" min="0" max="100" step="0.01" required class="input" data-testid="provider-fee-rate" :aria-label="t('admin.settings.payment.providerDefaultFee')" />
           </div>
           <p class="text-xs text-gray-500 dark:text-gray-400" data-testid="provider-effective-fee">{{ effectiveFeeLabel }}</p>
@@ -353,6 +353,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { reactive, computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BaseDialog from '@/components/common/BaseDialog.vue'

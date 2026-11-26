@@ -14,17 +14,17 @@
       <!-- 目标用户组 -->
       <div class="space-y-1.5">
         <label class="input-label">{{ t('admin.groups.identityImport.targetGroup') }}</label>
-        <select
-          v-model.number="targetGroupId"
+        <NativeSelectCompat
+          :value="targetGroupId"
           class="input"
           :disabled="importing || groupsLoading"
           data-testid="identity-import-group"
-        >
+         @change="targetGroupId = Number($event)">
           <option :value="0" disabled>{{ t('admin.groups.identityImport.targetGroupPlaceholder') }}</option>
           <option v-for="group in activeGroups" :key="group.id" :value="group.id">
             {{ group.name }} ({{ group.code }} · #{{ group.id }})
           </option>
-        </select>
+        </NativeSelectCompat>
         <p v-if="groupsFailed" role="alert" class="text-xs text-red-600 dark:text-red-400">
           {{ t('admin.userGroups.failedToLoad') }}
         </p>
@@ -243,6 +243,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { adminAPI } from '@/api/admin'

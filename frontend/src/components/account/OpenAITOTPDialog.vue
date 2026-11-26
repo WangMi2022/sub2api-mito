@@ -16,11 +16,11 @@
       </div>
       <hr class="dark:border-gray-700" />
       <label class="block text-sm">{{ t('tokenGuardV2.totpManage.exportSource') }}
-        <select v-model="source" class="input mt-1 w-full" :disabled="busy" @change="clearExport">
+        <NativeSelectCompat :value="source" class="input mt-1 w-full" :disabled="busy" @change="source = $event; clearExport()">
           <option value="current" :disabled="active">{{ t('tokenGuardV2.totpManage.current') }}</option>
           <option v-if="task?.state === 'uncertain' && task.has_candidate" value="candidate">{{ t('tokenGuardV2.totpManage.candidate') }}</option>
           <option v-if="task?.state === 'uncertain'" value="previous">{{ t('tokenGuardV2.totpManage.previous') }}</option>
-        </select>
+        </NativeSelectCompat>
       </label>
       <label class="flex items-center gap-2 text-sm"><input v-model="includePassword" type="checkbox" @change="clearExport" />{{ t('tokenGuardV2.totpManage.includePassword') }}</label>
       <button type="button" class="btn btn-secondary" data-testid="totp-export" :disabled="busy || !loaded || (active && task?.state !== 'uncertain')" @click="reveal">{{ t('tokenGuardV2.totpManage.export') }}</button>
@@ -41,6 +41,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import QRCode from 'qrcode'

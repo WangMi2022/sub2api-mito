@@ -553,12 +553,12 @@
 
           <div class="md:col-span-2">
             <label class="input-label">API Key</label>
-            <select v-model.number="form.apiKeyId" class="input" :disabled="loadingKeys">
+            <NativeSelectCompat :value="form.apiKeyId" class="input" :disabled="loadingKeys" @change="form.apiKeyId = Number($event)">
               <option :value="0">{{ loadingKeys ? t('batchImage.create.loadingKeys') : t('batchImage.create.selectKeyPlaceholder') }}</option>
               <option v-for="key in geminiApiKeys" :key="key.id" :value="key.id">
                 {{ key.name }} · {{ key.group?.name || 'Gemini' }}
               </option>
-            </select>
+            </NativeSelectCompat>
             <p v-if="!loadingKeys && geminiApiKeys.length === 0" class="input-hint text-amber-600 dark:text-amber-400">
               {{ t('batchImage.create.noKeysHint') }}
             </p>
@@ -566,13 +566,13 @@
 
           <div>
             <label class="input-label">{{ t('batchImage.create.model') }}</label>
-            <select v-model="form.model" class="input" :disabled="loadingModels || availableBatchImageModels.length === 0">
+            <NativeSelectCompat :value="form.model" class="input" :disabled="loadingModels || availableBatchImageModels.length === 0" @change="form.model = $event">
               <option v-if="loadingModels" value="">{{ batchImageText('loadingModels') }}</option>
               <option v-else-if="availableBatchImageModels.length === 0" value="">{{ batchImageText('noModels') }}</option>
               <option v-for="model in availableBatchImageModels" :key="model.value" :value="model.value">
                 {{ model.label }}
               </option>
-            </select>
+            </NativeSelectCompat>
             <p v-if="modelLoadError" class="input-hint text-amber-600 dark:text-amber-400">
               {{ modelLoadError }}
             </p>
@@ -591,11 +591,11 @@
 
           <div>
             <label class="input-label">{{ t('batchImage.create.outputFormat') }}</label>
-            <select v-model="form.responseMimeType" class="input">
+            <NativeSelectCompat :value="form.responseMimeType" class="input" @change="form.responseMimeType = $event">
               <option value="image/png">PNG</option>
               <option value="image/jpeg">JPEG</option>
               <option value="image/webp">WebP</option>
-            </select>
+            </NativeSelectCompat>
           </div>
 
           <div>
@@ -626,16 +626,16 @@
                 class="input h-9 text-sm"
                 :placeholder="t('batchImage.create.customIdPlaceholder')"
               />
-              <select
-                v-model.number="outputCountDraft"
+              <NativeSelectCompat
+                :value="outputCountDraft"
                 class="batch-output-count-select input h-9 text-sm"
                 :title="t('batchImage.create.outputCountPerPrompt')"
                 :aria-label="t('batchImage.create.outputCountPerPrompt')"
-              >
+               @change="outputCountDraft = Number($event)">
                 <option v-for="count in outputCountOptions" :key="count" :value="count">
                   {{ t('batchImage.create.outputCountOption', { n: count }, count) }}
                 </option>
-              </select>
+              </NativeSelectCompat>
               <label
                 class="btn btn-secondary h-9 cursor-pointer justify-center text-sm"
                 :class="referenceImageDrafts.length >= selectedModelReferenceLimit ? 'pointer-events-none opacity-60' : ''"
@@ -752,6 +752,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '@/components/layout/AppLayout.vue'

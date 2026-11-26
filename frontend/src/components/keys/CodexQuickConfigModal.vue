@@ -45,11 +45,11 @@
           <span class="block text-sm font-medium text-gray-900 dark:text-white">
             {{ t('keys.useKeyModal.codexModelCatalog.mode') }}
           </span>
-          <select v-model="catalogMode" data-testid="quick-config-catalog-mode" class="input mt-2 text-sm">
+          <NativeSelectCompat :value="catalogMode" data-testid="quick-config-catalog-mode" class="input mt-2 text-sm" @change="catalogMode = $event">
             <option value="remote">{{ t('keys.useKeyModal.codexModelCatalog.remote') }}</option>
             <option value="file">{{ t('keys.useKeyModal.codexModelCatalog.local') }}</option>
             <option value="none">{{ t('keys.quickConfigureModal.noCatalog') }}</option>
-          </select>
+          </NativeSelectCompat>
         </label>
         <p v-if="isOpenAI && catalogMode === 'remote'" class="mt-2 break-all font-mono text-xs text-gray-700 dark:text-gray-300">
           {{ modelCatalogUrl }}
@@ -141,6 +141,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { saveAs } from 'file-saver'

@@ -12,11 +12,11 @@
     </details>
     <form @submit.prevent="apply">
       <fieldset :disabled="releasing" class="grid items-end gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      <label class="text-sm">{{ t('ipAudit.source') }}<select v-model="source" class="input mt-1 w-full" data-testid="audit-source" @change="sourceChanged"><option v-for="item in inventory" :key="item.id" :value="item.id">{{ sourceName(item.id) }}</option></select></label>
+      <label class="text-sm">{{ t('ipAudit.source') }}<NativeSelectCompat :value="source" class="input mt-1 w-full" data-testid="audit-source" @change="source = $event; sourceChanged()"><option v-for="item in inventory" :key="item.id" :value="item.id">{{ sourceName(item.id) }}</option></NativeSelectCompat></label>
       <label class="text-sm">IP / CIDR<input v-model="ip" class="input mt-1 w-full" maxlength="80" :disabled="source === 'admin_history' || source === 'security_penalty'" data-testid="audit-ip" /></label>
       <label v-if="source === 'security_penalty'" class="text-sm">{{ t('ipAudit.explicitUser') }}<input v-model="userId" class="input mt-1 w-full" type="number" min="1" data-testid="audit-user" /></label>
-      <label class="text-sm">{{ t('ipAudit.state') }}<select v-model="state" class="input mt-1 w-full" data-testid="audit-state"><option value="">{{ t('ipAudit.allStates') }}</option><option v-for="s in states" :key="s" :value="s">{{ label(s) }}</option></select></label>
-      <label class="text-sm">{{ t('ipAudit.order') }}<select v-model="sort" class="input mt-1 w-full" :disabled="source === 'admin_history'"><option value="expires_desc">{{ t('ipAudit.expiryDesc') }}</option><option value="expires_asc">{{ t('ipAudit.expiryAsc') }}</option></select></label>
+      <label class="text-sm">{{ t('ipAudit.state') }}<NativeSelectCompat :value="state" class="input mt-1 w-full" data-testid="audit-state" @change="state = $event"><option value="">{{ t('ipAudit.allStates') }}</option><option v-for="s in states" :key="s" :value="s">{{ label(s) }}</option></NativeSelectCompat></label>
+      <label class="text-sm">{{ t('ipAudit.order') }}<NativeSelectCompat :value="sort" class="input mt-1 w-full" :disabled="source === 'admin_history'" @change="sort = $event"><option value="expires_desc">{{ t('ipAudit.expiryDesc') }}</option><option value="expires_asc">{{ t('ipAudit.expiryAsc') }}</option></NativeSelectCompat></label>
       <label class="text-sm">{{ t('ipAudit.start') }}<input v-model="start" class="input mt-1 w-full" type="datetime-local" /></label>
       <label class="text-sm">{{ t('ipAudit.end') }}<input v-model="end" class="input mt-1 w-full" type="datetime-local" /></label>
       <div class="flex gap-2"><button type="submit" class="btn btn-secondary" :disabled="loading || releasing" data-testid="audit-filter">{{ t('common.search') }}</button><button type="button" class="btn btn-secondary" :disabled="loading || releasing" @click="refresh">{{ t('common.refresh') }}</button></div>
@@ -44,7 +44,7 @@
     <div v-if="confirmEntry" role="dialog" aria-modal="true" :aria-label="t('ipAudit.confirmTitle')" class="space-y-3 rounded border border-amber-300 p-4" data-testid="release-dialog">
       <p>{{ t('ipAudit.confirmTitle') }} · {{ sourceName(confirmEntry.source) }} · <code>{{ confirmEntry.network || `UID ${confirmEntry.user_id}` }}</code></p>
       <p class="text-sm">{{ t(confirmEntry.scope === 'all_user_states' ? 'ipAudit.confirmUserScope' : 'ipAudit.confirmHint') }}</p>
-      <label class="block text-sm">{{ t('ipAudit.reason') }}<select v-model="reason" class="input ml-2"><option v-for="r in reasons" :key="r" :value="r">{{ label(r) }}</option></select></label>
+      <label class="block text-sm">{{ t('ipAudit.reason') }}<NativeSelectCompat :value="reason" class="input ml-2" @change="reason = $event"><option v-for="r in reasons" :key="r" :value="r">{{ label(r) }}</option></NativeSelectCompat></label>
       <button type="button" class="btn btn-primary btn-sm" :disabled="releasing" data-testid="release-confirm" @click="release">{{ t('ipAudit.confirm') }}</button>
       <button type="button" class="btn btn-secondary btn-sm ml-2" :disabled="releasing" @click="confirmEntry = null">{{ t('common.cancel') }}</button>
     </div>
@@ -57,6 +57,7 @@
   </section>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { listIPAudit, releaseIPAudit, type AuditEntry, type AuditQuery, type AuditSource, type ReleaseResult } from './api'

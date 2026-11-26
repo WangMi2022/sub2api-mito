@@ -72,16 +72,16 @@
           </label>
           <label v-if="section.metric === 'quota'" class="block space-y-2 text-sm">
             <span>{{ t('accountOps.quotaWindow') }}</span>
-            <select
-              v-model="section.form.window"
+            <NativeSelectCompat
+              :value="section.form.window"
               class="input w-full"
               :data-testid="`${section.testIdPrefix}-window`"
-            >
+             @change="section.form.window = $event">
               <option value="any">{{ t('accountOps.anyWindow') }}</option>
               <option v-for="window in commonWindows" :key="window.window" :value="window.window">
                 {{ window.label }}
               </option>
-            </select>
+            </NativeSelectCompat>
           </label>
           <div class="space-y-3 border-y border-gray-200 py-4 dark:border-dark-700">
             <p class="text-sm font-medium">{{ t('accountOps.transitionNotices') }}</p>
@@ -143,6 +143,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BaseDialog from '@/components/common/BaseDialog.vue'

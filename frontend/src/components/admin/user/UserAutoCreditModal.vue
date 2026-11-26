@@ -36,9 +36,9 @@
         <section class="space-y-3" :aria-label="t('autoCredit.history')">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <h4 class="font-semibold">{{ t('autoCredit.history') }}</h4>
-            <select v-model="status" :disabled="busy || loading" class="input w-auto" :aria-label="t('autoCredit.history')" @change="load()">
+            <NativeSelectCompat :value="status" :disabled="busy || loading" class="input w-auto" :aria-label="t('autoCredit.history')" @change="status = $event; load()">
               <option v-for="s in statuses" :key="s" :value="s">{{ t(`autoCredit.${s}`) }}</option>
-            </select>
+            </NativeSelectCompat>
           </div>
           <p v-if="!state.entries.length" class="text-sm text-gray-500">{{ t('autoCredit.noHistory') }}</p>
           <article v-for="entry in state.entries" :key="entry.id" class="rounded-xl border border-gray-200 p-3 dark:border-dark-600">
@@ -68,6 +68,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { nextTick, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BaseDialog from '@/components/common/BaseDialog.vue'

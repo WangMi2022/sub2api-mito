@@ -1132,33 +1132,33 @@
         <div v-if="accountCategory === 'oauth-based'" class="mt-4" data-testid="gemini-oauth-tier">
           <label class="input-label">{{ t('admin.accounts.gemini.tier.label') }}</label>
           <div class="mt-2">
-            <select
+            <NativeSelectCompat
               v-if="geminiOAuthType === 'google_one'"
-              v-model="geminiTierGoogleOne"
+              :value="geminiTierGoogleOne"
               class="input"
-            >
+             @change="geminiTierGoogleOne = $event">
               <option value="google_one_free">{{ t('admin.accounts.gemini.tier.googleOne.free') }}</option>
               <option value="google_ai_pro">{{ t('admin.accounts.gemini.tier.googleOne.pro') }}</option>
               <option value="google_ai_ultra">{{ t('admin.accounts.gemini.tier.googleOne.ultra') }}</option>
-            </select>
+            </NativeSelectCompat>
 
-            <select
+            <NativeSelectCompat
               v-else-if="geminiOAuthType === 'code_assist'"
-              v-model="geminiTierGcp"
+              :value="geminiTierGcp"
               class="input"
-            >
+             @change="geminiTierGcp = $event">
               <option value="gcp_standard">{{ t('admin.accounts.gemini.tier.gcp.standard') }}</option>
               <option value="gcp_enterprise">{{ t('admin.accounts.gemini.tier.gcp.enterprise') }}</option>
-            </select>
+            </NativeSelectCompat>
 
-            <select
+            <NativeSelectCompat
               v-else
-              v-model="geminiTierAIStudio"
+              :value="geminiTierAIStudio"
               class="input"
-            >
+             @change="geminiTierAIStudio = $event">
               <option value="aistudio_free">{{ t('admin.accounts.gemini.tier.aiStudio.free') }}</option>
               <option value="aistudio_paid">{{ t('admin.accounts.gemini.tier.aiStudio.paid') }}</option>
-            </select>
+            </NativeSelectCompat>
           </div>
           <p class="input-hint">{{ t('admin.accounts.gemini.tier.hint') }}</p>
         </div>
@@ -1651,10 +1651,10 @@
         <!-- Gemini API Key tier selection -->
         <div v-if="form.platform === 'gemini' && isOfficialGeminiBaseUrl(apiKeyBaseUrl)">
           <label class="input-label">{{ t('admin.accounts.gemini.tier.label') }}</label>
-          <select v-model="geminiTierAIStudio" class="input" data-testid="gemini-apikey-tier">
+          <NativeSelectCompat :value="geminiTierAIStudio" class="input" data-testid="gemini-apikey-tier" @change="geminiTierAIStudio = $event">
             <option value="aistudio_free">{{ t('admin.accounts.gemini.tier.aiStudio.free') }}</option>
             <option value="aistudio_paid">{{ t('admin.accounts.gemini.tier.aiStudio.paid') }}</option>
-          </select>
+          </NativeSelectCompat>
           <p class="input-hint">{{ t('admin.accounts.gemini.tier.aiStudioHint') }}</p>
         </div>
 
@@ -3171,11 +3171,11 @@
           </div>
           <!-- Profile selector -->
           <div v-if="tlsFingerprintEnabled" class="mt-3">
-            <select v-model="tlsFingerprintProfileId" class="input">
+            <NativeSelectCompat :value="tlsFingerprintProfileId" class="input" @change="tlsFingerprintProfileId = $event">
               <option :value="null">{{ t('admin.accounts.quotaControl.tlsFingerprint.defaultProfile') }}</option>
               <option v-if="tlsFingerprintProfiles.length > 0" :value="-1">{{ t('admin.accounts.quotaControl.tlsFingerprint.randomProfile') }}</option>
               <option v-for="p in tlsFingerprintProfiles" :key="p.id" :value="p.id">{{ p.name }}</option>
-            </select>
+            </NativeSelectCompat>
           </div>
         </div>
 
@@ -3233,13 +3233,13 @@
           </div>
           <div v-if="cacheTTLOverrideEnabled" class="mt-3">
             <label class="input-label text-xs">{{ t('admin.accounts.quotaControl.cacheTTLOverride.target') }}</label>
-            <select
-              v-model="cacheTTLOverrideTarget"
+            <NativeSelectCompat
+              :value="cacheTTLOverrideTarget"
               class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-dark-500 dark:bg-dark-700 dark:text-white"
-            >
+             @change="cacheTTLOverrideTarget = $event">
               <option value="5m">5m</option>
               <option value="1h">1h</option>
-            </select>
+            </NativeSelectCompat>
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
               {{ t('admin.accounts.quotaControl.cacheTTLOverride.targetHint') }}
             </p>
@@ -3659,10 +3659,10 @@
               {{ t('admin.accounts.anthropic.apiKeyAuthSchemeDesc') }}
             </p>
           </div>
-          <select v-model="anthropicAPIKeyAuthScheme" class="input w-52 text-sm">
+          <NativeSelectCompat :value="anthropicAPIKeyAuthScheme" class="input w-52 text-sm" @change="anthropicAPIKeyAuthScheme = $event">
             <option value="x_api_key">{{ t('admin.accounts.anthropic.apiKeyAuthSchemeXApiKey') }}</option>
             <option value="authorization_bearer">{{ t('admin.accounts.anthropic.apiKeyAuthSchemeBearer') }}</option>
-          </select>
+          </NativeSelectCompat>
         </div>
       </div>
 
@@ -3678,11 +3678,11 @@
               {{ t('admin.accounts.anthropic.webSearchEmulationDesc') }}
             </p>
           </div>
-          <select v-model="webSearchEmulationMode" class="input w-24 text-sm">
+          <NativeSelectCompat :value="webSearchEmulationMode" class="input w-24 text-sm" @change="webSearchEmulationMode = $event">
             <option value="default">{{ t('admin.accounts.anthropic.webSearchDefault') }}</option>
             <option value="enabled">{{ t('admin.accounts.anthropic.webSearchEnabled') }}</option>
             <option value="disabled">{{ t('admin.accounts.anthropic.webSearchDisabled') }}</option>
-          </select>
+          </NativeSelectCompat>
         </div>
       </div>
 
@@ -4400,6 +4400,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import QwenPlatformNotice from '@/components/common/QwenPlatformNotice.vue'
 import QwenCacheSettings from './QwenCacheSettings.vue'
 import { applyQwenCacheSettings } from './qwenCacheSettings'

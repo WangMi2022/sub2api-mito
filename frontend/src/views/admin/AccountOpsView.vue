@@ -28,15 +28,15 @@
             <p class="mt-1 text-xs text-gray-500">{{ t('accountOps.recordsOnceHint') }}</p>
           </div>
           <div class="flex flex-wrap gap-2"><input v-model="query" class="input w-48 text-sm" :placeholder="t('accountOps.search')"
-              :aria-label="t('accountOps.search')" /><select v-model="kind" class="input w-auto text-sm"
-              :aria-label="t('accountOps.alertTypes')">
+              :aria-label="t('accountOps.search')" /><NativeSelectCompat :value="kind" class="input w-auto text-sm"
+              :aria-label="t('accountOps.alertTypes')" @change="kind = $event">
               <option value="all">{{ t('accountOps.allTypes') }}</option>
               <option v-for="value in alertKinds" :key="value" :value="value">{{ t(`accountOps.${value}`) }}</option>
-            </select><select v-model="phase" class="input w-auto text-sm" :aria-label="t('accountOps.eventPhase')">
+            </NativeSelectCompat><NativeSelectCompat :value="phase" class="input w-auto text-sm" :aria-label="t('accountOps.eventPhase')" @change="phase = $event">
               <option value="all">{{ t('accountOps.allPhases') }}</option>
               <option value="alert">{{ t('accountOps.phases.alert') }}</option>
               <option value="recovery">{{ t('accountOps.phases.recovery') }}</option>
-            </select></div>
+            </NativeSelectCompat></div>
         </div>
         <p v-if="remote?.dropped_signals || remote?.storage_failures" role="alert" class="p-4 text-sm text-amber-700">
           {{ t('accountOps.captureIssue') }}</p>
@@ -159,6 +159,7 @@
   </component>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'

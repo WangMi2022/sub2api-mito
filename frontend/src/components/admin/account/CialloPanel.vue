@@ -6,10 +6,10 @@
       @update:model-value="emit('update:modelId', $event)" />
     <label class="block space-y-1">
       <span class="input-label">{{ t('admin.accounts.pelicanTest.reasoning') }}</span>
-      <select v-model="effort" class="input" :disabled="running">
+      <NativeSelectCompat :value="effort" class="input" :disabled="running" @change="effort = $event">
         <option value="">{{ t('modelTrace.providerDefault') }}</option>
         <option v-for="level in reasoningLevels" :key="level" :value="level">{{ level }}</option>
-      </select>
+      </NativeSelectCompat>
     </label>
     <p v-if="account.platform !== 'openai'" class="text-sm">{{ t('qualityOps.ciallo.unsupported') }}</p>
     <button v-if="running" class="btn btn-secondary" @click="controller?.abort()">{{ t('common.cancel') }}</button>
@@ -29,6 +29,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'

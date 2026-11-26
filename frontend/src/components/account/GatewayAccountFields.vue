@@ -6,10 +6,10 @@
     </legend>
     <label class="block">
       <span class="input-label">{{ t('admin.accounts.gatewayProvider') }}</span>
-      <select v-model="kind" required class="input">
+      <NativeSelectCompat :value="kind" required class="input" @change="kind = $event">
         <option value="sub2api">Sub2API</option>
         <option value="new_api">New API</option>
-      </select>
+      </NativeSelectCompat>
     </label>
     <label class="block">
       <span class="input-label">{{ t('admin.accounts.upstream.baseUrl') }}</span>
@@ -28,6 +28,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores'
 import NewFeatureBadge from '@/components/common/NewFeatureBadge.vue'

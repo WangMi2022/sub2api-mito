@@ -22,7 +22,7 @@
           <h2 class="text-lg font-semibold">{{ t('qqbot.workspace.diagnose') }}</h2>
           <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('qqbot.workspace.diagnoseHelp') }}</p>
           <form class="grid items-end gap-3 md:grid-cols-[1fr_2fr_auto]" @submit.prevent="diagnose">
-            <select v-model="group" class="input" required :aria-label="t('qqbot.group')" data-testid="qq-diagnose-group"><option value="">{{ t('qqbot.workspace.chooseGroup') }}</option><option v-for="id in groups" :key="id" :value="id">{{ config.group_policies?.find(p => p.group_id === id)?.label || id }}</option></select>
+            <NativeSelectCompat :value="group" class="input" required :aria-label="t('qqbot.group')" data-testid="qq-diagnose-group" @change="group = $event"><option value="">{{ t('qqbot.workspace.chooseGroup') }}</option><option v-for="id in groups" :key="id" :value="id">{{ config.group_policies?.find(p => p.group_id === id)?.label || id }}</option></NativeSelectCompat>
             <QQMemberPicker v-model="member" :group-id="group" :app-id="config.app_id" :disabled="diagnosing" @select="selectMember" />
             <button class="btn btn-primary" :disabled="diagnosing">{{ t('qqbot.workspace.diagnoseAction') }}</button>
           </form>
@@ -33,6 +33,7 @@
   </AppLayout>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import QQCommunityNav from '@/components/admin/qqbot/QQCommunityNav.vue'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'

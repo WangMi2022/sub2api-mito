@@ -120,8 +120,8 @@
           <p class="text-xs text-gray-500">{{ tr('eventsHint') }}</p>
           <div class="flex flex-wrap items-center gap-2">
             <input v-model="filterIP" class="input" :placeholder="tr('filterIP')" :aria-label="tr('filterIP')" />
-            <select v-model="filterCategory" class="input" :aria-label="tr('category')" data-testid="risk-category"><option value="">{{ tr('allCategories') }}</option><option v-for="category in ['login', 'register', 'verification']" :key="category" :value="category">{{ label(category) }}</option></select>
-            <select v-model="filterReason" class="input" :aria-label="tr('filterReason')"><option value="">{{ tr('allReasons') }}</option><option v-for="reason in reasons" :key="reason" :value="reason">{{ label(reason) }}</option></select>
+            <NativeSelectCompat :value="filterCategory" class="input" :aria-label="tr('category')" data-testid="risk-category" @change="filterCategory = $event"><option value="">{{ tr('allCategories') }}</option><option v-for="category in ['login', 'register', 'verification']" :key="category" :value="category">{{ label(category) }}</option></NativeSelectCompat>
+            <NativeSelectCompat :value="filterReason" class="input" :aria-label="tr('filterReason')" @change="filterReason = $event"><option value="">{{ tr('allReasons') }}</option><option v-for="reason in reasons" :key="reason" :value="reason">{{ label(reason) }}</option></NativeSelectCompat>
             <button type="button" class="btn btn-secondary btn-sm" :disabled="busy" @click="refreshRecords">{{ tr('filter') }}</button>
             <button type="button" class="btn btn-secondary btn-sm" :disabled="busy || !events.length" @click="confirmClear = !confirmClear">{{ tr('clearEvents') }}</button>
           </div>
@@ -155,6 +155,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { onMounted, onBeforeUnmount, onDeactivated, ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Pagination from '@/components/common/Pagination.vue'

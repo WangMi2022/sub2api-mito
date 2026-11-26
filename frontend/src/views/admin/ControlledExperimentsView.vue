@@ -14,8 +14,8 @@
           <div class="grid gap-4 md:grid-cols-3">
             <label class="experiment-field">{{ t('controlledExperiments.name') }}<input v-model="form.name" required maxlength="100" class="input" /></label>
             <label class="experiment-field">{{ t('controlledExperiments.model') }}<input v-model="form.model" required maxlength="100" class="input font-mono" /></label>
-            <label class="experiment-field">{{ t('controlledExperiments.effort') }}<select v-model="form.reasoning_effort" class="input"><option v-for="effort in efforts" :key="effort">{{ effort }}</option></select></label>
-            <label class="experiment-field">{{ t('controlledExperiments.split') }}<select v-model="form.split" class="input" data-testid="experiment-split"><option value="screen">{{ t('controlledExperiments.screen') }}</option><option value="confirm">{{ t('controlledExperiments.confirm') }}</option></select></label>
+            <label class="experiment-field">{{ t('controlledExperiments.effort') }}<NativeSelectCompat :value="form.reasoning_effort" class="input" @change="form.reasoning_effort = $event"><option v-for="effort in efforts" :key="effort">{{ effort }}</option></NativeSelectCompat></label>
+            <label class="experiment-field">{{ t('controlledExperiments.split') }}<NativeSelectCompat :value="form.split" class="input" data-testid="experiment-split" @change="form.split = $event"><option value="screen">{{ t('controlledExperiments.screen') }}</option><option value="confirm">{{ t('controlledExperiments.confirm') }}</option></NativeSelectCompat></label>
             <label class="experiment-field">{{ t('controlledExperiments.repetitions') }}<input v-model.number="form.repetitions" type="number" min="1" max="3" required class="input" /></label>
             <label class="experiment-field">{{ t('controlledExperiments.timeout') }}<input v-model.number="form.timeout_seconds" type="number" min="30" max="720" required class="input" /></label>
           </div>
@@ -23,11 +23,11 @@
             <legend class="mb-2 text-sm font-semibold">{{ t('controlledExperiments.routes') }}</legend>
             <div v-for="(route, index) in form.routes" :key="index" class="flex flex-wrap items-center gap-3">
               <span class="w-6 text-sm text-gray-400">{{ index + 1 }}</span>
-              <select v-model.number="route.account_id" class="input min-w-48 flex-1" required :aria-label="t('controlledExperiments.account')" data-testid="experiment-account">
+              <NativeSelectCompat :value="route.account_id" class="input min-w-48 flex-1" required :aria-label="t('controlledExperiments.account')" data-testid="experiment-account" @change="route.account_id = Number($event)">
                 <option :value="0" disabled>{{ t('controlledExperiments.account') }}</option>
                 <option v-for="account in accounts" :key="account.id" :value="account.id">#{{ account.id }} · {{ account.name }}</option>
-              </select>
-              <select v-model="route.channel" class="input min-w-48 flex-1" :aria-label="t('controlledExperiments.channel')"><option v-for="channel in channels" :key="channel" :value="channel">{{ channelLabel(channel) }}</option></select>
+              </NativeSelectCompat>
+              <NativeSelectCompat :value="route.channel" class="input min-w-48 flex-1" :aria-label="t('controlledExperiments.channel')" @change="route.channel = $event"><option v-for="channel in channels" :key="channel" :value="channel">{{ channelLabel(channel) }}</option></NativeSelectCompat>
               <button type="button" class="btn btn-secondary" :disabled="form.routes.length === 1" @click="form.routes.splice(index, 1)">{{ t('controlledExperiments.remove') }}</button>
             </div>
             <button type="button" class="btn btn-secondary" :disabled="form.routes.length >= 4" @click="form.routes.push({ account_id: 0, channel: 'native_http' })">{{ t('controlledExperiments.addRoute') }}</button>
@@ -118,6 +118,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '@/components/layout/AppLayout.vue'

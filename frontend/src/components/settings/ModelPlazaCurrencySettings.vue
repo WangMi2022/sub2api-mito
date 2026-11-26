@@ -3,26 +3,26 @@
     <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('admin.settings.features.modelPlaza.currencyHelp') }}</p>
     <div class="grid gap-4 sm:grid-cols-2">
       <label class="text-sm text-gray-700 dark:text-gray-300">{{ t('admin.settings.features.modelPlaza.customerCurrency') }}
-        <select v-model="local.customer_currency" class="input mt-1" data-testid="plaza-customer-currency" @change="publish"><option value="USD">USD ($)</option><option value="CNY">CNY (¥)</option></select>
+        <NativeSelectCompat :value="local.customer_currency" class="input mt-1" data-testid="plaza-customer-currency" @change="local.customer_currency = $event; publish()"><option value="USD">USD ($)</option><option value="CNY">CNY (¥)</option></NativeSelectCompat>
       </label>
       <label class="text-sm text-gray-700 dark:text-gray-300">{{ t('admin.settings.features.modelPlaza.officialCurrency') }}
-        <select v-model="local.official_currency" class="input mt-1" data-testid="plaza-official-currency" @change="publish"><option value="USD">USD ($)</option><option value="CNY">CNY (¥)</option></select>
+        <NativeSelectCompat :value="local.official_currency" class="input mt-1" data-testid="plaza-official-currency" @change="local.official_currency = $event; publish()"><option value="USD">USD ($)</option><option value="CNY">CNY (¥)</option></NativeSelectCompat>
       </label>
     </div>
     <div>
       <label for="plaza-wallet-value" class="text-sm text-gray-700 dark:text-gray-300">{{ t('admin.settings.features.modelPlaza.walletValue') }}</label>
       <div class="mt-1 flex gap-2">
         <input id="plaza-wallet-value" v-model.number="local.wallet_unit_value" type="number" min="0.000001" step="any" required class="input max-w-xs" @input="publish" />
-        <select v-model="local.wallet_currency" class="input max-w-32" :aria-label="t('admin.settings.features.modelPlaza.walletCurrency')" @change="publish"><option value="USD">USD ($)</option><option value="CNY">CNY (¥)</option></select>
+        <NativeSelectCompat :value="local.wallet_currency" class="input max-w-32" :aria-label="t('admin.settings.features.modelPlaza.walletCurrency')" @change="local.wallet_currency = $event; publish()"><option value="USD">USD ($)</option><option value="CNY">CNY (¥)</option></NativeSelectCompat>
       </div>
     </div>
     <div>
       <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('admin.settings.features.modelPlaza.overrides') }}</p>
       <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ t('admin.settings.features.modelPlaza.overridesHelp') }}</p>
       <div v-for="(rule, index) in rules" :key="rule.id" class="mt-2 flex flex-wrap gap-2">
-        <select v-model="rule.scope" class="input max-w-32" :aria-label="t('admin.settings.features.modelPlaza.scope')" @change="publish"><option value="platform">{{ t('admin.settings.features.modelPlaza.platform') }}</option><option value="model">{{ t('admin.settings.features.modelPlaza.model') }}</option></select>
+        <NativeSelectCompat :value="rule.scope" class="input max-w-32" :aria-label="t('admin.settings.features.modelPlaza.scope')" @change="rule.scope = $event; publish()"><option value="platform">{{ t('admin.settings.features.modelPlaza.platform') }}</option><option value="model">{{ t('admin.settings.features.modelPlaza.model') }}</option></NativeSelectCompat>
         <input v-model="rule.target" class="input min-w-40 flex-1" required maxlength="256" :aria-label="t('admin.settings.features.modelPlaza.target')" :placeholder="rule.scope === 'platform' ? 'deepseek' : 'deepseek-v4-pro'" data-rule-target @input="publish" />
-        <select v-model="rule.currency" class="input max-w-32" :aria-label="t('admin.settings.features.modelPlaza.ruleCurrency')" @change="publish"><option value="USD">USD ($)</option><option value="CNY">CNY (¥)</option></select>
+        <NativeSelectCompat :value="rule.currency" class="input max-w-32" :aria-label="t('admin.settings.features.modelPlaza.ruleCurrency')" @change="rule.currency = $event; publish()"><option value="USD">USD ($)</option><option value="CNY">CNY (¥)</option></NativeSelectCompat>
         <button type="button" class="btn btn-secondary" @click="rules.splice(index, 1); publish()">{{ t('common.remove') }}</button>
       </div>
       <p v-if="error" class="mt-2 text-xs text-red-600">{{ error }}</p>
@@ -31,6 +31,7 @@
   </div>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { PlazaCurrencySettings } from '@/api/modelPlaza'

@@ -19,12 +19,12 @@
       <form class="card space-y-4 p-5" @submit.prevent="create">
         <h2 class="text-lg font-semibold">{{ t('admin.requestCapture.create') }}</h2>
         <div class="grid gap-4 md:grid-cols-4">
-          <label class="space-y-1"><span class="input-label">{{ t('admin.requestCapture.targetType') }}</span><select v-model="targetType" class="input"><option v-for="kind in kinds" :key="kind" :value="kind">{{ t('admin.requestCapture.' + kind) }}</option></select></label>
+          <label class="space-y-1"><span class="input-label">{{ t('admin.requestCapture.targetType') }}</span><NativeSelectCompat :value="targetType" class="input" @change="targetType = $event"><option v-for="kind in kinds" :key="kind" :value="kind">{{ t('admin.requestCapture.' + kind) }}</option></NativeSelectCompat></label>
           <label class="space-y-1 md:col-span-2"><span class="input-label">{{ t('admin.requestCapture.search') }}</span><input v-model="search" class="input" type="search" :placeholder="t('admin.requestCapture.searchHint')" /></label>
           <label class="space-y-1"><span class="input-label">{{ t('admin.requestCapture.duration') }}</span><input v-model.number="duration" class="input" type="number" min="1" max="1440" step="1" required /></label>
         </div>
         <div class="flex flex-wrap items-center gap-3">
-          <select v-model.number="targetID" class="input min-w-0 flex-1" required :aria-label="t('admin.requestCapture.target')"><option :value="0" disabled>{{ t('admin.requestCapture.selectTarget') }}</option><option v-for="option in targets" :key="option.id" :value="option.id">#{{ option.id }} {{ option.label }}</option></select>
+          <NativeSelectCompat :value="targetID" class="input min-w-0 flex-1" required :aria-label="t('admin.requestCapture.target')" @change="targetID = Number($event)"><option :value="0" disabled>{{ t('admin.requestCapture.selectTarget') }}</option><option v-for="option in targets" :key="option.id" :value="option.id">#{{ option.id }} {{ option.label }}</option></NativeSelectCompat>
           <button type="button" class="btn btn-secondary" :disabled="targetPage <= 1 || searching" @click="loadTargets(targetPage - 1)">{{ t('admin.requestCapture.previous') }}</button>
           <button type="button" class="btn btn-secondary" :disabled="!targetMore || searching" @click="loadTargets(targetPage + 1)">{{ t('admin.requestCapture.next') }}</button>
         </div>
@@ -67,6 +67,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'

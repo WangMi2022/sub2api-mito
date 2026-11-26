@@ -2,10 +2,10 @@
   <div class="space-y-2 text-sm" data-testid="quality-probe-schedule">
     <label class="block space-y-1">
       <span>{{ t('qualityOps.probeInterval') }}</span>
-      <select v-model="preset" class="input" data-testid="quality-probe-interval">
+      <NativeSelectCompat :value="preset" class="input" data-testid="quality-probe-interval" @change="preset = $event">
         <option v-for="option in presets" :key="option.cron" :value="option.cron">{{ t('qualityOps.probeEveryMinutes', { minutes: option.minutes }) }}</option>
         <option value="custom">{{ t('qualityOps.probeCustomSchedule') }}</option>
-      </select>
+      </NativeSelectCompat>
     </label>
     <label v-if="preset === 'custom'" class="block space-y-1">
       <span>{{ t('qualityOps.cron') }}</span>
@@ -16,6 +16,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 

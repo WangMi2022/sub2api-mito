@@ -2,8 +2,8 @@
   <div class="space-y-4 p-4 sm:p-6" data-testid="usage-connections">
     <p class="rounded-lg bg-sky-50 p-3 text-sm text-sky-800 dark:bg-sky-950/30 dark:text-sky-200">{{ t('connections.scope') }}</p>
     <form class="flex flex-wrap items-end gap-3" @submit.prevent="reload()">
-      <label class="text-sm">{{ t('connections.state') }}<select v-model="state" class="input mt-1" @change="reload()"><option v-for="s in states" :key="s" :value="s">{{ t(`connections.states.${s}`) }}</option></select></label>
-      <label class="text-sm">{{ t('connections.source') }}<select v-model="source" class="input mt-1" @change="reload()"><option v-for="s in sources" :key="s" :value="s">{{ t(`connections.sources.${s}`) }}</option></select></label>
+      <label class="text-sm">{{ t('connections.state') }}<NativeSelectCompat :value="state" class="input mt-1" @change="state = $event; reload()"><option v-for="s in states" :key="s" :value="s">{{ t(`connections.states.${s}`) }}</option></NativeSelectCompat></label>
+      <label class="text-sm">{{ t('connections.source') }}<NativeSelectCompat :value="source" class="input mt-1" @change="source = $event; reload()"><option v-for="s in sources" :key="s" :value="s">{{ t(`connections.sources.${s}`) }}</option></NativeSelectCompat></label>
       <label class="text-sm">{{ t('connections.host') }}<input v-model="host" class="input mt-1" maxlength="255" placeholder="api.example.com" /></label>
       <label class="text-sm">{{ t('connections.requestId') }}<input v-model="requestId" class="input mt-1" maxlength="128" /></label>
       <label class="text-sm">IP<input v-model="clientIp" class="input mt-1" maxlength="64" /></label>
@@ -43,6 +43,7 @@
   </div>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { isCancel } from 'axios'

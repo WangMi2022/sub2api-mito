@@ -23,12 +23,12 @@
       <fieldset v-if="!deleting && preview.model_removals?.length" class="space-y-2 border p-2" :disabled="busy" data-testid="quality-model-removal">
         <legend>{{ t('qualityOps.modelRemovalTitle') }}</legend>
         <p>{{ t('qualityOps.modelRemovalHelp') }}</p>
-        <label>{{ t('qualityOps.ownershipTarget') }} <select v-model="removalModel" data-testid="quality-removal-model"><option value="">—</option><option v-for="item in preview.model_removals" :key="item.model" :value="item.model">{{ item.model }}</option></select></label>
+        <label>{{ t('qualityOps.ownershipTarget') }} <NativeSelectCompat :value="removalModel" data-testid="quality-removal-model" @change="removalModel = $event"><option value="">—</option><option v-for="item in preview.model_removals" :key="item.model" :value="item.model">{{ item.model }}</option></NativeSelectCompat></label>
         <template v-if="selectedRemoval">
           <p data-testid="quality-removal-effect">{{ t(`qualityOps.modelRemovalEffects.${selectedRemoval.effect}`) }} · {{ selectedRemoval.isolation_model }}</p>
           <p v-if="!selectedRemoval.ready" role="alert" data-testid="quality-removal-blocked">{{ t(`qualityOps.modelRemovalBlocked.${selectedRemoval.blocked_reason}`) }}</p>
           <template v-else>
-            <label>{{ t('qualityOps.modelRemovalReason') }} <select v-model="removalReason" data-testid="quality-removal-reason"><option value="">—</option><option value="orphan_marker_recovery">{{ t('qualityOps.modelRemovalReasons.orphan_marker_recovery') }}</option><option value="retire_model">{{ t('qualityOps.modelRemovalReasons.retire_model') }}</option></select></label>
+            <label>{{ t('qualityOps.modelRemovalReason') }} <NativeSelectCompat :value="removalReason" data-testid="quality-removal-reason" @change="removalReason = $event"><option value="">—</option><option value="orphan_marker_recovery">{{ t('qualityOps.modelRemovalReasons.orphan_marker_recovery') }}</option><option value="retire_model">{{ t('qualityOps.modelRemovalReasons.retire_model') }}</option></NativeSelectCompat></label>
             <label class="flex gap-2"><input v-model="removalConfirmed" type="checkbox" data-testid="quality-removal-confirm" />{{ t('qualityOps.modelRemovalConfirm', { model: removalModel }) }}</label>
             <button type="button" class="btn btn-secondary" data-testid="quality-remove-model" :disabled="busy || !removalConfirmed || !removalReason || !preview.fence" @click="removeModel">{{ t('qualityOps.modelRemovalSubmit') }}</button>
           </template>
@@ -52,6 +52,7 @@
   </section>
 </template>
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { previewQualityOwnership, reconcileQualityOwnership, restoreQualityOwnership, removeQualityOwnedModel, type QualityOwnershipPreview } from '@/api/admin/accountQuality'
