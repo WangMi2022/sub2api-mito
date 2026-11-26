@@ -16,9 +16,27 @@ vi.mock('@/api/admin/accounts', async () => {
   return { ...actual, probeOpenAICodexState, getAvailableModels, getModelReasoning }
 })
 
+// 题面方案服务端内存桩:模拟按登录账号持久化,跨弹窗实例共享。
+const { iqPresetStore, listIQTestPresets, saveIQTestPresets } = vi.hoisted(() => {
+  const store: { presets: any[] } = { presets: [] }
+  return {
+    iqPresetStore: store,
+    listIQTestPresets: vi.fn(async () => store.presets.map((p) => ({ ...p }))),
+    saveIQTestPresets: vi.fn(async (presets: any[]) => {
+      store.presets = presets.map((p) => ({ ...p }))
+      return store.presets.map((p) => ({ ...p }))
+    })
+  }
+})
+
+vi.mock('@/api/admin/iqTestPresets', () => ({ listIQTestPresets, saveIQTestPresets }))
+
 beforeEach(() => {
   getAvailableModels.mockReset().mockResolvedValue([])
   getModelReasoning.mockReset().mockResolvedValue({ supported_reasoning_levels: ['low', 'medium', 'high'], default_reasoning_level: 'medium' })
+  iqPresetStore.presets = []
+  listIQTestPresets.mockClear()
+  saveIQTestPresets.mockClear()
 })
 
 it('shows reasoning deltas while waiting for model content', async () => {
@@ -191,6 +209,7 @@ describe('IQTestModal', () => {
 
   it('saves a custom preset and applies it after the dialog resets', async () => {
     const wrapper = mountModal()
+    await flushPromises()
     const vm = wrapper.vm as any
     vm.selectQuestion('pelican')
     vm.prompt = '创建一个 HTML，内容是 SVG 绘制叮当猫开飞碟'
@@ -200,10 +219,10 @@ describe('IQTestModal', () => {
     expect(wrapper.find('[data-testid="iq-presets"]').exists()).toBe(true)
     vm.savePreset()
     await flushPromises()
-    const stored = JSON.parse(localStorage.getItem('sub2api-iq-test-presets') || '[]')
-    expect(stored).toHaveLength(1)
-    expect(stored[0]).toMatchObject({ name: '叮当猫飞碟', questionKind: 'pelican', reasoningEffort: 'high', parallelCount: 3 })
-    expect(stored[0].prompt).toContain('叮当猫开飞碟')
+    expect(saveIQTestPresets).toHaveBeenCalled()
+    expect(iqPresetStore.presets).toHaveLength(1)
+    expect(iqPresetStore.presets[0]).toMatchObject({ name: '叮当猫飞碟', question_kind: 'pelican', reasoning_effort: 'high', parallel_count: 3 })
+    expect(iqPresetStore.presets[0].prompt).toContain('叮当猫开飞碟')
 
     // 重新打开弹窗回到默认糖果题,套用方案后完整回填。
     await wrapper.setProps({ show: false })
@@ -222,18 +241,50 @@ describe('IQTestModal', () => {
 
   it('overwrites a same-name preset and deletes it back to empty storage', async () => {
     const wrapper = mountModal()
+    await flushPromises()
     const vm = wrapper.vm as any
     vm.selectQuestion('pelican')
     vm.presetName = '方案A'
     vm.prompt = '第一版题面'
-    vm.savePreset()
+    await vm.savePreset()
     vm.prompt = '第二版题面'
-    vm.savePreset()
+    await vm.savePreset()
     expect(vm.presets).toHaveLength(1)
     expect(vm.presets[0].prompt).toBe('第二版题面')
     vm.deletePreset(vm.presets[0])
+    await flushPromises()
     expect(vm.presets).toHaveLength(0)
-    expect(JSON.parse(localStorage.getItem('sub2api-iq-test-presets') || '[]')).toHaveLength(0)
+    expect(iqPresetStore.presets).toHaveLength(0)
+    wrapper.unmount()
+  })
+
+  it('migrates legacy browser-only presets to the server on first open', async () => {
+    localStorage.setItem('sub2api-iq-test-presets', JSON.stringify([{
+      id: 'legacy1', name: '旧方案', questionKind: 'pelican', prompt: '旧题面',
+      reasoningEffort: 'high', parallelCount: 2, updatedAt: '2026-11-26T00:00:00Z'
+    }]))
+    const wrapper = mountModal()
+    await flushPromises()
+    expect(saveIQTestPresets).toHaveBeenCalledTimes(1)
+    expect(iqPresetStore.presets).toHaveLength(1)
+    expect(iqPresetStore.presets[0].name).toBe('旧方案')
+    expect((wrapper.vm as any).presets[0].name).toBe('旧方案')
+    wrapper.unmount()
+  })
+
+  it('falls back to the local cache when the server is unreachable', async () => {
+    localStorage.setItem('sub2api-iq-test-presets', JSON.stringify([{
+      id: 'cached1', name: '缓存方案', questionKind: 'candy', prompt: '题面',
+      reasoningEffort: 'medium', parallelCount: 1, updatedAt: '2026-11-26T00:00:00Z'
+    }]))
+    listIQTestPresets.mockRejectedValueOnce(new Error('network down'))
+    const wrapper = mountModal()
+    await flushPromises()
+    const vm = wrapper.vm as any
+    expect(vm.presets).toHaveLength(1)
+    expect(vm.presets[0].name).toBe('缓存方案')
+    expect(vm.presetError).toBe(true)
+    expect(wrapper.find('[data-testid="iq-preset-message"]').text()).toContain('offline')
     wrapper.unmount()
   })
 

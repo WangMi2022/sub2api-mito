@@ -13,6 +13,12 @@ import (
 // ScheduledTestHandler handles admin scheduled-test-plan management.
 type ScheduledTestHandler struct {
 	scheduledTestSvc *service.ScheduledTestService
+	settingService   *service.SettingService
+}
+
+// SetSettingService 注入题面方案存储;不改变既有构造签名与 wire 装配。
+func (h *ScheduledTestHandler) SetSettingService(svc *service.SettingService) {
+	h.settingService = svc
 }
 
 // NewScheduledTestHandler creates a new ScheduledTestHandler.

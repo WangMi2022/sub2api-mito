@@ -2121,9 +2121,10 @@ export default {
           updated: 'Preset with the same name updated.',
           applied: 'Applied preset "{name}".',
           deleted: 'Preset deleted.',
-          saveFailed: 'Save failed: browser storage is unavailable.',
+          saveFailed: 'Save failed: cannot reach the server. Please retry.',
+          offline: 'Server unreachable; showing presets cached on this device.',
           empty: 'No saved presets yet.',
-          hint: 'Stores the prompt, reasoning effort and parallel count in this browser. Click a card to apply.',
+          hint: 'Stores the prompt, reasoning effort and parallel count on the server under your login, visible on any device. Click a card to apply.',
           applyHint: 'Click to apply this preset',
           delete: 'Delete preset',
           summary: '{count} parallel runs'

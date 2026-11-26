@@ -1,5 +1,5 @@
-// 智商测试「自定义题面」的已保存配置。仅存本机浏览器(localStorage),
-// 不含凭据;每条保存题目文本与测试参数,应用时直接回填表单。
+// 智商测试「自定义题面」的已保存配置。权威数据存服务端(按登录管理员隔离,
+// 跨设备可见);localStorage 仅作离线缓存与旧版本数据迁移来源,不含凭据。
 export interface IQTestPreset {
   id: string
   name: string
@@ -59,4 +59,29 @@ export function serializeIQPresets(presets: IQTestPreset[]): string {
 export function upsertIQPreset(presets: IQTestPreset[], preset: IQTestPreset): IQTestPreset[] {
   const rest = presets.filter((p) => p.id !== preset.id && p.name !== preset.name)
   return [preset, ...rest].slice(0, IQ_PRESET_LIMIT)
+}
+
+// 服务端 DTO(snake_case)与前端结构的互转。
+export interface IQTestPresetWire {
+  id: string
+  name: string
+  question_kind: 'candy' | 'pelican'
+  prompt: string
+  reasoning_effort: string
+  parallel_count: number
+  updated_at: string
+}
+
+export function presetFromWire(w: IQTestPresetWire): IQTestPreset {
+  return {
+    id: w.id, name: w.name, questionKind: w.question_kind, prompt: w.prompt,
+    reasoningEffort: w.reasoning_effort, parallelCount: w.parallel_count, updatedAt: w.updated_at
+  }
+}
+
+export function presetToWire(p: IQTestPreset): IQTestPresetWire {
+  return {
+    id: p.id, name: p.name, question_kind: p.questionKind, prompt: p.prompt,
+    reasoning_effort: p.reasoningEffort, parallel_count: p.parallelCount, updated_at: p.updatedAt
+  }
 }

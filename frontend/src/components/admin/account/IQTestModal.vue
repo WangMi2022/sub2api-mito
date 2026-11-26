@@ -347,6 +347,8 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { questionPrompt, questionContract, isTextAnswerKind, stateProbeVerdict, STATE_PROBE_QUESTION, type IntelligenceQuestion, type StateProbeVerdict } from '@/utils/intelligenceTest'
 import { parseIQPresets, serializeIQPresets, upsertIQPreset, IQ_PRESET_STORAGE_KEY, IQ_PRESET_NAME_MAX, type IQTestPreset } from '@/utils/iqTestPresets'
+import { listIQTestPresets, saveIQTestPresets } from '@/api/admin/iqTestPresets'
+import { presetFromWire, presetToWire } from '@/utils/iqTestPresets'
 import { useI18n } from 'vue-i18n'
 import { extractPelicanHtml as extractHtml } from '@/utils/pelicanHtml'
 import BaseDialog from '@/components/common/BaseDialog.vue'
@@ -482,31 +484,69 @@ function selectQuestion(value: string | number | boolean | null) {
   prompt.value = value === 'ciallo' ? value : questionPrompt(value)
 }
 
-// 自定义题面的已保存配置:本机 localStorage,跨账号共用,不含凭据。
+// 自定义题面的已保存配置:权威数据存服务端(按登录管理员隔离,跨设备可见);
+// localStorage 只作离线缓存,并负责把旧版本仅存本机的方案迁移上云。
 const presets = ref<IQTestPreset[]>([])
 const presetName = ref('')
 const presetMessage = ref('')
 const presetError = ref(false)
-const canSavePreset = computed(() => Boolean(presetName.value.trim() && prompt.value.trim() && questionKind.value !== 'ciallo'))
+const presetsLoading = ref(false)
+const canSavePreset = computed(() => Boolean(!presetsLoading.value && presetName.value.trim() && prompt.value.trim() && questionKind.value !== 'ciallo'))
 
-function readPresets() {
+function readLocalPresets(): IQTestPreset[] {
   try {
-    presets.value = parseIQPresets(localStorage.getItem(IQ_PRESET_STORAGE_KEY))
+    return parseIQPresets(localStorage.getItem(IQ_PRESET_STORAGE_KEY))
   } catch {
-    presets.value = []
+    return []
   }
 }
 
-function persistPresets() {
+function cacheLocalPresets() {
   try {
     localStorage.setItem(IQ_PRESET_STORAGE_KEY, serializeIQPresets(presets.value))
+  } catch {
+    // 缓存失败不影响服务端权威数据。
+  }
+}
+
+let presetsLoadToken = 0
+async function readPresets() {
+  const token = ++presetsLoadToken
+  presetsLoading.value = true
+  const local = readLocalPresets()
+  presets.value = local
+  try {
+    let remote = (await listIQTestPresets()).map(presetFromWire)
+    // 旧版本只存本机的方案:服务端为空且本机有数据时一次性迁移上云。
+    if (remote.length === 0 && local.length > 0) {
+      remote = (await saveIQTestPresets(local.map(presetToWire))).map(presetFromWire)
+    }
+    if (token !== presetsLoadToken) return
+    presets.value = remote
+    cacheLocalPresets()
+    presetError.value = false
+  } catch {
+    if (token !== presetsLoadToken) return
+    // 服务端不可达时退回本机缓存,并提示当前仅离线可用。
+    presets.value = local
+    presetError.value = true
+    presetMessage.value = t('admin.accounts.pelicanTest.presets.offline')
+  } finally {
+    if (token === presetsLoadToken) presetsLoading.value = false
+  }
+}
+
+async function persistPresets(): Promise<boolean> {
+  try {
+    presets.value = (await saveIQTestPresets(presets.value.map(presetToWire))).map(presetFromWire)
+    cacheLocalPresets()
     return true
   } catch {
     return false
   }
 }
 
-function savePreset() {
+async function savePreset() {
   if (running.value || !canSavePreset.value) return
   const name = presetName.value.trim().slice(0, IQ_PRESET_NAME_MAX)
   const existing = presets.value.find((p) => p.name === name)
@@ -519,8 +559,10 @@ function savePreset() {
     parallelCount: normalizeCount(),
     updatedAt: new Date().toISOString()
   }
+  const previous = presets.value
   presets.value = upsertIQPreset(presets.value, preset)
-  presetError.value = !persistPresets()
+  presetError.value = !(await persistPresets())
+  if (presetError.value) presets.value = previous
   presetMessage.value = t(presetError.value ? 'admin.accounts.pelicanTest.presets.saveFailed' : existing ? 'admin.accounts.pelicanTest.presets.updated' : 'admin.accounts.pelicanTest.presets.saved')
 }
 
@@ -537,10 +579,12 @@ function applyPreset(preset: IQTestPreset) {
   presetMessage.value = t('admin.accounts.pelicanTest.presets.applied', { name: preset.name })
 }
 
-function deletePreset(preset: IQTestPreset) {
+async function deletePreset(preset: IQTestPreset) {
   if (running.value) return
+  const previous = presets.value
   presets.value = presets.value.filter((p) => p.id !== preset.id)
-  presetError.value = !persistPresets()
+  presetError.value = !(await persistPresets())
+  if (presetError.value) presets.value = previous
   presetMessage.value = t(presetError.value ? 'admin.accounts.pelicanTest.presets.saveFailed' : 'admin.accounts.pelicanTest.presets.deleted')
 }
 const reasoningOptions = computed(() => reasoningLevels.map((value) => ({
@@ -889,7 +933,7 @@ watch(() => [props.show, props.account?.id] as const, ([show]) => {
   recordsView.value = null
   if (show) {
     readRecords()
-    readPresets()
+    void readPresets()
     presetName.value = ''
     presetMessage.value = ''
     presetError.value = false
