@@ -1327,11 +1327,11 @@
             </div>
             <div v-if="vertexProjectId.trim()">
               <label class="input-label">Location <NewFeatureBadge v-if="authStore.user?.id != null" :notice-id="NEW_FEATURE_NOTICES.vertexMultiRegion" :user-id="authStore.user?.id" /></label>
-              <select
-                v-model="vertexLocation"
+              <NativeSelectCompat
+                :value="vertexLocation"
                 required
                 class="input font-mono"
-              >
+              @change="vertexLocation = $event">>
                 <optgroup
                   v-for="group in VERTEX_LOCATION_OPTIONS"
                   :key="group.label"
@@ -1345,7 +1345,7 @@
                     {{ option.label }}
                   </option>
                 </optgroup>
-              </select>
+              </NativeSelectCompat>
               <p class="input-hint">{{ t('admin.accounts.vertexLocationHint') }}</p>
             </div>
           </div>
@@ -1416,11 +1416,11 @@
             </div>
             <div>
               <label class="input-label">Location <NewFeatureBadge v-if="authStore.user?.id != null" :notice-id="NEW_FEATURE_NOTICES.vertexMultiRegion" :user-id="authStore.user?.id" /></label>
-              <select
-                v-model="vertexLocation"
+              <NativeSelectCompat
+                :value="vertexLocation"
                 required
                 class="input font-mono"
-              >
+              @change="vertexLocation = $event">>
                 <optgroup
                   v-for="group in VERTEX_LOCATION_OPTIONS"
                   :key="group.label"
@@ -1434,7 +1434,7 @@
                     {{ option.label }}
                   </option>
                 </optgroup>
-              </select>
+              </NativeSelectCompat>
               <p class="input-hint">{{ t('admin.accounts.vertexLocationHint') }}</p>
             </div>
           </div>
@@ -2175,7 +2175,7 @@
         <!-- Shared: Region -->
         <div>
           <label class="input-label">{{ t('admin.accounts.bedrockRegion') }}</label>
-          <select v-model="bedrockRegion" class="input">
+          <NativeSelectCompat :value="bedrockRegion" class="input" @change="bedrockRegion = $event">
             <optgroup label="US">
               <option value="us-east-1">us-east-1 (N. Virginia)</option>
               <option value="us-east-2">us-east-2 (Ohio)</option>
@@ -2209,7 +2209,7 @@
             <optgroup label="South America">
               <option value="sa-east-1">sa-east-1 (São Paulo)</option>
             </optgroup>
-          </select>
+          </NativeSelectCompat>
           <p class="input-hint">{{ t('admin.accounts.bedrockRegionHint') }}</p>
         </div>
 

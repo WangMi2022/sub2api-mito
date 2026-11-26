@@ -23,16 +23,16 @@
         <div class="mt-4 border-t border-gray-200 pt-4 dark:border-dark-600" data-testid="credential-runtime-controls" :aria-busy="runtimeSaving">
           <div class="grid gap-4 sm:grid-cols-2">
             <label class="field-label">{{ t('tokenGuardV2.reloginEngine') }}
-              <select id="token-guard-v2-engine" :value="runtimeDraft.engine" class="input w-full" :disabled="mutationBusy || loading || !runtimeLoaded" @change="changeRuntime('engine', $event)">
+              <NativeSelectCompat id="token-guard-v2-engine" :value="runtimeDraft.engine" class="input w-full" :disabled="mutationBusy || loading || !runtimeLoaded" @change="changeRuntime('engine', $event)">
                 <option v-if="!runtimeDraft.engine" value="" disabled>{{ t('tokenGuardV2.legacyEngine') }}</option>
                 <option value="local_worker">{{ t('tokenGuardV2.localWorkerEngine') }}</option>
                 <option value="session_studio">{{ t('tokenGuardV2.sessionStudioEngine') }}</option>
-              </select>
+              </NativeSelectCompat>
             </label>
             <label class="field-label">{{ t('tokenGuardV2.workerConcurrency') }}
-              <select id="token-guard-v2-concurrency" :value="runtimeDraft.worker_concurrency" class="input w-full" :disabled="mutationBusy || loading || !runtimeLoaded" @change="changeRuntime('worker_concurrency', $event)">
+              <NativeSelectCompat id="token-guard-v2-concurrency" :value="runtimeDraft.worker_concurrency" class="input w-full" :disabled="mutationBusy || loading || !runtimeLoaded" @change="changeRuntime('worker_concurrency', $event)">
                 <option v-for="count in 16" :key="count" :value="count">{{ count }}</option>
-              </select>
+              </NativeSelectCompat>
             </label>
           </div>
           <p class="mt-2 text-xs leading-5 text-gray-500 dark:text-gray-400">{{ t(runtimeDraft.engine === 'session_studio' ? 'tokenGuardV2.sessionStudioGlobalHint' : runtimeDraft.engine === 'local_worker' ? 'tokenGuardV2.localWorkerEngineHint' : 'tokenGuardV2.legacyEngineHint') }}</p>
@@ -617,11 +617,10 @@ async function toggleSwitch(item: TokenGuardV2Account, field: 'enabled' | 'auto_
   }
 }
 
-async function changeRuntime(field: keyof TokenGuardV2RuntimeSettings, event: Event) {
-  const select = event.target as HTMLSelectElement
+async function changeRuntime(field: keyof TokenGuardV2RuntimeSettings, value: string | number | boolean) {
   if (mutationBusy.value || !runtimeLoaded.value) return
   invalidateLoad()
-  const input = { ...runtimeDraft, [field]: field === 'worker_concurrency' ? Number(select.value) : select.value }
+  const input = { ...runtimeDraft, [field]: field === 'worker_concurrency' ? Number(value) : String(value) }
   runtimeSaving.value = true; error.value = ''; notice.value = ''
   try {
     Object.assign(runtimeDraft, await saveTokenGuardV2Runtime(input))
@@ -629,7 +628,6 @@ async function changeRuntime(field: keyof TokenGuardV2RuntimeSettings, event: Ev
   } catch (value) {
     error.value = message(value)
   } finally {
-    select.value = String(runtimeDraft[field])
     runtimeSaving.value = false
   }
 }

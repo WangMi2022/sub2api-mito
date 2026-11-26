@@ -1260,11 +1260,11 @@
           </div>
           <div v-if="!isVertexAPIKeyMode || editVertexProjectId.trim()">
             <label class="input-label">Location <NewFeatureBadge v-if="authStore.user?.id != null" :notice-id="NEW_FEATURE_NOTICES.vertexMultiRegion" :user-id="authStore.user?.id" /></label>
-            <select
-              v-model="editVertexLocation"
+            <NativeSelectCompat
+              :value="editVertexLocation"
               required
               class="input font-mono"
-            >
+            @change="editVertexLocation = $event">>
               <optgroup
                 v-for="group in VERTEX_LOCATION_OPTIONS"
                 :key="group.label"
@@ -1278,7 +1278,7 @@
                   {{ option.label }}
                 </option>
               </optgroup>
-            </select>
+            </NativeSelectCompat>
             <p class="input-hint">{{ t('admin.accounts.vertexLocationHint') }}</p>
           </div>
         </div>

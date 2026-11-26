@@ -330,10 +330,10 @@
         <div v-for="method in feeTypes" :key="method.value" class="space-y-2 rounded-lg border border-gray-100 p-3 dark:border-dark-700">
           <label :for="`provider-method-fee-${method.value}`" class="input-label">{{ method.label }}</label>
           <div class="grid gap-2 sm:grid-cols-2">
-            <select :id="`provider-method-fee-${method.value}`" :value="methodFeeInputs[method.value] == null ? 'inherit' : 'custom'" class="input" :data-testid="`method-fee-mode-${method.value}`" @change="setMethodFeeMode(method.value, ($event.target as HTMLSelectElement).value)">
+            <NativeSelectCompat :id="`provider-method-fee-${method.value}`" :value="methodFeeInputs[method.value] == null ? 'inherit' : 'custom'" class="input" :data-testid="`method-fee-mode-${method.value}`" @change="setMethodFeeMode(method.value, $event)">
               <option value="inherit">{{ t('admin.settings.payment.feeInheritProvider') }}</option>
               <option value="custom">{{ t('admin.settings.payment.feeCustom') }}</option>
-            </select>
+            </NativeSelectCompat>
             <input v-if="methodFeeInputs[method.value] != null" v-model="methodFeeInputs[method.value]" type="number" min="0" max="100" step="0.01" required class="input" :data-testid="`method-fee-rate-${method.value}`" :aria-label="t('admin.settings.payment.methodFeeLabel', { method: method.label })" />
           </div>
         </div>

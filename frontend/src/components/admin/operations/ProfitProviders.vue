@@ -8,7 +8,7 @@
       <div v-for="p in result.items" :key="p.provider_id" class="space-y-2" :data-testid="`provider-link-${p.provider_id}`">
         <div class="flex flex-wrap items-center gap-2"><span>{{ p.provider_name }} #{{ p.provider_id }} → {{ channelName(p) }}</span><button type="button" class="btn btn-secondary btn-sm" :aria-expanded="editing === p.provider_id" :disabled="busy" @click="begin(p)">{{ t('profitOps.linkChannel') }}</button></div>
         <label class="flex flex-wrap items-center gap-2 text-sm">{{ t('channelConfig.costMode') }}
-          <select :value="p.cost_mode || 'wallet'" :disabled="busy" class="input" @change="setCostMode(p, $event)"><option value="estimate">{{ t('channelConfig.estimate') }}</option><option value="wallet">{{ t('channelConfig.wallet') }}</option></select>
+          <NativeSelectCompat :value="p.cost_mode || 'wallet'" :disabled="busy" class="input" @change="setCostMode(p, $event)"><option value="estimate">{{ t('channelConfig.estimate') }}</option><option value="wallet">{{ t('channelConfig.wallet') }}</option></NativeSelectCompat>
         </label>
         <p class="text-xs text-gray-500">{{ t('channelConfig.costHelp') }}</p>
         <ProfitChannelLink v-if="editing === p.provider_id" :provider="p" :current-channel="channelName(p)" @cancel="editing = null" @busy="writing = $event" @reread="linkResult" />
@@ -25,6 +25,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { linkProfitChannel, listProfitProviders, type ProfitProvider, type ProfitProviderPage } from '@/api/admin/profitOperations'
@@ -57,9 +58,8 @@ async function linkResult(providerId: number, channelId: number, state: 'written
   else actionError.value = t(state === 'conflict' ? 'profitOps.linkConflict' : 'profitOps.linkUnconfirmed')
   emit('changed')
 }
-async function setCostMode(p: ProfitProvider, event: Event) {
- const select=event.target as HTMLSelectElement, mode=select.value as 'estimate'|'wallet'
- select.value=p.cost_mode || 'wallet'
+async function setCostMode(p: ProfitProvider, value: string | number | boolean) {
+ const mode=String(value) as 'estimate'|'wallet'
  if(!p.channel_id || busy.value) return
  writing.value=true
  let state: 'written'|'conflict'|'failed'='written'

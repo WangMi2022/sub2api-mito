@@ -604,18 +604,18 @@
             </span>
           </div>
           <!-- 分组选择下拉 -->
-          <select
+          <NativeSelectCompat
             class="input"
+            :value="''"
             @change="
-              (e) => {
-                const val = Number((e.target as HTMLSelectElement).value);
+              (val: string | number) => {
+                const id = Number(val);
                 if (
-                  val &&
-                  !createForm.copy_accounts_from_group_ids.includes(val)
+                  id &&
+                  !createForm.copy_accounts_from_group_ids.includes(id)
                 ) {
-                  createForm.copy_accounts_from_group_ids.push(val);
+                  createForm.copy_accounts_from_group_ids.push(id);
                 }
-                (e.target as HTMLSelectElement).value = '';
               }
             "
           >
@@ -632,7 +632,7 @@
             >
               {{ opt.label }}
             </option>
-          </select>
+          </NativeSelectCompat>
           <p class="input-hint">{{ t("admin.groups.copyAccounts.hint") }}</p>
         </div>
         <template v-if="!authStore.isSimpleMode">
@@ -2340,18 +2340,18 @@
             </span>
           </div>
           <!-- 分组选择下拉 -->
-          <select
+          <NativeSelectCompat
             class="input"
+            :value="''"
             @change="
-              (e) => {
-                const val = Number((e.target as HTMLSelectElement).value);
+              (val: string | number) => {
+                const id = Number(val);
                 if (
-                  val &&
-                  !editForm.copy_accounts_from_group_ids.includes(val)
+                  id &&
+                  !editForm.copy_accounts_from_group_ids.includes(id)
                 ) {
-                  editForm.copy_accounts_from_group_ids.push(val);
+                  editForm.copy_accounts_from_group_ids.push(id);
                 }
-                (e.target as HTMLSelectElement).value = '';
               }
             "
           >
@@ -2368,7 +2368,7 @@
             >
               {{ opt.label }}
             </option>
-          </select>
+          </NativeSelectCompat>
           <p class="input-hint">
             {{ t("admin.groups.copyAccounts.hintEdit") }}
           </p>
@@ -4488,6 +4488,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import QwenPlatformNotice from '@/components/common/QwenPlatformNotice.vue'
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";

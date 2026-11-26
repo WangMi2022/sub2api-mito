@@ -33,19 +33,20 @@
               v-for="(option, index) in filteredOptions"
               :key="`${option.value}:${index}`"
               role="option"
-              :aria-selected="String(option.value) === currentValue"
+              :aria-selected="isOptionSelected(option)"
               :aria-disabled="option.disabled || undefined"
               :class="[
                 'select-option',
-                String(option.value) === currentValue && 'select-option-selected',
-                option.disabled && 'select-option-disabled',
-                focusedIndex === index && 'select-option-focused'
+                option.group !== undefined && 'select-option-group',
+                isOptionSelected(option) && 'select-option-selected',
+                option.disabled && option.group === undefined && 'select-option-disabled',
+                focusedIndex === index && option.group === undefined && 'select-option-focused'
               ]"
               @click.stop="!option.disabled && choose(option)"
               @mouseenter="!option.disabled && (focusedIndex = index)"
             >
               <span class="select-option-label">{{ option.label }}</span>
-              <Icon v-if="String(option.value) === currentValue" name="check" size="sm" class="text-primary-500" :stroke-width="2" />
+              <Icon v-if="isOptionSelected(option)" name="check" size="sm" class="text-primary-500" :stroke-width="2" />
             </div>
             <div v-if="filteredOptions.length === 0" class="select-empty">{{ emptyText }}</div>
           </div>
@@ -80,9 +81,10 @@ import Icon from '@/components/icons/Icon.vue'
 defineOptions({ inheritAttrs: false })
 
 const props = defineProps<{
-  value?: T
+  value?: T | Array<string | number | boolean>
   disabled?: boolean
   searchable?: boolean | 'auto'
+  multiple?: boolean
 }>()
 
 const emit = defineEmits<{ (e: 'update:modelValue', value: T): void; (e: 'change', value: T): void }>()
@@ -91,7 +93,7 @@ const { t } = useI18n()
 const attrs = useAttrs()
 const instanceId = `nselect-${Math.random().toString(36).substring(2, 9)}`
 
-interface CompatOption { value: string | number | boolean; label: string; disabled: boolean }
+interface CompatOption { value: string | number | boolean; label: string; disabled: boolean; group?: string }
 
 const selectRef = ref<HTMLSelectElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
@@ -103,6 +105,7 @@ const searchQuery = ref('')
 const focusedIndex = ref(-1)
 const options = ref<CompatOption[]>([])
 const currentValue = ref<string>('')
+const selectedValues = ref<string[]>([])
 const position = ref<'bottom' | 'top'>('bottom')
 const triggerRect = ref<DOMRect | null>(null)
 
@@ -110,7 +113,7 @@ const triggerRect = ref<DOMRect | null>(null)
 const nativeAttrs = computed(() => {
   const out: Record<string, unknown> = {}
   for (const [k, v] of Object.entries(attrs)) {
-    if (k === 'class' || k === 'style' || k === 'value' || k === 'disabled' || k.startsWith('onUpdate:')) continue
+    if (k === 'class' || k === 'style' || k === 'value' || k === 'disabled' || k === 'onChange' || k.startsWith('onUpdate:')) continue
     out[k] = v
   }
   return out
@@ -130,14 +133,25 @@ const searchPlaceholder = computed(() => t('common.searchPlaceholder'))
 const emptyText = computed(() => t('common.noOptionsFound'))
 
 const selectedLabel = computed(() => {
+  if (props.multiple) {
+    if (selectedValues.value.length === 0) return ''
+    const labels = selectedValues.value.map((v) => options.value.find((o) => String(o.value) === v)?.label ?? v)
+    if (labels.length <= 2) return labels.join(', ')
+    return t('common.selectedCount', { count: labels.length })
+  }
   const found = options.value.find((o) => String(o.value) === currentValue.value)
   return found?.label ?? currentValue.value ?? ''
 })
 
+function isOptionSelected(option: CompatOption): boolean {
+  if (props.multiple) return selectedValues.value.includes(String(option.value))
+  return String(option.value) === currentValue.value
+}
+
 const filteredOptions = computed(() => {
   if (!searchable.value || !searchQuery.value) return options.value
   const q = searchQuery.value.toLowerCase()
-  return options.value.filter((o) => o.label.toLowerCase().includes(q))
+  return options.value.filter((o) => o.group === undefined && o.label.toLowerCase().includes(q))
 })
 
 const dropdownStyle = computed(() => {
@@ -159,12 +173,33 @@ const dropdownStyle = computed(() => {
 function readOptions() {
   const el = selectRef.value
   if (!el) return
-  options.value = Array.from(el.querySelectorAll('option')).map((o) => ({
-    // Vue 对 :value 绑定的非字符串值存在 _value;优先取回原类型(number/boolean)。
-    value: (o as any)._value !== undefined ? (o as any)._value : o.value,
-    label: (o.textContent ?? '').trim(),
-    disabled: o.disabled
-  }))
+  const list: CompatOption[] = []
+  for (const child of Array.from(el.children)) {
+    if (child.tagName === 'OPTGROUP') {
+      const label = child.getAttribute('label') ?? ''
+      list.push({ value: `__group__${label}`, label, disabled: true, group: label })
+      for (const o of Array.from(child.querySelectorAll('option'))) {
+        list.push({ value: (o as any)._value !== undefined ? (o as any)._value : o.value, label: (o.textContent ?? '').trim(), disabled: o.disabled })
+      }
+    } else if (child.tagName === 'OPTION') {
+      const o = child as HTMLOptionElement
+      list.push({ value: (o as any)._value !== undefined ? (o as any)._value : o.value, label: (o.textContent ?? '').trim(), disabled: o.disabled })
+    }
+  }
+  options.value = list
+  if (props.multiple) {
+    // 多选:受控数组优先;否则读 DOM selected。
+    const want = Array.isArray(props.value) ? props.value.map(String) : null
+    for (const o of Array.from(el.options)) {
+      const sel = want ? want.includes(o.value) : o.selected
+      if (o.selected !== sel) o.selected = sel
+    }
+    selectedValues.value = Array.from(el.options).filter((o) => o.selected).map((o) => {
+      const typed = (o as any)._value
+      return String(typed !== undefined ? typed : o.value)
+    })
+    return
+  }
   // Vue patch option 子树(文本/增删)会触发浏览器「ask for a reset」把选中项重置为
   // 第一项;本函数在 post-flush watch 与 MutationObserver 里跑,同步把受控值写回。
   const want = props.value != null ? String(props.value) : currentValue.value
@@ -193,10 +228,10 @@ onUnmounted(() => {
 })
 
 watch(() => props.value, (v) => {
-  currentValue.value = v != null ? String(v) : ''
+  if (!props.multiple) currentValue.value = v != null ? String(v) : ''
   // post-flush: DOM(含插槽 option)已更新,同步校准原生 select,时序确定。
   readOptions()
-}, { immediate: true, flush: 'post' })
+}, { immediate: true, flush: 'post', deep: true })
 
 function updateRect() {
   if (triggerRef.value) triggerRect.value = triggerRef.value.getBoundingClientRect()
@@ -220,8 +255,8 @@ watch(isOpen, (openNow) => {
         const h = dropdownRef.value.offsetHeight || 240
         position.value = window.innerHeight - triggerRect.value.bottom < h && triggerRect.value.top > h ? 'top' : 'bottom'
       }
-      const idx = filteredOptions.value.findIndex((o) => String(o.value) === currentValue.value)
-      focusedIndex.value = idx >= 0 ? idx : 0
+      const idx = filteredOptions.value.findIndex((o) => o.group === undefined && (props.multiple ? selectedValues.value.includes(String(o.value)) : String(o.value) === currentValue.value))
+      focusedIndex.value = idx >= 0 ? idx : filteredOptions.value.findIndex((o) => o.group === undefined)
       if (searchable.value) searchInputRef.value?.focus()
       else dropdownRef.value?.focus()
     })
@@ -238,21 +273,47 @@ watch(isOpen, (openNow) => {
 function choose(option: CompatOption) {
   const el = selectRef.value
   if (!el) return
+  if (props.multiple) {
+    // 以组件状态为基准切换,不依赖可能被浏览器重置的 DOM selectedness。
+    const key = String(option.value)
+    const next = selectedValues.value.includes(key)
+      ? selectedValues.value.filter((v) => v !== key)
+      : [...selectedValues.value, key]
+    selectedValues.value = next
+    for (const o of Array.from(el.options)) o.selected = next.includes(o.value)
+    const typed = next.map((v) => {
+      const opt = options.value.find((o) => String(o.value) === v)
+      return opt ? opt.value : v
+    })
+    emit('change', typed as unknown as T)
+    nextTick(() => readOptions())
+    return
+  }
   el.value = String(option.value)
   currentValue.value = String(option.value)
   // 合成 @change(先赋值再调用用户 handler)需要拿到新值而非 Event 对象;保留原类型。
   emit('change', option.value as T)
   isOpen.value = false
   selectRef.value?.focus()
+  // 受控回滚:父级拒绝新值(如保存失败)时 props.value 不变,post-flush 把 DOM 拉回。
+  nextTick(() => readOptions())
 }
 
 function onNativeChange() {
   // 测试 setValue、键盘或程序式修改原生 select 时同步显示,并按原生语义先写值再触发 change。
   const el = selectRef.value
-  const v = el?.value ?? ''
+  if (!el) return
+  if (props.multiple) {
+    const typed = Array.from(el.options).filter((o) => o.selected).map((o) => (o as any)._value !== undefined ? (o as any)._value : o.value)
+    selectedValues.value = typed.map(String)
+    emit('change', typed as unknown as T)
+    return
+  }
+  const v = el.value
   currentValue.value = v
   const opt = options.value.find((o) => String(o.value) === v)
   emit('change', (opt ? opt.value : v) as T)
+  nextTick(() => readOptions())
 }
 
 function onNativeKeyDown(e: KeyboardEvent) {

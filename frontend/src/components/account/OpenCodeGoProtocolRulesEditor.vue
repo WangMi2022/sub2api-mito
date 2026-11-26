@@ -21,16 +21,16 @@
             :placeholder="t('admin.accounts.opencodeGo.protocolRules.patternPlaceholder')"
             :data-testid="`opencode-go-protocol-pattern-${index}`"
           />
-          <select
+          <NativeSelectCompat
             :value="row.protocol"
             class="input w-44 shrink-0"
             :data-testid="`opencode-go-protocol-select-${index}`"
-            @change="setPrimaryProtocol(row, ($event.target as HTMLSelectElement).value as CnNativeApiProtocol)"
+            @change="setPrimaryProtocol(row, $event as CnNativeApiProtocol)"
           >
             <option v-for="option in protocolOptions" :key="option.value" :value="option.value">
               {{ t(`admin.accounts.cnProviders.apiProtocol.${option.labelKey}`) }}
             </option>
-          </select>
+          </NativeSelectCompat>
           <button
             type="button"
             class="rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
@@ -82,6 +82,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Icon from '@/components/icons/Icon.vue'

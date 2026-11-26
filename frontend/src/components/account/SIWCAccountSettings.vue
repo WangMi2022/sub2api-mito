@@ -1,12 +1,12 @@
 <template>
   <section class="space-y-3 rounded-lg border border-gray-200 p-3 dark:border-dark-600" data-testid="siwc-settings">
     <label class="input-label" :for="`siwc-protocol-${accountId}`">{{ t('siwc.protocol') }}</label>
-    <select :id="`siwc-protocol-${accountId}`" class="input" :value="enabled ? 'siwc' : 'codex'"
+    <NativeSelectCompat :id="`siwc-protocol-${accountId}`" class="input" :value="enabled ? 'siwc' : 'codex'"
       :disabled="busy" data-testid="siwc-protocol"
-      @change="emit('update:enabled', ($event.target as HTMLSelectElement).value === 'siwc')">
+      @change="emit('update:enabled', $event === 'siwc')">
       <option value="codex">{{ t('siwc.codex') }}</option>
       <option value="siwc" :disabled="!loaded || !status?.bound">{{ t('siwc.siwc') }}</option>
-    </select>
+    </NativeSelectCompat>
     <p class="input-hint">{{ t('siwc.protocolHint') }}</p>
     <p class="input-hint">{{ t('siwc.proxyHint') }}</p>
     <p role="status" class="text-sm" data-testid="siwc-status">{{ t(status?.bound ? 'siwc.bound' : 'siwc.unbound') }}</p>
@@ -37,6 +37,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useClipboard } from '@/composables/useClipboard'

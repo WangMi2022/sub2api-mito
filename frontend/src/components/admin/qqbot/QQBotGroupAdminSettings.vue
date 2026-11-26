@@ -17,7 +17,7 @@
       <p v-if="admin.app_id !== appId" role="alert" class="text-sm text-amber-700">{{ t('qqbot.groupAdmins.appChanged') }}</p>
       <fieldset :disabled="admin.app_id !== appId" class="space-y-3">
         <div class="grid gap-3 md:grid-cols-2">
-          <label class="space-y-1">{{ t('qqbot.groupAdmins.group') }}<select :value="admin.group_id" data-testid="group-admin-group" class="input" required @change="changeGroup(index, $event)"><option value="">{{ t('qqbot.workspace.chooseGroup') }}</option><option v-for="group in [...new Set([...groups, admin.group_id].filter(Boolean))]" :key="group" :value="group">{{ groupLabels?.[group] || group }}</option></select></label>
+          <label class="space-y-1">{{ t('qqbot.groupAdmins.group') }}<NativeSelectCompat :value="admin.group_id" data-testid="group-admin-group" class="input" required @change="changeGroup(index, $event)"><option value="">{{ t('qqbot.workspace.chooseGroup') }}</option><option v-for="group in [...new Set([...groups, admin.group_id].filter(Boolean))]" :key="group" :value="group">{{ groupLabels?.[group] || group }}</option></NativeSelectCompat></label>
           <div class="min-w-0" data-testid="group-admin-member"><QQMemberPicker :key="JSON.stringify([admin.app_id, admin.group_id])" :model-value="admin.member_id" :group-id="admin.group_id" :app-id="admin.app_id" :selected-label="admin.nickname" :disabled="disabled || admin.app_id !== appId || !admin.group_id" required @update:model-value="updateMember(index, $event)" @select="selectMember(index, $event)" /></div>
         </div>
         <label class="block space-y-1">{{ t('qqbot.groupAdmins.nickname') }}<input :value="admin.nickname" data-testid="group-admin-nickname" class="input" maxlength="100" @input="updateNickname(index, $event)" /></label>
@@ -28,6 +28,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { useI18n } from 'vue-i18n'
 import type { QQBotRuntime, QQGroupAdmin, QQMemberOption } from '@/api/qqbot'
 import QQMemberPicker from './QQMemberPicker.vue'
@@ -45,8 +46,8 @@ function patch(index: number, update: Partial<QQGroupAdmin>) {
   if (props.disabled || !current || current.app_id !== props.appId) return
   emit('update:modelValue', props.modelValue.map((admin, i) => i === index ? { ...admin, ...update } : admin))
 }
-function changeGroup(index: number, event: Event) {
-  patch(index, { group_id: (event.target as HTMLSelectElement).value, member_id: '', nickname: '' })
+function changeGroup(index: number, value: string | number | boolean) {
+  patch(index, { group_id: String(value), member_id: '', nickname: '' })
 }
 function updateMember(index: number, member: string) {
   patch(index, { member_id: member, ...(member ? {} : { nickname: '' }) })

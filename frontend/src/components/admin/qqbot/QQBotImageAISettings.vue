@@ -1,11 +1,11 @@
 <template>
   <div class="space-y-4">
     <label class="block space-y-1">{{ t('qqbot.imageAI.source') }}
-      <select :value="source" class="input" data-testid="image-ai-source" @change="changeSource">
+      <NativeSelectCompat :value="source" class="input" data-testid="image-ai-source" @change="changeSource">
         <option value="reuse_chat">{{ t('qqbot.imageAI.reuseChat') }}</option>
         <option value="site">{{ t('qqbot.simple.siteAI') }}</option>
         <option value="external">{{ t('qqbot.simple.externalAI') }}</option>
-      </select>
+      </NativeSelectCompat>
     </label>
     <p v-if="error" role="alert" class="text-sm text-red-600">{{ error }}</p>
     <template v-if="source === 'site'">
@@ -66,9 +66,9 @@ async function load() {
 function syncExistingQuota() {
   if (options.value && source.value === 'site' && existingKey.value && !regenerate.value && quotaKeyId.value === model.value.image_site_api_key_id) quota.value = options.value.current_image_quota ?? 0
 }
-function changeSource(event: Event) {
+function changeSource(value: string | number | boolean) {
   const previous = source.value
-  const next = (event.target as HTMLSelectElement).value as Exclude<QQBotConfig['image_ai_connection'], '' | undefined>
+  const next = String(value) as Exclude<QQBotConfig['image_ai_connection'], '' | undefined>
   model.value.image_ai_connection = next
   regenerate.value = false
   model.value.image_api_key = ''; model.value.clear_image_api_key = false

@@ -1,13 +1,13 @@
 <template>
   <div class="space-y-4">
     <label class="block space-y-1">{{ t('qqbot.simple.aiSource') }}
-      <select :value="model.ai_connection || 'external'" class="input" data-testid="ai-source" @change="changeSource"><option value="site">{{ t('qqbot.simple.siteAI') }}</option><option value="external">{{ t('qqbot.simple.externalAI') }}</option></select>
+      <NativeSelectCompat :value="model.ai_connection || 'external'" class="input" data-testid="ai-source" @change="changeSource"><option value="site">{{ t('qqbot.simple.siteAI') }}</option><option value="external">{{ t('qqbot.simple.externalAI') }}</option></NativeSelectCompat>
     </label>
     <p v-if="error" role="alert" class="text-sm text-red-600">{{ error }}</p>
     <template v-if="model.ai_connection === 'site'">
       <p class="rounded-lg bg-primary-50 p-3 text-sm text-primary-800 dark:bg-primary-900/20 dark:text-primary-200">{{ t('qqbot.simple.managedHelp') }}</p>
       <button v-if="!options" type="button" class="btn btn-secondary" :disabled="loading" @click="load">{{ t('common.refresh') }}</button>
-      <label class="block space-y-1">{{ t('qqbot.simple.siteGroup') }}<select :value="model.site_group_id" required class="input" data-testid="site-group" @change="changeGroup"><option :value="0" disabled>{{ t('qqbot.simple.chooseGroup') }}</option><option v-for="group in options?.groups || []" :key="group.id" :value="group.id">{{ group.name }}</option></select></label>
+      <label class="block space-y-1">{{ t('qqbot.simple.siteGroup') }}<NativeSelectCompat :value="model.site_group_id" required class="input" data-testid="site-group" @change="changeGroup"><option :value="0" disabled>{{ t('qqbot.simple.chooseGroup') }}</option><option v-for="group in options?.groups || []" :key="group.id" :value="group.id">{{ group.name }}</option></NativeSelectCompat></label>
       <p v-if="options && !options.groups.length" class="text-sm text-amber-700">{{ t('qqbot.simple.noSiteGroups') }}</p>
       <label v-if="model.site_api_key_id" class="flex items-start gap-2 text-sm"><input v-model="regenerate" type="checkbox" class="mt-1" />{{ t('qqbot.simple.regenerateKey') }}</label>
       <label class="block space-y-1">{{ t('qqbot.simple.keyQuota') }}<input v-model.number="quota" type="number" class="input" min="0" max="1000000" step="0.01" required :disabled="existingKey && !regenerate" data-testid="site-quota" /></label>
@@ -51,8 +51,8 @@ const modelId = useId()
 let alive = true
 async function load() { loading.value = true; error.value = ''; try { const result = await qqbotAPI.setupOptions(); if (alive) { options.value = result; if (existingKey.value) quota.value = result.current_quota } } catch (e) { if (alive) error.value = (e as Error).message } finally { if (alive) loading.value = false } }
 function matchProtocol() { if (!protocols.value.includes(model.value.chat_protocol)) model.value.chat_protocol = protocols.value[0] as QQBotConfig['chat_protocol'] }
-function changeGroup(event: Event) { model.value.site_group_id = Number((event.target as HTMLSelectElement).value); matchProtocol() }
-function changeSource(event: Event) { model.value.ai_connection = (event.target as HTMLSelectElement).value as 'site' | 'external'; model.value.api_key = ''; model.value.clear_api_key = false; if (model.value.ai_connection === 'external') { model.value.base_url = ''; model.value.api_key_set = false } else matchProtocol() }
+function changeGroup(value: string | number | boolean) { model.value.site_group_id = Number(value); matchProtocol() }
+function changeSource(value: string | number | boolean) { model.value.ai_connection = String(value) as 'site' | 'external'; model.value.api_key = ''; model.value.clear_api_key = false; if (model.value.ai_connection === 'external') { model.value.base_url = ''; model.value.api_key_set = false } else matchProtocol() }
 function selectModel(value: string | number | boolean | null) { model.value.chat_model = typeof value === 'string' ? value.trim() : '' }
 function validate() {
   modelError.value = !model.value.chat_disabled && (!model.value.chat_model.trim() || model.value.chat_model.length > 200) ? t('qqbot.simple.invalidModel') : ''

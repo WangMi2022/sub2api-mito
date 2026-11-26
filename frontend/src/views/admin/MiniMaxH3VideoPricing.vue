@@ -7,10 +7,10 @@
     <div v-if="enabled" class="mt-3 space-y-3">
       <label class="block">
         <span class="input-label">{{ t('admin.groups.videoPricing.h3Mode') }}</span>
-        <select class="input" :value="mode" @change="changeMode">
+        <NativeSelectCompat class="input" :value="mode" @change="changeMode">
           <option value="per_second">{{ t('admin.groups.videoPricing.h3PerSecond') }}</option>
           <option value="per_request">{{ t('admin.groups.videoPricing.h3PerRequest') }}</option>
-        </select>
+        </NativeSelectCompat>
       </label>
       <label v-if="mode === 'per_request'" class="block">
         <span class="input-label">{{ t('admin.groups.videoPricing.h3Seconds') }}</span>
@@ -31,6 +31,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { VideoModelPricesForm } from './groupsVideoModelPricing'
@@ -56,8 +57,8 @@ function update(key?: string, value: number | string | null = null) {
 function toggle(event: Event) {
   update((event.target as HTMLInputElement).checked ? 'per_second' : undefined)
 }
-function changeMode(event: Event) {
-  update((event.target as HTMLSelectElement).value === 'per_request' ? `request_${seconds.value}s` : 'per_second', price.value ?? null)
+function changeMode(value: string | number | boolean) {
+  update(String(value) === 'per_request' ? `request_${seconds.value}s` : 'per_second', price.value ?? null)
 }
 function changeSeconds(event: Event) {
   const value = Number((event.target as HTMLInputElement).value)

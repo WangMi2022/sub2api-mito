@@ -52,10 +52,10 @@
       <fieldset v-for="(rule, index) in draft.policy.rules" :key="index" class="space-y-3 rounded-lg border border-gray-200 p-3 dark:border-dark-700">
         <legend>{{ t('adminAccessKeys.ruleLegend', { index: index + 1 }) }}</legend>
         <label class="flex gap-2"><input v-model="rule.all_groups" type="checkbox" />{{ t('adminAccessKeys.allGroups') }}</label>
-        <label class="block">{{ t('adminAccessKeys.groups') }}<select v-model="rule.group_ids" :data-test="`groups-${index}`" multiple class="input mt-1" :disabled="rule.all_groups"><option v-for="group in groups" :key="group.id" :value="group.id">{{ group.name }}</option></select></label>
+        <label class="block">{{ t('adminAccessKeys.groups') }}<NativeSelectCompat :value="rule.group_ids" :data-test="`groups-${index}`" multiple class="input mt-1" :disabled="rule.all_groups" @change="rule.group_ids = ($event as unknown as number[])">><option v-for="group in groups" :key="group.id" :value="group.id">{{ group.name }}</option></NativeSelectCompat></label>
         <label class="flex gap-2"><input v-model="rule.include_ungrouped" type="checkbox" />{{ t('adminAccessKeys.includeUngrouped') }}</label>
         <div>{{ t('adminAccessKeys.accountTypes') }}<div class="flex flex-wrap gap-4"><label v-for="type in accountTypes" :key="type" class="flex gap-2"><input v-model="rule.account_types" type="checkbox" :value="type" />{{ type }}</label></div></div>
-        <label class="block">{{ t('adminAccessKeys.platforms') }}<select v-model="rule.platforms" multiple class="input mt-1"><option v-for="platform in CONCRETE_PLATFORM_OPTIONS" :key="platform.value" :value="platform.value">{{ platform.label }}</option></select></label>
+        <label class="block">{{ t('adminAccessKeys.platforms') }}<NativeSelectCompat :value="rule.platforms" multiple class="input mt-1" @change="rule.platforms = ($event as unknown as string[])">><option v-for="platform in CONCRETE_PLATFORM_OPTIONS" :key="platform.value" :value="platform.value">{{ platform.label }}</option></NativeSelectCompat></label>
         <div>{{ t('adminAccessKeys.accountOperations') }}<div class="grid gap-2 sm:grid-cols-2"><label v-for="permission in accountPermissions" :key="permission.id" class="flex gap-2"><input v-model="rule.permissions" type="checkbox" :value="permission.id" />{{ permission.label }} <span class="text-xs text-gray-500">{{ permission.id }}</span></label></div></div>
         <div v-if="groupPermissions.length" class="space-y-2 rounded border border-amber-300 p-3">
           <p>{{ t('adminAccessKeys.groupOperations') }}</p>
@@ -88,6 +88,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import * as api from '@/api/admin/adminAccessKeys'

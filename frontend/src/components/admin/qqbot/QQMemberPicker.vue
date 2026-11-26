@@ -6,10 +6,10 @@
       <button type="button" class="btn btn-secondary shrink-0" :disabled="disabled || missingApp || loading" @click="refresh">{{ t('common.refresh') }}</button>
     </div>
     <label :for="`${id}-select`" class="block text-sm">{{ t('qqbot.memberPicker.member') }}</label>
-    <select :id="`${id}-select`" :value="selectedKey" :required="required" :disabled="disabled || missingApp || (!required && (loading || !!error))" :aria-busy="loading" class="input w-full" data-testid="qq-member-select" :aria-describedby="`${id}-help`" @change="choose">
+    <NativeSelectCompat :id="`${id}-select`" :value="selectedKey" :required="required" :disabled="disabled || missingApp || (!required && (loading || !!error))" :aria-busy="loading" class="input w-full" data-testid="qq-member-select" :aria-describedby="`${id}-help`" @change="choose">
       <option value="">{{ t(required ? 'qqbot.memberPicker.choose' : 'qqbot.memberPicker.optional') }}</option>
       <option v-for="option in options" :key="key(option)" :value="key(option)" :disabled="key(option) !== selectedKey && (loading || !!error || !identifiable(option))">{{ optionLabel(option) }}</option>
-    </select>
+    </NativeSelectCompat>
     <p v-if="loading" role="status" class="text-xs text-gray-500">{{ t('qqbot.memberPicker.loading') }}</p>
     <p v-if="error" role="alert" class="text-sm text-red-600">{{ error }}</p>
     <p v-if="missingApp" class="text-xs text-amber-700">{{ t('qqbot.groupAdmins.appRequired') }}</p>
@@ -38,6 +38,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, onBeforeUnmount, ref, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { qqbotAPI, type QQMemberOption, type QQMemberPage } from '@/api/qqbot'
@@ -120,9 +121,9 @@ async function resolveSelection() {
     if (match) selected.value = match
   } catch { /* Keep the saved identity intact when its display hints cannot be resolved. */ }
 }
-function choose(event: Event) {
+function choose(raw: string | number | boolean) {
   if (props.disabled || missingApp.value || loading.value || error.value) return
-  const value = (event.target as HTMLSelectElement).value
+  const value = String(raw)
   if (!value) { clear(); return }
   const member = options.value.find(option => key(option) === value)
   if (!member || !identifiable(member)) return

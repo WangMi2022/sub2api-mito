@@ -83,6 +83,43 @@ describe('NativeSelectCompat', () => {
     wrapper.unmount()
   })
 
+  it('supports optgroup headers and multiple selection', async () => {
+    const picked = ref<number[]>([])
+    const wrapper = host(
+      `<NativeSelectCompat :value="picked" multiple data-testid="m" @change="picked = $event"><optgroup label="G1"><option :value="1">One</option><option :value="2">Two</option></optgroup><optgroup label="G2"><option :value="3">Three</option></optgroup></NativeSelectCompat>`,
+      () => ({ picked })
+    )
+    await nextTick()
+    await wrapper.get('[data-testid="m"]').trigger('click')
+    await nextTick()
+    const rows = document.body.querySelectorAll('.select-dropdown-portal .select-option')
+    // 2 个分组头 + 3 个选项
+    expect(rows.length).toBe(5)
+    expect(document.body.querySelectorAll('.select-option-group').length).toBe(2)
+    ;(rows[1] as HTMLElement).click()
+    await nextTick()
+    ;(rows[4] as HTMLElement).click()
+    await nextTick()
+    expect(picked.value).toEqual([1, 3])
+    // multiple 面板保持打开
+    expect(document.body.querySelector('.select-dropdown-portal')).not.toBeNull()
+    wrapper.unmount()
+  })
+
+  it('rolls the DOM back when the parent rejects the new value', async () => {
+    const value = ref('a')
+    const wrapper = host(
+      `<NativeSelectCompat :value="value" data-testid="s" @change="() => {}"><option value="a">A</option><option value="b">B</option></NativeSelectCompat>`,
+      () => ({ value })
+    )
+    await nextTick()
+    await wrapper.get('[data-testid="s"]').setValue('b')
+    await nextTick()
+    await nextTick()
+    expect((wrapper.get('[data-testid="s"]').element as HTMLSelectElement).value).toBe('a')
+    wrapper.unmount()
+  })
+
   it('reflects dynamically added options', async () => {
     const items = ref(['a'])
     const value = ref('a')

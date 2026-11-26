@@ -6,9 +6,9 @@
       <div class="grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
         <label class="min-w-0 space-y-1 text-sm">
           <span>{{ t('qqbot.rewardEditor.type') }}</span>
-          <select :value="kind" :data-testid="prefix + '-reward-type-' + index" class="input" @change="changeKind(index, $event)">
+          <NativeSelectCompat :value="kind" :data-testid="prefix + '-reward-type-' + index" class="input" @change="changeKind(index, $event)">
             <option v-for="option in allowedTypes" :key="option" :value="option" :disabled="option !== kind && kinds.includes(option)">{{ t('qqbot.rewardEditor.types.' + option) }}</option>
-          </select>
+          </NativeSelectCompat>
         </label>
         <template v-if="kind === 'balance'">
           <label class="min-w-0 space-y-1 text-sm">
@@ -49,6 +49,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import CouponTemplateSelect from './CouponTemplateSelect.vue'
@@ -106,8 +107,8 @@ function remove(index: number) {
   clear(kinds.value[index]!)
   kinds.value.splice(index, 1)
 }
-function changeKind(index: number, event: Event) {
-  const kind = (event.target as HTMLSelectElement).value as RewardKind
+function changeKind(index: number, value: string | number | boolean) {
+  const kind = String(value) as RewardKind
   if (!props.allowedTypes.includes(kind) || kinds.value.includes(kind)) return
   clear(kinds.value[index]!)
   kinds.value[index] = kind

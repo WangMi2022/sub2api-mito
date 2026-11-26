@@ -1,15 +1,16 @@
 <template>
   <label class="mt-4 block text-sm font-medium text-gray-700 dark:text-gray-300">
     {{ t('payment.stripePaymentMethod') }}
-    <select class="input mt-2 w-full" :value="modelValue" data-testid="stripe-subtype" @change="emit('update:modelValue', ($event.target as HTMLSelectElement).value)">
+    <NativeSelectCompat class="input mt-2 w-full" :value="modelValue" data-testid="stripe-subtype" @change="emit('update:modelValue', $event)">
       <option v-for="(rates, method) in methods" :key="method" :value="method">
         {{ t(`payment.methods.${method}`, method) }} · {{ rateLabel(rates) }}
       </option>
-    </select>
+    </NativeSelectCompat>
   </label>
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { useI18n } from 'vue-i18n'
 import type { MethodFeeRates } from '@/types/payment'
 import { paymentFeeRange } from './fees'

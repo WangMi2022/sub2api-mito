@@ -168,10 +168,10 @@
         <fieldset v-if="!isCiallo" class="space-y-3 rounded-lg border p-4 dark:border-dark-600">
           <legend class="px-2 font-medium">{{ t('qualityOps.judgeTitle') }}</legend>
           <label class="block space-y-1"><span>{{ t('qualityOps.judgeKind') }}</span>
-            <select :value="form.pelican_config.quality.judge.kind || 'llm'" class="input" data-testid="quality-judge-kind" @change="selectJudgeKind">
+            <NativeSelectCompat :value="form.pelican_config.quality.judge.kind || 'llm'" class="input" data-testid="quality-judge-kind" @change="selectJudgeKind">
               <option value="llm">{{ t('qualityOps.judgeLLM') }}</option>
               <option value="jev">{{ t('qualityOps.judgeJev') }}</option>
-            </select>
+            </NativeSelectCompat>
           </label>
           <p v-if="form.pelican_config.quality.judge.kind === 'jev'" class="text-sm text-gray-500" data-testid="quality-jev-hint">{{ t('qualityOps.judgeJevHint') }}</p>
           <div v-else class="grid gap-4 sm:grid-cols-2">
@@ -1206,9 +1206,9 @@ function judgmentReason(result: ScheduledTestResult) {
   const known = ['not_configured', 'config_unavailable', 'disabled', 'invalid_config', 'invalid_input', 'capacity', 'canceled', 'keys_unavailable', 'invalid_endpoint', 'transport_unavailable', 'timeout', 'credentials_rejected', 'rate_limited', 'invalid_response', 'request_failed', 'uncertain', 'correct', 'incorrect']
   return t(`qualityOps.jevReasons.${known.includes(reason) ? reason : 'uncertain'}`)
 }
-function selectJudgeKind(event: Event) {
+function selectJudgeKind(value: string | number | boolean) {
   const judge = form.value.pelican_config.quality.judge
-  judge.kind = (event.target as HTMLSelectElement).value === 'jev' ? 'jev' : 'llm'
+  judge.kind = String(value) === 'jev' ? 'jev' : 'llm'
   if (judge.kind === 'jev') { judge.group_id = 0; judge.model_id = '' }
   void loadJudgeModels()
 }

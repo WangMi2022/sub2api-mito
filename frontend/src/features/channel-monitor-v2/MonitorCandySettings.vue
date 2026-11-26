@@ -19,7 +19,7 @@
         </div>
         <div class="grid gap-3 sm:grid-cols-3">
           <label><span class="input-label">{{ t('channelMonitorV2.candy.model') }}</span><input :value="probe.model" class="input" maxlength="100" required :placeholder="t('channelMonitorV2.candy.modelHint')" @input="patch(index, { model: ($event.target as HTMLInputElement).value })" /></label>
-          <label><span class="input-label">{{ t('channelMonitorV2.candy.effort') }}</span><select :value="probe.reasoning_effort" class="input" @change="patch(index, { reasoning_effort: ($event.target as HTMLSelectElement).value })"><option v-for="effort in ['minimal', 'low', 'medium', 'high', 'xhigh']" :key="effort" :value="effort">{{ effort }}</option></select></label>
+          <label><span class="input-label">{{ t('channelMonitorV2.candy.effort') }}</span><NativeSelectCompat :value="probe.reasoning_effort" class="input" @change="patch(index, { reasoning_effort: $event })"><option v-for="effort in ['minimal', 'low', 'medium', 'high', 'xhigh']" :key="effort" :value="effort">{{ effort }}</option></NativeSelectCompat></label>
           <label><span class="input-label">{{ t('channelMonitorV2.candy.interval') }}</span><input :value="probe.interval_minutes" type="number" class="input" min="1" max="1440" step="1" required @input="patch(index, { interval_minutes: Number(($event.target as HTMLInputElement).value) })" /></label>
         </div>
         <p v-if="isDuplicate(index)" class="mt-2 text-xs text-red-600">{{ t('channelMonitorV2.candy.duplicateModel') }}</p>

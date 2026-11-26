@@ -44,16 +44,16 @@
         <label class="shrink-0 text-xs font-medium text-gray-500 dark:text-dark-400" :for="mobileSortId">
           {{ t('common.sort') }}
         </label>
-        <select
+        <NativeSelectCompat
           :id="mobileSortId"
           class="min-w-0 flex-1 rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-dark-600 dark:bg-dark-800 dark:text-gray-200"
           :value="sortKey"
-          @change="handleMobileSortKey(($event.target as HTMLSelectElement).value)"
+          @change="handleMobileSortKey($event)"
         >
           <option v-for="column in sortableColumns" :key="column.key" :value="column.key">
             {{ column.label }}
           </option>
-        </select>
+        </NativeSelectCompat>
         <button
           type="button"
           class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 dark:border-dark-600 dark:text-gray-300 dark:hover:bg-dark-700"
@@ -330,6 +330,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useVirtualizer, observeElementRect as observeElementRectDefault } from '@tanstack/vue-virtual'
 import { useI18n } from 'vue-i18n'

@@ -512,7 +512,7 @@
                 class="input mt-1" /></label
             ><label v-else-if="prizeForm.kind === 'subscription'" class="block"
               ><span class="input-label">{{ t('lottery.plan') }}</span
-              ><select v-model="prizeForm.plan_id" required class="input mt-1">
+              ><NativeSelectCompat :value="prizeForm.plan_id" required class="input mt-1" @change="prizeForm.plan_id = $event">
                 <option :value="0" disabled>{{ t('lottery.plan') }}</option>
                 <option
                   v-if="
@@ -525,7 +525,7 @@
                 </option>
                 <option v-for="plan in plans" :key="plan.id" :value="plan.id">
                   {{ plan.name }}
-                </option></select
+                </option></NativeSelectCompat
               ><span
                 v-if="
                   oldPrize?.kind === 'subscription' &&

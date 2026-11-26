@@ -32,7 +32,7 @@
         </div>
         <p class="text-xs text-gray-500">{{ t('qqbot.moderation.exemptionsHelp') }}</p>
         <div v-for="(exemption, index) in value.exemptions" :key="index" class="grid items-end gap-3 rounded-lg border p-3 md:grid-cols-[1fr_1fr_auto] dark:border-dark-700" data-testid="moderation-exemption-entry">
-          <label class="min-w-0 space-y-1 text-sm">{{ t('qqbot.groupAdmins.group') }}<select :value="exemption.group_id" required class="input" data-testid="moderation-exempt-group" @change="changeExemptionGroup(index, $event)"><option v-for="group in [...new Set([...effectiveGroups, exemption.group_id])]" :key="group" :value="group">{{ groupLabels?.[group] || group }}</option></select></label>
+          <label class="min-w-0 space-y-1 text-sm">{{ t('qqbot.groupAdmins.group') }}<NativeSelectCompat :value="exemption.group_id" required class="input" data-testid="moderation-exempt-group" @change="changeExemptionGroup(index, $event)"><option v-for="group in [...new Set([...effectiveGroups, exemption.group_id])]" :key="group" :value="group">{{ groupLabels?.[group] || group }}</option></NativeSelectCompat></label>
           <div class="min-w-0 space-y-3" data-testid="moderation-exempt-member">
             <QQMemberPicker :key="JSON.stringify([appId, exemption.group_id])" :model-value="exemption.member_id" :group-id="exemption.group_id" :app-id="appId" :selected-label="exemption.nickname" :disabled="disabled || !moderationEnabled" required @update:model-value="updateExemptionMember(index, $event)" @select="selectExemption(index, $event)" />
             <label class="block space-y-1 text-sm">{{ t('qqbot.groupAdmins.nickname') }}<input v-model.trim="exemption.nickname" class="input" maxlength="100" data-testid="moderation-exempt-nickname" /></label>
@@ -58,6 +58,7 @@
 </template>
 
 <script setup lang="ts">
+import NativeSelectCompat from '@/components/common/NativeSelectCompat.vue'
 import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { QQModerationConfig, QQBotRuntime, QQMemberOption } from '@/api/qqbot'
@@ -72,10 +73,10 @@ function addExemption() {
   const group = effectiveGroups.value[0]
   if (group && value.value.exemptions.length < 100) value.value.exemptions.push({ group_id: group, member_id: '' })
 }
-function changeExemptionGroup(index: number, event: Event) {
+function changeExemptionGroup(index: number, raw: string | number | boolean) {
   const exemption = value.value.exemptions[index]
   if (!exemption || props.disabled) return
-  exemption.group_id = (event.target as HTMLSelectElement).value
+  exemption.group_id = String(raw)
   exemption.member_id = ''; exemption.nickname = ''
 }
 function selectExemption(index: number, member: QQMemberOption) {
