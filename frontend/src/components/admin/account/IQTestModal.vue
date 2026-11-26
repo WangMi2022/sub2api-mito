@@ -139,6 +139,31 @@
           <PelicanQuestionSnapshot v-if="questionSnapshot" :question="questionSnapshot.pelican_question" :actual-prompt="questionSnapshot.actual_prompt" />
         </template>
       </template>
+      <div v-if="promptMode !== 'random'" class="rounded-lg border border-gray-200 p-3 dark:border-dark-600" data-testid="iq-presets">
+        <div class="flex flex-wrap items-end gap-2">
+          <div class="min-w-0 flex-1">
+            <Input v-model="presetName" :label="t('admin.accounts.pelicanTest.presets.nameLabel')" :placeholder="t('admin.accounts.pelicanTest.presets.namePlaceholder')" :disabled="running" data-testid="iq-preset-name" />
+          </div>
+          <button type="button" class="btn btn-secondary whitespace-nowrap" data-testid="iq-preset-save" :disabled="running || !canSavePreset" @click="savePreset">
+            <Icon name="check" size="sm" />
+            {{ t('admin.accounts.pelicanTest.presets.save') }}
+          </button>
+        </div>
+        <p v-if="presetMessage" class="mt-2 text-xs" :class="presetError ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'" role="status" data-testid="iq-preset-message">{{ presetMessage }}</p>
+        <div v-if="presets.length" class="mt-3 space-y-1.5" data-testid="iq-preset-list">
+          <div v-for="preset in presets" :key="preset.id" class="flex items-center justify-between gap-2 rounded-md border border-gray-100 px-2.5 py-1.5 dark:border-dark-700" data-testid="iq-preset-item">
+            <button type="button" class="min-w-0 flex-1 text-left" :disabled="running" :title="t('admin.accounts.pelicanTest.presets.applyHint')" data-testid="iq-preset-apply" @click="applyPreset(preset)">
+              <span class="block truncate text-sm font-medium text-gray-800 dark:text-gray-100">{{ preset.name }}</span>
+              <span class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ t(preset.questionKind === 'candy' ? 'admin.accounts.pelicanTest.candyQuestion' : 'admin.accounts.pelicanTest.pelicanQuestion') }} · {{ preset.reasoningEffort }} · {{ t('admin.accounts.pelicanTest.presets.summary', { count: preset.parallelCount }) }}</span>
+            </button>
+            <button type="button" class="rounded-md p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400" :disabled="running" :title="t('admin.accounts.pelicanTest.presets.delete')" :aria-label="t('admin.accounts.pelicanTest.presets.delete')" data-testid="iq-preset-delete" @click="deletePreset(preset)">
+              <Icon name="trash" size="sm" />
+            </button>
+          </div>
+        </div>
+        <p v-else class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{ t('admin.accounts.pelicanTest.presets.empty') }}</p>
+        <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">{{ t('admin.accounts.pelicanTest.presets.hint') }}</p>
+      </div>
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
         <TextArea
           v-if="promptMode !== 'random'"
@@ -301,6 +326,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { questionPrompt, questionContract, isTextAnswerKind, stateProbeVerdict, STATE_PROBE_QUESTION, type IntelligenceQuestion, type StateProbeVerdict } from '@/utils/intelligenceTest'
+import { parseIQPresets, serializeIQPresets, upsertIQPreset, IQ_PRESET_STORAGE_KEY, IQ_PRESET_NAME_MAX, type IQTestPreset } from '@/utils/iqTestPresets'
 import { useI18n } from 'vue-i18n'
 import { extractPelicanHtml as extractHtml } from '@/utils/pelicanHtml'
 import BaseDialog from '@/components/common/BaseDialog.vue'
@@ -434,6 +460,68 @@ function selectQuestion(value: string | number | boolean | null) {
   questionKind.value = value
   promptMode.value = 'custom'
   prompt.value = value === 'ciallo' ? value : questionPrompt(value)
+}
+
+// 自定义题面的已保存配置:本机 localStorage,跨账号共用,不含凭据。
+const presets = ref<IQTestPreset[]>([])
+const presetName = ref('')
+const presetMessage = ref('')
+const presetError = ref(false)
+const canSavePreset = computed(() => Boolean(presetName.value.trim() && prompt.value.trim() && questionKind.value !== 'ciallo'))
+
+function readPresets() {
+  try {
+    presets.value = parseIQPresets(localStorage.getItem(IQ_PRESET_STORAGE_KEY))
+  } catch {
+    presets.value = []
+  }
+}
+
+function persistPresets() {
+  try {
+    localStorage.setItem(IQ_PRESET_STORAGE_KEY, serializeIQPresets(presets.value))
+    return true
+  } catch {
+    return false
+  }
+}
+
+function savePreset() {
+  if (running.value || !canSavePreset.value) return
+  const name = presetName.value.trim().slice(0, IQ_PRESET_NAME_MAX)
+  const existing = presets.value.find((p) => p.name === name)
+  const preset: IQTestPreset = {
+    id: existing?.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    name,
+    questionKind: questionKind.value === 'candy' ? 'candy' : 'pelican',
+    prompt: prompt.value.trim(),
+    reasoningEffort: reasoningEffort.value,
+    parallelCount: normalizeCount(),
+    updatedAt: new Date().toISOString()
+  }
+  presets.value = upsertIQPreset(presets.value, preset)
+  presetError.value = !persistPresets()
+  presetMessage.value = t(presetError.value ? 'admin.accounts.pelicanTest.presets.saveFailed' : existing ? 'admin.accounts.pelicanTest.presets.updated' : 'admin.accounts.pelicanTest.presets.saved')
+}
+
+function applyPreset(preset: IQTestPreset) {
+  if (running.value) return
+  questionKind.value = preset.questionKind
+  promptMode.value = 'custom'
+  questionSnapshot.value = null
+  prompt.value = preset.prompt
+  reasoningEffort.value = reasoningLevels.includes(preset.reasoningEffort as typeof reasoningLevels[number]) ? preset.reasoningEffort : 'medium'
+  parallelCount.value = preset.parallelCount
+  presetName.value = preset.name
+  presetError.value = false
+  presetMessage.value = t('admin.accounts.pelicanTest.presets.applied', { name: preset.name })
+}
+
+function deletePreset(preset: IQTestPreset) {
+  if (running.value) return
+  presets.value = presets.value.filter((p) => p.id !== preset.id)
+  presetError.value = !persistPresets()
+  presetMessage.value = t(presetError.value ? 'admin.accounts.pelicanTest.presets.saveFailed' : 'admin.accounts.pelicanTest.presets.deleted')
 }
 const reasoningOptions = computed(() => reasoningLevels.map((value) => ({
   value,
@@ -781,6 +869,10 @@ watch(() => [props.show, props.account?.id] as const, ([show]) => {
   recordsView.value = null
   if (show) {
     readRecords()
+    readPresets()
+    presetName.value = ''
+    presetMessage.value = ''
+    presetError.value = false
     activeTab.value = 'results'
     viewingScheduled.value = false
     scheduledRecords.value = []

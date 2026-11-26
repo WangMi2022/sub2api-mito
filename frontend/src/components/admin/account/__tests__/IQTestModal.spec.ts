@@ -189,6 +189,69 @@ describe('IQTestModal', () => {
     wrapper.unmount()
   })
 
+  it('saves a custom preset and applies it after the dialog resets', async () => {
+    const wrapper = mountModal()
+    const vm = wrapper.vm as any
+    vm.selectQuestion('pelican')
+    vm.prompt = '创建一个 HTML，内容是 SVG 绘制叮当猫开飞碟'
+    vm.reasoningEffort = 'high'
+    vm.parallelCount = 3
+    vm.presetName = '叮当猫飞碟'
+    expect(wrapper.find('[data-testid="iq-presets"]').exists()).toBe(true)
+    vm.savePreset()
+    await flushPromises()
+    const stored = JSON.parse(localStorage.getItem('sub2api-iq-test-presets') || '[]')
+    expect(stored).toHaveLength(1)
+    expect(stored[0]).toMatchObject({ name: '叮当猫飞碟', questionKind: 'pelican', reasoningEffort: 'high', parallelCount: 3 })
+    expect(stored[0].prompt).toContain('叮当猫开飞碟')
+
+    // 重新打开弹窗回到默认糖果题,套用方案后完整回填。
+    await wrapper.setProps({ show: false })
+    await wrapper.setProps({ show: true })
+    await flushPromises()
+    expect(vm.questionKind).toBe('candy')
+    expect(vm.presets).toHaveLength(1)
+    vm.applyPreset(vm.presets[0])
+    expect(vm.questionKind).toBe('pelican')
+    expect(vm.prompt).toContain('叮当猫开飞碟')
+    expect(vm.reasoningEffort).toBe('high')
+    expect(vm.parallelCount).toBe(3)
+    expect(vm.promptMode).toBe('custom')
+    wrapper.unmount()
+  })
+
+  it('overwrites a same-name preset and deletes it back to empty storage', async () => {
+    const wrapper = mountModal()
+    const vm = wrapper.vm as any
+    vm.selectQuestion('pelican')
+    vm.presetName = '方案A'
+    vm.prompt = '第一版题面'
+    vm.savePreset()
+    vm.prompt = '第二版题面'
+    vm.savePreset()
+    expect(vm.presets).toHaveLength(1)
+    expect(vm.presets[0].prompt).toBe('第二版题面')
+    vm.deletePreset(vm.presets[0])
+    expect(vm.presets).toHaveLength(0)
+    expect(JSON.parse(localStorage.getItem('sub2api-iq-test-presets') || '[]')).toHaveLength(0)
+    wrapper.unmount()
+  })
+
+  it('hides presets in random question mode and refuses empty names', async () => {
+    const question = { id: 'pelican-bicycle', version: 'svg-motion-v1', round_id: 'manual:00000000000000000000000000000000', source: 'builtin:svg-motion', prompt: 'Draw fixture', criteria: ['Fixture rubric'] }
+    vi.spyOn(apiClient, 'get').mockResolvedValue({ data: { prompt: question.prompt, actual_prompt: 'Draw fixture\n\nHTML only', pelican_question: question } })
+    const wrapper = mountModal()
+    const vm = wrapper.vm as any
+    vm.selectQuestion('pelican')
+    vm.presetName = '  '
+    expect(vm.canSavePreset).toBe(false)
+    vm.presetName = '有效名称'
+    vm.selectPromptMode('random')
+    await flushPromises()
+    expect(wrapper.find('[data-testid="iq-presets"]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
   it('retains configured choices when discovery fails', async () => {
     getAvailableModels.mockRejectedValue(new Error('discovery unavailable'))
     const wrapper = mountModal({ credentials: { model_mapping: { 'gpt-6.1-sol': 'gpt-6.1-sol' } } })
