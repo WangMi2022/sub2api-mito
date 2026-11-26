@@ -6,7 +6,7 @@ web
 
 ## 本次目标（用户明确要求）
 
-为 `172.30.3.135:/data/sub2api-deploy/sub2api` 的 Sub2API 前端复用 `https://sub.anzhiyu.com/dashboard` 的视觉风格和组件外观。使用本项目原有业务功能；主题应在更新上游后可重复应用、检查冲突和撤销。交付目标仓库为 `WangMi2022/sub2api-mito`。
+为 本机部署目录 `/data/sub2api-deploy/sub2api` 的 Sub2API 前端复用 `https://sub.anzhiyu.com/dashboard` 的视觉风格和组件外观。使用本项目原有业务功能；主题应在更新上游后可重复应用、检查冲突和撤销。交付目标仓库为 `WangMi2022/sub2api-mito`。
 
 ## 产品与使用场景（现有代码依据）
 
