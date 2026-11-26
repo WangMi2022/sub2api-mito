@@ -2201,6 +2201,9 @@ export default {
         promptLabel: '测试消息',
         promptHint: '同一题目会原样发给每个并行任务。',
         presets: {
+          title: '题面方案',
+          kindCandy: '逻辑题',
+          kindSvg: 'SVG 动画',
           nameLabel: '方案名称',
           namePlaceholder: '给当前题目与参数起个名字',
           save: '保存方案',
@@ -2210,7 +2213,7 @@ export default {
           deleted: '方案已删除。',
           saveFailed: '保存失败：浏览器存储不可用。',
           empty: '还没有已保存的方案。',
-          hint: '方案保存在本机浏览器，包含题目、思考强度与并行次数；点击名称即可套用。',
+          hint: '保存题目、思考强度与并行次数，存于本机浏览器，点击卡片即可套用。',
           applyHint: '点击套用此方案',
           delete: '删除方案',
           summary: '并行 {count} 次'

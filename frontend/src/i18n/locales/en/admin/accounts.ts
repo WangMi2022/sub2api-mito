@@ -2111,6 +2111,9 @@ export default {
         promptLabel: 'Test message',
         promptHint: 'The same prompt is sent unchanged to every parallel run.',
         presets: {
+          title: 'Prompt presets',
+          kindCandy: 'Logic',
+          kindSvg: 'SVG motion',
           nameLabel: 'Preset name',
           namePlaceholder: 'Name this question and its settings',
           save: 'Save preset',
@@ -2120,7 +2123,7 @@ export default {
           deleted: 'Preset deleted.',
           saveFailed: 'Save failed: browser storage is unavailable.',
           empty: 'No saved presets yet.',
-          hint: 'Presets live in this browser and store the prompt, reasoning effort and parallel count. Click a name to apply.',
+          hint: 'Stores the prompt, reasoning effort and parallel count in this browser. Click a card to apply.',
           applyHint: 'Click to apply this preset',
           delete: 'Delete preset',
           summary: '{count} parallel runs'

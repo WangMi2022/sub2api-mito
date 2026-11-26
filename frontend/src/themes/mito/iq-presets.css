@@ -1,0 +1,296 @@
+/* Intelligence-test preset shelf. Scoped to the Mito theme and the presets
+   block's own classes; upstream layout, data and tests stay untouched. */
+html[data-ui-theme='mito'] .mito-iq-presets {
+  overflow: hidden;
+  border: 1px solid var(--mito-card-border);
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, var(--mito-blue-soft) 0%, transparent 42%),
+    var(--mito-surface);
+  box-shadow: var(--mito-shadow);
+}
+
+html[data-ui-theme='mito'] .mito-iq-presets-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px 0;
+}
+
+html[data-ui-theme='mito'] .mito-iq-presets-badge {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--mito-blue-border);
+  border-radius: 10px;
+  background: var(--mito-surface);
+  color: var(--mito-blue);
+}
+
+html[data-ui-theme='mito'] .mito-iq-presets-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--mito-text);
+}
+
+html[data-ui-theme='mito'] .mito-iq-presets-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--mito-blue-soft);
+  border: 1px solid var(--mito-blue-border);
+  color: var(--mito-blue);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+html[data-ui-theme='mito'] .mito-iq-presets-sub {
+  margin-top: 2px;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--mito-muted);
+}
+
+html[data-ui-theme='mito'] .mito-iq-presets-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px 0;
+}
+
+html[data-ui-theme='mito'] .mito-iq-presets-form .input {
+  border-radius: 10px;
+}
+
+html[data-ui-theme='mito'] .mito-iq-presets-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 10px;
+}
+
+html[data-ui-theme='mito'] .mito-iq-presets-message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 16px 0;
+  padding: 7px 10px;
+  border-radius: 9px;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+html[data-ui-theme='mito'] .mito-iq-presets-message--ok {
+  border: 1px solid var(--mito-green-border);
+  background: var(--mito-green-soft);
+  color: #15803d;
+}
+
+html[data-ui-theme='mito'].dark .mito-iq-presets-message--ok {
+  color: #4ade80;
+}
+
+html[data-ui-theme='mito'] .mito-iq-presets-message--error {
+  border: 1px solid rgb(254 202 202);
+  background: rgb(254 242 242);
+  color: #b91c1c;
+}
+
+html[data-ui-theme='mito'].dark .mito-iq-presets-message--error {
+  border-color: rgb(127 29 29 / 60%);
+  background: rgb(69 10 10 / 40%);
+  color: #f87171;
+}
+
+html[data-ui-theme='mito'] .mito-iq-presets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
+  padding: 12px 16px 16px;
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-card {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  border: 1px solid var(--mito-card-border);
+  border-radius: 12px;
+  background: var(--mito-surface);
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-card:hover {
+  border-color: var(--mito-blue-border);
+  box-shadow: 0 4px 14px rgb(15 23 42 / 7%);
+  transform: translateY(-1px);
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-card--active {
+  border-color: var(--mito-blue);
+  box-shadow: 0 0 0 1px var(--mito-blue), 0 4px 14px rgb(37 99 235 / 12%);
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-apply {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 4px 10px 12px;
+  border: 0;
+  border-radius: 12px 0 0 12px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-apply:focus-visible {
+  outline: 2px solid var(--mito-blue);
+  outline-offset: -2px;
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-apply:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-kind {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-kind--svg {
+  border: 1px solid var(--mito-blue-border);
+  background: var(--mito-blue-soft);
+  color: var(--mito-blue);
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-kind--candy {
+  border: 1px solid #fde68a;
+  background: #fffbeb;
+  color: #d97706;
+}
+
+html[data-ui-theme='mito'].dark .mito-iq-preset-kind--candy {
+  border-color: rgb(217 119 6 / 45%);
+  background: rgb(120 53 15 / 25%);
+  color: #fbbf24;
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-name {
+  display: block;
+  overflow: hidden;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--mito-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border: 1px solid var(--mito-card-border);
+  border-radius: 999px;
+  background: var(--mito-subtle);
+  color: var(--mito-muted);
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-delete {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  width: 30px;
+  height: 30px;
+  margin-right: 6px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--mito-muted);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 140ms ease, background-color 140ms ease, color 140ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-card:hover .mito-iq-preset-delete,
+html[data-ui-theme='mito'] .mito-iq-preset-delete:focus-visible {
+  opacity: 1;
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-delete:hover {
+  background: rgb(254 242 242);
+  color: #dc2626;
+}
+
+html[data-ui-theme='mito'].dark .mito-iq-preset-delete:hover {
+  background: rgb(69 10 10 / 40%);
+  color: #f87171;
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-delete:focus-visible {
+  outline: 2px solid var(--mito-blue);
+  outline-offset: -2px;
+}
+
+html[data-ui-theme='mito'] .mito-iq-preset-delete:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+html[data-ui-theme='mito'] .mito-iq-presets-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 16px 16px;
+  padding: 18px 12px;
+  border: 1px dashed var(--mito-card-border);
+  border-radius: 12px;
+  color: var(--mito-muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-iq-preset-card,
+  html[data-ui-theme='mito'] .mito-iq-preset-delete {
+    transition: none;
+  }
+
+  html[data-ui-theme='mito'] .mito-iq-preset-card:hover {
+    transform: none;
+  }
+}

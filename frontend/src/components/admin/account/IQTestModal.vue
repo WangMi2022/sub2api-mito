@@ -139,31 +139,51 @@
           <PelicanQuestionSnapshot v-if="questionSnapshot" :question="questionSnapshot.pelican_question" :actual-prompt="questionSnapshot.actual_prompt" />
         </template>
       </template>
-      <div v-if="promptMode !== 'random'" class="rounded-lg border border-gray-200 p-3 dark:border-dark-600" data-testid="iq-presets">
-        <div class="flex flex-wrap items-end gap-2">
+      <section v-if="promptMode !== 'random'" class="mito-iq-presets rounded-xl border border-gray-200 dark:border-dark-600" data-testid="iq-presets" :aria-label="t('admin.accounts.pelicanTest.presets.title')">
+        <header class="mito-iq-presets-head">
+          <span class="mito-iq-presets-badge" aria-hidden="true"><Icon name="clipboard" size="sm" /></span>
           <div class="min-w-0 flex-1">
-            <Input v-model="presetName" :label="t('admin.accounts.pelicanTest.presets.nameLabel')" :placeholder="t('admin.accounts.pelicanTest.presets.namePlaceholder')" :disabled="running" data-testid="iq-preset-name" />
+            <h4 class="mito-iq-presets-title">{{ t('admin.accounts.pelicanTest.presets.title') }}<span v-if="presets.length" class="mito-iq-presets-count">{{ presets.length }}</span></h4>
+            <p class="mito-iq-presets-sub">{{ t('admin.accounts.pelicanTest.presets.hint') }}</p>
           </div>
-          <button type="button" class="btn btn-secondary whitespace-nowrap" data-testid="iq-preset-save" :disabled="running || !canSavePreset" @click="savePreset">
-            <Icon name="check" size="sm" />
+        </header>
+        <div class="mito-iq-presets-form">
+          <div class="min-w-0 flex-1">
+            <Input v-model="presetName" :placeholder="t('admin.accounts.pelicanTest.presets.namePlaceholder')" :disabled="running" :aria-label="t('admin.accounts.pelicanTest.presets.nameLabel')" data-testid="iq-preset-name" />
+          </div>
+          <button type="button" class="btn btn-primary mito-iq-presets-save whitespace-nowrap" data-testid="iq-preset-save" :disabled="running || !canSavePreset" @click="savePreset">
+            <Icon name="plus" size="sm" />
             {{ t('admin.accounts.pelicanTest.presets.save') }}
           </button>
         </div>
-        <p v-if="presetMessage" class="mt-2 text-xs" :class="presetError ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'" role="status" data-testid="iq-preset-message">{{ presetMessage }}</p>
-        <div v-if="presets.length" class="mt-3 space-y-1.5" data-testid="iq-preset-list">
-          <div v-for="preset in presets" :key="preset.id" class="flex items-center justify-between gap-2 rounded-md border border-gray-100 px-2.5 py-1.5 dark:border-dark-700" data-testid="iq-preset-item">
-            <button type="button" class="min-w-0 flex-1 text-left" :disabled="running" :title="t('admin.accounts.pelicanTest.presets.applyHint')" data-testid="iq-preset-apply" @click="applyPreset(preset)">
-              <span class="block truncate text-sm font-medium text-gray-800 dark:text-gray-100">{{ preset.name }}</span>
-              <span class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ t(preset.questionKind === 'candy' ? 'admin.accounts.pelicanTest.candyQuestion' : 'admin.accounts.pelicanTest.pelicanQuestion') }} · {{ preset.reasoningEffort }} · {{ t('admin.accounts.pelicanTest.presets.summary', { count: preset.parallelCount }) }}</span>
+        <p v-if="presetMessage" class="mito-iq-presets-message" :class="presetError ? 'mito-iq-presets-message--error' : 'mito-iq-presets-message--ok'" role="status" data-testid="iq-preset-message">
+          <Icon :name="presetError ? 'ban' : 'checkCircle'" size="xs" aria-hidden="true" />{{ presetMessage }}
+        </p>
+        <div v-if="presets.length" class="mito-iq-presets-grid" data-testid="iq-preset-list">
+          <div v-for="preset in presets" :key="preset.id" class="mito-iq-preset-card" :class="{ 'mito-iq-preset-card--active': presetName === preset.name }" data-testid="iq-preset-item">
+            <button type="button" class="mito-iq-preset-apply" :disabled="running" :title="t('admin.accounts.pelicanTest.presets.applyHint')" data-testid="iq-preset-apply" @click="applyPreset(preset)">
+              <span class="mito-iq-preset-kind" :class="preset.questionKind === 'candy' ? 'mito-iq-preset-kind--candy' : 'mito-iq-preset-kind--svg'" aria-hidden="true">
+                <Icon :name="preset.questionKind === 'candy' ? 'lightbulb' : 'sparkles'" size="xs" />
+              </span>
+              <span class="min-w-0 flex-1">
+                <span class="mito-iq-preset-name">{{ preset.name }}</span>
+                <span class="mito-iq-preset-meta">
+                  <span class="mito-iq-preset-chip">{{ t(preset.questionKind === 'candy' ? 'admin.accounts.pelicanTest.presets.kindCandy' : 'admin.accounts.pelicanTest.presets.kindSvg') }}</span>
+                  <span class="mito-iq-preset-chip">{{ preset.reasoningEffort }}</span>
+                  <span class="mito-iq-preset-chip">{{ t('admin.accounts.pelicanTest.presets.summary', { count: preset.parallelCount }) }}</span>
+                </span>
+              </span>
             </button>
-            <button type="button" class="rounded-md p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400" :disabled="running" :title="t('admin.accounts.pelicanTest.presets.delete')" :aria-label="t('admin.accounts.pelicanTest.presets.delete')" data-testid="iq-preset-delete" @click="deletePreset(preset)">
+            <button type="button" class="mito-iq-preset-delete" :disabled="running" :title="t('admin.accounts.pelicanTest.presets.delete')" :aria-label="t('admin.accounts.pelicanTest.presets.delete')" data-testid="iq-preset-delete" @click="deletePreset(preset)">
               <Icon name="trash" size="sm" />
             </button>
           </div>
         </div>
-        <p v-else class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{ t('admin.accounts.pelicanTest.presets.empty') }}</p>
-        <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">{{ t('admin.accounts.pelicanTest.presets.hint') }}</p>
-      </div>
+        <div v-else class="mito-iq-presets-empty">
+          <Icon name="inbox" size="md" aria-hidden="true" />
+          <p>{{ t('admin.accounts.pelicanTest.presets.empty') }}</p>
+        </div>
+      </section>
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
         <TextArea
           v-if="promptMode !== 'random'"
