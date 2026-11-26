@@ -110,9 +110,27 @@ html[data-ui-theme='mito'] .select-dropdown-portal .select-empty {
   color: var(--mito-muted);
 }
 
-/* Compat overlay: the transparent native select sits above the styled trigger. */
+/* Compat overlay: the transparent native select sits above the styled trigger.
+   The trigger carries the original .input class; strip its native-input chrome
+   so only the unified select styling shows (no double border / focus ring). */
 html[data-ui-theme='mito'] .mito-select-compat .select-trigger {
   width: 100%;
+}
+
+html[data-ui-theme='mito'] .mito-select-compat .select-trigger.input {
+  padding: 0.625rem 1rem;
+  border-width: 1px;
+  border-style: solid;
+  outline: none;
+}
+
+html[data-ui-theme='mito'] .mito-select-compat .select-trigger.input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(var(--mito-primary-500, 59 130 246) / 18%);
+}
+
+html[data-ui-theme='mito'] .mito-select-compat:focus-within .select-trigger.input {
+  border-color: var(--mito-blue);
 }
 
 html[data-ui-theme='mito'] .mito-select-compat:focus-within .select-trigger {
