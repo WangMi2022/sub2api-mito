@@ -1,14 +1,23 @@
 <template>
   <AuthLayout>
-    <div data-auth-page="register" class="space-y-6">
+    <div data-auth-page="register" class="mito-auth-form-flow space-y-6">
       <!-- Title -->
-      <div class="text-center">
+      <div class="mito-auth-form-heading text-center">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-          {{ registrationMode === 'oidc' ? t('auth.access.unifiedRegistration') : t('auth.createAccount') }}
+          {{ registrationMode === 'oidc' ? t('auth.access.unifiedRegistration') : authText('registerTitle') }}
         </h2>
         <p class="mt-2 text-sm text-gray-500 dark:text-dark-400">
-          {{ registrationMode === 'oidc' ? t('auth.access.registerHint') : t('auth.signUpToStart', { siteName }) }}
+          {{ registrationMode === 'oidc' ? t('auth.access.registerHint') : authText('registerSubtitle') }}
         </p>
+      </div>
+
+      <div v-if="settingsLoaded && registrationMode === 'legacy'" class="mito-auth-register-note">
+        <strong>{{ authText('registerNoteTitle') }}</strong>
+        <p>{{ authText('registerNoteDescription') }}</p>
+        <div class="mito-auth-register-flags">
+          <span v-if="!invitationCodeEnabled">{{ authText('noInvitationRequired') }}</span>
+          <span v-if="!emailVerifyEnabled">{{ authText('directConsoleAccess') }}</span>
+        </div>
       </div>
 
       <p v-if="errorMessage" role="alert" class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</p>
@@ -34,7 +43,7 @@
       </div>
 
       <!-- Registration Form -->
-      <form v-else @submit.prevent="handleRegister" class="space-y-5">
+      <form v-else @submit.prevent="handleRegister" class="mito-auth-primary-form space-y-5">
         <!-- Email Input -->
         <div>
           <label for="email" class="input-label">
@@ -82,6 +91,8 @@
             <button
               type="button"
               :disabled="registrationActionDisabled"
+              :aria-label="showPassword ? authText('hidePassword') : authText('showPassword')"
+              class="mito-password-toggle absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-dark-300"
               @click="showPassword = !showPassword"
             >
               <Icon v-if="showPassword" name="eyeOff" size="md" />
@@ -116,6 +127,8 @@
             <button
               type="button"
               :disabled="registrationActionDisabled"
+              :aria-label="showConfirmPassword ? authText('hidePassword') : authText('showPassword')"
+              class="mito-password-toggle absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-dark-300"
               @click="showConfirmPassword = !showConfirmPassword"
             >
               <Icon v-if="showConfirmPassword" name="eyeOff" size="md" />
@@ -313,7 +326,7 @@
 
       </form>
 
-      <div v-if="showOAuthLogin" class="space-y-3 pt-1">
+      <div v-if="showOAuthLogin" class="mito-auth-alternatives space-y-3 pt-1">
         <div class="flex items-center gap-3">
           <div class="h-px flex-1 bg-gray-200 dark:bg-dark-700"></div>
           <span class="text-xs text-gray-500 dark:text-dark-400">
@@ -363,7 +376,7 @@
 
     <!-- Footer -->
     <template #footer>
-      <p class="text-gray-500 dark:text-dark-400">
+      <p class="mito-auth-account-switch text-gray-500 dark:text-dark-400">
         {{ t('auth.alreadyHaveAccount') }}
         <router-link
           to="/login"
@@ -381,6 +394,7 @@ import { computed, ref, reactive, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { AuthLayout } from '@/components/layout'
+import { useMitoLabels } from '@/themes/mito/labels'
 import LinuxDoOAuthSection from '@/components/auth/LinuxDoOAuthSection.vue'
 import WechatOAuthSection from '@/components/auth/WechatOAuthSection.vue'
 import EmailOAuthButtons from '@/components/auth/EmailOAuthButtons.vue'
@@ -414,6 +428,7 @@ import {
 import type { LoginAgreementDocument } from '@/types'
 
 const { t, locale } = useI18n()
+const authText = useMitoLabels()
 const LOGIN_AGREEMENT_STORAGE_KEY = 'sub2api_login_agreement_consent'
 
 // ==================== Router & Stores ====================
