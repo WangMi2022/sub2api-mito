@@ -247,6 +247,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		SettingKeyAvailableChannelsEnabled,
 		SettingKeyPelicanShowcaseEnabled,
 		SettingKeySubscriptionEnabled,
+		SettingKeyAPIKeyMultiGroupEnabled,
 		SettingKeyModelPlazaEnabled,
 		SettingKeyModelPlazaRequireAuth,
 		SettingKeyPluginManagementEnabled,
@@ -398,7 +399,8 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		AvailableChannelsEnabled: settings[SettingKeyAvailableChannelsEnabled] == "true",
 		PelicanShowcaseEnabled:   settings[SettingKeyPelicanShowcaseEnabled] == "true",
 
-		SubscriptionEnabled: !isFalseSettingValue(settings[SettingKeySubscriptionEnabled]),
+		SubscriptionEnabled:     !isFalseSettingValue(settings[SettingKeySubscriptionEnabled]),
+		APIKeyMultiGroupEnabled: !isFalseSettingValue(settings[SettingKeyAPIKeyMultiGroupEnabled]),
 
 		ModelPlazaEnabled:       settings[SettingKeyModelPlazaEnabled] == "true",
 		ModelPlazaRequireAuth:   settings[SettingKeyModelPlazaRequireAuth] == "true",
@@ -747,6 +749,7 @@ type PublicSettingsInjectionPayload struct {
 	AvailableChannelsEnabled              bool `json:"available_channels_enabled"`
 	PelicanShowcaseEnabled                bool `json:"pelican_showcase_enabled"`
 	SubscriptionEnabled                   bool `json:"subscription_enabled"`
+	APIKeyMultiGroupEnabled               bool `json:"api_key_multi_group_enabled"`
 	ModelPlazaEnabled                     bool `json:"model_plaza_enabled"`
 	ModelPlazaRequireAuth                 bool `json:"model_plaza_require_auth"`
 	PluginManagementEnabled               bool `json:"plugin_management_enabled"`
@@ -846,6 +849,7 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		AvailableChannelsEnabled:              settings.AvailableChannelsEnabled,
 		PelicanShowcaseEnabled:                settings.PelicanShowcaseEnabled,
 		SubscriptionEnabled:                   settings.SubscriptionEnabled,
+		APIKeyMultiGroupEnabled:               settings.APIKeyMultiGroupEnabled,
 		ModelPlazaEnabled:                     settings.ModelPlazaEnabled,
 		ModelPlazaRequireAuth:                 settings.ModelPlazaRequireAuth,
 		PluginManagementEnabled:               settings.PluginManagementEnabled,
