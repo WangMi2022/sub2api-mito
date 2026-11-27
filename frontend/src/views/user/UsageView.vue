@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <div class="mito-usage-view space-y-6">
+    <div class="space-y-6">
       <UsageStatsCards v-if="showUsageControls" :stats="usageStats" :show-account-cost="false" :strike-standard-cost="true" />
 
       <div v-if="showUsageControls" class="space-y-4">
@@ -67,7 +67,7 @@
         </div>
       </div>
 
-      <div v-if="showUsageControls" class="mito-request-log-filters card p-6">
+      <div v-if="showUsageControls" class="card p-6">
         <div class="flex flex-wrap items-end justify-between gap-4">
           <div v-if="activeTab === 'errors'" class="flex flex-1 flex-wrap items-end gap-4">
             <div class="w-full sm:w-auto sm:min-w-[220px]">
@@ -172,7 +172,7 @@
         <button class="tab" :class="{ 'tab-active': activeTab === 'usage' }" @click="activeTab = 'usage'">
           {{ t('usage.tabs.usage') }}
         </button>
-        <button v-if="errorViewEnabled" class="mito-request-log-tabs tab" :class="{ 'tab-active': activeTab === 'errors' }" @click="switchToErrors">
+        <button v-if="errorViewEnabled" class="tab" :class="{ 'tab-active': activeTab === 'errors' }" @click="switchToErrors">
           {{ t('usage.tabs.errors') }}
         </button>
         <div class="flex items-center gap-1">
@@ -182,32 +182,28 @@
       </div>
 
       <template v-if="activeTab === 'usage'">
-        <div class="mito-request-log-section space-y-6">
-          <UsageTable
-            variant="request-log"
-            :data="usageLogs"
-            :loading="loading"
-            :columns="visibleColumns"
-            :server-side-sort="true"
-            :show-account-billing="false"
-            :show-upstream-endpoint="false"
-            cache-rate-audience="user"
-            default-sort-key="created_at"
-            default-sort-order="desc"
-            @sort="handleSort"
-            @ipGeoBatchFailed="handleIpGeoBatchFailed"
-          />
+        <UsageTable
+          :data="usageLogs"
+          :loading="loading"
+          :columns="visibleColumns"
+          :server-side-sort="true"
+          :show-account-billing="false"
+          :show-upstream-endpoint="false"
+          cache-rate-audience="user"
+          default-sort-key="created_at"
+          default-sort-order="desc"
+          @sort="handleSort"
+          @ipGeoBatchFailed="handleIpGeoBatchFailed"
+        />
 
-          <Pagination
-            v-if="pagination.total > 0"
-            variant="request-log"
-            :page="pagination.page"
-            :total="pagination.total"
-            :page-size="pagination.page_size"
-            @update:page="handlePageChange"
-            @update:pageSize="handlePageSizeChange"
-          />
-        </div>
+        <Pagination
+          v-if="pagination.total > 0"
+          :page="pagination.page"
+          :total="pagination.total"
+          :page-size="pagination.page_size"
+          @update:page="handlePageChange"
+          @update:pageSize="handlePageSizeChange"
+        />
       </template>
 
       <UserErrorRequestsTable
