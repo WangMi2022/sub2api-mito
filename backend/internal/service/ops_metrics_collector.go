@@ -8,6 +8,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -84,8 +85,32 @@ func NewOpsMetricsCollector(
 		concurrencyService: concurrencyService,
 		db:                 db,
 		redisClient:        redisClient,
-		instanceID:         uuid.NewString(),
+		instanceID:         stableOpsInstanceID(cfg),
 	}
+}
+
+// stableOpsInstanceID keeps the network-sampler identity across restarts by
+// persisting it in the instance's own data directory (each deployment mounts a
+// separate one). A fresh random UUID per process fragmented the minute curves
+// into short-lived instances after every release; the persisted ID keeps one
+// continuous series per deployment. Falls back to a random ID when the data
+// directory is unavailable, preserving the old behavior.
+func stableOpsInstanceID(cfg *config.Config) string {
+	dir := "./data"
+	if cfg != nil && strings.TrimSpace(cfg.Pricing.DataDir) != "" {
+		dir = cfg.Pricing.DataDir
+	}
+	path := filepath.Join(dir, "ops_instance_id")
+	if raw, err := os.ReadFile(path); err == nil {
+		if id := strings.TrimSpace(string(raw)); id != "" && len(id) <= 64 {
+			return id
+		}
+	}
+	id := uuid.NewString()
+	if err := os.MkdirAll(dir, 0o755); err == nil {
+		_ = os.WriteFile(path, []byte(id+"\n"), 0o644)
+	}
+	return id
 }
 
 func (c *OpsMetricsCollector) Start() {
