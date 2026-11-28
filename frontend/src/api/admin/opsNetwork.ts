@@ -7,6 +7,7 @@ export interface NetworkSeries {
   points: NetworkPoint[]
   body_points: { at: string; bytes: number; samples: number }[]
   scope: string
+  instance_labels?: Record<string, string>
 }
 export async function getNetworkSeries(signal?: AbortSignal) {
   return (await apiClient.get<NetworkSeries>('/admin/ops/dashboard/network-series', { params: { time_range: '1h' }, signal })).data

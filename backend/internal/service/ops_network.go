@@ -31,6 +31,9 @@ type OpsNetworkSeries struct {
 	Points     []OpsNetworkPoint   `json:"points"`
 	BodyPoints []OpsBodyBytesPoint `json:"body_points"`
 	Scope      string              `json:"scope"`
+	// InstanceLabels maps sampler instance IDs to human-readable names.
+	// Additive: old clients ignore it; IDs remain the canonical keys.
+	InstanceLabels map[string]string `json:"instance_labels,omitempty"`
 }
 type opsNetworkStore interface {
 	InsertNetworkSample(context.Context, OpsNetworkPoint) error
@@ -244,5 +247,32 @@ func (s *OpsService) NetworkSeries(ctx context.Context, start, end time.Time) (*
 	if !ok {
 		return nil, fmt.Errorf("network storage unavailable")
 	}
-	return store.ReadNetworkSeries(ctx, start, end)
+	series, err := store.ReadNetworkSeries(ctx, start, end)
+	if err != nil || series == nil {
+		return series, err
+	}
+	// Sampler instance IDs are per-process UUIDs; label them with the site name
+	// so the picker shows a readable name instead of a raw ID fragment.
+	if len(series.Points) > 0 && s.settingRepo != nil {
+		name := "Sub2API"
+		if value, err := s.settingRepo.GetValue(ctx, SettingKeySiteName); err == nil && value != "" {
+			name = value
+		}
+		var order []string
+		labels := make(map[string]string)
+		for _, p := range series.Points {
+			if _, ok := labels[p.Instance]; !ok {
+				labels[p.Instance] = name
+				order = append(order, p.Instance)
+			}
+		}
+		// Several sampler processes can share the window; number them in first-seen order.
+		if len(order) > 1 {
+			for i, id := range order {
+				labels[id] = fmt.Sprintf("%s · %d", name, i+1)
+			}
+		}
+		series.InstanceLabels = labels
+	}
+	return series, nil
 }

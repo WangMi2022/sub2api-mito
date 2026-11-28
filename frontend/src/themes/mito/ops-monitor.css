@@ -623,3 +623,53 @@ html[data-ui-theme='mito'] .mito-ops-dashboard > .grid > *:nth-child(4) { animat
     transform: none;
   }
 }
+
+/* ---------------------------------------------------------------- Network curves
+   Readable axes: quiet gridlines, labelled ticks, soft area fill under the line. */
+html[data-ui-theme='mito'] .mito-ops-network .mito-ops-network-cell {
+  padding: 10px 12px;
+  border: 1px solid var(--mito-ops-border);
+  border-radius: 12px;
+  background: var(--mito-ops-sub-surface);
+}
+
+html[data-ui-theme='mito'] .mito-ops-network .mito-ops-network-cell h4 {
+  font-weight: 600;
+  letter-spacing: -.01em;
+  margin-bottom: 4px;
+}
+
+html[data-ui-theme='mito'] .mito-ops-network .mito-ops-network-grid line {
+  stroke: var(--mito-ops-border);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+html[data-ui-theme='mito'] .mito-ops-network .mito-ops-network-grid text {
+  fill: var(--mito-muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+html[data-ui-theme='mito'] .mito-ops-network .mito-ops-network-axis {
+  stroke: var(--mito-ops-border);
+  stroke-width: 1.5;
+}
+
+html[data-ui-theme='mito'] .mito-ops-network .mito-ops-network-area {
+  fill: rgb(2 132 199 / 10%);
+  stroke: none;
+}
+
+html[data-ui-theme='mito'].dark .mito-ops-network .mito-ops-network-area {
+  fill: rgb(56 189 248 / 12%);
+}
+
+html[data-ui-theme='mito'] .mito-ops-network .mito-ops-network-line {
+  filter: drop-shadow(0 1px 2px rgb(2 132 199 / 25%));
+}
+
+html[data-ui-theme='mito'] .mito-ops-network .mito-ops-network-dot {
+  stroke: var(--mito-ops-surface);
+  stroke-width: 1;
+}
