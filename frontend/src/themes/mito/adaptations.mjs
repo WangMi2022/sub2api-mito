@@ -1428,7 +1428,8 @@ contracts.push(...[
       ".mito-auth-register-note",
       ".mito-auth-alternatives",
       '@media (max-width: 720px)',
-      '@media (prefers-reduced-motion: reduce)'
+      '@media (prefers-reduced-motion: reduce)',
+      'mito-auth-ring-spin'
     ]
   },
   {
