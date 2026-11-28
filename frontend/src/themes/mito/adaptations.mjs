@@ -1002,7 +1002,7 @@ export const contracts = [
   { path: 'frontend/src/themes/mito/DashboardStats.vue', anchors: ['stats: UserDashboardStats'] },
   { path: 'frontend/src/themes/mito/DashboardCharts.vue', anchors: ['trend: TrendDataPoint[]', 'models: ModelStat[]'] },
   { path: 'frontend/src/themes/mito/useChartTooltip.ts', anchors: ['export function useChartTooltip'] },
-  {"path":"frontend/src/themes/mito/ops-monitor.css","anchors":["html[data-ui-theme='mito']",".mito-ops-dashboard","mito-ops-card-in","mito-ops-sweep","prefers-reduced-motion"]},
+  {"path":"frontend/src/themes/mito/ops-monitor.css","anchors":["html[data-ui-theme='mito']",".mito-ops-dashboard","mito-ops-card-in","mito-ops-sweep",".rounded-3xl.ring-1","prefers-reduced-motion"]},
   { path: 'frontend/src/themes/mito/assets/outfit-latin.ttf', binary: true },
   { path: 'frontend/src/themes/mito/PelicanShowcaseGroup.vue', anchors: ['mito-pelican-group', 'mito-pelican-group-header', 'mito-pelican-group-chevron', 'aria-expanded', 'data-testid="pelican-showcase-body"'] },
   { path: 'frontend/src/themes/mito/pelican-showcase.css', anchors: ["html[data-ui-theme='mito']", '.mito-pelican-group-header', '.mito-pelican-group-chevron', '.mito-pelican-grid', 'prefers-reduced-motion'] },

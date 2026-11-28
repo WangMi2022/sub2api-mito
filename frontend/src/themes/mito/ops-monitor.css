@@ -478,3 +478,148 @@ html[data-ui-theme='mito'] .mito-ops-dashboard .custom-scrollbar:hover::-webkit-
     animation: none !important;
   }
 }
+
+/* ================================================================ Body Cards
+   The header already has its own treatment; everything below it (chart cards,
+   network section, alert events, system logs) gets the same unified surface:
+   soft border, gentle lift on hover, consistent radii and typography. */
+
+/* Chart cards (rounded-3xl ring-1 family) */
+html[data-ui-theme='mito'] .mito-ops-dashboard .rounded-3xl.ring-1 {
+  border: 1px solid var(--mito-ops-border);
+  border-radius: 1.25rem;
+  box-shadow: var(--mito-ops-shadow);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms var(--mito-ops-ease);
+}
+
+html[data-ui-theme='mito'] .mito-ops-dashboard .rounded-3xl.ring-1:hover {
+  border-color: var(--mito-ops-border-hover);
+  box-shadow: var(--mito-ops-shadow-hover);
+  transform: translate3d(0, -2px, 0);
+}
+
+html[data-ui-theme='mito'].dark .mito-ops-dashboard .rounded-3xl.ring-1 {
+  background: linear-gradient(165deg, rgb(15 23 42 / 92%) 0%, rgb(2 6 23 / 88%) 100%);
+  border-color: var(--mito-ops-border);
+}
+
+/* Card titles: small eyebrow icon alignment + tighter tracking */
+html[data-ui-theme='mito'] .mito-ops-dashboard .rounded-3xl.ring-1 h3 {
+  letter-spacing: -.01em;
+}
+
+html[data-ui-theme='mito'] .mito-ops-dashboard .rounded-3xl.ring-1 h3 svg {
+  padding: 5px;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--mito-blue-soft);
+  border: 1px solid var(--mito-blue-border);
+}
+
+html[data-ui-theme='mito'].dark .mito-ops-dashboard .rounded-3xl.ring-1 h3 svg {
+  background: rgb(37 99 235 / 16%);
+  border-color: rgb(96 165 250 / 30%);
+}
+
+/* Network section (.card) and system logs (section.rounded-2xl) */
+html[data-ui-theme='mito'] .mito-ops-dashboard > .card,
+html[data-ui-theme='mito'] .mito-ops-dashboard section.rounded-2xl {
+  border: 1px solid var(--mito-ops-border);
+  border-radius: 1.25rem;
+  box-shadow: var(--mito-ops-shadow);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-ops-dashboard > .card:hover,
+html[data-ui-theme='mito'] .mito-ops-dashboard section.rounded-2xl:hover {
+  border-color: var(--mito-ops-border-hover);
+  box-shadow: var(--mito-ops-shadow-hover);
+}
+
+html[data-ui-theme='mito'].dark .mito-ops-dashboard > .card,
+html[data-ui-theme='mito'].dark .mito-ops-dashboard section.rounded-2xl {
+  background: linear-gradient(165deg, rgb(15 23 42 / 92%) 0%, rgb(2 6 23 / 88%) 100%);
+}
+
+/* Alert events card shares the rounded-3xl family but is not h-full; covered above.
+   Tables inside ops cards: quieter header, roomier rows, tabular numbers. */
+html[data-ui-theme='mito'] .mito-ops-dashboard table thead {
+  background: var(--mito-ops-sub-surface);
+}
+
+html[data-ui-theme='mito'] .mito-ops-dashboard table thead th {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--mito-muted);
+}
+
+html[data-ui-theme='mito'] .mito-ops-dashboard table tbody td {
+  font-variant-numeric: tabular-nums;
+}
+
+html[data-ui-theme='mito'] .mito-ops-dashboard table tbody tr {
+  transition: background-color 120ms ease;
+}
+
+html[data-ui-theme='mito'] .mito-ops-dashboard table tbody tr:hover {
+  background: var(--mito-blue-soft);
+}
+
+html[data-ui-theme='mito'].dark .mito-ops-dashboard table tbody tr:hover {
+  background: rgb(37 99 235 / 10%);
+}
+
+/* Severity / status pills: consistent pill shape with hairline border */
+html[data-ui-theme='mito'] .mito-ops-dashboard span.rounded-full.text-\[10px\] {
+  border: 1px solid rgb(15 23 42 / 8%);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 6%);
+}
+
+html[data-ui-theme='mito'].dark .mito-ops-dashboard span.rounded-full.text-\[10px\] {
+  border-color: rgb(255 255 255 / 10%);
+  box-shadow: none;
+}
+
+/* System-log health chips (queue / written / dropped / failed) */
+html[data-ui-theme='mito'] .mito-ops-dashboard section.rounded-2xl span.rounded-md {
+  border-radius: 999px;
+  padding: 2px 10px;
+  border: 1px solid var(--mito-ops-border);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Section headings inside plain cards keep the eyebrow rhythm */
+html[data-ui-theme='mito'] .mito-ops-dashboard > .card > h3,
+html[data-ui-theme='mito'] .mito-ops-dashboard section.rounded-2xl h3 {
+  letter-spacing: -.01em;
+}
+
+/* Staggered entrance for the body rows (single pass, GPU-friendly) */
+html[data-ui-theme='mito'] .mito-ops-dashboard > .grid > * {
+  animation: mito-ops-card-in 300ms var(--mito-ops-ease) backwards;
+}
+
+html[data-ui-theme='mito'] .mito-ops-dashboard > .grid > *:nth-child(1) { animation-delay: 40ms; }
+html[data-ui-theme='mito'] .mito-ops-dashboard > .grid > *:nth-child(2) { animation-delay: 90ms; }
+html[data-ui-theme='mito'] .mito-ops-dashboard > .grid > *:nth-child(3) { animation-delay: 140ms; }
+html[data-ui-theme='mito'] .mito-ops-dashboard > .grid > *:nth-child(4) { animation-delay: 190ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui-theme='mito'] .mito-ops-dashboard,
+  html[data-ui-theme='mito'] .mito-ops-dashboard > .grid > *,
+  html[data-ui-theme='mito'] .mito-ops-dashboard .rounded-3xl.ring-1,
+  html[data-ui-theme='mito'] .mito-ops-dashboard table tbody tr {
+    animation: none;
+    transition: none;
+  }
+
+  html[data-ui-theme='mito'] .mito-ops-dashboard .rounded-3xl.ring-1:hover {
+    transform: none;
+  }
+}
